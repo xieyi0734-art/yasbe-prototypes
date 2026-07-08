@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>模块化认证流程图 - KYC</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #ffffff;
+    color: #1f2937;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+  }
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #111827;
+  }
+  .subtitle {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 40px;
+    text-align: center;
+  }
+  .subtitle em { color: #e59303; font-style: normal; font-weight: 600; }
+
+  .flowchart {
+    max-width: 1200px;
+    width: 100%;
+  }
+
+  /* ========== NODES ========== */
+  .node {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    min-width: 90px;
+    border: 1.5px solid;
+    line-height: 1.35;
+    z-index: 2;
+    position: relative;
+    background: #ffffff;
+  }
+  .node .small { font-size: 11px; font-weight: 400; color: #6b7280; margin-top: 1px; }
+
+  .node.start { background: #eff6ff; border-color: #3b82f6; color: #1d4ed8; border-radius: 50px; padding: 10px 28px; }
+  .node.process { border-color: #d1d5db; color: #374151; }
+  .node.decision {
+    background: #fefce8; border-color: #eab308; color: #a16207;
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    padding: 26px 16px; min-width: 100px;
+  }
+  .node.decision span { display: block; max-width: 80px; font-size: 12px; }
+  .node.end-free { background: #f0fdf4; border-color: #22c55e; color: #15803d; border-radius: 50px; padding: 10px 24px; }
+  .node.form { background: #fffbeb; border-color: #eab308; color: #a16207; padding: 12px 16px; min-width: 120px; }
+  .node.review { background: #f5f3ff; border-color: #a855f7; color: #7e22ce; padding: 12px 16px; min-width: 110px; }
+  .node.pass { background: #f0fdf4; border-color: #22c55e; color: #15803d; border-radius: 50px; padding: 10px 22px; }
+  .node.reject { background: #fef2f2; border-color: #ef4444; color: #b91c1c; border-radius: 50px; padding: 10px 22px; }
+
+  .node.mod-card { background: #fffbeb; border-left: 3px solid #e59303; }
+  .node.mod-bank { background: #f5f3ff; border-left: 3px solid #a855f7; }
+  .node.mod-crypto { background: #f0fdf4; border-left: 3px solid #22c55e; }
+
+  /* ========== SVG ARROW ========== */
+  .arrow-svg {
+    display: block;
+    margin: 0 auto;
+  }
+
+  .branch-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 2px;
+    text-align: center;
+  }
+
+  .tag {
+    display: inline-block;
+    background: #f3f4f6;
+    padding: 0 7px;
+    border-radius: 4px;
+    font-size: 10px;
+    color: #eab308;
+    font-weight: 600;
+  }
+
+  .sep-line {
+    border: none;
+    border-top: 1px solid #e5e7eb;
+    margin: 24px 0;
+  }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #6b7280;
+    margin: 6px 0 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .status-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 12px;
+    color: #6b7280;
+    background: #f9fafb;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+  }
+  .status-bar .s-arrow { color: #3b82f6; font-weight: 700; }
+
+  .legend {
+    margin-top: 40px;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 18px 28px;
+    background: #f9fafb;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #6b7280;
+  }
+  .legend-color {
+    width: 14px; height: 14px;
+    border-radius: 4px;
+    border: 1.5px solid;
+  }
+
+  .flow-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+</style>
+</head>
+<body>
+
+<h1>模块化认证流程图</h1>
+<div class="subtitle">
+  注册后即用 Crypto · Card 需 <em>KYC</em> · 银行需 <em>KYC</em>
+</div>
+
+<div class="flowchart">
+
+<!-- ============================================ -->
+<!-- 主流程：注册 → 选择 → 三分支                -->
+<!-- ============================================ -->
+
+<!-- 用户注册 -->
+<div class="flow-row">
+  <div class="node start">用户注册</div>
+  <svg class="arrow-svg" width="40" height="28" viewBox="0 0 40 28">
+    <line x1="20" y1="0" x2="20" y2="22" stroke="#3b82f6" stroke-width="2"/>
+    <polygon points="14,18 20,28 26,18" fill="#3b82f6"/>
+  </svg>
+  <div class="node process" style="min-width:130px;">注册成功<br><span class="small">账号激活</span></div>
+</div>
+
+<!-- 连接线：注册成功 → 选择模块 -->
+<svg class="arrow-svg" width="40" height="30" viewBox="0 0 40 30">
+  <line x1="20" y1="0" x2="20" y2="24" stroke="#3b82f6" stroke-width="2"/>
+  <polygon points="14,20 20,30 26,20" fill="#3b82f6"/>
+</svg>
+
+<!-- 选择模块 -->
+<div class="flow-row">
+  <div class="node decision"><span>选择模块</span></div>
+</div>
+
+<!-- 连接线：选择模块 → 三列分支 -->
+<svg class="arrow-svg" width="400" height="32" viewBox="0 0 400 32">
+  <!-- 三条竖线 -->
+  <line x1="66" y1="0" x2="66" y2="24" stroke="#3b82f6" stroke-width="2"/>
+  <line x1="200" y1="0" x2="200" y2="24" stroke="#3b82f6" stroke-width="2"/>
+  <line x1="334" y1="0" x2="334" y2="24" stroke="#3b82f6" stroke-width="2"/>
+  <!-- 选择模块底部连线（水平线从三列顶部汇聚） -->
+  <line x1="66" y1="4" x2="334" y2="4" stroke="#3b82f6" stroke-width="2" opacity="0"/>
+  <polygon points="60,20 66,30 72,20" fill="#3b82f6"/>
+  <polygon points="194,20 200,30 206,20" fill="#3b82f6"/>
+  <polygon points="328,20 334,30 340,20" fill="#3b82f6"/>
+</svg>
+
+<!-- 三列分支标签 -->
+<div style="display:flex; justify-content:space-between; width:100%; max-width:800px; margin: 0 auto 4px auto;">
+  <div class="branch-label" style="width:33%; text-align:center; color:#22c55e;">🔓 免认证</div>
+  <div class="branch-label" style="width:33%; text-align:center; color:#e59303;">🔒 需 KYC</div>
+  <div class="branch-label" style="width:33%; text-align:center; color:#a855f7;">🔒 需 KYC</div>
+</div>
+
+<!-- 三列分支内容 -->
+<div style="display:flex; justify-content:space-between; width:100%; max-width:800px; margin: 0 auto;">
+  <!-- 第一列：Crypto -->
+  <div style="width:33%; display:flex; flex-direction:column; align-items:center;">
+    <div class="node process mod-crypto" style="min-width:110px;">Crypto 模块<br><span class="small">转入·币兑</span></div>
+    <svg class="arrow-svg" width="40" height="28" viewBox="0 0 40 28">
+      <line x1="20" y1="0" x2="20" y2="22" stroke="#22c55e" stroke-width="2"/>
+      <polygon points="14,18 20,28 26,18" fill="#22c55e"/>
+    </svg>
+    <div class="node end-free">直接使用 ✓</div>
+  </div>
+
+  <!-- 第二列：Card -->
+  <div style="width:33%; display:flex; flex-direction:column; align-items:center;">
+    <div class="node process mod-card" style="min-width:110px;">Card 模块<br><span class="small">卡业务</span></div>
+    <svg class="arrow-svg" width="40" height="28" viewBox="0 0 40 28">
+      <line x1="20" y1="0" x2="20" y2="22" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="14,18 20,28 26,18" fill="#3b82f6"/>
+    </svg>
+    <div class="node decision" style="padding:22px 14px;"><span style="font-size:11px;">KYC<br>已通过？</span></div>
+
+    <!-- 是 → 通过 -->
+    <div style="display:flex; align-items:center; gap:4px; margin:4px 0;">
+      <span style="font-size:11px; color:#22c55e; font-weight:600;">是</span>
+      <svg width="60" height="20" viewBox="0 0 60 20">
+        <line x1="0" y1="10" x2="50" y2="10" stroke="#22c55e" stroke-width="1.5"/>
+        <polygon points="46,6 56,10 46,14" fill="#22c55e"/>
+      </svg>
+      <div class="node pass" style="padding:6px 14px; font-size:12px; min-width:auto;">已解锁</div>
+    </div>
+
+    <!-- 否 → KYC表单 -->
+    <div style="display:flex; align-items:center; gap:4px; margin:4px 0;">
+      <span style="font-size:11px; color:#ef4444; font-weight:600;">否</span>
+      <svg width="30" height="20" viewBox="0 0 30 20">
+        <line x1="0" y1="10" x2="22" y2="10" stroke="#ef4444" stroke-width="1.5"/>
+        <polygon points="18,6 28,10 18,14" fill="#ef4444"/>
+      </svg>
+    </div>
+
+    <div class="node form" style="min-width:130px;">
+      KYC 表单<br>
+      <span class="small">必填：基础+地址</span><br>
+      <span class="small">可选：Card 附件</span>
+    </div>
+    <svg class="arrow-svg" width="40" height="28" viewBox="0 0 40 28">
+      <line x1="20" y1="0" x2="20" y2="22" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="14,18 20,28 26,18" fill="#3b82f6"/>
+    </svg>
+    <div class="node review">KYC 审核<br><span class="small">Card 实例</span></div>
+    <svg class="arrow-svg" width="40" height="28" viewBox="0 0 40 28">
+      <line x1="20" y1="0" x2="20" y2="22" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="14,18 20,28 26,18" fill="#3b82f6"/>
+    </svg>
+
+    <!-- 通过/驳回 -->
+    <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+      <div style="display:flex; align-items:center; gap:4px;">
+        <span style="font-size:11px; color:#22c55e; font-weight:600;">通过</span>
+        <svg width="30" height="16" viewBox="0 0 30 16">
+          <line x1="0" y1="8" x2="22" y2="8" stroke="#22c55e" stroke-width="1.5"/>
+          <polygon points="18,4 28,8 18,12" fill="#22c55e"/>
+        </svg>
+        <div class="node pass" style="padding:6px 14px; font-size:12px; min-width:auto;">Card 解锁 ✓</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:4px;">
+        <span style="font-size:11px; color:#ef4444; font-weight:600;">驳回</span>
+        <svg width="30" height="16" viewBox="0 0 30 16">
+          <line x1="0" y1="8" x2="22" y2="8" stroke="#ef4444" stroke-width="1.5"/>
+          <polygon points="18,4 28,8 18,12" fill="#ef4444"/>
+        </svg>
+        <div class="node reject" style="padding:6px 14px; font-size:12px; min-width:auto;">驳回 / 重新提交</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 第三列：银行 -->
+  <div style="width:33%; display:flex; flex-direction:column; align-items:center;">
+    <div class="node process mod-bank" style="min-width:110px;">银行账户模块<br><span class="small">账户绑定</span></div>
+    <svg class="arrow-svg" width="40" height="28" viewBox="0 0 40 28">
+      <line x1="20" y1="0" x2="20" y2="22" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="14,18 20,28 26,18" fill="#3b82f6"/>
+    </svg>
+    <div class="node decision" style="padding:22px 14px;"><span style="font-size:11px;">KYC<br>已通过？</span></div>
+
+    <!-- 是 → 通过 -->
+    <div style="display:flex; align-items:center; gap:4px; margin:4px 0;">
+      <span style="font-size:11px; color:#22c55e; font-weight:600;">是</span>
+      <svg width="60" height="20" viewBox="0 0 60 20">
+        <line x1="0" y1="10" x2="50" y2="10" stroke="#22c55e" stroke-width="1.5"/>
+        <polygon points="46,6 56,10 46,14" fill="#22c55e"/>
+      </svg>
+      <div class="node pass" style="padding:6px 14px; font-size:12px; min-width:auto;">已解锁</div>
+    </div>
+
+    <!-- 否 → KYC表单 -->
+    <div style="display:flex; align-items:center; gap:4px; margin:4px 0;">
+      <span style="font-size:11px; color:#ef4444; font-weight:600;">否</span>
+      <svg width="30" height="20" viewBox="0 0 30 20">
+        <line x1="0" y1="10" x2="22" y2="10" stroke="#ef4444" stroke-width="1.5"/>
+        <polygon points="18,6 28,10 18,14" fill="#ef4444"/>
+      </svg>
+    </div>
+
+    <div class="node form" style="min-width:130px;">
+      KYC 表单<br>
+      <span class="small">必填：基础+地址</span><br>
+      <span class="small">可选：银行附件</span>
+    </div>
+    <svg class="arrow-svg" width="40" height="28" viewBox="0 0 40 28">
+      <line x1="20" y1="0" x2="20" y2="22" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="14,18 20,28 26,18" fill="#3b82f6"/>
+    </svg>
+    <div class="node review">KYC 审核<br><span class="small">银行实例</span></div>
+    <svg class="arrow-svg" width="40" height="28" viewBox="0 0 40 28">
+      <line x1="20" y1="0" x2="20" y2="22" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="14,18 20,28 26,18" fill="#3b82f6"/>
+    </svg>
+
+    <!-- 通过/驳回 -->
+    <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+      <div style="display:flex; align-items:center; gap:4px;">
+        <span style="font-size:11px; color:#22c55e; font-weight:600;">通过</span>
+        <svg width="30" height="16" viewBox="0 0 30 16">
+          <line x1="0" y1="8" x2="22" y2="8" stroke="#22c55e" stroke-width="1.5"/>
+          <polygon points="18,4 28,8 18,12" fill="#22c55e"/>
+        </svg>
+        <div class="node pass" style="padding:6px 14px; font-size:12px; min-width:auto;">银行解锁 ✓</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:4px;">
+        <span style="font-size:11px; color:#ef4444; font-weight:600;">驳回</span>
+        <svg width="30" height="16" viewBox="0 0 30 16">
+          <line x1="0" y1="8" x2="22" y2="8" stroke="#ef4444" stroke-width="1.5"/>
+          <polygon points="18,4 28,8 18,12" fill="#ef4444"/>
+        </svg>
+        <div class="node reject" style="padding:6px 14px; font-size:12px; min-width:auto;">驳回 / 重新提交</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="sep-line">
+
+<!-- ============================================ -->
+<!-- 主动路径                                    -->
+<!-- ============================================ -->
+<div class="section-title">
+  <span>⚡ 主动路径</span>
+  <span style="font-size:11px; color:#9ca3af; font-weight:400;">用户主动进入 KYC 表单，不经过模块跳转</span>
+</div>
+
+<div style="display:flex; align-items:center; flex-wrap:wrap; gap:6px; justify-content:center;">
+  <div class="node process" style="min-width:100px;">KYC 入口<br><span class="small">设置页</span></div>
+  <svg width="30" height="20" viewBox="0 0 30 20">
+    <line x1="0" y1="10" x2="22" y2="10" stroke="#3b82f6" stroke-width="1.5"/>
+    <polygon points="18,6 28,10 18,14" fill="#3b82f6"/>
+  </svg>
+  <div class="node form" style="min-width:110px;">
+    KYC 表单<br>
+    <span class="small">必填：基础信息+地址</span><br>
+    <span class="small" style="color:#9ca3af;">（不选模块时无需附件）</span>
+  </div>
+  <svg width="30" height="20" viewBox="0 0 30 20">
+    <line x1="0" y1="10" x2="22" y2="10" stroke="#3b82f6" stroke-width="1.5"/>
+    <polygon points="18,6 28,10 18,14" fill="#3b82f6"/>
+  </svg>
+  <div class="node process" style="min-width:95px;">提交基础信息<br><span class="small">状态=基础已认证</span></div>
+  <svg width="30" height="20" viewBox="0 0 30 20">
+    <line x1="0" y1="10" x2="22" y2="10" stroke="#3b82f6" stroke-width="1.5"/>
+    <polygon points="18,6 28,10 18,14" fill="#3b82f6"/>
+  </svg>
+  <div class="node review" style="min-width:95px;">补充模块<br><span class="small">回填可选字段</span></div>
+</div>
+
+<hr class="sep-line">
+
+<!-- ============================================ -->
+<!-- 审核结果                                    -->
+<!-- ============================================ -->
+<div class="section-title"><span>📋 审核结果示意</span></div>
+<div style="display:flex; justify-content:center; gap:12px; align-items:center; flex-wrap:wrap;">
+  <div class="node pass">Card KYC 通过<br><span class="small">Card 解锁</span></div>
+  <div style="font-size:13px; font-weight:600; color:#9ca3af;">← 独立 →</div>
+  <div class="node reject">银行 KYC 驳回<br><span class="small">重新提交</span></div>
+  <div style="font-size:13px; font-weight:600; color:#9ca3af;">← 独立 →</div>
+  <div class="node process" style="border-color:#d1d5db; color:#6b7280;">Crypto 不受影响<br><span class="small">始终可用</span></div>
+</div>
+<div style="text-align:center; margin-top:10px; font-size:12px; color:#9ca3af;">
+  Card KYC 和银行 KYC 为<strong style="color:#374151;">独立审核实例</strong>，一个通过不影响另一个
+</div>
+
+<hr class="sep-line">
+
+<!-- ============================================ -->
+<!-- 状态流转                                    -->
+<!-- ============================================ -->
+<div class="section-title"><span>🏷️ 状态流转</span></div>
+<div class="status-bar">
+  <span style="color:#6b7280;">none</span>
+  <span class="s-arrow">→</span>
+  <span style="color:#eab308; font-weight:600;">pending_basic</span>
+  <span class="s-arrow">→</span>
+  <span style="color:#22c55e; font-weight:600;">basic_verified</span>
+  <span class="s-arrow">→</span>
+  <span style="color:#eab308; font-weight:600;">pending_card / pending_bank</span>
+  <span class="s-arrow">→</span>
+  <span style="color:#22c55e; font-weight:600;">card_approved / bank_approved</span>
+  <span class="s-arrow">→</span>
+  <span style="color:#22c55e; font-weight:600;">full_approved</span>
+  <span style="color:#9ca3af;">|</span>
+  <span style="color:#ef4444; font-weight:600;">suspended</span>
+</div>
+
+<!-- ===== 图例 ===== -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-color" style="border-color:#22c55e; background:#f0fdf4;"></div> Crypto 模块</div>
+  <div class="legend-item"><div class="legend-color" style="border-color:#e59303; background:#fffbeb;"></div> KYC 模块（Card）</div>
+  <div class="legend-item"><div class="legend-color" style="border-color:#a855f7; background:#f5f3ff;"></div> KYC 模块（银行）</div>
+  <div class="legend-item"><div class="legend-color" style="border-color:#eab308; background:#fefce8;"></div> 决策 / 判断</div>
+  <div class="legend-item"><div class="legend-color" style="border-color:#3b82f6; background:#eff6ff;"></div> 起点</div>
+  <div class="legend-item"><div class="legend-color" style="border-color:#d1d5db; background:#ffffff;"></div> 处理 / 状态</div>
+</div>
+
+</div>
+
+</body>
+</html>

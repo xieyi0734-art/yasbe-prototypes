@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>分模块认证流程图 - Beeznis</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:#0f172a;color:#e2e8f0;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;display:flex;justify-content:center;padding:40px 20px;}
+  .container{max-width:1200px;width:100%;}
+  h1{font-size:24px;font-weight:600;color:#f1f5f9;margin-bottom:6px;}
+  .subtitle{color:#64748b;font-size:14px;margin-bottom:40px;}
+  svg{width:100%;height:auto;display:block;}
+  .legend{display:flex;gap:24px;flex-wrap:wrap;margin-top:24px;padding:16px 20px;background:#1e293b;border-radius:10px;border:1px solid #334155;}
+  .legend-item{display:flex;align-items:center;gap:8px;font-size:13px;color:#94a3b8;}
+  .legend-item .dot{width:12px;height:12px;border-radius:50%;border:2px solid;}
+  .legend-item .line{width:24px;height:3px;border-radius:2px;}
+  .legend-item .line.dashed{height:0;border-top:3px dashed;}
+  .footer{margin-top:32px;text-align:center;color:#475569;font-size:12px;}
+  @media(max-width:768px){body{padding:16px 10px;} h1{font-size:20px;}}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>分模块认证流程图</h1>
+  <div class="subtitle">用户注册后按需认证 · Card 需 KYB · 银行需 KYB · 加密模块免认证</div>
+
+  <svg viewBox="0 0 1160 1580" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <!-- 箭头定义 -->
+      <marker id="arrow-cyan" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#22d3ee"/>
+      </marker>
+      <marker id="arrow-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#34d399"/>
+      </marker>
+      <marker id="arrow-violet" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#a78bfa"/>
+      </marker>
+      <marker id="arrow-rose" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#fb7185"/>
+      </marker>
+      <marker id="arrow-slate" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#64748b"/>
+      </marker>
+      <marker id="arrow-yellow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#fbbf24"/>
+      </marker>
+
+      <!-- 阴影滤镜 -->
+      <filter id="shadow" x="-5%" y="-5%" width="115%" height="115%">
+        <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="0.3"/>
+      </filter>
+      <filter id="shadow-glow-cyan" x="-10%" y="-10%" width="120%" height="120%">
+        <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#22d3ee" flood-opacity="0.15"/>
+      </filter>
+
+      <!-- 渐变 -->
+      <linearGradient id="start-grad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#1e293b"/>
+        <stop offset="100%" stop-color="#0f172a"/>
+      </linearGradient>
+      <linearGradient id="card-kyb-grad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="rgba(8,51,68,0.5)"/>
+        <stop offset="100%" stop-color="rgba(8,51,68,0.2)"/>
+      </linearGradient>
+      <linearGradient id="bank-kyb-grad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="rgba(76,29,149,0.5)"/>
+        <stop offset="100%" stop-color="rgba(76,29,149,0.2)"/>
+      </linearGradient>
+      <linearGradient id="crypto-grad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="rgba(6,78,59,0.5)"/>
+        <stop offset="100%" stop-color="rgba(6,78,59,0.2)"/>
+      </linearGradient>
+    </defs>
+
+    <!-- 网格背景 -->
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+    </pattern>
+    <rect width="100%" height="100%" fill="#0f172a"/>
+    <rect width="100%" height="100%" fill="url(#grid)"/>
+
+    <!-- ========== 区域边界 ========== -->
+
+    <!-- 区域0：注册入口 -->
+    <!-- 区域1：KYB 路径 -->
+    <rect x="30" y="220" width="350" height="320" rx="12" fill="none" stroke="#22d3ee" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.3"/>
+    <text x="50" y="248" fill="#22d3ee" font-size="11" font-weight="600" opacity="0.6">KYB 认证路径</text>
+
+    <!-- 区域2：KYB 路径 -->
+    <rect x="780" y="220" width="350" height="320" rx="12" fill="none" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.3"/>
+    <text x="800" y="248" fill="#a78bfa" font-size="11" font-weight="600" opacity="0.6">KYB 认证路径</text>
+
+    <!-- 区域3：用户决策路径 -->
+    <rect x="30" y="600" width="1100" height="280" rx="12" fill="none" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4,4" opacity="0.15"/>
+    <text x="50" y="625" fill="#fbbf24" font-size="11" font-weight="600" opacity="0.35">用户主动触发路径</text>
+
+    <!-- ========== 1. 注册入口 ========== -->
+
+    <!-- 注册成功 -->
+    <rect x="430" y="40" width="300" height="56" rx="28" fill="url(#start-grad)" stroke="#38bdf8" stroke-width="2" filter="url(#shadow-glow-cyan)"/>
+    <text x="580" y="68" fill="#f1f5f9" font-size="16" font-weight="700" text-anchor="middle">✅ 用户注册成功</text>
+    <text x="580" y="84" fill="#64748b" font-size="10" text-anchor="middle">所有模块初始锁定 · 等待用户操作</text>
+
+    <!-- 下箭头 -->
+    <line x1="580" y1="96" x2="580" y2="156" stroke="#64748b" stroke-width="2" marker-end="url(#arrow-slate)" opacity="0.6"/>
+
+    <!-- 分支：3个模块 -->
+    <rect x="380" y="158" width="400" height="40" rx="20" fill="none" stroke="#334155" stroke-width="1" stroke-dasharray="4,3"/>
+    <text x="580" y="183" fill="#94a3b8" font-size="13" text-anchor="middle">用户选择功能模块 →</text>
+
+    <!-- 三条连线到三个入口 -->
+    <line x1="430" y1="198" x2="205" y2="280" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow-slate)" opacity="0.4"/>
+    <line x1="580" y1="198" x2="580" y2="280" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow-slate)" opacity="0.4"/>
+    <line x1="730" y1="198" x2="955" y2="280" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow-slate)" opacity="0.4"/>
+
+    <!-- ========== 2. 三条路径并排 ========== -->
+
+    <!-- 路径A：加密模块（免认证） -->
+    <rect x="100" y="280" width="210" height="80" rx="10" fill="url(#crypto-grad)" stroke="#34d399" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="205" y="310" fill="#34d399" font-size="14" font-weight="700" text-anchor="middle">🔐 加密模块</text>
+    <text x="205" y="328" fill="#6ee7b7" font-size="11" text-anchor="middle">免认证 · 注册即用</text>
+    <text x="205" y="346" fill="#94a3b8" font-size="10" text-anchor="middle">加密货币转入 / 币兑</text>
+
+    <line x1="205" y1="360" x2="205" y2="410" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+    <rect x="120" y="410" width="170" height="36" rx="18" fill="rgba(6,78,59,0.3)" stroke="#34d399" stroke-width="1" stroke-dasharray="3,2"/>
+    <text x="205" y="433" fill="#6ee7b7" font-size="11" text-anchor="middle">0 拦截 · 直接使用</text>
+
+    <!-- 路径B：点击 Card → KYB -->
+    <rect x="475" y="280" width="210" height="80" rx="10" fill="url(#card-kyb-grad)" stroke="#22d3ee" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="580" y="310" fill="#22d3ee" font-size="14" font-weight="700" text-anchor="middle">💳 Card 模块</text>
+    <text x="580" y="328" fill="#67e8f9" font-size="11" text-anchor="middle">需完成 KYB 认证</text>
+    <text x="580" y="346" fill="#94a3b8" font-size="10" text-anchor="middle">虚拟卡发行 / 充值消费</text>
+
+    <line x1="580" y1="360" x2="580" y2="410" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#arrow-cyan)"/>
+
+    <!-- KYB 状态判断（Card） -->
+    <polygon points="580,410 630,440 580,470 530,440" fill="rgba(8,51,68,0.5)" stroke="#22d3ee" stroke-width="1.5"/>
+    <text x="580" y="437" fill="#67e8f9" font-size="11" text-anchor="middle" font-weight="600">KYB</text>
+    <text x="580" y="451" fill="#67e8f9" font-size="11" text-anchor="middle" font-weight="600">已通过？</text>
+
+    <!-- 否 → 跳转 KYB 表单（Card） -->
+    <line x1="530" y1="440" x2="440" y2="440" stroke="#fb7185" stroke-width="1.5" marker-end="url(#arrow-rose)"/>
+    <text x="480" y="432" fill="#fb7185" font-size="11" text-anchor="end">否</text>
+
+    <rect x="300" y="418" width="130" height="44" rx="8" fill="rgba(136,19,55,0.3)" stroke="#fb7185" stroke-width="1"/>
+    <text x="365" y="437" fill="#fda4af" font-size="11" text-anchor="middle" font-weight="600">跳转至 KYB 表单</text>
+    <text x="365" y="452" fill="#fda4af" font-size="9" text-anchor="middle">填写企业基础信息+地址</text>
+
+    <!-- 是 → Card 可用 -->
+    <line x1="630" y1="440" x2="690" y2="440" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#arrow-cyan)"/>
+    <text x="655" y="432" fill="#22d3ee" font-size="11" text-anchor="start">是</text>
+
+    <rect x="690" y="418" width="130" height="44" rx="8" fill="rgba(8,51,68,0.3)" stroke="#22d3ee" stroke-width="1"/>
+    <text x="755" y="437" fill="#67e8f9" font-size="11" text-anchor="middle" font-weight="600">✅ Card 可用</text>
+    <text x="755" y="452" fill="#67e8f9" font-size="9" text-anchor="middle">完整功能开放</text>
+
+    <!-- 路径C：点击银行 → KYB -->
+    <rect x="850" y="280" width="210" height="80" rx="10" fill="url(#bank-kyb-grad)" stroke="#a78bfa" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="955" y="310" fill="#a78bfa" font-size="14" font-weight="700" text-anchor="middle">🏦 银行账户模块</text>
+    <text x="955" y="328" fill="#c4b5fd" font-size="11" text-anchor="middle">需完成 KYB 认证</text>
+    <text x="955" y="346" fill="#94a3b8" font-size="10" text-anchor="middle">银行账户绑定 / 转账提现</text>
+
+    <line x1="955" y1="360" x2="955" y2="410" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrow-violet)"/>
+
+    <!-- KYB 状态判断 -->
+    <polygon points="955,410 1005,440 955,470 905,440" fill="rgba(76,29,149,0.5)" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="955" y="437" fill="#c4b5fd" font-size="11" text-anchor="middle" font-weight="600">KYB</text>
+    <text x="955" y="451" fill="#c4b5fd" font-size="11" text-anchor="middle" font-weight="600">已通过？</text>
+
+    <!-- 否 → 跳转 KYB 表单 -->
+    <line x1="905" y1="440" x2="860" y2="440" stroke="#fb7185" stroke-width="1.5" marker-end="url(#arrow-rose)"/>
+    <text x="878" y="432" fill="#fb7185" font-size="11" text-anchor="end">否</text>
+
+    <rect x="720" y="418" width="130" height="44" rx="8" fill="rgba(136,19,55,0.3)" stroke="#fb7185" stroke-width="1"/>
+    <text x="785" y="437" fill="#fda4af" font-size="11" text-anchor="middle" font-weight="600">跳转至 KYB 表单</text>
+    <text x="785" y="452" fill="#fda4af" font-size="9" text-anchor="middle">填写企业信息+地址</text>
+
+    <!-- 是 → 银行可用 -->
+    <line x1="1005" y1="440" x2="1060" y2="440" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrow-violet)"/>
+    <text x="1030" y="432" fill="#a78bfa" font-size="11" text-anchor="start">是</text>
+
+    <rect x="1060" y="418" width="80" height="44" rx="8" fill="rgba(76,29,149,0.3)" stroke="#a78bfa" stroke-width="1"/>
+    <text x="1100" y="437" fill="#c4b5fd" font-size="11" text-anchor="middle" font-weight="600">✅ 可用</text>
+    <text x="1100" y="452" fill="#c4b5fd" font-size="9" text-anchor="middle">全部功能</text>
+
+    <!-- ========== 3. 用户主动触发路径 ========== -->
+
+    <!-- 从注册直接分支到主动 KYB 路径 -->
+    <line x1="580" y1="96" x2="580" y2="620" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrow-yellow)" opacity="0.35"/>
+    <line x1="580" y1="620" x2="330" y2="620" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrow-yellow)" opacity="0.35"/>
+    <line x1="580" y1="620" x2="830" y2="620" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrow-yellow)" opacity="0.35"/>
+
+    <!-- 主动 KYB 表单（Card 专属） -->
+    <rect x="130" y="640" width="400" height="80" rx="10" fill="rgba(8,51,68,0.3)" stroke="#22d3ee" stroke-width="1.5" stroke-dasharray="4,3" filter="url(#shadow)"/>
+    <text x="330" y="666" fill="#67e8f9" font-size="14" font-weight="600" text-anchor="middle">主动进入 KYB 表单</text>
+    <text x="330" y="686" fill="#94a3b8" font-size="11" text-anchor="middle">企业基础信息（必填）+ 地址信息（必填）</text>
+    <text x="330" y="704" fill="#64748b" font-size="10" text-anchor="middle">Card 附加信息（可选 · 跳过则后续补审）</text>
+
+    <!-- 主动 KYB 表单 -->
+    <rect x="630" y="640" width="400" height="80" rx="10" fill="rgba(76,29,149,0.3)" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="4,3" filter="url(#shadow)"/>
+    <text x="830" y="666" fill="#c4b5fd" font-size="14" font-weight="600" text-anchor="middle">主动进入 KYB 表单</text>
+    <text x="830" y="686" fill="#94a3b8" font-size="11" text-anchor="middle">企业基础信息（必填）+ 地址信息（必填）</text>
+    <text x="830" y="704" fill="#64748b" font-size="10" text-anchor="middle">银行账户附加信息（可选 · 跳过则后续补审）</text>
+
+    <!-- 提交审核 -->
+    <line x1="330" y1="720" x2="330" y2="770" stroke="#22d3ee" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow-cyan)"/>
+    <line x1="830" y1="720" x2="830" y2="770" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow-violet)"/>
+
+    <rect x="230" y="770" width="200" height="36" rx="8" fill="rgba(8,51,68,0.3)" stroke="#22d3ee" stroke-width="1" stroke-dasharray="3,2"/>
+    <text x="330" y="793" fill="#67e8f9" font-size="11" text-anchor="middle">提交审核 → 状态: pending（Card KYB）</text>
+
+    <rect x="730" y="770" width="200" height="36" rx="8" fill="rgba(76,29,149,0.3)" stroke="#a78bfa" stroke-width="1" stroke-dasharray="3,2"/>
+    <text x="830" y="793" fill="#c4b5fd" font-size="11" text-anchor="middle">提交审核 → 状态: pending</text>
+
+    <!-- ========== 4. 审核结果 ========== -->
+
+    <!-- 审核合并区域 -->
+    <line x1="330" y1="806" x2="330" y2="850" stroke="#64748b" stroke-width="1.5" opacity="0.3"/>
+    <line x1="830" y1="806" x2="830" y2="850" stroke="#64748b" stroke-width="1.5" opacity="0.3"/>
+    <line x1="330" y1="850" x2="830" y2="850" stroke="#64748b" stroke-width="1" opacity="0.3"/>
+    <line x1="580" y1="850" x2="580" y2="890" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow-slate)" opacity="0.4"/>
+
+    <!-- 审核结果卡片 -->
+    <rect x="350" y="890" width="460" height="200" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1" filter="url(#shadow)"/>
+
+    <!-- 通过 -->
+    <rect x="370" y="910" width="200" height="50" rx="8" fill="rgba(6,78,59,0.3)" stroke="#34d399" stroke-width="1"/>
+    <text x="470" y="933" fill="#6ee7b7" font-size="13" font-weight="600" text-anchor="middle">✅ 审核通过</text>
+    <text x="470" y="950" fill="#94a3b8" font-size="10" text-anchor="middle">状态 → approved</text>
+
+    <!-- 驳回 -->
+    <rect x="590" y="910" width="200" height="50" rx="8" fill="rgba(136,19,55,0.3)" stroke="#fb7185" stroke-width="1"/>
+    <text x="690" y="933" fill="#fda4af" font-size="13" font-weight="600" text-anchor="middle">❌ 审核驳回</text>
+    <text x="690" y="950" fill="#94a3b8" font-size="10" text-anchor="middle">可重新提交</text>
+
+    <line x1="470" y1="960" x2="470" y2="1000" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+    <line x1="690" y1="960" x2="690" y2="1000" stroke="#fb7185" stroke-width="1.5" marker-end="url(#arrow-rose)"/>
+
+    <!-- 通过后解锁对应模块 -->
+    <rect x="370" y="1000" width="200" height="40" rx="8" fill="rgba(6,78,59,0.2)" stroke="#34d399" stroke-width="1" stroke-dasharray="3,2"/>
+    <text x="470" y="1025" fill="#6ee7b7" font-size="11" text-anchor="middle">Card KYB 通过 → Card 解锁 ✅ / 银行 KYB 通过 → 银行解锁 ✅</text>
+
+    <rect x="590" y="1000" width="200" height="40" rx="8" fill="rgba(136,19,55,0.2)" stroke="#fb7185" stroke-width="1" stroke-dasharray="3,2"/>
+    <text x="690" y="1025" fill="#fda4af" font-size="11" text-anchor="middle">用户修改后重新提交 → 回到审核</text>
+
+    <!-- 补审逻辑 -->
+    <line x1="470" y1="1040" x2="470" y2="1080" stroke="#64748b" stroke-width="1" stroke-dasharray="4,3" opacity="0.4"/>
+    <rect x="370" y="1080" width="200" height="36" rx="8" fill="rgba(251,146,60,0.15)" stroke="#fb923c" stroke-width="1" stroke-dasharray="3,2"/>
+    <text x="470" y="1103" fill="#fdba74" font-size="10" text-anchor="middle">后续补填可选字段 → 再次审核</text>
+
+    <!-- ========== 5. 图例 ========== -->
+    <g transform="translate(0, 1150)">
+      <rect x="30" y="0" width="1100" height="80" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+      <text x="50" y="25" fill="#94a3b8" font-size="12" font-weight="600">图例</text>
+
+      <!-- 免认证 -->
+      <rect x="50" y="38" width="14" height="14" rx="3" fill="rgba(6,78,59,0.5)" stroke="#34d399" stroke-width="1"/>
+      <text x="72" y="52" fill="#94a3b8" font-size="11">免认证模块</text>
+
+      <!-- KYB 模块 -->
+      <rect x="190" y="38" width="14" height="14" rx="3" fill="rgba(8,51,68,0.5)" stroke="#22d3ee" stroke-width="1"/>
+      <text x="212" y="52" fill="#94a3b8" font-size="11">KYB 模块（Card）</text>
+
+      <!-- KYB 模块 -->
+      <rect x="330" y="38" width="14" height="14" rx="3" fill="rgba(76,29,149,0.5)" stroke="#a78bfa" stroke-width="1"/>
+      <text x="352" y="52" fill="#94a3b8" font-size="11">KYB 模块</text>
+
+      <!-- 实线 -->
+      <line x1="470" y1="45" x2="510" y2="45" stroke="#64748b" stroke-width="2"/>
+      <text x="520" y="52" fill="#94a3b8" font-size="11">用户操作流</text>
+
+      <!-- 虚线 -->
+      <line x1="640" y1="45" x2="680" y2="45" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <text x="690" y="52" fill="#94a3b8" font-size="11">用户主动触发</text>
+
+      <!-- 判断菱形 -->
+      <polygon points="820,38 834,48 820,58 806,48" fill="rgba(30,41,59,0.5)" stroke="#64748b" stroke-width="1"/>
+      <text x="845" y="52" fill="#94a3b8" font-size="11">状态判断</text>
+
+      <!-- 可选 -->
+      <rect x="930" y="38" width="14" height="14" rx="3" fill="none" stroke="#fb923c" stroke-width="1" stroke-dasharray="3,2"/>
+      <text x="952" y="52" fill="#94a3b8" font-size="11">可选字段 / 补审</text>
+    </g>
+
+  </svg>
+
+  <!-- 底部信息卡片 -->
+  <div class="legend">
+    <div class="legend-item">
+      <div class="dot" style="border-color:#34d399;background:rgba(6,78,59,0.5)"></div>
+      🔐 加密模块 — 免认证
+    </div>
+    <div class="legend-item">
+      <div class="dot" style="border-color:#22d3ee;background:rgba(8,51,68,0.5)"></div>
+      💳 Card 模块 — 需 KYB
+    </div>
+    <div class="legend-item">
+      <div class="dot" style="border-color:#a78bfa;background:rgba(76,29,149,0.5)"></div>
+      🏦 银行模块 — 需 KYB
+    </div>
+    <div class="legend-item">
+      <div class="line" style="background:#64748b"></div>
+      用户操作流
+    </div>
+    <div class="legend-item">
+      <div class="line dashed" style="border-color:#fbbf24"></div>
+      用户主动触发
+    </div>
+    <div class="legend-item">
+      <div class="line dashed" style="border-color:#fb7185"></div>
+      拦截/驳回
+    </div>
+  </div>
+
+  <div class="footer">Beeznis · 分模块认证流程 · v1.0</div>
+</div>
+</body>
+</html>

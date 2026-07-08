@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - KYC Review Detail</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; }
+
+    body {
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 240px;
+      background: #1a1a2e;
+      color: white;
+      padding: 20px 0;
+      min-height: 100vh;
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo {
+      padding: 0 20px 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 16px;
+      font-size: 18px;
+      font-weight: 700;
+      color: #e59303;
+    }
+
+    .sidebar-item {
+      padding: 12px 20px;
+      color: rgba(255,255,255,0.6);
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sidebar-item:hover { background: rgba(255,255,255,0.05); color: white; }
+    .sidebar-item.active { background: rgba(255,255,255,0.1); color: white; border-right: 3px solid #e59303; }
+
+    /* Main Content */
+    .main {
+      flex: 1;
+      padding: 24px 32px;
+      max-width: calc(100% - 240px);
+    }
+
+    /* Top Bar */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .breadcrumb {
+      font-size: 13px;
+      color: #999;
+    }
+
+    .breadcrumb span { color: #333; font-weight: 500; }
+
+    .top-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .top-actions .btn-icon {
+      width: 36px; height: 36px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Page Header */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .page-header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .page-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1a1a2e;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .page-title .user-id {
+      font-size: 14px;
+      font-weight: 400;
+      color: #999;
+    }
+
+    .status-tags {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .tag.suspended {
+      background: #fbe9e7;
+      color: #bf360c;
+    }
+
+    .tag.pending {
+      background: #fff8e1;
+      color: #e65100;
+    }
+
+    .tag.review {
+      background: #e3f2fd;
+      color: #1565c0;
+    }
+
+    .tag.approved {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .page-header-right {
+      display: flex;
+      gap: 12px;
+    }
+
+    /* Review Mode Tabs */
+    .review-tabs {
+      display: flex;
+      gap: 4px;
+      background: #e8eaed;
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 24px;
+    }
+
+    .review-tab {
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: #666;
+      transition: all 0.2s;
+    }
+
+    .review-tab.active {
+      background: white;
+      color: #1a1a2e;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .review-tab:hover:not(.active) { color: #333; }
+
+    .review-tab .tab-badge {
+      display: inline-block;
+      background: #e65100;
+      color: white;
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 8px;
+      margin-left: 6px;
+    }
+
+    /* Session Info Card */
+    .info-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px 24px;
+      border: 1px solid #e8eaed;
+      margin-bottom: 20px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .info-item .label {
+      font-size: 12px;
+      color: #999;
+    }
+
+    .info-item .value {
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    /* Section Card */
+    .section-card {
+      background: white;
+      border-radius: 12px;
+      border: 1px solid #e8eaed;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .section-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .section-header h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1a1a2e;
+    }
+
+    .section-body { padding: 20px 24px; }
+
+    /* Full Review - All Fields */
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 16px;
+    }
+
+    .field-row.full { grid-template-columns: 1fr; }
+
+    .field-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .field-item .field-label {
+      font-size: 12px;
+      color: #999;
+      font-weight: 500;
+    }
+
+    .field-item .field-value {
+      font-size: 14px;
+      color: #333;
+      padding: 8px 12px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      border: 1px solid #e8eaed;
+    }
+
+    /* Diff View - Side by Side */
+    .diff-section { margin-bottom: 20px; }
+
+    .diff-section:last-child { margin-bottom: 0; }
+
+    .diff-section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #e65100;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .diff-section-title .diff-badge {
+      background: #e65100;
+      color: white;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    .diff-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #e8eaed;
+    }
+
+    .diff-table th {
+      background: #f8f9fa;
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #666;
+      text-align: left;
+      border-bottom: 1px solid #e8eaed;
+    }
+
+    .diff-table th:first-child { width: 25%; }
+    .diff-table th:nth-child(2) { width: 35%; }
+    .diff-table th:nth-child(3) { width: 35%; }
+
+    .diff-table td {
+      padding: 12px 16px;
+      font-size: 14px;
+      color: #333;
+      border-bottom: 1px solid #f0f0f0;
+      vertical-align: top;
+    }
+
+    .diff-table tr:last-child td { border-bottom: none; }
+
+    .diff-table .old-value {
+      color: #999;
+      text-decoration: line-through;
+    }
+
+    .diff-table .new-value {
+      color: #d32f2f;
+      font-weight: 500;
+    }
+
+    .diff-table .doc-old {
+      color: #999;
+    }
+
+    .diff-table .doc-new {
+      color: #1565c0;
+      font-weight: 500;
+    }
+
+    .diff-summary-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      background: #fff8e1;
+      border: 1px solid #ffe082;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    .diff-summary-bar .count {
+      font-size: 14px;
+      font-weight: 700;
+      color: #e65100;
+    }
+
+    .diff-summary-bar .text {
+      font-size: 13px;
+      color: #5d4037;
+    }
+
+    /* Documents in Diff */
+    .doc-preview {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: #f5f5f5;
+      border-radius: 6px;
+    }
+
+    .doc-preview .doc-icon { font-size: 20px; }
+    .doc-preview .doc-name { font-size: 13px; color: #333; }
+    .doc-preview .doc-size { font-size: 11px; color: #999; }
+
+    /* Unchanged sections collapsed */
+    .unchanged-section {
+      margin-bottom: 12px;
+    }
+
+    .unchanged-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #999;
+      border: 1px solid #e8eaed;
+    }
+
+    .unchanged-header:hover { background: #f0f0f0; }
+
+    .unchanged-header .arrow {
+      transition: transform 0.2s;
+      font-size: 10px;
+    }
+
+    .unchanged-header .arrow.open { transform: rotate(90deg); }
+
+    /* Bottom Action */
+    .action-bar {
+      background: white;
+      border-radius: 12px;
+      padding: 20px 24px;
+      border: 1px solid #e8eaed;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .action-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .action-info .label {
+      font-size: 12px;
+      color: #999;
+    }
+
+    .action-info .value {
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .btn-group { display: flex; gap: 12px; }
+
+    .btn {
+      padding: 12px 28px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .btn-reject {
+      background: #fbe9e7;
+      color: #c62828;
+      border: 1px solid #ef9a9a;
+    }
+
+    .btn-reject:hover { background: #ffccbc; }
+
+    .btn-approve {
+      background: #1976d2;
+      color: white;
+    }
+
+    .btn-approve:hover { background: #1565c0; }
+
+    .btn-approve-changes {
+      background: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #a5d6a7;
+    }
+
+    .btn-approve-changes:hover { background: #c8e6c9; }
+
+    .btn-reject-changes {
+      background: #fbe9e7;
+      color: #c62828;
+      border: 1px solid #ef9a9a;
+    }
+
+    .btn-reject-changes:hover { background: #ffccbc; }
+
+    /* History Timeline */
+    .timeline { }
+
+    .timeline-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .timeline-item:last-child { border-bottom: none; }
+
+    .timeline-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #1976d2;
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+
+    .timeline-dot.green { background: #2e7d32; }
+    .timeline-dot.orange { background: #e65100; }
+    .timeline-dot.gray { background: #bbb; }
+
+    .timeline-content { flex: 1; }
+
+    .timeline-content .tl-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .timeline-content .tl-desc {
+      font-size: 12px;
+      color: #999;
+      margin-top: 2px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">Beeznis Admin</div>
+    <div class="sidebar-item">📊 Dashboard</div>
+    <div class="sidebar-item">👥 Customers</div>
+    <div class="sidebar-item active">✅ Verification</div>
+    <div class="sidebar-item">💳 Cards</div>
+    <div class="sidebar-item">💰 Transactions</div>
+    <div class="sidebar-item">⚙️ Settings</div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div class="breadcrumb">
+        Verification / KYC / <span>#USR-20240315-0042</span>
+      </div>
+      <div class="top-actions">
+        <button class="btn-icon">🔍</button>
+        <button class="btn-icon">⋮</button>
+      </div>
+    </div>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <div class="page-title">
+          John Michael Doe
+          <span class="user-id">#USR-20240315-0042</span>
+        </div>
+        <div class="status-tags">
+          <span class="tag suspended" id="statusTagA">🔴 Suspended</span>
+          <span class="tag review">Level 1 Review</span>
+          <span style="font-size:12px;color:#999;">Submitted: Jun 10, 2026 14:32</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Review Mode Tabs -->
+    <div class="review-tabs">
+      <button class="review-tab active" onclick="switchMode('full')" id="tabFull">
+        📋 Full Review (Re-submit)
+      </button>
+      <button class="review-tab" onclick="switchMode('diff')" id="tabDiff">
+        🔄 Changes Review (Diff)
+        <span class="tab-badge">2 changes</span>
+      </button>
+    </div>
+
+    <!-- Session Info Card -->
+    <div class="info-card">
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="label">Suspend Reason</span>
+          <span class="value" style="color:#bf360c;">Expired ID Document</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Suspended By</span>
+          <span class="value">admin@beeznis.com</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Suspended At</span>
+          <span class="value">Jun 08, 2026 09:15</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Review Round</span>
+          <span class="value">Round 2</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== FULL REVIEW MODE ==================== -->
+    <div id="fullReview">
+      <!-- Personal Info -->
+      <div class="section-card">
+        <div class="section-header">
+          <h3>Personal Information</h3>
+        </div>
+        <div class="section-body">
+          <div class="field-row full">
+            <div class="field-item">
+              <span class="field-label">Full Name</span>
+              <span class="field-value">John Michael Doe</span>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-item">
+              <span class="field-label">Date of Birth</span>
+              <span class="field-value">1990-03-15</span>
+            </div>
+            <div class="field-item">
+              <span class="field-label">Gender</span>
+              <span class="field-value">Male</span>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-item">
+              <span class="field-label">Nationality</span>
+              <span class="field-value">United States</span>
+            </div>
+            <div class="field-item">
+              <span class="field-label">Country of Birth</span>
+              <span class="field-value">United States</span>
+            </div>
+          </div>
+          <div class="field-row full">
+            <div class="field-item">
+              <span class="field-label">Passport / ID Number</span>
+              <span class="field-value" style="background:#fff3e0;border-color:#ffe082;">
+                AB1234567
+                <span style="font-size:11px;color:#e65100;margin-left:8px;">New submission differs from previous record</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Documents -->
+      <div class="section-card">
+        <div class="section-header">
+          <h3>Identity Documents</h3>
+        </div>
+        <div class="section-body">
+          <div style="margin-bottom:12px;">
+            <div style="font-size:12px;color:#999;margin-bottom:8px;">Previous Document</div>
+            <div class="doc-preview" style="background:#f5f5f5;">
+              <span class="doc-icon">🪪</span>
+              <span class="doc-name">passport_USA_expired.pdf</span>
+              <span class="doc-size">· 2.3 MB</span>
+              <span style="margin-left:auto;font-size:11px;color:#c62828;">Expired</span>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:12px;color:#e65100;margin-bottom:8px;font-weight:500;">📎 New Submission</div>
+            <div class="doc-preview" style="background:#fff3e0;border:1px solid #ffe082;">
+              <span class="doc-icon">🪪</span>
+              <span class="doc-name">passport_USA_renewed.pdf</span>
+              <span class="doc-size">· 3.1 MB</span>
+              <span style="margin-left:auto;">
+                <a href="#" style="color:#1976d2;font-size:13px;">Preview</a>
+                <a href="#" style="color:#1976d2;font-size:13px;margin-left:12px;">Download</a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Address -->
+      <div class="section-card">
+        <div class="section-header">
+          <h3>Address Information</h3>
+        </div>
+        <div class="section-body">
+          <div class="field-row full">
+            <div class="field-item">
+              <span class="field-label">Residential Address</span>
+              <span class="field-value">123 Main Street, Apt 4B, New York, NY 10001, USA</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Employment -->
+      <div class="section-card">
+        <div class="section-header">
+          <h3>Employment Information</h3>
+        </div>
+        <div class="section-body">
+          <div class="field-row">
+            <div class="field-item">
+              <span class="field-label">Employment Status</span>
+              <span class="field-value">Employed</span>
+            </div>
+            <div class="field-item">
+              <span class="field-label">Occupation</span>
+              <span class="field-value">Software Engineer</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== DIFF REVIEW MODE ==================== -->
+    <div id="diffReview" style="display:none;">
+      <!-- Diff Summary -->
+      <div class="diff-summary-bar">
+        <span class="count">2</span>
+        <span class="text">fields changed — only modified fields shown below</span>
+      </div>
+
+      <!-- Changed: ID Number -->
+      <div class="diff-section">
+        <div class="diff-section-title">
+          ✏️ Passport / ID Number
+          <span class="diff-badge">Changed</span>
+        </div>
+        <table class="diff-table">
+          <thead>
+            <tr><th>Field</th><th>Current (Verified)</th><th>Submitted (New)</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Passport / ID Number</td>
+              <td class="old-value">AB1234567</td>
+              <td class="new-value">CD9876543</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Changed: Document Upload -->
+      <div class="diff-section">
+        <div class="diff-section-title">
+          📎 Identity Document
+          <span class="diff-badge">Replaced</span>
+        </div>
+        <table class="diff-table">
+          <thead>
+            <tr><th>Item</th><th>Current (On File)</th><th>Submitted (New)</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Passport / ID Card</td>
+              <td class="doc-old">passport_USA_renewed_2024.pdf · 2.3 MB</td>
+              <td class="doc-new">passport_USA_current_2026.pdf · 3.1 MB</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Unchanged sections (collapsible) -->
+      <div class="unchanged-section">
+        <div class="unchanged-header" onclick="toggleCollapse(this)">
+          <span class="arrow">▶</span>
+          Personal Information — 5 fields unchanged
+          <span style="margin-left:auto;font-size:11px;color:#999;">Click to expand</span>
+        </div>
+        <div class="section-body" style="display:none;padding:16px 20px;background:#fafafa;">
+          <div class="field-row">
+            <div class="field-item">
+              <span class="field-label">Full Name</span>
+              <span class="field-value">John Michael Doe ✓</span>
+            </div>
+            <div class="field-item">
+              <span class="field-label">Date of Birth</span>
+              <span class="field-value">1990-03-15 ✓</span>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-item">
+              <span class="field-label">Gender</span>
+              <span class="field-value">Male ✓</span>
+            </div>
+            <div class="field-item">
+              <span class="field-label">Nationality</span>
+              <span class="field-value">United States ✓</span>
+            </div>
+          </div>
+          <div class="field-row full">
+            <div class="field-item">
+              <span class="field-label">Country of Birth</span>
+              <span class="field-value">United States ✓</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="unchanged-section">
+        <div class="unchanged-header" onclick="toggleCollapse(this)">
+          <span class="arrow">▶</span>
+          Address & Employment — 3 fields unchanged
+          <span style="margin-left:auto;font-size:11px;color:#999;">Click to expand</span>
+        </div>
+        <div class="section-body" style="display:none;padding:16px 20px;background:#fafafa;">
+          <div class="field-row full">
+            <div class="field-item">
+              <span class="field-label">Residential Address</span>
+              <span class="field-value">123 Main Street, Apt 4B, New York, NY 10001, USA ✓</span>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-item">
+              <span class="field-label">Employment Status</span>
+              <span class="field-value">Employed ✓</span>
+            </div>
+            <div class="field-item">
+              <span class="field-label">Occupation</span>
+              <span class="field-value">Software Engineer ✓</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Review History -->
+    <div class="section-card">
+      <div class="section-header">
+        <h3>Review History</h3>
+        <span style="font-size:12px;color:#999;">3 records</span>
+      </div>
+      <div class="section-body">
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-dot orange"></div>
+            <div class="timeline-content">
+              <div class="tl-title">Suspended</div>
+              <div class="tl-desc">Jun 08, 2026 09:15 · Reason: Expired ID Document · By: admin@beeznis.com</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot green"></div>
+            <div class="timeline-content">
+              <div class="tl-title">KYC Approved</div>
+              <div class="tl-desc">Mar 18, 2024 14:32 · Reviewed by admin@beeznis.com</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot gray"></div>
+            <div class="timeline-content">
+              <div class="tl-title">Initial Submission</div>
+              <div class="tl-desc">Mar 15, 2024 09:15</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Action Bar -->
+    <div class="action-bar" id="actionBarFull">
+      <div class="action-info">
+        <span class="label">Scenario A — Full Re-submit</span>
+        <span class="value">Review all fields, then approve or reject this re-submission</span>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-reject">Reject</button>
+        <button class="btn btn-approve">Approve & Unfreeze</button>
+      </div>
+    </div>
+
+    <div class="action-bar" id="actionBarDiff" style="display:none;">
+      <div class="action-info">
+        <span class="label">Scenario B — Changes Review</span>
+        <span class="value">2 fields changed — account remains active regardless of decision</span>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-reject-changes">Reject Changes</button>
+        <button class="btn btn-approve-changes">Approve Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchMode(mode) {
+      const fullReview = document.getElementById('fullReview');
+      const diffReview = document.getElementById('diffReview');
+      const tabFull = document.getElementById('tabFull');
+      const tabDiff = document.getElementById('tabDiff');
+      const actionFull = document.getElementById('actionBarFull');
+      const actionDiff = document.getElementById('actionBarDiff');
+      const statusTag = document.getElementById('statusTagA');
+
+      if (mode === 'full') {
+        fullReview.style.display = 'block';
+        diffReview.style.display = 'none';
+        tabFull.classList.add('active');
+        tabDiff.classList.remove('active');
+        actionFull.style.display = 'flex';
+        actionDiff.style.display = 'none';
+        statusTag.textContent = '🔴 Suspended';
+        statusTag.className = 'tag suspended';
+      } else {
+        fullReview.style.display = 'none';
+        diffReview.style.display = 'block';
+        tabFull.classList.remove('active');
+        tabDiff.classList.add('active');
+        actionFull.style.display = 'none';
+        actionDiff.style.display = 'flex';
+        statusTag.textContent = '🟢 Verified';
+        statusTag.className = 'tag approved';
+      }
+    }
+
+    function toggleCollapse(header) {
+      const body = header.nextElementSibling;
+      const arrow = header.querySelector('.arrow');
+      if (body.style.display === 'none') {
+        body.style.display = 'block';
+        arrow.classList.add('open');
+      } else {
+        body.style.display = 'none';
+        arrow.classList.remove('open');
+      }
+    }
+  </script>
+</body>
+</html>

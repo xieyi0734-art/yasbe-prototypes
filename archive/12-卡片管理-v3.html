@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>YASBee - 卡片管理 V5(基于 MoR PRD v3.1)</title>
+<style>
+:root {
+  --sidebar-bg: #1a1a2e;
+  --sidebar-text: #8e9ab4;
+  --sidebar-hover: #2a2a4e;
+  --header-bg: #1a2536;
+  --bg: #f0f2f5;
+  --card-bg: #ffffff;
+  --text: #1a1a1a;
+  --text-muted: #888;
+  --accent: #f59f00;
+  --accent-hover: #e08d00;
+  --primary: #4f46e5;
+  --primary-light: #eef2ff;
+  --success: #16a34a;
+  --success-light: #f0fdf4;
+  --danger: #dc2626;
+  --danger-light: #fef2f2;
+  --warning: #d97706;
+  --warning-light: #fffbeb;
+  --border: #e5e7eb;
+  --shadow: 0 1px 3px rgba(0,0,0,.08);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,.14);
+  --radius: 10px;
+  --radius-lg: 14px;
+.level-table{margin-top:14px;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.level-row{display:flex;align-items:center;padding:8px 12px;font-size:11.5px;border-bottom:1px solid var(--border);}
+.level-row:last-child{border-bottom:none;}
+.level-row .lv{display:inline-block;width:28px;height:20px;line-height:20px;text-align:center;border-radius:4px;background:var(--bg);font-weight:700;font-size:11px;margin-right:10px;color:var(--text-muted);}
+.level-row.highlight{background:var(--primary-light);}
+.level-row.highlight .lv{background:var(--primary);color:#fff;}
+.toggle-vis-btn{background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text-muted);cursor:pointer;}
+.toggle-vis-btn:hover{background:var(--primary-light);color:var(--primary);}
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; overflow-x: hidden; }
+
+/* Layout */
+.app { display: flex; min-height: 100vh; }
+.sidebar { width: 220px; flex-shrink: 0; background: var(--sidebar-bg); min-height: 100vh; display: flex; flex-direction: column; position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; }
+.sidebar-logo { padding: 20px 16px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,.06); }
+.logo-icon { width: 32px; height: 32px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; color: #fff; }
+.logo-text { font-size: 17px; font-weight: 700; color: #fff; letter-spacing: .5px; }
+.sidebar-nav { flex: 1; padding: 12px 8px; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; color: var(--sidebar-text); font-size: 13.5px; cursor: pointer; transition: all .15s; }
+.nav-item:hover { background: var(--sidebar-hover); color: #fff; }
+.nav-item.active { background: rgba(255,255,255,.1); color: #fff9c4; font-weight: 600; }
+.nav-item .icon { font-size: 16px; }
+.sidebar-footer { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,.06); display: flex; align-items: center; gap: 10px; }
+.avatar { width: 34px; height: 34px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.user-info { overflow: hidden; }
+.user-info .name { font-size: 13px; color: #fff; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-info div:last-child { font-size: 11px; color: var(--sidebar-text); }
+
+/* Main */
+.main { margin-left: 220px; flex: 1; min-height: 100vh; display: flex; flex-direction: column; }
+.top-header { background: var(--header-bg); padding: 0 28px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 90; }
+.top-header h1 { font-size: 18px; font-weight: 700; color: #fff; }
+.top-header-right { display: flex; align-items: center; gap: 12px; }
+.search-box { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,.08); border-radius: 8px; padding: 7px 12px; }
+.search-box input { background: none; border: none; outline: none; color: #fff; font-size: 13px; width: 180px; }
+.search-box input::placeholder { color: rgba(255,255,255,.4); }
+.search-icon { font-size: 13px; opacity: .6; }
+.notif { background: none; border: none; font-size: 18px; cursor: pointer; position: relative; padding: 4px; }
+.notif .dot { position: absolute; top: 2px; right: 2px; width: 7px; height: 7px; background: var(--danger); border-radius: 50%; border: 2px solid var(--header-bg); }
+.avatar-btn { width: 32px; height: 32px; background: var(--accent); border-radius: 50%; border: none; color: #fff; font-size: 12px; font-weight: 700; cursor: pointer; }
+
+/* Banner */
+.banner { background: linear-gradient(135deg, #1a2536 0%, #2d4a6e 100%); margin: 24px 28px 0; border-radius: var(--radius-lg); padding: 28px 32px; display: flex; align-items: center; justify-content: space-between; }
+.banner .label { font-size: 12px; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.banner .amount { font-size: 36px; font-weight: 800; color: #fff; letter-spacing: -1px; }
+.banner .hint { font-size: 12px; color: rgba(255,255,255,.4); margin-top: 4px; }
+.banner-right { display: flex; align-items: center; gap: 10px; }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 18px; border-radius: 8px; border: none; font-size: 13.5px; font-weight: 600; cursor: pointer; transition: all .15s; white-space: nowrap; }
+.btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.15); }
+.btn:active { transform: translateY(0); }
+.btn:disabled { opacity: .5; cursor: not-allowed; transform: none !important; }
+.btn-accent { background: var(--accent); color: #fff; }
+.btn-accent:hover { background: var(--accent-hover); }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: #4338ca; }
+.btn-dark { background: rgba(255,255,255,.12); color: #fff; border: 1px solid rgba(255,255,255,.15); }
+.btn-dark:hover { background: rgba(255,255,255,.18); }
+.btn-secondary { background: var(--card-bg); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { background: #f5f6f8; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover { background: #b91c1c; }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-lg { padding: 12px 24px; font-size: 15px; }
+.btn.full { width: 100%; }
+.btn.ghost { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
+.btn.ghost:hover { background: var(--bg); color: var(--text); }
+
+/* Content */
+.content { padding: 24px 28px 40px; }
+
+/* Stats Row */
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 20px; }
+.stat-card { background: var(--card-bg); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow); }
+.stat-label { font-size: 11.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+.stat-value { font-size: 22px; font-weight: 800; color: var(--text); }
+.stat-sub { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+
+/* Card Grid */
+.card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 20px; }
+.card-item { background: var(--card-bg); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow); cursor: pointer; transition: all .2s; border: 2px solid transparent; }
+.card-item:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); border-color: var(--accent); }
+.card-face { border-radius: var(--radius); padding: 20px 22px; color: #fff; position: relative; min-height: 185px; display: flex; flex-direction: column; }
+.card-face.active { background: linear-gradient(135deg, #1e3a5f, #3a6ea5); }
+.card-face.frozen { background: linear-gradient(135deg, #4a4a5a, #7a7a8a); filter: grayscale(.4); }
+.status-tag { font-size: 10.5px; font-weight: 600; letter-spacing: .5px; margin-bottom: 10px; }
+.status-tag.active { color: #86efac; }
+.status-tag.frozen { color: #fca5a5; }
+.card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: auto; }
+.brand { font-size: 14px; font-weight: 800; letter-spacing: 1px; }
+.type-badge { font-size: 9px; font-weight: 700; background: rgba(255,255,255,.18); padding: 3px 7px; border-radius: 4px; letter-spacing: .5px; }
+.level-badge { font-size: 9px; font-weight: 700; background: rgba(245,159,0,.3); color: #ffd166; padding: 2px 6px; border-radius: 4px; margin-left: 4px; }
+.card-amount { font-size: 28px; font-weight: 800; margin: 8px 0 6px; letter-spacing: -0.5px; }
+.card-number { font-size: 13px; letter-spacing: 2px; opacity: .85; font-family: "Courier New", monospace; }
+.card-meta { display: flex; justify-content: space-between; font-size: 11px; margin-top: 12px; opacity: .75; }
+.card-footer { padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; background: var(--card-bg); border-top: 1px solid var(--border); }
+.card-footer .name { font-size: 13.5px; font-weight: 600; }
+.card-footer .sub { font-size: 11.5px; color: var(--text-muted); }
+.arrow-btn { width: 28px; height: 28px; background: var(--bg); border: none; border-radius: 50%; font-size: 18px; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; line-height: 1; }
+.arrow-btn:hover { background: var(--accent); color: #fff; }
+
+/* Apply Buttons */
+.apply-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+.apply-btn { background: var(--card-bg); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all .2s; }
+.apply-btn:hover { border-color: var(--primary); background: var(--primary-light); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+.apply-btn .icon-wrap { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.apply-btn .kyc-icon { background: linear-gradient(135deg, #dbeafe, #bfdbfe); }
+.apply-btn .kyb-icon { background: linear-gradient(135deg, #fce7f3, #fbcfe8); }
+.apply-btn .title { font-size: 14px; font-weight: 700; color: var(--text); }
+.apply-btn .desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.apply-btn .arrow-right { margin-left: auto; font-size: 18px; color: var(--text-muted); }
+
+/* Transaction Panel */
+.tx-panel { background: var(--card-bg); border-radius: var(--radius-lg); padding: 20px 22px; box-shadow: var(--shadow); margin-top: 20px; }
+.tx-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.tx-top h3 { font-size: 15px; font-weight: 700; }
+.link-btn { background: none; border: none; font-size: 13px; color: var(--primary); cursor: pointer; font-weight: 500; }
+.link-btn:hover { text-decoration: underline; }
+.tx-tabs { display: flex; gap: 4px; margin-bottom: 14px; border-bottom: 1px solid var(--border); padding-bottom: 0; }
+.tx-tab { background: none; border: none; padding: 7px 14px; font-size: 13px; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all .15s; }
+.tx-tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+.tx-tab:hover:not(.active) { color: var(--text); background: var(--bg); }
+.tx-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+.tx-item:last-child { border-bottom: none; }
+.tx-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.tx-info { flex: 1; min-width: 0; }
+.tx-name { font-size: 13.5px; font-weight: 600; }
+.tx-date { font-size: 11.5px; color: var(--text-muted); }
+.tx-card-tag { display: inline-block; font-size: 10.5px; padding: 1px 6px; background: var(--bg); border-radius: 4px; color: var(--text-muted); margin-top: 1px; }
+.tx-amount { font-size: 13.5px; font-weight: 700; flex-shrink: 0; }
+.tx-amount.debit { color: var(--text); }
+.tx-amount.credit { color: var(--success); }
+.tx-badge { font-size: 10.5px; padding: 2px 7px; border-radius: 4px; flex-shrink: 0; margin-left: 6px; }
+.tx-badge.fail { background: var(--danger-light); color: var(--danger); }
+.tx-badge.warn { background: var(--warning-light); color: var(--warning); }
+.tx-badge.ok { background: var(--success-light); color: var(--success); }
+
+/* Modal Overlay */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay.show { display: flex; }
+body.modal-open { overflow: hidden; }
+.modal { background: var(--card-bg); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); width: 100%; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; }
+.modal-sm { max-width: 440px; }
+.modal-md { max-width: 560px; }
+.modal-lg { max-width: 700px; }
+.modal-xl { max-width: 880px; }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.modal-header h2 { font-size: 16px; font-weight: 700; }
+.modal-close { width: 30px; height: 30px; background: var(--bg); border: none; border-radius: 6px; cursor: pointer; font-size: 16px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; transition: all .15s; }
+.modal-close:hover { background: var(--border); color: var(--text); }
+.modal-body { padding: 20px 24px; flex: 1; overflow-y: auto; }
+.modal-footer { display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding: 16px 24px 20px; border-top: 1px solid var(--border); flex-shrink: 0; }
+
+/* Card Detail Modal */
+.detail-card-face { border-radius: var(--radius); padding: 22px 24px; color: #fff; min-height: 185px; display: flex; flex-direction: column; position: relative; margin-bottom: 16px; }
+.detail-card-face.active { background: linear-gradient(135deg, #1e3a5f, #3a6ea5); }
+.detail-card-face.frozen { background: linear-gradient(135deg, #3a3a4a, #6a6a7a); filter: grayscale(.4); }
+.detail-card-face .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: auto; }
+.detail-card-face .brand { font-size: 15px; font-weight: 800; letter-spacing: 1px; }
+.detail-card-face .type-badge { font-size: 9px; background: rgba(255,255,255,.18); padding: 3px 7px; border-radius: 4px; }
+.detail-card-face .level-badge { font-size: 9px; background: rgba(245,159,0,.3); color: #ffd166; padding: 2px 6px; border-radius: 4px; margin-left: 4px; }
+.detail-card-face .card-amount { font-size: 32px; font-weight: 800; margin: 8px 0 6px; letter-spacing: -0.5px; }
+.detail-card-face .card-number { font-size: 14px; letter-spacing: 2px; opacity: .85; display: flex; align-items: center; gap: 8px; }
+.detail-card-face .card-meta { display: flex; justify-content: space-between; font-size: 12px; margin-top: 14px; opacity: .75; }
+.toggle-vis-btn { background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.25); color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 4px; cursor: pointer; }
+.detail-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.detail-limits h4, .detail-info h4, .detail-tx h4 { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px; }
+.limit-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.limit-row .l { font-size: 12px; color: var(--text-muted); width: 56px; flex-shrink: 0; }
+.limit-row .bar { flex: 1; height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; }
+.limit-row .fill { height: 100%; border-radius: 3px; transition: width .3s; }
+.limit-row .r { font-size: 12px; font-weight: 600; width: 110px; text-align: right; flex-shrink: 0; }
+.info-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f5f5f5; font-size: 13px; }
+.info-row .l { color: var(--text-muted); }
+.info-row .r { font-weight: 500; }
+.info-row .r.green { color: var(--success); }
+.info-row .r.red { color: var(--danger); }
+.info-row .r.warn { color: var(--warning); }
+.detail-tx .tx-item { padding: 8px 0; }
+
+/* Freeze Modal */
+.freeze-notice { background: var(--warning-light); border: 1px solid #fde68a; border-radius: 8px; padding: 10px 14px; font-size: 12.5px; color: var(--warning); margin-bottom: 14px; display: flex; align-items: flex-start; gap: 8px; }
+.cancel-warning { background: var(--danger-light); border: 1px solid #fecaca; border-radius: 8px; padding: 10px 14px; font-size: 12.5px; color: var(--danger); margin-bottom: 14px; display: flex; align-items: flex-start; gap: 8px; }
+
+/* Apple Pay Modal - disabled per PRD */
+.apple-notice { background: var(--warning-light); border: 1px solid #fde68a; border-radius: 8px; padding: 12px 16px; font-size: 13px; color: var(--warning); margin-bottom: 16px; display: flex; align-items: flex-start; gap: 10px; }
+
+/* Radio */
+.radio-group { display: flex; flex-direction: column; gap: 6px; }
+.radio-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; cursor: pointer; font-size: 13.5px; transition: all .15s; }
+.radio-item:hover { border-color: var(--primary); background: var(--primary-light); }
+.radio-item.selected { border-color: var(--primary); background: var(--primary-light); }
+.radio-item input[type=radio] { width: 16px; height: 16px; accent-color: var(--primary); flex-shrink: 0; }
+
+/* BIN */
+.bin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.bin-option { border: 2px solid var(--border); border-radius: var(--radius); padding: 14px 16px; cursor: pointer; transition: all .15s; }
+.bin-option:hover { border-color: var(--primary); background: var(--primary-light); }
+.bin-option.selected { border-color: var(--primary); background: var(--primary-light); }
+.bin-tag { display: inline-block; font-size: 10px; padding: 2px 6px; border-radius: 4px; background: var(--primary-light); color: var(--primary); font-weight: 600; margin-bottom: 4px; }
+
+/* Field Confirm */
+.field-confirm { background: var(--bg); border-radius: var(--radius); overflow: hidden; }
+.field-section { padding: 12px 16px; border-bottom: 1px solid var(--border); }
+.field-section:last-child { border-bottom: none; }
+.field-section-title { font-size: 11px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.field-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 5px 0; font-size: 13px; }
+.field-row .fl { color: var(--text-muted); min-width: 90px; flex-shrink: 0; }
+.field-row .fr { font-weight: 500; text-align: right; max-width: 300px; }
+.field-row .fr.missing { color: var(--danger); font-size: 11.5px; background: var(--danger-light); padding: 1px 6px; border-radius: 4px; }
+.field-row .fr.todo { color: var(--warning); font-size: 11.5px; background: var(--warning-light); padding: 1px 6px; border-radius: 4px; }
+.field-row .fr { font-weight: 500; max-width: 320px; }
+.field-row .fr.ok { color: var(--success); font-size: 11.5px; background: var(--success-light); padding: 1px 6px; border-radius: 4px; }
+.field-row .fr .hint-inline { font-size: 10px; color: var(--text-muted); display: inline-block; margin-left: 6px; vertical-align: middle; }
+.field-row .fr .upload-btn { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border: 1.5px dashed var(--primary); border-radius: 6px; color: var(--primary); font-size: 12px; cursor: pointer; background: #fffbf0; transition: all .15s; }
+.field-row .fr .upload-btn:hover { background: var(--primary-light); border-color: var(--primary); }
+.field-row .fr .upload-btn.done { border-style: solid; border-color: var(--success); color: var(--success); background: var(--success-light); }
+.field-row .fr .upload-doc-hint { font-size: 10px; color: var(--text-muted); display: block; margin-top: 2px; }
+
+.field-section-note { font-size: 11.5px; color: var(--warning); background: var(--warning-light); padding: 8px 12px; border-radius: 8px; margin-top: 10px; display: flex; align-items: flex-start; gap: 6px; }
+.field-section-note.info { color: var(--text-muted); background: var(--bg); border: 1px solid var(--border); }
+.field-section-note.success { color: var(--success); background: var(--success-light); border: 1px solid #bbf7d0; }
+
+/* Step */
+.step-indicator { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+.step-dot { height: 6px; border-radius: 3px; background: var(--border); transition: all .3s; }
+.step-dot.done { background: var(--success); width: 32px; }
+.step-dot.current { background: var(--primary); width: 48px; }
+.step-dot.pending { width: 24px; }
+.step-buttons { display: flex; align-items: center; gap: 10px; margin-top: 20px; }
+
+/* Level badge in limits */
+.level-table { background: var(--bg); border-radius: var(--radius); padding: 12px 14px; margin-top: 12px; }
+.level-row { display: flex; align-items: center; justify-content: space-between; padding: 5px 0; font-size: 12.5px; }
+.level-row .lv { font-weight: 700; color: var(--text); min-width: 32px; }
+.level-row .val { color: var(--text-muted); }
+.level-row.highlight { color: var(--primary); font-weight: 700; }
+
+/* Toast */
+.toast { position: fixed; bottom: 24px; right: 24px; background: #1a1a1a; color: #fff; padding: 12px 18px; border-radius: 10px; font-size: 13.5px; z-index: 9999; display: none; align-items: center; gap: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.2); }
+.toast.show { display: flex; }
+.toast.success { background: var(--success); }
+.toast.error { background: var(--danger); }
+
+/* Responsive */
+@media (max-width: 1100px) { .card-grid { grid-template-columns: repeat(2, 1fr); } .stats-row { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 800px) {
+  .sidebar { display: none; }
+  .main { margin-left: 0; }
+  .card-grid { grid-template-columns: 1fr; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .apply-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">Y</div>
+      <span class="logo-text">YASBee</span>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-item"><span class="icon">📊</span>仪表盘</div>
+      <div class="nav-item"><span class="icon">🏦</span>银行账户</div>
+      <div class="nav-item"><span class="icon">₿</span>加密货币钱包</div>
+      <div class="nav-item active"><span class="icon">💳</span>卡片</div>
+      <div class="nav-item"><span class="icon">🔄</span>兑换</div>
+      <div class="nav-item"><span class="icon">📈</span>投资</div>
+      <div class="nav-item"><span class="icon">📋</span>报表</div>
+      <div class="nav-item"><span class="icon">🔐</span>KYC认证</div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="avatar">DX</div>
+      <div class="user-info">
+        <div class="name">Driven Xie</div>
+        <div>企业管理员</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="top-header">
+      <h1>卡片</h1>
+      <div class="top-header-right">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="搜索卡片、交易...">
+        </div>
+        <button class="notif">🔔<span class="dot"></span></button>
+        <button class="avatar-btn">DX</button>
+      </div>
+    </div>
+
+    <!-- BANNER -->
+    <div class="banner">
+      <div>
+        <div class="label">卡片总余额</div>
+        <div class="amount">$18,234.50</div>
+        <div class="hint">实时汇总 · 含冻结卡余额</div>
+      </div>
+      <div class="banner-right">
+        <button class="btn btn-dark" onclick="ot()">💰 充值</button>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">卡片总数</div>
+          <div class="stat-value">3</div>
+          <div class="stat-sub">2 使用中 · 1 已冻结</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">本月消费</div>
+          <div class="stat-value">$1,234.50</div>
+          <div class="stat-sub">共 18 笔交易</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">本月充值</div>
+          <div class="stat-value" style="color:var(--success);">$1.23</div>
+          <div class="stat-sub">共 2 笔充值</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">KYC 状态</div>
+          <div class="stat-value" style="color:var(--success);font-size:16px;">✅ 已认证</div>
+          <div class="stat-sub">有效期至 2030-05-15</div>
+        </div>
+      </div>
+
+      <!-- Card Grid -->
+      <div class="card-grid">
+        <div class="card-item" onclick="od('std')">
+          <div class="card-face active">
+            <div class="status-tag active">● 使用中</div>
+            <div class="card-top">
+              <span><span class="brand">YASBee</span><span class="level-badge">Lv3</span></span>
+              <span class="type-badge">VIRTUAL</span>
+            </div>
+            <div class="card-amount">$12,458.60</div>
+            <div class="card-number">•••• •••• •••• 4821</div>
+            <div class="card-meta"><span>JOHN DOE</span><span>CVV •••</span></div>
+          </div>
+          <div class="card-footer">
+            <div>
+              <div class="sub">BB-BIN · 单笔$5K/日$15K/月$50K · 05/29</div>
+            </div>
+            <button class="arrow-btn" onclick="event.stopPropagation();od('std')">›</button>
+          </div>
+        </div>
+
+        <div class="card-item" onclick="od('biz')">
+          <div class="card-face active">
+            <div class="status-tag active">● 使用中</div>
+            <div class="card-top">
+              <span><span class="brand">YASBee</span><span class="level-badge">Lv3</span></span>
+              <span class="type-badge">VIRTUAL</span>
+            </div>
+            <div class="card-amount">$5,425.90</div>
+            <div class="card-number">•••• •••• •••• 6732</div>
+            <div class="card-meta"><span>JOHN DOE</span><span>CVV •••</span></div>
+          </div>
+          <div class="card-footer">
+            <div>
+              <div class="sub">BB-BIN · 单笔$5K/日$15K/月$50K · 06/29</div>
+            </div>
+            <button class="arrow-btn" onclick="event.stopPropagation();od('biz')">›</button>
+          </div>
+        </div>
+
+        <div class="card-item" onclick="od('sub')">
+          <div class="card-face frozen">
+            <div class="status-tag frozen">● 已冻结</div>
+            <div class="card-top">
+              <span><span class="brand">YASBee</span><span class="level-badge">Lv2</span></span>
+              <span class="type-badge">VIRTUAL</span>
+            </div>
+            <div class="card-amount">$350.00</div>
+            <div class="card-number">•••• •••• •••• 1094</div>
+            <div class="card-meta"><span>JOHN DOE</span><span>CVV •••</span></div>
+          </div>
+          <div class="card-footer">
+            <div>
+              <div class="sub">BZ-BIN · 单笔$2K/日$5K/月$20K · 03/28</div>
+            </div>
+            <button class="arrow-btn" onclick="event.stopPropagation();od('sub')">›</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Apply Buttons -->
+            <p style="font-size:11.5px;color:var(--text-muted);margin-bottom:14px;text-align:center;">💡 实际场景中，根据用户类型只会显示对应的申请入口</p>
+      <div class="apply-row">
+        <div class="apply-btn" onclick="onc('kyc')">
+          <div class="icon-wrap kyc-icon">👤</div>
+          <div>
+            <div class="title">申请个人卡</div>
+            <div class="desc">需完成 KYC 身份认证</div>
+          </div>
+          <span class="arrow-right">›</span>
+        </div>
+        <div class="apply-btn" onclick="onc('kyb')">
+          <div class="icon-wrap kyb-icon">🏢</div>
+          <div>
+            <div class="title">申请企业卡</div>
+            <div class="desc">需完成 KYB 企业认证</div>
+          </div>
+          <span class="arrow-right">›</span>
+        </div>
+      </div>
+
+
+      <!-- Transaction Panel -->
+      <div class="tx-panel">
+        <div class="tx-top">
+          <h3>最近交易</h3>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <select class="filter-select" style="padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);font-size:11.5px;color:var(--text);">
+              <option value="all">全部时间</option>
+              <option value="today">今天</option>
+              <option value="week">近7天</option>
+              <option value="month">近30天</option>
+            </select>
+            <select class="filter-select" style="padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);font-size:11.5px;color:var(--text);">
+              <option value="all">全部状态</option>
+              <option value="success">成功</option>
+              <option value="pending">处理中</option>
+              <option value="failed">失败</option>
+            </select>
+            <select class="filter-select" style="padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);font-size:11.5px;color:var(--text);">
+              <option value="all">全部卡片</option>
+              <option value="4821">BB ••4821</option>
+              <option value="6732">BZ ••6732</option>
+              <option value="1094">BB ••1094</option>
+            </select>
+          </div>
+        </div>
+        <div class="tx-tabs">
+          <button class="tx-tab active" onclick="st(this,'.tx-tab')">全部</button>
+          <button class="tx-tab" onclick="st(this,'.tx-tab')">消费</button>
+          <button class="tx-tab" onclick="st(this,'.tx-tab')">充值</button>
+          <button class="tx-tab" onclick="st(this,'.tx-tab')">退款</button>
+        </div>
+        <div class="tx-item">
+          <div class="tx-icon" style="background:#dbeafe">🛒</div>
+          <div class="tx-info">
+            <div class="tx-name">Amazon.com</div>
+            <div class="tx-date">2026-05-19 09:15</div>
+            <div class="tx-card-tag">BB ••4821</div>
+          </div>
+          <div class="tx-amount debit">-$156.99</div>
+          <span class="tx-badge ok">成功</span>
+        </div>
+        <div class="tx-item">
+          <div class="tx-icon" style="background:#dcfce7">💰</div>
+          <div class="tx-info">
+            <div class="tx-name">Crypto 充值</div>
+            <div class="tx-date">2026-05-18 16:42</div>
+            <div class="tx-card-tag">BB ••4821</div>
+          </div>
+          <div class="tx-amount credit">+$500.00</div>
+          <span class="tx-badge ok">成功</span>
+        </div>
+        <div class="tx-item">
+          <div class="tx-icon" style="background:#fef3c7">☕</div>
+          <div class="tx-info">
+            <div class="tx-name">Starbucks</div>
+            <div class="tx-date">2026-05-18 11:05</div>
+            <div class="tx-card-tag">BB ••4821</div>
+          </div>
+          <div class="tx-amount debit">-$12.50</div>
+          <span class="tx-badge ok">成功</span>
+        </div>
+        <div class="tx-item">
+          <div class="tx-icon" style="background:#fee2e2">⚠️</div>
+          <div class="tx-info">
+            <div class="tx-name">Netflix 订阅</div>
+            <div class="tx-date">2026-05-17 20:30</div>
+            <div class="tx-card-tag">BZ ••6732</div>
+          </div>
+          <div class="tx-amount debit" style="color:var(--text-muted);">-$15.99</div>
+          <span class="tx-badge fail">余额不足</span>
+        </div>
+        <div class="tx-item">
+          <div class="tx-icon" style="background:#dbeafe">🛍️</div>
+          <div class="tx-info">
+            <div class="tx-name">Shein 购物</div>
+            <div class="tx-date">2026-05-17 14:22</div>
+            <div class="tx-card-tag">BB ••4821</div>
+          </div>
+          <div class="tx-amount debit">-$89.00</div>
+          <span class="tx-badge ok">成功</span>
+        </div>
+        <div class="tx-item">
+          <div class="tx-icon" style="background:#e0e7ff">🎮</div>
+          <div class="tx-info">
+            <div class="tx-name">Steam 游戏</div>
+            <div class="tx-date">2026-05-16 18:45</div>
+            <div class="tx-card-tag">BB ••4821</div>
+          </div>
+          <div class="tx-amount debit">-$29.99</div>
+          <span class="tx-badge ok">成功</span>
+        </div>
+        <div class="tx-item">
+          <div class="tx-icon" style="background:#dcfce7">💵</div>
+          <div class="tx-info">
+            <div class="tx-name">银行转账充值</div>
+            <div class="tx-date">2026-05-16 10:10</div>
+            <div class="tx-card-tag">BB ••4821</div>
+          </div>
+          <div class="tx-amount credit">+$2,000.00</div>
+          <span class="tx-badge ok">成功</span>
+        </div>
+        <div class="tx-item">
+          <div class="tx-icon" style="background:#fee2e2">🛡️</div>
+          <div class="tx-info">
+            <div class="tx-name">线上消费(大额)</div>
+            <div class="tx-date">2026-05-15 15:40</div>
+            <div class="tx-card-tag">BB ••1094</div>
+          </div>
+          <div class="tx-amount debit" style="color:var(--text-muted);">$8,500.00</div>
+          <span class="tx-badge warn" onclick="event.stopPropagation();om('modal3DS')" style="cursor:pointer;">风控拒绝 → 验证</span>
+        </div>
+        <div class="tx-item">
+          <div class="tx-icon" style="background:#fef3c7">✈️</div>
+          <div class="tx-info">
+            <div class="tx-name">Booking.com 酒店</div>
+            <div class="tx-date">2026-05-14 22:18</div>
+            <div class="tx-card-tag">BZ ••6732</div>
+          </div>
+          <div class="tx-amount debit">-$345.00</div>
+          <span class="tx-badge pending">处理中</span>
+        </div>
+        <div class="tx-item">
+          <div class="tx-icon" style="background:#e0e7ff">🔄</div>
+          <div class="tx-info">
+            <div class="tx-name">退款 - Apple Store</div>
+            <div class="tx-date">2026-05-13 10:00</div>
+            <div class="tx-card-tag">BB ••4821</div>
+          </div>
+          <div class="tx-amount credit">+$99.00</div>
+          <span class="tx-badge ok">已退款</span>
+        </div>
+      </div>
+      <!-- 分页 -->
+      <div class="tx-pagination" style="display:flex;justify-content:center;align-items:center;gap:8px;padding-top:14px;border-top:1px solid var(--border);margin-top:4px;">
+        <button class="btn btn-sm" style="opacity:0.4;cursor:not-allowed;">‹ 上一页</button>
+        <span style="font-size:13px;color:var(--text);font-weight:600;">1 / 3</span>
+        <button class="btn btn-sm btn-accent">下一页 ›</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL: 卡片详情 ===================== -->
+<div class="modal-overlay" id="modalDetail">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h2>卡片详情</h2>
+      <button class="modal-close" onclick="cm('modalDetail')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-card-face active" id="detailCardFace">
+        <div class="card-top">
+          <span><span class="brand" id="detailBrand">YASBee</span><span class="level-badge" id="detailLevelBadge">Lv3</span><span class="type-badge" id="detailTypeBadge">VIRTUAL</span></span>
+        </div>
+        <div class="card-amount" id="detailAmount">$12,458.60</div>
+        <div class="card-number">
+          <span id="detailNumText">•••• •••• •••• 4821</span>
+          <button class="toggle-vis-btn" id="toggleVisBtn" onclick="tcn()">显示</button>
+        </div>
+        <div class="card-meta">
+          <span id="detailName">JOHN DOE</span>
+          <span>CVV <span id="detailCvv">•••</span> <button class="toggle-vis-btn" onclick="tcvv()" id="cvvToggleBtn" style="font-size:10px;padding:1px 6px;">显示</button></span>
+        </div>
+      </div>
+
+      <!-- 操作按钮组 per PRD F-102 -->
+      <div class="detail-actions">
+        <button class="btn btn-accent btn-sm" onclick="cm('modalDetail');od(currentCard)">📋 详情</button>
+        <button class="btn btn-accent btn-sm" onclick="cm('modalDetail');ot()" style="display:none;">💰 充值</button>
+        <button class="btn btn-secondary btn-sm" id="btnFreezeDetail" onclick="cm('modalDetail');of()" style="color:var(--primary);">❄️ <span id="freezeLabel">冻结</span></button>
+        <button class="btn btn-secondary btn-sm" onclick="cm('modalDetail');ol()">⚙️ 改限额</button>
+        <button class="btn btn-secondary btn-sm" style="color:var(--danger);" onclick="cm('modalDetail');oc()">🗑️ 注销</button>
+      </div>
+
+      <!-- 限额(PRD F-601 等级体系) -->
+      <div class="detail-limits">
+        <h4>交易限额</h4>
+        <div class="limit-row"><span class="l">单笔</span><div class="bar"><div class="fill" id="detailSingleBar" style="width:84%;background:var(--primary);"></div></div><span class="r" id="detailSingle">$4,200 / $5,000</span></div>
+        <div class="limit-row"><span class="l">当日</span><div class="bar"><div class="fill" id="detailDailyBar" style="width:7.2%;background:var(--primary);"></div></div><span class="r" id="detailDaily">$1,080 / $15,000</span></div>
+        <div class="limit-row"><span class="l">当月</span><div class="bar"><div class="fill" id="detailMonthlyBar" style="width:6.5%;background:var(--accent);"></div></div><span class="r" id="detailMonthly">$3,245 / $50,000</span></div>
+        <!-- 等级说明 per PRD F-601 -->
+        <div class="level-table">
+          <div class="level-row"><span class="lv">Lv1</span><span class="val">单笔$500 · 日$1K · 月$5K</span></div>
+          <div class="level-row"><span class="lv">Lv2</span><span class="val">单笔$2K · 日$5K · 月$20K</span></div>
+          <div class="level-row highlight"><span class="lv">Lv3</span><span class="val">单笔$5K · 日$15K · 月$50K ← 当前</span></div>
+          <div class="level-row"><span class="lv">Lv4</span><span class="val">单笔$10K · 日$30K · 月$100K</span></div>
+        </div>
+      </div>
+
+      <!-- 卡片信息 -->
+      <div class="detail-info">
+        <h4>卡片信息</h4>
+        <div class="info-row"><span class="l">状态</span><span class="r green" id="detailStatus">● 使用中</span></div>
+        <div class="info-row"><span class="l">BIN 类型</span><span class="r" id="detailBin">BB-BIN (加拿大)</span></div>
+        <div class="info-row"><span class="l">月费</span><span class="r" id="detailFee">$0.25/月</span></div>
+        <div class="info-row"><span class="l">FX 费率</span><span class="r" id="detailFx">1.5%</span></div>
+        <div class="info-row"><span class="l">发卡日期</span><span class="r" id="detailIssue">2026-05-15</span></div>
+        <div class="info-row"><span class="l">到期日期</span><span class="r" id="detailExpire">2029-05-15</span></div>
+      </div>
+
+      <!-- 交易记录 -->
+      <div class="detail-tx">
+        <h4>该卡片交易记录</h4>
+        <div class="tx-item"><div class="tx-icon" style="background:#dbeafe">🛒</div><div class="tx-info"><div class="tx-name">Amazon.com</div><div class="tx-date">2026-05-18 14:23</div></div><div class="tx-amount debit">-$156.99</div><span class="tx-badge ok">成功</span></div>
+        <div class="tx-item"><div class="tx-icon" style="background:#dcfce7">💰</div><div class="tx-info"><div class="tx-name">Crypto 充值</div><div class="tx-date">2026-05-18 11:05</div></div><div class="tx-amount credit">+$500.00</div><span class="tx-badge ok">成功</span></div>
+        <div class="tx-item"><div class="tx-icon" style="background:#fee2e2">⚠️</div><div class="tx-info"><div class="tx-name">Netflix 订阅</div><div class="tx-date">2026-05-16 22:15</div></div><div class="tx-amount debit" style="color:var(--text-muted);">-$15.99</div><span class="tx-badge fail">余额不足</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL: 冻结 ===================== -->
+<div class="modal-overlay" id="modalFreeze">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h2 id="freezeTitle">冻结卡片</h2>
+      <button class="modal-close" onclick="cm('modalFreeze')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p id="freezeDesc" style="font-size:13px;color:#555;line-height:1.6;margin-bottom:10px;">确定要冻结卡片 <b id="freezeCardNum">•••• 4821</b> 吗?冻结期间无法进行任何交易。</p>
+      <!-- 冻结策略:系统判定,不暴露给用户 -->
+      <div class="freeze-notice" id="freezeNotice" style="display:none;">
+        <span>i️</span>
+        <div id="freezeNoticeText"><b>风控冻结</b>:解冻需要身份验证(生物识别/OTP/3DS)</div>
+      </div>
+      <div class="cancel-warning" id="expireNotice" style="display:none;">
+        <span>⚠️</span>
+        <div>卡片已过期,无法自助解冻,请申请补发新卡。</div>
+      </div>
+      <div id="freezeReasonInfo" style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">冻结期间卡片无法进行任何交易,解冻后即可恢复使用。</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="cm('modalFreeze')">取消</button>
+      <button class="btn btn-danger" id="btnConfirmFreeze" onclick="cf()">确认冻结</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL: 限额 ===================== -->
+<div class="modal-overlay" id="modalLimit">
+  <div class="modal modal-md">
+    <div class="modal-header">
+      <h2>卡片限额 - <span id="limitCardNum">•••• 4821</span></h2>
+      <button class="modal-close" onclick="cm('modalLimit')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">
+        当前等级:<b id="limitLevel" style="color:var(--text);">Lv3</b>
+        <span style="color:var(--primary);">单笔$5K · 日$15K · 月$50K</span>
+      </div>
+      <!-- 当前等级限额展示(只读,等级决定限额) -->
+      <div style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <label style="font-size:13px;font-weight:600;">单笔限额</label>
+          <span id="singleVal" style="font-size:14px;font-weight:700;color:var(--primary);">$5,000</span>
+        </div>
+        <div style="width:100%;height:6px;background:var(--bg);border-radius:3px;overflow:hidden;">
+          <div id="singleUsedBar" style="height:100%;border-radius:3px;background:var(--primary);width:84%;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-top:4px;"><span>已用 $4,200</span><span>等级上限 $5,000</span></div>
+      </div>
+      <div style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <label style="font-size:13px;font-weight:600;">日限额</label>
+          <span id="dailyVal" style="font-size:14px;font-weight:700;color:var(--primary);">$15,000</span>
+        </div>
+        <div style="width:100%;height:6px;background:var(--bg);border-radius:3px;overflow:hidden;">
+          <div id="dailyUsedBar" style="height:100%;border-radius:3px;background:var(--primary);width:7.2%;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-top:4px;"><span>已用 $1,080</span><span>等级上限 $15,000</span></div>
+      </div>
+      <div style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <label style="font-size:13px;font-weight:600;">月限额</label>
+          <span id="monthlyVal" style="font-size:14px;font-weight:700;color:var(--accent);">$50,000</span>
+        </div>
+        <div style="width:100%;height:6px;background:var(--bg);border-radius:3px;overflow:hidden;">
+          <div id="monthlyUsedBar" style="height:100%;border-radius:3px;background:var(--accent);width:6.5%;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-top:4px;"><span>已用 $3,245</span><span>等级上限 $50,000</span></div>
+      </div>
+      <!-- 降额控制 -->
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">如需降低限额以控制消费,请选择目标额度:</div>
+      <div class="radio-group" id="limitDownGroup">
+        <div class="radio-item selected" onclick="sr(this)"><input type="radio" name="ld" value="current" checked><span>保持当前限额(等级默认值)</span></div>
+        <div class="radio-item" onclick="sr(this)"><input type="radio" name="ld" value="half"><span>降至等级限额的 50%</span></div>
+        <div class="radio-item" onclick="sr(this)"><input type="radio" name="ld" value="custom"><span>自定义(不超过等级上限)</span></div>
+      </div>
+      <!-- 等级说明 -->
+      <div class="level-table">
+        <div class="level-row"><span class="lv">Lv1</span><span class="val">单笔$500 · 日$1K · 月$5K · 完成 KYC</span></div>
+        <div class="level-row"><span class="lv">Lv2</span><span class="val">单笔$2K · 日$5K · 月$20K · 使用30天+10笔</span></div>
+        <div class="level-row highlight"><span class="lv" id="limitCurrentLv">Lv3</span><span class="val" id="limitCurrentVal">单笔$5K · 日$15K · 月$50K ← 当前</span></div>
+        <div class="level-row"><span class="lv">Lv4</span><span class="val">单笔$10K · 日$30K · 月$100K · 需人工审核</span></div>
+      </div>
+      <div style="margin-top:14px;font-size:11.5px;color:var(--warning);background:var(--warning-light);padding:8px 12px;border-radius:8px;">⚠️ 限额由等级决定,升级需满足条件。Lv4 需人工审核+补充资料。</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="cm('modalLimit')">取消</button>
+      <button class="btn btn-primary" onclick="sl()">保存修改</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL: 注销 ===================== -->
+<div class="modal-overlay" id="modalCancel">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h2>注销卡片</h2>
+      <button class="modal-close" onclick="cm('modalCancel')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="cancel-warning"><span>⚠️</span><div>此操作不可撤销。注销后卡片将永久失效,余额自动退回至 YASBee 账户余额。</div></div>
+      <div class="info-row"><span class="l">卡片</span><span class="r" id="cancelCardNum" style="font-weight:600;">•••• 4821</span></div>
+      <div class="info-row"><span class="l">当前余额</span><span class="r" style="color:var(--accent);font-weight:600;" id="cancelBalance">$12,458.60</span></div>
+      <div class="info-row"><span class="l">退回账户</span><span class="r" style="color:var(--success);font-weight:600;" id="cancelRefund">$12,458.60</span></div>
+      <div class="info-row" style="border:none;"><span class="l">退还手续费</span><span class="r" style="color:var(--text-muted);">无</span></div>
+      <div style="margin-top:14px;">
+        <label style="font-size:12.5px;color:var(--text-muted);display:block;margin-bottom:6px;">请输入 <b style="color:var(--danger);">注销</b> 确认操作</label>
+        <input type="text" id="cancelConfirmInput" placeholder="请输入 注销" oninput="ccc()" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13.5px;outline:none;">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="cm('modalCancel')">取消</button>
+      <button class="btn btn-danger" id="btnConfirmCancel" disabled onclick="cxc()">确认注销</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL: 充值 ===================== -->
+<div class="modal-overlay" id="modalTopup">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h2>充值</h2>
+      <button class="modal-close" onclick="cm('modalTopup')">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- 目标卡片 -->
+      <div style="margin-bottom:16px;">
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">充值目标卡片</div>
+        <div class="radio-group">
+          <div class="radio-item selected" onclick="sr(this)"><input type="radio" name="tgt" value="std" checked><span>BB ••4821 <b style="color:var(--success);">余额 $12,458.60</b></span></div>
+          <div class="radio-item" onclick="sr(this)"><input type="radio" name="tgt" value="biz"><span>BZ ••6732 <b style="color:var(--success);">余额 $5,425.90</b></span></div>
+          <div class="radio-item" onclick="sr(this)" style="opacity:0.5;pointer-events:none;"><input type="radio" name="tgt" value="sub" disabled><span>BB ••1094 <b style="color:var(--danger);">已冻结,不可充值</b></span></div>
+        </div>
+      </div>
+      <!-- 充值方式 Tab -->
+      <div style="display:flex;gap:4px;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:0;">
+        <button class="tx-tab active" id="tabCrypto" onclick="stt(this,'crypto')">💎 Crypto 充值</button>
+        <button class="tx-tab" id="tabFiat" onclick="stt(this,'fiat')">🏦 Fiat 法币</button>
+      </div>
+      <!-- Crypto -->
+      <div id="topupCrypto">
+        <div style="margin-bottom:12px;">
+          <label style="font-size:12.5px;color:var(--text-muted);display:block;margin-bottom:6px;">选择币种</label>
+          <select id="cryptoCoin" onchange="uc()" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13.5px;outline:none;background:var(--card-bg);">
+            <option>USDT</option>
+            <option>USDC</option>
+          </select>
+        </div>
+        <div style="margin-bottom:12px;">
+          <label style="font-size:12.5px;color:var(--text-muted);display:block;margin-bottom:6px;">充值金额(USD)</label>
+          <input type="text" id="cryptoAmount" value="500" oninput="uc()" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;outline:none;font-weight:600;">
+        </div>
+        <div id="cryptoConvert" style="background:var(--bg);border-radius:8px;padding:12px 14px;margin-bottom:10px;">
+          <div style="font-size:13.5px;margin-bottom:4px;">需支付 <b id="cryptoPay">约 500.00 USDT</b></div>
+          <div style="font-size:12px;color:var(--text-muted);">汇率:<span id="cryptoRate">1 USDT ≈ $1.00(实时)</span></div>
+        </div>
+        <div style="font-size:12px;color:var(--success);background:var(--success-light);padding:8px 12px;border-radius:8px;margin-bottom:8px;">✅ 充值手续费 0%(免费),区块链确认后 ≤ 10 秒到账</div>
+        <div style="font-size:11.5px;color:var(--text-muted);">⚠️ 最低充值:10 USD,等值加密货币自动换汇为 USD 入账</div>
+      </div>
+      <!-- Fiat -->
+      <div id="topupFiat" style="display:none;">
+        <div style="margin-bottom:12px;">
+          <label style="font-size:12.5px;color:var(--text-muted);display:block;margin-bottom:6px;">充值金额(USD)</label>
+          <input type="text" value="1000" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;outline:none;">
+        </div>
+        <div style="margin-bottom:12px;">
+          <label style="font-size:12.5px;color:var(--text-muted);display:block;margin-bottom:6px;">付款方式</label>
+          <select style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13.5px;outline:none;background:var(--card-bg);">
+            <option>🏦 银行转账</option>
+            <option>💳 Visa/Mastercard</option>
+          </select>
+        </div>
+        <div style="font-size:12px;color:var(--success);background:var(--success-light);padding:8px 12px;border-radius:8px;">✅ 实时到账(Real-time)</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="cm('modalTopup')">取消</button>
+      <button class="btn btn-accent" onclick="ct()">确认充值</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL: 开卡-个人(KYC) ===================== -->
+<div class="modal-overlay" id="modalKYC">
+  <div class="modal modal-xl">
+    <div class="modal-header">
+      <h2>📋 申请个人卡 - KYC 身份认证</h2>
+      <button class="modal-close" onclick="cm('modalKYC')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="step-indicator">
+        <div class="step-dot" id="kyc-dot-1"></div>
+        <div class="step-dot" id="kyc-dot-2"></div>
+        <div class="step-dot" id="kyc-dot-3"></div>
+      </div>
+
+      <!-- Step 1: BIN选择 -->
+      <div id="kyc-step-1">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:4px;">选择 BIN 方案</h3>
+        <p style="font-size:12.5px;color:var(--text-muted);margin-bottom:16px;">BIN 方案决定 FX 汇率结构</p>
+        <div class="bin-grid">
+          <div class="bin-option selected" id="kyc-bin-bb" onclick="kycSelBin(this,'bb')">
+            <span class="bin-tag">推荐</span>
+            <div style="font-size:13.5px;font-weight:700;margin-bottom:4px;">🇨🇦 BB-BIN 加拿大</div>
+            <div style="font-size:12px;color:var(--text-muted);">FX 费率:<b style="color:var(--text);">1.5%</b></div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">月费:$0.25/月 · Apple Pay / Google Pay 支持绑定</div>
+          </div>
+          <div class="bin-option" id="kyc-bin-bz" onclick="kycSelBin(this,'bz')">
+            <span class="bin-tag">🇺🇸 美国</span>
+            <div style="font-size:13.5px;font-weight:700;margin-bottom:4px;">BZ-BIN 美国</div>
+            <div style="font-size:12px;color:var(--text-muted);">FX 费率:<b style="color:var(--text);">Pass through + 5bps</b></div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">月费:$0.25/月 · 不支持绑定 Apple Pay / Google Pay</div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--text-muted);background:var(--bg);padding:10px 14px;border-radius:8px;display:flex;align-items:flex-start;gap:8px;">
+          <span>i️</span>
+          <span>Apple Pay / Google Pay 绑定详见各方案说明,支付宝暂不支持开通。授权费 $0.20%/月(后续开通时收取)</span>
+        </div>
+      </div>
+
+      <!-- Step 2: 字段确认(PRD KYC全字段) -->
+      <div id="kyc-step-2" style="display:none;">
+<h3 style="font-size:15px;font-weight:700;margin-bottom:4px;">确认个人信息 - 提交至 Interlace 认证</h3>
+        <p style="font-size:12.5px;color:var(--text-muted);margin-bottom:14px;">以下信息将从您的 KYC 档案中预填，请确认/修改后提交认证</p>
+        <div class="field-confirm">
+          <!-- 基本信息 -->
+          <div class="field-section">
+            <div class="field-section-title">👤 基本信息</div>
+            <div class="field-row"><span class="fl">First Name</span><span class="fr"><input class="fi" value="Jia Ming" id="kyc-f-fname"></span></div>
+            <div class="field-row"><span class="fl">Last Name</span><span class="fr"><input class="fi" value="Xie" id="kyc-f-lname"></span></div>
+            <div class="field-row"><span class="fl">Date of Birth</span><span class="fr"><input class="fi" type="date" value="1995-03-18" id="kyc-f-dob"></span></div>
+            <div class="field-row"><span class="fl">Nationality</span><span class="fr"><input class="fi" value="CN" id="kyc-f-nationality"></span></div>
+            <div class="field-row"><span class="fl">Gender</span><span class="fr"><select class="fi" id="kyc-f-gender"><option value="M" selected>M (Male)</option><option value="F">F (Female)</option></select></span></div>
+          </div>
+          <!-- 证件信息 -->
+          <div class="field-section">
+            <div class="field-section-title">🪪 证件信息(必填)</div>
+            <div class="field-row"><span class="fl">ID Type</span><span class="fr"><select class="fi" id="kyc-f-idtype"><option value="PASSPORT">PASSPORT (护照)</option><option value="CN-RIC" selected>CN-RIC (中国居民身份证)</option><option value="HK-HKID">HK-HKID (香港身份证)</option><option value="DLN">DLN (驾照)</option><option value="Government-Issued ID Card">Government-Issued ID Card (政府签发身份证)</option></select></span></div>
+            <div class="field-row"><span class="fl">National ID Number</span><span class="fr"><input class="fi" value="310***********1234" id="kyc-f-nid"></span></div>
+            <div class="field-row"><span class="fl">Issue Date</span><span class="fr"><input class="fi" type="date" value="2016-06-15" id="kyc-f-issue"></span></div>
+            <div class="field-row"><span class="fl">Expiry Date</span><span class="fr"><input class="fi" type="date" value="2036-06-15" id="kyc-f-exp"></span></div>
+            <div class="field-row"><span class="fl">ID Front(正面)</span><span class="fr"><span class="upload-btn done" id="kyc-f-front">📎 已上传</span><span class="upload-doc-hint">支持 JPG/PNG/PDF,≤10MB</span></span></div>
+            <div class="field-row"><span class="fl">ID Back(背面)</span><span class="fr"><span class="upload-btn done" id="kyc-f-back">📎 已上传</span><span class="upload-doc-hint">支持 JPG/PNG/PDF,≤10MB</span></span></div>
+            <div class="field-row"><span class="fl">Selfie(自拍照)</span><span class="fr"><span class="upload-btn done" id="kyc-f-selfie">📎 自拍照已上传</span><span class="upload-doc-hint">请确保面部清晰可见</span></span></div>
+          </div>
+          <!-- 联系方式 -->
+          <div class="field-section">
+            <div class="field-section-title">📞 联系方式(必填)</div>
+            <div class="field-row"><span class="fl">Country Code</span><span class="fr"><select class="fi" id="kyc-f-cc"><option value="+86" selected>+86 中国</option><option value="+1">+1 美国</option><option value="+65">+65 新加坡</option></select></span></div>
+            <div class="field-row"><span class="fl">Phone Number</span><span class="fr"><input class="fi" value="138****8888" id="kyc-f-phone"></span></div>
+          </div>
+          <!-- 账户用途 -->
+          <div class="field-section">
+            <div class="field-section-title">💼 账户用途(必填)</div>
+            <div class="field-row"><span class="fl">Account Purpose</span><span class="fr"><select class="fi" id="kyc-f-purpose"><option value="Living Expense" selected>Living Expense (生活消费)</option><option value="Cross-border Payment">Cross-border Payment (跨境支付)</option><option value="Business">Business (商业)</option></select></span></div>
+          </div>
+          <!-- 地址信息 -->
+          <div class="field-section">
+            <div class="field-section-title">🏠 地址信息(必填)</div>
+            <div class="field-row"><span class="fl">Address Line 1</span><span class="fr"><input class="fi" value="No.88 Nanjing West Road, Jing'an District" id="kyc-f-addr1"></span></div>
+            <div class="field-row"><span class="fl">Address Line 2</span><span class="fr"><input class="fi" value="Room 1203, Tower A" id="kyc-f-addr2" style="font-size:12px;"></span></div>
+            <div class="field-row"><span class="fl">City</span><span class="fr"><input class="fi" value="Shanghai" id="kyc-f-city"></span></div>
+            <div class="field-row"><span class="fl">State</span><span class="fr"><input class="fi" value="SH" id="kyc-f-state"></span></div>
+            <div class="field-row"><span class="fl">Country</span><span class="fr"><input class="fi" value="CN" id="kyc-f-country"></span></div>
+            <div class="field-row"><span class="fl">Postal Code</span><span class="fr"><input class="fi" value="200041" id="kyc-f-postal"></span></div>
+          </div>
+          <!-- 可选信息 -->
+          <div class="field-section">
+            <div class="field-section-title">📝 可选信息</div>
+            <div class="field-row"><span class="fl">Middle Name</span><span class="fr"><input class="fi" placeholder="可选" id="kyc-f-mname" style="font-size:12px;"></span></div>
+            <div class="field-row"><span class="fl">Occupation</span><span class="fr"><input class="fi" value="产品经理 (541100)" id="kyc-f-occupation" style="font-size:12px;"></span></div>
+            <div class="field-row"><span class="fl">Annual Salary</span><span class="fr"><select class="fi" id="kyc-f-salary" style="font-size:12px;"><option>请选择</option><option selected>$50,000 - $100,000</option><option>$100,000 - $200,000</option><option>$200,000+</option></select></span></div>
+            <div class="field-row"><span class="fl">Expected Monthly Vol.</span><span class="fr"><input class="fi" value="$3,000 - $5,000" id="kyc-f-monthly" style="font-size:12px;"></span></div>
+            <div class="field-row"><span class="fl">SSN</span><span class="fr"><input class="fi" placeholder="仅 US 用户填写" id="kyc-f-ssn" style="font-size:12px;"></span></div>
+          </div>
+        </div>
+        <div class="field-section-note">
+          <span>✅</span>
+          <span>以下信息已从您的 KYC 档案中预填，您可直接修改后提交。若证件信息有误，请<a href="#" onclick="event.preventDefault();alert('跳转到客服页面')" style="color:var(--primary);text-decoration:none;font-weight:600;cursor:pointer;">联系我们</a>。</span>
+        </div>
+      </div>
+
+      <!-- Step 3: 责任说明 + 风险划分 + 同意开卡通知 -->
+      <div id="kyc-step-3" style="display:none;">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:4px;">确认开卡</h3>
+        <p style="font-size:12.5px;color:var(--text-muted);margin-bottom:14px;">请阅读并确认以下条款后提交开卡申请</p>
+        <div class="field-confirm">
+          <div class="field-section">
+            <div class="field-section-title">⚖️ 责任说明</div>
+            <div style="font-size:12.5px;color:var(--text);line-height:1.7;padding:8px 0;">
+              <p style="margin-bottom:8px;">• 开卡申请人须确保提交的身份信息真实、准确、完整。</p>
+              <p style="margin-bottom:8px;">• 卡片仅限申请人本人使用，不得转借、出租或出售给他人。</p>
+              <p style="margin-bottom:8px;">• 卡片使用须遵守当地法律法规及发卡行相关规定。</p>
+              <p>• 申请人应对卡片账户内的所有交易负责。</p>
+            </div>
+          </div>
+          <div class="field-section">
+            <div class="field-section-title">⚠️ 风险划分</div>
+            <div style="font-size:12.5px;color:var(--text);line-height:1.7;padding:8px 0;">
+              <p style="margin-bottom:8px;"><b>平台责任：</b>因平台系统故障导致的资金损失由平台承担。</p>
+              <p style="margin-bottom:8px;"><b>用户责任：</b>因用户泄露卡片信息、密码或未妥善保管卡片导致的损失由用户自行承担。</p>
+              <p style="margin-bottom:8px;"><b>不可抗力：</b>因自然灾害、战争、政府管制等不可抗力导致的损失，双方互不承担责任。</p>
+              <p><b>争议处理：</b>双方应友好协商解决争议，协商不成的可提交仲裁机构处理。</p>
+            </div>
+          </div>
+          <div class="field-section">
+            <div class="field-section-title">✅ 同意开卡通知</div>
+            <div style="font-size:12.5px;color:var(--text);line-height:1.7;padding:8px 0;">
+              <p style="margin-bottom:12px;">开卡申请提交后，系统将进行 KYC 身份认证，认证通过后卡片自动开立。开卡成功后您将收到通知。</p>
+              <label class="radio-item" style="padding:12px 14px;border:1.5px solid var(--border);border-radius:8px;display:flex;align-items:flex-start;gap:10px;cursor:pointer;" id="kyc-agree-box">
+                <input type="checkbox" id="kyc-agree-checkbox" style="width:18px;height:18px;accent-color:var(--primary);flex-shrink:0;margin-top:2px;">
+                <span style="font-size:12.5px;line-height:1.6;">
+                  我已阅读并同意 <b>《YASBee 卡片服务协议》</b> 及 <b>《风险揭示书》</b>，确认提交开卡申请。
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="kyc-back" style="display:none;" onclick="kycBack()">← 上一步</button>
+      <button class="btn btn-primary" id="kyc-next" onclick="kycNext()">下一步 →</button>
+      <button class="btn btn-accent" id="kyc-go" style="display:none;" onclick="kycGo()">提交开卡申请</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL: 开卡-企业(KYB) ===================== -->
+<div class="modal-overlay" id="modalKYB">
+  <div class="modal modal-xl">
+    <div class="modal-header">
+      <h2>📋 申请企业卡 - KYB 企业认证</h2>
+      <button class="modal-close" onclick="cm('modalKYB')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="step-indicator">
+        <div class="step-dot" id="kyb-dot-1"></div>
+        <div class="step-dot" id="kyb-dot-2"></div>
+        <div class="step-dot" id="kyb-dot-3"></div>
+      </div>
+
+      <!-- Step 1: BIN选择 -->
+      <div id="kyb-step-1">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:4px;">选择 BIN 方案</h3>
+        <p style="font-size:12.5px;color:var(--text-muted);margin-bottom:16px;">企业卡 KYB 认证比 KYC 更复杂,请确保材料齐全</p>
+        <div class="bin-grid">
+          <div class="bin-option selected" id="kyb-bin-bb" onclick="kybSelBin(this,'bb')">
+            <span class="bin-tag">推荐</span>
+            <div style="font-size:13.5px;font-weight:700;margin-bottom:4px;">🇨🇦 BB-BIN 加拿大</div>
+            <div style="font-size:12px;color:var(--text-muted);">FX 费率:<b style="color:var(--text);">1.5%</b></div>
+          </div>
+          <div class="bin-option" id="kyb-bin-bz" onclick="kybSelBin(this,'bz')">
+            <span class="bin-tag">🇺🇸 美国</span>
+            <div style="font-size:13.5px;font-weight:700;margin-bottom:4px;">BZ-BIN 美国</div>
+            <div style="font-size:12px;color:var(--text-muted);">FX 费率:<b style="color:var(--text);">Pass through + 5bps</b></div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--text-muted);background:var(--bg);padding:10px 14px;border-radius:8px;display:flex;align-items:flex-start;gap:8px;">
+          <span>i️</span>
+          <span>KYB 审核通常 ≤ 1 分钟,请确保公司证件和 UBO 信息真实完整。如审核超时,系统将自动告警并人工介入。</span>
+        </div>
+      </div>
+
+      <!-- Step 2: 字段确认(PRD KYB全字段) -->
+      <div id="kyb-step-2" style="display:none;">
+<h3 style="font-size:15px;font-weight:700;margin-bottom:4px;">确认企业信息</h3>
+        <p style="font-size:12.5px;color:var(--text-muted);margin-bottom:14px;">以下信息将从您的 KYB 档案中预填并提交至 Interlace 认证，请确认/修改每个字段</p>
+        <div class="field-confirm">
+          <!-- 公司信息 -->
+          <div class="field-section">
+            <div class="field-section-title">🏢 公司信息(必填)</div>
+            <div class="field-row"><span class="fl">Company Name</span><span class="fr"><input class="fi" value="Shanghai YASBee Technology Co., Ltd." id="kyb-f-cname"></span></div>
+            <div class="field-row"><span class="fl">Company Name (EN)</span><span class="fr"><input class="fi" value="" id="kyb-f-cname-en" placeholder="选填，公司英文名"></span></div>
+            <div class="field-row"><span class="fl">Registration Number</span><span class="fr"><input class="fi" value="91310115MA1K8L7X4E" id="kyb-f-regnum"></span></div>
+            <div class="field-row"><span class="fl">Country Code</span><span class="fr"><select class="fi" id="kyb-f-cc"><option value="CN" selected>🇨🇳 CN (中国)</option><option value="HK">🇭🇰 HK (香港)</option><option value="SG">🇸🇬 SG (新加坡)</option><option value="US">🇺🇸 US (美国)</option><option value="GB">🇬🇧 GB (英国)</option></select></span></div>
+            <div class="field-row"><span class="fl">Industry</span><span class="fr"><input class="fi" value="金融科技 / 支付服务 (522220)" id="kyb-f-industry"></span></div>
+            <div class="field-row"><span class="fl">Website</span><span class="fr"><input class="fi" value="https://yasbee.com" id="kyb-f-web"></span></div>
+            <div class="field-row"><span class="fl">Registered Address</span><span class="fr"><input class="fi" value="No.500 Zhangyang Road, Pudong New Area, Shanghai" id="kyb-f-regaddr"></span></div>
+            <div class="field-row"><span class="fl">Business Address</span><span class="fr"><input class="fi" value="Room 1801, Building 3, No.88 Nanjing West Road, Jing'an District, Shanghai" id="kyb-f-bizaddr"></span></div>
+            <div class="field-row"><span class="fl">Phone Number</span><span class="fr"><input class="fi" value="+86 21 6888 9999" id="kyb-f-phone"></span></div>
+            <div class="field-row"><span class="fl">Email</span><span class="fr"><input class="fi" value="contact@yasbee.com" id="kyb-f-email"></span></div>
+          </div>
+          <!-- UBO受益人信息 (法人/股东均作为UBO提交) -->
+          <div class="field-section">
+            <div class="field-section-title">👥 受益人信息 UBO ≥25%(必填,至少1人，法定代表人也填写在此)</div>
+            <div class="field-row"><span class="fl">First / Last Name</span><span class="fr"><input class="fi" value="Wei Chen" id="kyb-f-ubo1-name"></span></div>
+            <div class="field-row"><span class="fl">Gender</span><span class="fr"><select class="fi" id="kyb-f-ubo1-gender"><option value="M" selected>M (Male)</option><option value="F">F (Female)</option></select></span></div>
+            <div class="field-row"><span class="fl">Country Code</span><span class="fr"><select class="fi" id="kyb-f-ubo1-cc"><option value="CN" selected>🇨🇳 CN (中国)</option><option value="HK">🇭🇰 HK (香港)</option><option value="SG">🇸🇬 SG (新加坡)</option><option value="US">🇺🇸 US (美国)</option></select></span></div>
+            <div class="field-row"><span class="fl">ID Type</span><span class="fr"><select class="fi" id="kyb-f-ubo1-idtype"><option value="PASSPORT">PASSPORT (护照)</option><option value="CN-RIC" selected>CN-RIC (中国居民身份证)</option><option value="HK-HKID">HK-HKID (香港身份证)</option><option value="DLN">DLN (驾照)</option><option value="Government-Issued ID Card">政府签发身份证</option></select></span></div>
+            <div class="field-row"><span class="fl">ID Number</span><span class="fr"><input class="fi" value="310***********1234" id="kyb-f-ubo1-idnum"></span></div>
+            <div class="field-row"><span class="fl">Date of Birth</span><span class="fr"><input class="fi" type="date" value="1988-07-22" id="kyb-f-ubo1-dob"></span></div>
+            <div class="field-row"><span class="fl">‍ID Upload</span><span class="fr"><span class="upload-btn done" id="kyb-f-ubo1-idup">📎 已上传</span><span class="upload-doc-hint">正面+背面</span></span></div>
+          </div>
+          <!-- 企业文档 -->
+          <div class="field-section">
+            <div class="field-section-title">📄 企业文档(按BIN方案要求上传)</div>
+            <div class="field-row"><span class="fl">Certificate of Incorporation</span><span class="fr"><span class="upload-btn" id="kyb-f-doc-incorp">📎 点击上传</span></span></div>
+            <div class="field-row"><span class="fl">Certificate of Good Standing</span><span class="fr"><span class="upload-btn" id="kyb-f-doc-good">📎 点击上传</span></span></div>
+            <div class="field-row"><span class="fl">M&A (公司章程)</span><span class="fr"><span class="upload-btn" id="kyb-f-doc-ma">📎 点击上传</span></span></div>
+            <div class="field-row"><span class="fl">Shareholding Structure</span><span class="fr"><span class="upload-btn" id="kyb-f-doc-share">📎 点击上传</span></span></div>
+            <div class="field-row"><span class="fl">其他补充文档</span><span class="fr"><span class="upload-btn" id="kyb-f-doc-other">📎 点击上传</span><span class="upload-doc-hint">最多3份</span></span></div>
+          </div>
+        </div>
+        <div class="field-section-note">
+          <span>✅</span>
+          <span>法人代表与股东统一作为 UBO 提交。企业文档为开卡阶段可选补充，按卡产品要求可随时上传。若公司信息有误，请<a href="#" onclick="event.preventDefault();alert('跳转到客服页面')" style="color:var(--primary);text-decoration:none;font-weight:600;cursor:pointer;">联系我们</a>。</span>
+        </div>
+      </div>
+
+      <!-- Step 3: 最终确认 -->
+      <div id="kyb-step-3" style="display:none;">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:4px;">确认开卡信息</h3>
+        <p style="font-size:12.5px;color:var(--text-muted);margin-bottom:14px;">请核对以下信息无误后提交</p>
+        <div class="field-confirm">
+          <div class="field-section">
+            <div class="field-section-title">💳 开卡信息</div>
+            <div class="field-row"><span class="fl">卡片类型</span><span class="fr">🏢 企业卡(KYB)</span></div>
+            <div class="field-row"><span class="fl">BIN 方案</span><span class="fr" id="kyb-conf-bin">BB-BIN 🇨🇦</span></div>
+            <div class="field-row"><span class="fl">FX 费率</span><span class="fr" id="kyb-conf-fx">1.5%</span></div>
+            <div class="field-row"><span class="fl">月费</span><span class="fr">$0.25/月</span></div>
+          </div>
+          <div class="field-section">
+            <div class="field-section-title">📤 提交开卡申请</div>
+            <div class="field-row"><span class="fl">endpoint</span><span class="fr" style="font-size:11.5px;color:var(--text-muted);">POST /v3/cdd/submit-account-kyb</span></div>
+            <div class="field-row"><span class="fl">companyName</span><span class="fr" id="kyb-conf-cname">-</span></div>
+            <div class="field-row"><span class="fl">registrationNumber</span><span class="fr warn" style="font-size:11.5px;">⚠ 全局唯一,同API Client不可重复</span></div>
+            <div class="field-row"><span class="fl">industry</span><span class="fr warn" style="font-size:11.5px;">⚠ 需 NAICS 6位码</span></div>
+            <div class="field-row"><span class="fl">uboList</span><span class="fr" id="kyb-conf-ubo">至少1人,≥25%权益</span></div>
+            <div class="field-row"><span class="fl">sourceType</span><span class="fr ok" style="font-size:11.5px;">"api"(固定值)</span></div>
+          </div>
+          <div class="field-section">
+            <div class="field-section-title">⏱️ 审核预期</div>
+            <div class="field-row"><span class="fl">审核时长</span><span class="fr">≤ 1 分钟(正常情况)</span></div>
+            <div class="field-row"><span class="fl">超时</span><span class="fr warn" style="font-size:11.5px;">⚠ 系统自动告警+人工介入</span></div>
+            <div class="field-row"><span class="fl">PASSED</span><span class="fr ok" style="font-size:11.5px;">✅ 自动开卡</span></div>
+            <div class="field-row"><span class="fl">REQUEST</span><span class="fr warn" style="font-size:11.5px;">⚠ 需补充信息,展示修正建议</span></div>
+            <div class="field-row"><span class="fl">CANCELED</span><span class="fr" style="font-size:11.5px;color:var(--danger);">❌ 允许重新申请</span></div>
+          </div>
+        </div>
+        <div class="field-section-note success">
+          <span>✅</span>
+          <span>确认提交后将跳转至 KYB 认证页面。认证通过后卡片自动开立。</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="kyb-back" style="display:none;" onclick="kybBack()">← 上一步</button>
+      <button class="btn btn-primary" id="kyb-next" onclick="kybNext()">下一步 →</button>
+      <button class="btn btn-accent" id="kyb-go" style="display:none;" onclick="kybGo()">去 KYB 认证 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL: 3DS 验证 ===================== -->
+<div class="modal-overlay" id="modal3DS">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h2>🔐 身份验证</h2>
+      <button class="modal-close" onclick="cm('modal3DS')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="text-align:center;margin-bottom:16px;">
+        <div style="font-size:40px;margin-bottom:8px;">🛡️</div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:4px;">交易需要身份验证</div>
+        <div style="font-size:12.5px;color:var(--text-muted);">为保障资金安全,请完成身份验证后继续交易</div>
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:12.5px;color:var(--text-muted);display:block;margin-bottom:6px;">验证方式</label>
+        <div class="radio-group">
+          <div class="radio-item selected" onclick="sr(this)"><input type="radio" name="3ds" value="otp" checked><span>📱 OTP 验证码(短信/邮箱)</span></div>
+          <div class="radio-item" onclick="sr(this)"><input type="radio" name="3ds" value="bio"><span>👤 生物识别(Face ID/指纹)</span></div>
+        </div>
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:12.5px;color:var(--text-muted);display:block;margin-bottom:6px;">输入验证码</label>
+        <input type="text" placeholder="请输入 6 位验证码" maxlength="6" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:16px;text-align:center;letter-spacing:4px;outline:none;">
+      </div>
+      <div style="font-size:11.5px;color:var(--text-muted);text-align:center;">验证码已发送至 +86 138****8888</div>
+      <div style="font-size:11.5px;color:var(--warning);background:var(--warning-light);padding:8px 12px;border-radius:8px;margin-top:10px;">⚠️ 连续 3 次验证失败将锁定 30 分钟,如超时 2 分钟未响应将自动取消交易</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="cm('modal3DS')">取消交易</button>
+      <button class="btn btn-primary" onclick="verify3DS()">验证并继续</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL: 解冻身份验证 ===================== -->
+<div class="modal-overlay" id="modalUnfreezeVerify">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h2>🔐 解冻身份验证</h2>
+      <button class="modal-close" onclick="cm('modalUnfreezeVerify')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="freeze-notice">
+        <span>i️</span>
+        <div>此卡片因<b>风控原因</b>被冻结,解冻前需完成身份验证。</div>
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:12.5px;color:var(--text-muted);display:block;margin-bottom:6px;">解锁类型</label>
+        <div class="radio-group">
+          <div class="radio-item selected" onclick="sr(this)"><input type="radio" name="unlock" value="temp" checked><span>🔓 临时解锁(24 小时)- 生物识别 + 小额验证</span></div>
+          <div class="radio-item" onclick="sr(this)"><input type="radio" name="unlock" value="perm"><span>✅ 永久解冻 - 需客服审核通过</span></div>
+        </div>
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:12.5px;color:var(--text-muted);display:block;margin-bottom:6px;">验证方式</label>
+        <div class="radio-group">
+          <div class="radio-item selected" onclick="sr(this)"><input type="radio" name="uv" value="bio" checked><span>👤 生物识别</span></div>
+          <div class="radio-item" onclick="sr(this)"><input type="radio" name="uv" value="otp"><span>📱 OTP 验证码</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="cm('modalUnfreezeVerify')">取消</button>
+      <button class="btn btn-primary" onclick="doUnfreezeVerify()">验证并解冻</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL: 审核结果 ===================== -->
+<div class="modal-overlay" id="modalKycResult">
+  <div class="modal modal-md">
+    <div class="modal-header">
+      <h2>📋 KYC 审核结果</h2>
+      <button class="modal-close" onclick="cm('modalKycResult')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="kycResultPassed" style="display:none;text-align:center;padding:20px 0;">
+        <div style="font-size:48px;margin-bottom:12px;">✅</div>
+        <div style="font-size:18px;font-weight:700;color:var(--success);margin-bottom:6px;">认证成功</div>
+        <div style="font-size:13px;color:var(--text-muted);">卡片即将自动开立,请稍候...</div>
+      </div>
+      <div id="kycResultRequest" style="display:none;">
+        <div style="text-align:center;padding:16px 0;">
+          <div style="font-size:40px;margin-bottom:8px;">⚠️</div>
+          <div style="font-size:16px;font-weight:700;color:var(--warning);margin-bottom:6px;">部分信息需要修正</div>
+          <div style="font-size:13px;color:var(--text-muted);">请根据以下建议补充信息后重新提交</div>
+        </div>
+        <div class="field-confirm" style="margin-top:12px;">
+          <div class="field-section">
+            <div class="field-section-title">📝 需修正字段</div>
+            <div class="field-row"><span class="fl">Selfie</span><span class="fr" style="color:var(--danger);">照片模糊,请重新上传</span></div>
+            <div class="field-row"><span class="fl">Address Line 1</span><span class="fr" style="color:var(--danger);">地址不完整,需包含门牌号</span></div>
+          </div>
+        </div>
+        <div style="font-size:11.5px;color:var(--text-muted);margin-top:10px;">已失败 <b style="color:var(--warning);">2</b>/3 次,连续 3 次失败将触发人工客服介入</div>
+      </div>
+      <div id="kycResultCanceled" style="display:none;text-align:center;padding:20px 0;">
+        <div style="font-size:48px;margin-bottom:12px;">❌</div>
+        <div style="font-size:18px;font-weight:700;color:var(--danger);margin-bottom:6px;">认证未通过</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">请重新提交完整信息,或联系客服协助处理</div>
+        <button class="btn btn-primary" onclick="cm('modalKycResult');onc('kyc')">重新申请</button>
+      </div>
+      <div id="kycResultTimeout" style="display:none;text-align:center;padding:20px 0;">
+        <div style="font-size:40px;margin-bottom:12px;">⏳</div>
+        <div style="font-size:16px;font-weight:700;color:var(--warning);margin-bottom:6px;">正在审核中</div>
+        <div style="font-size:13px;color:var(--text-muted);">审核预计很快完成,如有异常运营团队已收到告警</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="cm('modalKycResult')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== Data =====
+var cards = {
+  std: {name:'BB',num:'4821',bal:12458.60,status:'active',type:'VIRTUAL',bin:'BB-BIN(加拿大)',level:'Lv3',issue:'2026-05-15',expire:'2029-05-15',fee:'$0.25/月',fx:'1.5%',single:5000,daily:15000,monthly:50000,dailyUsed:1080,monthlyUsed:3245,singleUsed:4200,cvv:'123'},
+  biz: {name:'BZ',num:'6732',bal:5425.90,status:'active',type:'VIRTUAL',bin:'BB-BIN(加拿大)',level:'Lv3',issue:'2026-05-10',expire:'2029-06-27',fee:'$0.25/月',fx:'1.5%',single:5000,daily:15000,monthly:50000,dailyUsed:500,monthlyUsed:1200,singleUsed:0,cvv:'456'},
+  sub: {name:'BB',num:'1094',bal:350.00,status:'frozen',type:'VIRTUAL',bin:'BZ-BIN(美国)',level:'Lv2',issue:'2026-04-20',expire:'2028-03-15',fee:'$0.25/月',fx:'Pass through + 5bps',single:2000,daily:5000,monthly:20000,dailyUsed:0,monthlyUsed:0,singleUsed:0,cvv:'789'}
+};
+var currentCard='std', cardNumVis=false;
+var kycStep=1, kycBin='bb';
+var kybStep=1, kybBin='bb';
+
+// ===== Utils =====
+function $(id){return document.getElementById(id);}
+function om(id){$(id).classList.add('show');document.body.classList.add('modal-open');}
+function cm(id){$(id).classList.remove('show');document.body.classList.remove('modal-open');}
+document.querySelectorAll('.modal-overlay').forEach(function(o){o.addEventListener('click',function(e){if(e.target===this)cm(this.id);});});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')document.querySelectorAll('.modal-overlay.show').forEach(function(m){cm(m.id);});});
+function st(el,t){document.querySelectorAll(t).forEach(function(x){x.classList.remove('active');});el.classList.add('active');}
+function sr(el){var g=el.closest('.radio-group');if(g)g.querySelectorAll('.radio-item').forEach(function(r){r.classList.remove('selected');});el.classList.add('selected');var r=el.querySelector('input[type=radio]');if(r)r.checked=true;}
+
+function showToast(msg,type){
+  var t=$('toast');t.textContent=msg;t.className='toast show '+(type||'');
+  setTimeout(function(){t.classList.remove('show');},3000);
+}
+
+// ===== Card Detail =====
+function od(k){
+  currentCard=k;var c=cards[k],f=c.status==='frozen';
+  var cf=$('detailCardFace');
+  cf.className='detail-card-face '+(f?'frozen':'active');
+  $('detailAmount').textContent='$'+c.bal.toLocaleString('en-US',{minimumFractionDigits:2});
+  $('detailNumText').textContent=cardNumVis?'4001 2345 6789 '+c.num:'•••• •••• •••• '+c.num;
+  $('detailName').textContent='JOHN DOE';
+  $('detailCvv').textContent='•••';
+  $('detailTypeBadge').textContent=c.type;
+  $('detailLevelBadge').textContent=c.level;
+  $('detailStatus').textContent=f?'● 已冻结':'● 使用中';
+  $('detailStatus').className='r '+(f?'warn':'green');
+  $('detailBin').textContent=c.bin;
+  $('detailIssue').textContent=c.issue;
+  $('detailExpire').textContent=c.expire;
+  $('detailFee').textContent=c.fee;
+  $('detailFx').textContent=c.fx;
+  $('detailSingle').textContent='$'+c.singleUsed.toLocaleString()+' / $'+c.single.toLocaleString();
+  $('detailSingleBar').style.width=(c.singleUsed/c.single*100).toFixed(1)+'%';
+  $('detailDaily').textContent='$'+c.dailyUsed.toLocaleString()+' / $'+c.daily.toLocaleString();
+  $('detailDailyBar').style.width=(c.dailyUsed/c.daily*100).toFixed(1)+'%';
+  $('detailMonthly').textContent='$'+c.monthlyUsed.toLocaleString()+' / $'+c.monthly.toLocaleString();
+  $('detailMonthlyBar').style.width=(c.monthlyUsed/c.monthly*100).toFixed(1)+'%';
+  $('freezeLabel').textContent=f?'解冻':'冻结';
+  om('modalDetail');
+}
+function tcn(){
+  cardNumVis=!cardNumVis;
+  $('detailNumText').textContent=cardNumVis?'4001 2345 6789 4821':'•••• •••• •••• 4821';
+  $('toggleVisBtn').textContent=cardNumVis?'隐藏':'显示';
+}
+
+// ===== Freeze =====
+function of(){
+  var c=cards[currentCard],f=c.status==='frozen';
+  $('freezeTitle').textContent=f?'解冻卡片':'冻结卡片';
+  $('freezeCardNum').textContent='•••• '+c.num;
+  $('freezeDesc').innerHTML=f
+    ?'确定要解冻卡片 <b>•••• '+c.num+'</b> 吗?'
+    :'确定要冻结卡片 <b>•••• '+c.num+'</b> 吗?冻结期间无法进行任何交易。';
+  $('btnConfirmFreeze').textContent=f?'确认解冻':'确认冻结';
+  $('btnConfirmFreeze').className='btn '+(f?'btn-dark':'btn-danger');
+  // 系统判定冻结原因,不暴露给用户
+  $('freezeNotice').style.display='none';
+  $('expireNotice').style.display='none';
+  if(f && currentCard==='sub'){
+    $('freezeNotice').style.display='flex';
+  }
+  om('modalFreeze');
+}
+function cf(){
+  var c=cards[currentCard],f=c.status==='frozen';
+  if(f && currentCard==='sub'){
+    cm('modalFreeze');
+    om('modalUnfreezeVerify');
+    return;
+  }
+  c.status=f?'active':'frozen';
+  cm('modalFreeze');
+  showToast(f?'✅ 卡片已解冻':'✅ 卡片已冻结');
+  od(currentCard);
+}
+function doUnfreezeVerify(){
+  cards[currentCard].status='active';
+  cm('modalUnfreezeVerify');
+  showToast('✅ 身份验证通过,卡片已解冻');
+  od(currentCard);
+}
+function verify3DS(){
+  cm('modal3DS');
+  showToast('✅ 3DS 验证通过,交易继续','success');
+}
+function tcvv(){
+  var v=$('detailCvv').textContent==='•••';
+  $('detailCvv').textContent=v?cards[currentCard].cvv:'•••';
+  $('cvvToggleBtn').textContent=v?'隐藏':'显示';
+}
+
+// ===== Limit =====
+function ol(){
+  var c=cards[currentCard]; if(!c)return;
+  var el,F=$('limitCardNum');if(F)F.textContent='•••• '+c.num;
+  el=$('limitLevel');if(el)el.textContent=c.level;
+  el=$('singleVal');if(el)el.textContent='$'+c.single.toLocaleString();
+  el=$('dailyVal');if(el)el.textContent='$'+c.daily.toLocaleString();
+  el=$('monthlyVal');if(el)el.textContent='$'+c.monthly.toLocaleString();
+  el=$('singleUsedBar');if(el)el.style.width=Math.min(c.singleUsed/c.single*100,100).toFixed(1)+'%;';
+  el=$('dailyUsedBar');if(el)el.style.width=Math.min(c.dailyUsed/c.daily*100,100).toFixed(1)+'%;';
+  el=$('monthlyUsedBar');if(el)el.style.width=Math.min(c.monthlyUsed/c.monthly*100,100).toFixed(1)+'%;';
+  document.querySelectorAll('.level-row').forEach(function(r){r.classList.remove('highlight');});
+  var lvs={'Lv1':0,'Lv2':1,'Lv3':2,'Lv4':3};
+  var idx=c.level in lvs?lvs[c.level]:1;
+  var rows=document.querySelectorAll('.level-row');
+  if(rows[idx])rows[idx].classList.add('highlight');
+  om('modalLimit');
+}
+
+function sl(){
+  var c=cards[currentCard];
+  var selected=document.querySelector('input[name=ld]:checked');
+  if(selected && selected.value==='half'){
+    c.single=Math.round(c.single*0.5);
+    c.daily=Math.round(c.daily*0.5);
+    c.monthly=Math.round(c.monthly*0.5);
+  }
+  cm('modalLimit');
+  showToast('✅ 限额已更新');
+  od(currentCard);
+}
+
+// ===== Cancel =====
+function oc(){
+  var c=cards[currentCard];
+  $('cancelCardNum').textContent='•••• '+c.num;
+  $('cancelBalance').textContent='$'+c.bal.toLocaleString('en-US',{minimumFractionDigits:2});
+  $('cancelRefund').textContent='$'+c.bal.toLocaleString('en-US',{minimumFractionDigits:2});
+  $('cancelConfirmInput').value='';
+  $('btnConfirmCancel').disabled=true;
+  om('modalCancel');
+}
+function ccc(){$('btnConfirmCancel').disabled=$('cancelConfirmInput').value!=='注销';}
+function cxc(){
+  cm('modalCancel');
+  showToast('✅ 卡片已注销,余额已退回账户','success');
+}
+
+// ===== Topup =====
+function ot(){
+  $('topupCrypto').style.display='block';
+  $('topupFiat').style.display='none';
+  $('tabCrypto').classList.add('active');
+  $('tabFiat').classList.remove('active');
+  uc();
+  om('modalTopup');
+}
+function stt(el,t){
+  document.querySelectorAll('#modalTopup .tx-tab').forEach(function(x){x.classList.remove('active');});
+  el.classList.add('active');
+  $('topupCrypto').style.display=t==='crypto'?'block':'none';
+  $('topupFiat').style.display=t==='fiat'?'block':'none';
+}
+function uc(){
+  var coin=$('cryptoCoin').value,amt=parseFloat($('cryptoAmount').value)||0;
+  $('cryptoPay').textContent='约 '+amt.toFixed(2)+' '+coin;
+  $('cryptoRate').textContent='1 '+coin+' ≈ $1.00(实时)';
+}
+function ct(){cm('modalTopup');showToast('✅ 充值请求已提交,区块链确认后 ≤ 10 秒到账','success');}
+
+// ===== New Card KYC =====
+function onc(type){if(type==='kyc'){kycStep=1;kycBin='bb';kycShowStep();om('modalKYC');}else{kybStep=1;kybBin='bb';kybShowStep();om('modalKYB');}}
+function kycShowStep(){
+  for(var i=1;i<=3;i++){
+    $('kyc-step-'+i).style.display=i===kycStep?'block':'none';
+    var d=$('kyc-dot-'+i);
+    d.className='step-dot '+(i<kycStep?'done':i===kycStep?'current':'pending');
+  }
+  $('kyc-back').style.display=kycStep>1?'inline-flex':'none';
+  $('kyc-next').style.display=kycStep<3?'inline-flex':'none';
+  $('kyc-go').style.display=kycStep===3?'inline-flex':'none';
+  if(kycStep===3){
+    $('kyc-conf-bin').textContent=kycBin==='bb'?'BB-BIN 🇨🇦 加拿大':'BZ-BIN 🇺🇸 美国';
+    $('kyc-conf-fx').textContent=kycBin==='bb'?'1.5%':'Pass through + 5bps';
+  }
+}
+function kycSelBin(el,bin){
+  document.querySelectorAll('#modalKYC .bin-option').forEach(function(x){x.classList.remove('selected');});
+  el.classList.add('selected');kycBin=bin;
+}
+function kycNext(){if(kycStep<3){kycStep++;kycShowStep();}}
+function kycBack(){if(kycStep>1){kycStep--;kycShowStep();}}
+function kycGo(){var cb=document.getElementById('kyc-agree-checkbox');if(!cb||!cb.checked){showToast('请先同意服务协议和风险揭示书','warn');return;}cm('modalKYC');showToast('正在提交审核...','success');setTimeout(function(){showKycResult('passed');},1500);}
+function showKycResult(type){
+  ['Passed','Request','Canceled','Timeout'].forEach(function(t){
+    var el=document.getElementById('kycResult'+t);if(el)el.style.display='none';
+  });
+  var map={passed:'Passed',request:'Request',canceled:'Canceled',timeout:'Timeout'};
+  var el=document.getElementById('kycResult'+(map[type]||'Passed'));
+  if(el)el.style.display='block';
+  om('modalKycResult');
+}
+
+// ===== New Card KYB =====
+function kybShowStep(){
+  for(var i=1;i<=3;i++){
+    $('kyb-step-'+i).style.display=i===kybStep?'block':'none';
+    var d=$('kyb-dot-'+i);
+    d.className='step-dot '+(i<kybStep?'done':i===kybStep?'current':'pending');
+  }
+  $('kyb-back').style.display=kybStep>1?'inline-flex':'none';
+  $('kyb-next').style.display=kybStep<3?'inline-flex':'none';
+  $('kyb-go').style.display=kybStep===3?'inline-flex':'none';
+  if(kybStep===3){
+    $('kyb-conf-bin').textContent=kybBin==='bb'?'BB-BIN 🇨🇦 加拿大':'BZ-BIN 🇺🇸 美国';
+    $('kyb-conf-fx').textContent=kybBin==='bb'?'1.5%':'Pass through + 5bps';
+  }
+}
+function kybSelBin(el,bin){
+  document.querySelectorAll('#modalKYB .bin-option').forEach(function(x){x.classList.remove('selected');});
+  el.classList.add('selected');kybBin=bin;
+}
+function kybNext(){if(kybStep<3){kybStep++;kybShowStep();}}
+function kybBack(){if(kybStep>1){kybStep--;kybShowStep();}}
+function kybGo(){cm('modalKYB');showToast('跳转至 KYB 认证页面...','success');}
+</script>
+</body>
+</html>

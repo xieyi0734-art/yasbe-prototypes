@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>交易审核快照 - YASBee 管理端</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;color:#1D2129;background:#F3F4F6;line-height:1.5}
+.sidebar{width:260px;background:#1D2129;color:#fff;height:100vh;position:fixed;left:0;top:0;overflow-y:auto}
+.sidebar-header{padding:20px;font-size:20px;font-weight:700;color:#E59303;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-item{display:flex;align-items:center;gap:12px;padding:12px 20px;color:#9CA3AF;font-size:14px;cursor:pointer;transition:all .15s}
+.sidebar-item:hover{color:#fff;background:rgba(255,255,255,.05)}
+.sidebar-item.active{color:#E59303;background:rgba(229,147,3,.1);border-right:3px solid #E59303}
+.sidebar-label{padding:8px 20px 4px;font-size:11px;color:#6B7280;text-transform:uppercase;letter-spacing:1px}
+.main{margin-left:260px;padding:32px}
+.stat-card{background:#fff;border-radius:12px;border:1px solid #E5E7EB;padding:20px}
+.stat-value{font-size:25px;font-weight:700}
+.stat-label{font-size:13px;color:#86909C;margin-bottom:4px}
+.badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:500}
+.badge-ok{background:#DCFCE7;color:#166534}
+.badge-fail{background:#FEE2E2;color:#991B1B}
+.badge-pending{background:#FEF9C3;color:#854D0E}
+.badge-review-pending{background:#FEF9C3;color:#854D0E}
+.badge-reviewed{background:#DCFCE7;color:#166534}
+.badge-discrepancy{background:#FEE2E2;color:#991B1B}
+.badge-settled{background:#DBEAFE;color:#1E40AF}
+.badge-unsettled{background:#FEF9C3;color:#854D0E}
+.btn-primary{background:#E59303;color:#fff;border:none;border-radius:8px;padding:8px 20px;font-size:14px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-primary:hover{background:#d48402}
+.btn-primary:disabled{background:#D1D5DB;color:#9CA3AF;cursor:not-allowed}
+.btn-outline{background:#fff;color:#4B5563;border:1px solid #D1D5DB;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-outline:hover{border-color:#E59303;color:#E59303}
+.btn-text{background:none;border:none;color:#E59303;font-size:13px;font-weight:500;cursor:pointer;padding:4px 8px}
+.btn-text:hover{color:#d48402}
+.btn-success{background:#16A34A;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-success:hover{background:#15803D}
+.btn-danger{background:#DC2626;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-danger:hover{background:#B91C1C}
+.filter-input{border:1px solid #D1D5DB;border-radius:8px;padding:8px 12px;font-size:14px;outline:none}
+.filter-input:focus{border-color:#E59303;box-shadow:0 0 0 2px rgba(229,147,3,.15)}
+.filter-select{border:1px solid #D1D5DB;border-radius:8px;padding:8px 12px;font-size:14px;outline:none;cursor:pointer;background:#fff}
+.filter-select:focus{border-color:#E59303;box-shadow:0 0 0 2px rgba(229,147,3,.15)}
+.table-wrap{background:#fff;border-radius:12px;border:1px solid #E5E7EB}
+.table-scroll{overflow-x:auto;border-radius:12px}
+table{width:100%;border-collapse:collapse;min-width:1100px}
+th{text-align:left;padding:10px 12px;font-size:12px;font-weight:500;color:#6B7280;border-bottom:1px solid #E5E7EB;background:#F9FAFB;white-space:nowrap}
+td{padding:10px 12px;font-size:13px;border-bottom:1px solid #F3F4F6;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#F9FAFB}
+.mono{font-family:SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
+.tag-spend{background:#EFF6FF;color:#1D4ED8}
+.tag-recharge{background:#DCFCE7;color:#166534}
+.tag-deduct{background:#FEF3C7;color:#92400E}
+.tag-refund{background:#F3E8FF;color:#6B21A8}
+.tag-fee{background:#FCE7F3;color:#9D174D}
+.pagination{display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding:12px 0}
+.page-btn{padding:6px 12px;border:1px solid #D1D5DB;border-radius:6px;background:#fff;cursor:pointer;font-size:13px;color:#4B5563}
+.page-btn:hover{border-color:#E59303;color:#E59303}
+.page-btn.active{border-color:#E59303;background:#E59303;color:#fff}
+.page-btn:disabled{opacity:0.4;cursor:default}
+.table-header{display:flex;justify-content:space-between;align-items:center;padding:0 0 16px 0}
+
+/* Modal overlay */
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:1000;justify-content:center;align-items:center}
+.modal-overlay.active{display:flex}
+.modal{background:#fff;border-radius:16px;padding:0;width:560px;max-height:80vh;overflow-y:auto;margin:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-header{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid #E5E7EB}
+.modal-header h3{font-size:16px;font-weight:600}
+.modal-close{background:none;border:none;font-size:20px;color:#9CA3AF;cursor:pointer;padding:4px;line-height:1}
+.modal-close:hover{color:#4B5563}
+.modal-body{padding:24px}
+.modal-footer{display:flex;justify-content:flex-end;gap:12px;padding:16px 24px;border-top:1px solid #E5E7EB}
+.detail-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F3F4F6;font-size:13px}
+.detail-row:last-child{border-bottom:none}
+.detail-label{color:#6B7280}
+.detail-value{font-weight:500;text-align:right}
+
+/* Drill-down drawer style */
+.drawer-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:1000}
+.drawer-overlay.active{display:block}
+.drawer{position:fixed;top:0;right:-80%;width:80%;height:100%;background:#F3F4F6;z-index:1001;transition:right .3s ease;box-shadow:-4px 0 20px rgba(0,0,0,.1);overflow-y:auto}
+.drawer.open{right:0}
+.drawer-header{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;background:#fff;border-bottom:1px solid #E5E7EB;position:sticky;top:0;z-index:2}
+.drawer-header h3{font-size:16px;font-weight:600}
+.drawer-close{background:none;border:none;font-size:24px;color:#9CA3AF;cursor:pointer}
+.drawer-close:hover{color:#4B5563}
+.drawer-body{padding:24px}
+
+/* Confirm modal */
+.confirm-label{font-size:13px;color:#4B5563;margin-bottom:4px}
+.confirm-value{font-size:15px;font-weight:600;margin-bottom:16px}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+<div class="sidebar-header">YASBee Admin</div>
+<div class="sidebar-label">主菜单</div>
+<div class="sidebar-item" style="color:#fff;"><span>🪪</span> 客户管理 ▾</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📈 概览</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">✅ 认证</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📋 客户列表</div>
+<div class="sidebar-item"><span>💰</span> 法币管理</div>
+<div class="sidebar-item"><span>₿</span> 加密货币</div>
+<div class="sidebar-item"><span>🔄</span> 兑换管理</div>
+<div class="sidebar-label">渠道</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📡 上游渠道</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">🃏 卡片服务</div>
+<div class="sidebar-label">卡片</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;color:#9CA3AF;">📋 卡片管理</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;color:#9CA3AF;">📝 申请记录</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;color:#9CA3AF;">📊 交易流水</div>
+<div class="sidebar-item active" style="padding-left:36px;font-size:13px;color:#E59303;">✅ 交易审核</div>
+<div class="sidebar-item"><span>📈</span> 投资</div>
+<div class="sidebar-item"><span>⚙️</span> 系统管理</div>
+<div class="sidebar-item"><span>📋</span> 我的任务</div>
+</div>
+
+<div class="main">
+
+<!-- Page Header -->
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+<div>
+<h1 style="font-size:24px;font-weight:700;">交易审核</h1>
+<p style="font-size:13px;color:#86909C;margin-top:4px;">按日审核交易快照，财务人员逐日勾对确认</p>
+</div>
+<div style="display:flex;gap:8px;">
+<button class="btn-outline" onclick="alert('Export Report')">📥 导出对账报告</button>
+</div>
+</div>
+
+<!-- Stats Row -->
+<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:12px;margin-bottom:20px;">
+<div class="stat-card">
+<div class="stat-label">待审核天数</div>
+<div class="stat-value" style="color:#E59303;">5</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">已审核天数</div>
+<div class="stat-value" style="color:#16A34A;">18</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">异常天数</div>
+<div class="stat-value" style="color:#DC2626;">1</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">总交易额</div>
+<div class="stat-value">$2.48M</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">总费用</div>
+<div class="stat-value">$18,520</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">净收入</div>
+<div class="stat-value" style="color:#16A34A;">$14,072</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">覆盖率</div>
+<div class="stat-value">78.3%</div>
+</div>
+</div>
+
+<!-- Filters -->
+<div style="background:#fff;border-radius:12px;border:1px solid #E5E7EB;padding:16px 20px;margin-bottom:20px;">
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+<select class="filter-select" style="width:140px;" id="reviewStatusFilter">
+<option>全部审核状态</option>
+<option>待审核</option>
+<option>已符合</option>
+<option>异常</option>
+</select>
+<select class="filter-select" style="width:130px;" id="settleStatusFilter">
+<option>全部结算</option>
+<option>已全部结算</option>
+<option>部分未结算</option>
+<option>全部未结算</option>
+</select>
+<input class="filter-input" type="date" value="2026-05-01" style="width:150px;" id="dateFrom">
+<span style="color:#9CA3AF;">至</span>
+<input class="filter-input" type="date" value="2026-06-03" style="width:150px;" id="dateTo">
+<button class="btn-primary" onclick="applyFilter()">🔍 搜索</button>
+<button class="btn-outline" onclick="resetFilter()">重置</button>
+</div>
+</div>
+
+<!-- Table -->
+<div class="table-wrap">
+<div class="table-header" style="padding:16px 20px 0;">
+<h3 style="font-size:15px;font-weight:600;">每日快照列表</h3>
+<span style="font-size:12px;color:#9CA3AF;">共 <span id="totalCount">23</span> 个交易日</span>
+</div>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>总笔数</th>
+<th>成功</th>
+<th>失败</th>
+<th>处理中</th>
+<th>总交易额</th>
+<th>总费用</th>
+<th>净收入</th>
+<th>已结算</th>
+<th>未结算</th>
+<th>审核状态</th>
+<th>初审人</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody id="review-tbody"></tbody>
+</table>
+</div>
+</div>
+
+<!-- Pagination -->
+<div class="pagination" id="pagination">
+<div style="font-size:13px;color:#6B7280;">显示第 1–10 条，共 23 条</div>
+<div style="display:flex;gap:4px;" id="pageBtns"></div>
+</div>
+
+</div><!-- .main -->
+
+<!-- Confirm Modal -->
+<div class="modal-overlay" id="confirmModal">
+<div class="modal">
+<div class="modal-header">
+<h3>审核确认</h3>
+<button class="modal-close" onclick="closeConfirmModal()">×</button>
+</div>
+<div class="modal-body">
+<p style="font-size:14px;color:#4B5563;margin-bottom:20px;">确认以下日期的交易数据已核对无误？</p>
+<div class="confirm-label">日期</div>
+<div class="confirm-value" id="confirmDate">—</div>
+<div class="confirm-label">总交易额</div>
+<div class="confirm-value" id="confirmAmount">—</div>
+<div class="confirm-label">总笔数</div>
+<div class="confirm-value" id="confirmCount">—</div>
+<div class="confirm-label">总费用</div>
+<div class="confirm-value" id="confirmFee">—</div>
+</div>
+<div class="modal-footer">
+<button class="btn-outline" onclick="closeConfirmModal()">取消</button>
+<button class="btn-success" onclick="doConfirm()">✅ 确认符合</button>
+</div>
+</div>
+</div>
+
+<!-- Discrepancy Modal -->
+<div class="modal-overlay" id="discrepancyModal">
+<div class="modal">
+<div class="modal-header">
+<h3>标记异常</h3>
+<button class="modal-close" onclick="closeDiscrepancyModal()">×</button>
+</div>
+<div class="modal-body">
+<p style="font-size:14px;color:#4B5563;margin-bottom:16px;">请描述异常原因：</p>
+<textarea id="discrepancyNote" style="width:100%;height:100px;border:1px solid #D1D5DB;border-radius:8px;padding:12px;font-size:13px;outline:none;resize:vertical;" placeholder="例如：交易笔数与上游对账单不符，差异 3 笔…"></textarea>
+</div>
+<div class="modal-footer">
+<button class="btn-outline" onclick="closeDiscrepancyModal()">取消</button>
+<button class="btn-danger" onclick="doDiscrepancy()">⚠️ 标记异常</button>
+</div>
+</div>
+</div>
+
+<!-- Drill-down Drawer -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+<div class="drawer-header">
+<div>
+<h3>交易明细</h3>
+<span style="font-size:12px;color:#86909C;" id="drawerDate">—</span>
+</div>
+<button class="drawer-close" onclick="closeDrawer()">×</button>
+</div>
+<div class="drawer-body">
+<table style="min-width:100%;">
+<thead>
+<tr>
+<th>交易编号</th>
+<th>卡号</th>
+<th>客户</th>
+<th>类型</th>
+<th>金额</th>
+<th>费用</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody id="drawer-tbody"></tbody>
+</table>
+</div>
+</div>
+
+<script>
+// ============== Mock Data: 23 daily snapshots ==============
+const reviewStatuses=['待审核','待审核','待审核','已符合','已符合','已符合','异常'];
+const reviewers=['—','—','—','张会计','李财务','王出纳','张会计'];
+const settleSts=['已全部结算','部分未结算','全部未结算'];
+
+function generateReviewData(n){
+  const rows=[];
+  const base=new Date(2026,4,12); // May 12
+  for(let i=0;i<n;i++){
+    const d=new Date(base);
+    d.setDate(d.getDate()+i);
+    const totalTx=Math.floor(Math.random()*200+80);
+    const success=Math.floor(totalTx*(0.85+Math.random()*0.12));
+    const fail=Math.floor((totalTx-success)*(0.3+Math.random()*0.4));
+    const pending=totalTx-success-fail;
+    const totalAmt=Math.round(Math.random()*150000*100+20000*100)/100;
+    const totalFee=Math.round(totalAmt*(0.005+Math.random()*0.015)*100)/100;
+    const netRev=Math.round((totalFee-totalFee*0.24)*100)/100;
+    const settled=Math.round(totalAmt*(0.4+Math.random()*0.5)*100)/100;
+    const unsettled=Math.round((totalAmt-settled)*100)/100;
+    const rv=reviewStatuses[i%reviewStatuses.length];
+    const rvIdx=reviewStatuses.indexOf(rv);
+    rows.push({
+      date:d.toISOString().slice(0,10),
+      totalTx,success,fail,pending,
+      totalAmt,totalFee,netRev,settled,unsettled,
+      reviewStatus:rv,
+      reviewer:reviewers[i%reviewers.length],
+      settleStatus:settleSts[i%settleSts.length],
+    });
+  }
+  return rows.sort((a,b)=>b.date.localeCompare(a.date));
+}
+
+const data=generateReviewData(23);
+let filteredData=[...data];
+let curPage=1,pageSize=10;
+
+// ============== Review badge helpers ==============
+const reviewBadgeCls={'待审核':'badge-review-pending','已符合':'badge-reviewed','异常':'badge-discrepancy'};
+const settleBadgeCls={'已全部结算':'badge-settled','部分未结算':'badge-pending','全部未结算':'badge-fail'};
+
+// ============== Render ==============
+function render(rows){
+  const tbody=document.getElementById('review-tbody');
+  tbody.innerHTML='';
+  rows.forEach((r,i)=>{
+    const tr=document.createElement('tr');
+    const idx=(curPage-1)*pageSize+i+1;
+    const isConfirmed=r.reviewStatus==='已符合';
+    const isPending=r.reviewStatus==='待审核';
+    tr.innerHTML=`<td style="font-weight:600;">${r.date}</td>
+<td class="mono">${r.totalTx}</td>
+<td style="color:#16A34A;font-weight:500;">${r.success}</td>
+<td style="color:#DC2626;">${r.fail}</td>
+<td style="color:#E59303;">${r.pending}</td>
+<td style="font-weight:600;">$${r.totalAmt.toLocaleString('en-US',{minFraction:2})}</td>
+<td>$${r.totalFee.toLocaleString('en-US',{minFraction:2})}</td>
+<td style="color:#16A34A;font-weight:500;">+$${r.netRev.toLocaleString('en-US',{minFraction:2})}</td>
+<td>$${r.settled.toLocaleString('en-US',{minFraction:2})}</td>
+<td style="color:#6B7280;">$${r.unsettled.toLocaleString('en-US',{minFraction:2})}</td>
+<td><span class="badge ${reviewBadgeCls[r.reviewStatus]}">${r.reviewStatus}</span></td>
+<td style="color:#6B7280;font-size:12px;">${r.reviewer}</td>
+<td>
+  <div style="display:flex;gap:6px;flex-wrap:nowrap;">
+    ${isPending?`<button class="btn-text" onclick='openConfirmModal(${JSON.stringify(r.date)})' style="font-size:12px;color:#16A34A;">✅ 符合</button>
+    <button class="btn-text" onclick='openDiscrepancyModal(${JSON.stringify(r.date)})' style="font-size:12px;color:#DC2626;">⚠️ 异常</button>`:''}
+    ${isConfirmed?`<span style="font-size:12px;color:#16A34A;padding:4px 0;">已审 ✓</span>
+    <button class="btn-text" onclick='openConfirmModal(${JSON.stringify(r.date)})' style="font-size:12px;">🔄 重审</button>`:''}
+    ${r.reviewStatus==='异常'?`<span style="font-size:12px;color:#DC2626;padding:4px 0;">待修正</span>`:''}
+    <button class="btn-text" onclick='openDrawer(${JSON.stringify(r.date)})'>👁 查看明细</button>
+  </div>
+</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderPage(p){
+  curPage=p;
+  const start=(p-1)*pageSize;
+  render(filteredData.slice(start,start+pageSize));
+  renderPagination();
+}
+
+function renderPagination(){
+  const total=filteredData.length;
+  const pages=Math.ceil(total/pageSize);
+  const el=document.getElementById('pageBtns');
+  document.querySelector('.pagination').children[0].textContent=`显示第 ${(curPage-1)*pageSize+1}–${Math.min(curPage*pages,Math.min(curPage*pageSize,total))} 条，共 ${total} 条`;
+  let html='';
+  html+=`<button class="page-btn" onclick="renderPage(${curPage-1})" ${curPage===1?'disabled':''}>‹</button>`;
+  const ps=[];
+  if(pages<=7) for(let i=1;i<=pages;i++)ps.push(i);
+  else{
+    ps.push(1);
+    if(curPage>3)ps.push('…');
+    for(let i=Math.max(2,curPage-1);i<=Math.min(pages-1,curPage+1);i++)ps.push(i);
+    if(curPage<pages-2)ps.push('…');
+    ps.push(pages);
+  }
+  ps.forEach(p=>{
+    if(p==='…')html+=`<span style="padding:6px 8px;color:#9CA3AF;">…</span>`;
+    else html+=`<button class="page-btn${p===curPage?' active':''}" onclick="renderPage(${p})">${p}</button>`;
+  });
+  html+=`<button class="page-btn" onclick="renderPage(${curPage+1})" ${curPage===pages?'disabled':''}>›</button>`;
+  el.innerHTML=html;
+}
+
+// ============== Filter ==============
+function applyFilter(){
+  const rv=document.getElementById('reviewStatusFilter').value;
+  const ss=document.getElementById('settleStatusFilter').value;
+  const df=document.getElementById('dateFrom').value;
+  const dt=document.getElementById('dateTo').value;
+  let d=data.filter(r=>{
+    if(rv!=='全部审核状态' && r.reviewStatus!==rv) return false;
+    if(ss!=='全部结算' && r.settleStatus!==ss) return false;
+    if(df && r.date<df) return false;
+    if(dt && r.date>dt) return false;
+    return true;
+  });
+  filteredData=d;
+  document.getElementById('totalCount').textContent=d.length;
+  renderPage(1);
+}
+
+function resetFilter(){
+  document.getElementById('reviewStatusFilter').value='全部审核状态';
+  document.getElementById('settleStatusFilter').value='全部结算';
+  document.getElementById('dateFrom').value='2026-05-01';
+  document.getElementById('dateTo').value='2026-06-03';
+  filteredData=[...data];
+  document.getElementById('totalCount').textContent=data.length;
+  renderPage(1);
+}
+
+// ============== Confirm Modal ==============
+let confirmDate='';
+function openConfirmModal(date){
+  confirmDate=date;
+  const r=data.find(d=>d.date===date);
+  if(!r) return;
+  document.getElementById('confirmDate').textContent=r.date;
+  document.getElementById('confirmAmount').textContent='$'+r.totalAmt.toLocaleString('en-US',{minFraction:2});
+  document.getElementById('confirmCount').textContent=r.totalTx+' 笔 (成功 '+r.success+', 失败 '+r.fail+', 处理中 '+r.pending+')';
+  document.getElementById('confirmFee').textContent='$'+r.totalFee.toLocaleString('en-US',{minFraction:2});
+  document.getElementById('confirmModal').classList.add('active');
+}
+function closeConfirmModal(){
+  document.getElementById('confirmModal').classList.remove('active');
+}
+function doConfirm(){
+  const r=data.find(d=>d.date===confirmDate);
+  if(r){
+    r.reviewStatus='已符合';
+    r.reviewer='当前用户';
+  }
+  closeConfirmModal();
+  applyFilter();
+}
+// Close on overlay click
+document.getElementById('confirmModal').addEventListener('click',function(e){
+  if(e.target===this) closeConfirmModal();
+});
+
+// ============== Discrepancy Modal ==============
+let discrepancyDate='';
+function openDiscrepancyModal(date){
+  discrepancyDate=date;
+  document.getElementById('discrepancyNote').value='';
+  document.getElementById('discrepancyModal').classList.add('active');
+}
+function closeDiscrepancyModal(){
+  document.getElementById('discrepancyModal').classList.remove('active');
+}
+function doDiscrepancy(){
+  const note=document.getElementById('discrepancyNote').value.trim()||'未注明原因';
+  const r=data.find(d=>d.date===discrepancyDate);
+  if(r){
+    r.reviewStatus='异常';
+    r.reviewer='当前用户';
+  }
+  closeDiscrepancyModal();
+  applyFilter();
+}
+document.getElementById('discrepancyModal').addEventListener('click',function(e){
+  if(e.target===this) closeDiscrepancyModal();
+});
+
+// ============== Drawer (Drill-down) ==============
+const txTypes=['消费','消费','消费','消费','充值','扣款','退款','费用'];
+const statuses=['成功','成功','成功','成功','失败','处理中'];
+const stBadge={'成功':'badge-ok','失败':'badge-fail','处理中':'badge-pending'};
+const typeTagCls={'消费':'tag-spend','充值':'tag-recharge','扣款':'tag-deduct','退款':'tag-refund','费用':'tag-fee'};
+function rand(a){return a[Math.floor(Math.random()*a.length)]}
+
+function generateDayTxs(date,count){
+  const rows=[];
+  for(let i=0;i<count;i++){
+    const type=rand(txTypes);
+    const status=rand(statuses);
+    const amt=Math.round(Math.random()*5000*100+10)/100;
+    const fee=type==='费用'?amt:Math.round(Math.random()*50*100)/100;
+    rows.push({
+      id:`TX-${date.replace(/-/g,'')}-${String(i+1).padStart(4,'0')}`,
+      cardNum:['480********4821','523********9012','480********3345','523********1122'][Math.floor(Math.random()*4)],
+      cust:['user@example.com','john@test.com','alice@test.com','bob@corp.com'][Math.floor(Math.random()*4)],
+      type,amount:amt,fee,status,
+    });
+  }
+  return rows;
+}
+
+function openDrawer(date){
+  const r=data.find(d=>d.date===date);
+  if(!r) return;
+  document.getElementById('drawerDate').textContent=date+' 共 '+r.totalTx+' 笔交易';
+  document.getElementById('drawerOverlay').classList.add('active');
+  document.getElementById('drawer').classList.add('open');
+
+  const txs=generateDayTxs(date,Math.min(r.totalTx,20));
+  const tbody=document.getElementById('drawer-tbody');
+  tbody.innerHTML='';
+  txs.forEach((tx,i)=>{
+    const tr=document.createElement('tr');
+    const amtS=tx.type==='退款'||tx.type==='扣款'?`<span style="color:#DC2626;">-$${tx.amount.toFixed(2)}</span>`:`<span style="color:#16A34A;">+$${tx.amount.toFixed(2)}</span>`;
+    const feeS=tx.fee>0?`$${tx.fee.toFixed(2)}`:'—';
+    tr.innerHTML=`<td class="mono" style="color:#1D4ED8;">${tx.id}</td>
+<td class="mono">${tx.cardNum}</td>
+<td style="font-size:12px;">${tx.cust}</td>
+<td><span class="tag ${typeTagCls[tx.type]}">${tx.type}</span></td>
+<td style="font-weight:500;">${amtS}</td>
+<td>${feeS}</td>
+<td><span class="badge ${stBadge[tx.status]}">${tx.status}</span></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function closeDrawer(){
+  document.getElementById('drawerOverlay').classList.remove('active');
+  document.getElementById('drawer').classList.remove('open');
+}
+
+// ============== Init ==============
+renderPage(1);
+</script>
+</body>
+</html>

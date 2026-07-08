@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Card Transaction Snapshot - Beeznis Admin</title>
+<style>
+:root {
+  --color-primary: #E59303;
+  --color-sidebar-bg: #1D2129;
+  --color-bg: #F0F2F5;
+  --color-card-bg: #FFFFFF;
+  --color-text: #1D2129;
+  --color-text-secondary: #86909C;
+  --color-border: #E5E8EB;
+  --color-success: #52C41A;
+  --color-error: #F5222D;
+  --color-warning: #FAAD14;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: var(--color-bg); color: var(--color-text); font-size: 14px; display: flex; min-height: 100vh; }
+.sidebar { width: 240px; background: var(--color-sidebar-bg); color: #fff; display: flex; flex-direction: column; flex-shrink: 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sidebar-logo { padding: 20px 16px 12px; border-bottom: 1px solid rgba(255,255,255,.06); display: flex; align-items: center; gap: 10px; }
+.sidebar-logo .logo-icon { width: 32px; height: 32px; background: var(--color-primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; color: #fff; }
+.sidebar-logo h2 { font-size: 16px; font-weight: 700; letter-spacing: 1px; }
+.sidebar-logo span { font-size: 11px; color: var(--color-text-secondary); display: block; }
+.sidebar-menu { padding: 8px 0; flex: 1; }
+.menu-item { display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: rgba(255,255,255,.75); font-size: 13px; cursor: pointer; transition: all .15s; text-decoration: none; }
+.menu-item:hover { background: rgba(255,255,255,.08); }
+.menu-item.active { background: var(--color-primary); color: #fff; font-weight: 600; }
+.menu-item .icon { font-size: 16px; width: 20px; text-align: center; }
+.submenu { padding-left: 36px; }
+.submenu .menu-item { font-size: 12px; padding: 8px 16px; }
+.submenu .menu-item.active { background: rgba(229,147,3,.2); color: var(--color-primary); }
+.sidebar-footer { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,.06); display: flex; align-items: center; gap: 10px; }
+.sidebar-footer .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--color-primary); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: #fff; }
+.main { flex: 1; min-width: 0; }
+.header { background: #fff; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--color-border); position: sticky; top: 0; z-index: 100; }
+.breadcrumb { font-size: 12px; color: var(--color-text-secondary); }
+.content { padding: 24px; }
+.page-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.page-title h1 { font-size: 22px; font-weight: 600; }
+
+/* Search */
+.search-card { background: #fff; border-radius: 8px; padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+.search-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+.search-row .field { display: flex; flex-direction: column; min-width: 140px; }
+.search-row label { font-size: 12px; color: var(--color-text-secondary); display: block; margin-bottom: 4px; }
+.search-row input, .search-row select { padding: 7px 10px; border: 1px solid var(--color-border); border-radius: 6px; font-size: 13px; outline: none; }
+.search-row input:focus, .search-row select:focus { border-color: var(--color-primary); box-shadow: 0 0 0 2px rgba(229,147,3,.08); }
+.btn-primary { background: var(--color-primary); color: #fff; border: none; padding: 8px 20px; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 500; transition: opacity .15s; }
+.btn-primary:hover { opacity: .85; }
+.btn-outline { background: #fff; color: var(--color-text); border: 1px solid var(--color-border); padding: 8px 20px; border-radius: 6px; font-size: 13px; cursor: pointer; transition: all .15s; }
+.btn-outline:hover { border-color: var(--color-primary); color: var(--color-primary); }
+
+/* Table */
+.table-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.06); overflow: auto; }
+.summary-bar { background: #F9FAFB; padding: 12px 16px; border-bottom: 1px solid var(--color-border); font-size: 12px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 2000px; }
+.data-table th { background: #FAFAFA; padding: 9px 10px; text-align: left; font-weight: 600; font-size: 11px; border-bottom: 1px solid var(--color-border); white-space: nowrap; position: sticky; top: 0; z-index: 1; }
+.data-table td { padding: 9px 10px; border-bottom: 1px solid #F0F0F0; white-space: nowrap; }
+.data-table tr:nth-child(even) { background: #FAFAFA; }
+.data-table tr:hover { background: #F5F5F5; }
+
+/* Badges */
+.badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 10.5px; font-weight: 500; }
+.badge-green { background: #DCFCE7; color: #166534; }
+.badge-orange { background: #FFF7ED; color: #9A3412; }
+.badge-red { background: #FEE2E2; color: #991B1B; }
+.badge-gray { background: #F3F4F6; color: #6B7280; }
+.badge-blue { background: #DBEAFE; color: #1D4ED8; }
+.badge-yellow { background: #FEF3C7; color: #92400E; }
+.badge-purple { background: #F3E8FF; color: #6B21A8; }
+
+/* Pagination */
+.pagination { display: flex; justify-content: center; align-items: center; gap: 6px; padding: 16px; border-top: 1px solid var(--color-border); font-size: 13px; }
+.pagination .page-btn { padding: 6px 12px; border: 1px solid var(--color-border); border-radius: 4px; background: #fff; cursor: pointer; font-size: 12px; color: var(--color-text); }
+.pagination .page-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.pagination .page-btn.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+.pagination .page-btn:disabled { opacity: .4; cursor: not-allowed; }
+.pagination .page-info { font-size: 12px; color: var(--color-text-secondary); margin: 0 8px; }
+
+/* Type icons */
+.type-badge { display: inline-flex; align-items: center; gap: 3px; }
+.amount { font-weight: 600; }
+.amount.positive { color: var(--color-success); }
+.amount.negative { color: var(--color-error); }
+.amount.zero { color: var(--color-text-secondary); }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">B</div>
+    <div>
+      <h2>Beeznis</h2>
+      <span>Admin Panel</span>
+    </div>
+  </div>
+  <div class="sidebar-menu">
+    <div class="menu-item"><span class="icon">📊</span>Dashboard</div>
+    <div class="menu-item active"><span class="icon">💳</span>Card Management</div>
+    <div class="submenu">
+      <div class="menu-item">Card List</div>
+      <div class="menu-item active">Transaction Snapshot</div>
+    </div>
+    <div class="menu-item"><span class="icon">👥</span>Customer</div>
+    <div class="menu-item"><span class="icon">🔄</span>Transactions</div>
+    <div class="menu-item"><span class="icon">⚙️</span>Settlement</div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="avatar">DX</div>
+    <div style="font-size:12px;color:rgba(255,255,255,.75);">Driven Xie</div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="header">
+    <div class="breadcrumb">Card Management / Transaction Snapshot</div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <input type="text" placeholder="Search..." style="padding:6px 12px;border:1px solid var(--color-border);border-radius:6px;font-size:13px;outline:none;width:180px;">
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-title">
+      <h1>Card Transaction Snapshot</h1>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-outline">📥 Export</button>
+      </div>
+    </div>
+
+    <!-- Search Filters -->
+    <div class="search-card">
+      <div class="search-row">
+        <div class="field">
+          <label>Snapshot Date</label>
+          <input type="date" value="2026-06-08">
+        </div>
+        <div class="field">
+          <label>Card</label>
+          <select>
+            <option value="">All Cards</option>
+            <option>BB ••4821</option>
+            <option>BZ ••6732</option>
+            <option>BB ••1094</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Type</label>
+          <select>
+            <option value="">All Types</option>
+            <option>1 · Top-up</option>
+            <option>2 · Consumption</option>
+            <option>3 · Refund</option>
+            <option>4 · Fee</option>
+            <option>5 · Withdrawal</option>
+            <option>6 · Reversal</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <select>
+            <option value="">All Status</option>
+            <option>1 · Processing</option>
+            <option>2 · Success</option>
+            <option>3 · Failed</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Channel</label>
+          <select>
+            <option value="">All Channels</option>
+            <option>interlace</option>
+            <option>svf</option>
+            <option>stripe</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Channel TX Type</label>
+          <select>
+            <option value="">All</option>
+            <option>1 · Authorization</option>
+            <option>2 · Settlement</option>
+          </select>
+        </div>
+        <div class="field" style="justify-content:flex-end;">
+          <button class="btn-primary">🔍 Search</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-card">
+      <div class="summary-bar">
+        <span>📅 Snapshot Date: <b>2026-06-08</b></span>
+        <span>📋 Total Records: <b>100</b></span>
+        <span style="color:var(--color-success);">✅ Success: <b>87</b></span>
+        <span style="color:var(--color-error);">❌ Failed: <b>8</b></span>
+        <span style="color:var(--color-warning);">⏳ Processing: <b>5</b></span>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Source TX ID</th>
+            <th>Snapshot Date</th>
+            <th>Card</th>
+            <th>User ID</th>
+            <th>Channel</th>
+            <th>Type</th>
+            <th>Channel TX Type</th>
+            <th>Channel TX ID</th>
+            <th>Client TX ID</th>
+            <th>Amount</th>
+            <th>Fee</th>
+            <th>Recharge Fee</th>
+            <th>Consumption Fee</th>
+            <th>Balance Before</th>
+            <th>Balance After</th>
+            <th>Currency</th>
+            <th>TX Currency</th>
+            <th>TX Amount</th>
+            <th>Merchant</th>
+            <th>MCC</th>
+            <th>MCC Category</th>
+            <th>City</th>
+            <th>Country</th>
+            <th>TX Time</th>
+            <th>Complete Time</th>
+            <th>Status</th>
+            <th>Channel Status</th>
+            <th>Detail</th>
+            <th>Remark</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>1001</td>
+            <td>2026-06-08</td>
+            <td>••4821</td>
+            <td>10001</td>
+            <td><span class="badge badge-blue">interlace</span></td>
+            <td><span class="badge badge-green">2 · Consumption</span></td>
+            <td>2 · Settlement</td>
+            <td>tx_ch_001</td>
+            <td>cli_001</td>
+            <td class="amount negative">-$156.99</td>
+            <td>$0.50</td>
+            <td>$0.00</td>
+            <td>$0.50</td>
+            <td>$1,000.00</td>
+            <td>$843.01</td>
+            <td>USD</td>
+            <td>USD</td>
+            <td>156.99</td>
+            <td>Amazon.com</td>
+            <td>5311</td>
+            <td>Department Stores</td>
+            <td>Seattle</td>
+            <td>US</td>
+            <td>2026-06-08 09:15</td>
+            <td>2026-06-08 09:15</td>
+            <td><span class="badge badge-green">2 · Success</span></td>
+            <td>CLOSED</td>
+            <td>Amazon purchase</td>
+            <td>-</td>
+            <td>2026-06-08 09:15</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>1002</td>
+            <td>2026-06-08</td>
+            <td>••4821</td>
+            <td>10001</td>
+            <td><span class="badge badge-blue">interlace</span></td>
+            <td><span class="badge badge-green">1 · Top-up</span></td>
+            <td>2 · Settlement</td>
+            <td>tx_ch_002</td>
+            <td>cli_002</td>
+            <td class="amount positive">+$500.00</td>
+            <td>$1.25</td>
+            <td>$1.25</td>
+            <td>$0.00</td>
+            <td>$843.01</td>
+            <td>$1,342.76</td>
+            <td>USD</td>
+            <td>USDT</td>
+            <td>500.00</td>
+            <td>Crypto Wallet</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>2026-06-08 10:30</td>
+            <td>2026-06-08 10:31</td>
+            <td><span class="badge badge-green">2 · Success</span></td>
+            <td>CLOSED</td>
+            <td>USDT top-up</td>
+            <td>-</td>
+            <td>2026-06-08 10:31</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>1003</td>
+            <td>2026-06-08</td>
+            <td>••6732</td>
+            <td>10001</td>
+            <td><span class="badge badge-blue">interlace</span></td>
+            <td><span class="badge badge-green">2 · Consumption</span></td>
+            <td>1 · Authorization</td>
+            <td>tx_ch_003</td>
+            <td>cli_003</td>
+            <td class="amount negative">-$15.99</td>
+            <td>$0.10</td>
+            <td>$0.00</td>
+            <td>$0.10</td>
+            <td>$500.00</td>
+            <td>$484.01</td>
+            <td>USD</td>
+            <td>USD</td>
+            <td>15.99</td>
+            <td>Netflix</td>
+            <td>5815</td>
+            <td>Digital Goods</td>
+            <td>Los Gatos</td>
+            <td>US</td>
+            <td>2026-06-08 12:05</td>
+            <td>2026-06-08 12:05</td>
+            <td><span class="badge badge-green">2 · Success</span></td>
+            <td>CLOSED</td>
+            <td>Netflix subscription</td>
+            <td>-</td>
+            <td>2026-06-08 12:05</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>1004</td>
+            <td>2026-06-08</td>
+            <td>••4821</td>
+            <td>10001</td>
+            <td><span class="badge badge-blue">interlace</span></td>
+            <td><span class="badge badge-orange">3 · Refund</span></td>
+            <td>2 · Settlement</td>
+            <td>tx_ch_004</td>
+            <td>cli_004</td>
+            <td class="amount positive">+$99.00</td>
+            <td>$0.00</td>
+            <td>$0.00</td>
+            <td>$0.00</td>
+            <td>$1,342.76</td>
+            <td>$1,441.76</td>
+            <td>USD</td>
+            <td>USD</td>
+            <td>99.00</td>
+            <td>Apple Store</td>
+            <td>5734</td>
+            <td>Computer Software</td>
+            <td>Cupertino</td>
+            <td>US</td>
+            <td>2026-06-08 11:20</td>
+            <td>2026-06-08 11:20</td>
+            <td><span class="badge badge-green">2 · Success</span></td>
+            <td>CLOSED</td>
+            <td>Refund for order #APP-123</td>
+            <td>-</td>
+            <td>2026-06-08 11:20</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>1005</td>
+            <td>2026-06-08</td>
+            <td>••6732</td>
+            <td>10001</td>
+            <td><span class="badge badge-purple">stripe</span></td>
+            <td><span class="badge badge-green">2 · Consumption</span></td>
+            <td>2 · Settlement</td>
+            <td>tx_ch_005</td>
+            <td>cli_005</td>
+            <td class="amount negative">-$89.00</td>
+            <td>$2.50</td>
+            <td>$0.00</td>
+            <td>$2.50</td>
+            <td>$484.01</td>
+            <td>$395.01</td>
+            <td>USD</td>
+            <td>USD</td>
+            <td>89.00</td>
+            <td>Shein</td>
+            <td>5651</td>
+            <td>Family Clothing</td>
+            <td>Los Angeles</td>
+            <td>US</td>
+            <td>2026-06-08 14:22</td>
+            <td>2026-06-08 14:22</td>
+            <td><span class="badge badge-green">2 · Success</span></td>
+            <td>CLOSED</td>
+            <td>Shein online shopping</td>
+            <td>-</td>
+            <td>2026-06-08 14:22</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td>1006</td>
+            <td>2026-06-08</td>
+            <td>••1094</td>
+            <td>10001</td>
+            <td><span class="badge badge-blue">interlace</span></td>
+            <td><span class="badge badge-green">2 · Consumption</span></td>
+            <td>1 · Authorization</td>
+            <td>tx_ch_006</td>
+            <td>cli_006</td>
+            <td class="amount negative">-$8,500.00</td>
+            <td>$0.00</td>
+            <td>$0.00</td>
+            <td>$0.00</td>
+            <td>$9,000.00</td>
+            <td>$500.00</td>
+            <td>USD</td>
+            <td>USD</td>
+            <td>8500.00</td>
+            <td>BestBuy</td>
+            <td>5732</td>
+            <td>Electronics</td>
+            <td>New York</td>
+            <td>US</td>
+            <td>2026-06-08 15:40</td>
+            <td>2026-06-08 15:40</td>
+            <td><span class="badge badge-red">3 · Failed</span></td>
+            <td>FAIL</td>
+            <td>Risk control blocked</td>
+            <td>Exceeded single transaction limit</td>
+            <td>2026-06-08 15:40</td>
+          </tr>
+          <tr>
+            <td>7</td>
+            <td>1007</td>
+            <td>2026-06-08</td>
+            <td>••4821</td>
+            <td>10001</td>
+            <td><span class="badge badge-blue">interlace</span></td>
+            <td><span class="badge badge-yellow">4 · Fee</span></td>
+            <td>2 · Settlement</td>
+            <td>tx_ch_007</td>
+            <td>cli_007</td>
+            <td class="amount negative">-$0.25</td>
+            <td>$0.25</td>
+            <td>$0.00</td>
+            <td>$0.00</td>
+            <td>$1,441.76</td>
+            <td>$1,441.51</td>
+            <td>USD</td>
+            <td>USD</td>
+            <td>0.25</td>
+            <td>YASBee</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>2026-06-08 00:00</td>
+            <td>2026-06-08 00:01</td>
+            <td><span class="badge badge-green">2 · Success</span></td>
+            <td>CLOSED</td>
+            <td>Monthly fee deduction</td>
+            <td>Card monthly fee $0.25</td>
+            <td>2026-06-08 00:01</td>
+          </tr>
+          <tr>
+            <td>8</td>
+            <td>1008</td>
+            <td>2026-06-08</td>
+            <td>••6732</td>
+            <td>10001</td>
+            <td><span class="badge badge-purple">stripe</span></td>
+            <td><span class="badge badge-green">2 · Consumption</span></td>
+            <td>2 · Settlement</td>
+            <td>tx_ch_008</td>
+            <td>cli_008</td>
+            <td class="amount negative">-$15.99</td>
+            <td>$0.10</td>
+            <td>$0.00</td>
+            <td>$0.10</td>
+            <td>$395.01</td>
+            <td>$379.02</td>
+            <td>USD</td>
+            <td>USD</td>
+            <td>15.99</td>
+            <td>Netflix</td>
+            <td>5815</td>
+            <td>Digital Goods</td>
+            <td>Los Gatos</td>
+            <td>US</td>
+            <td>2026-06-08 20:30</td>
+            <td>2026-06-08 20:30</td>
+            <td><span class="badge badge-orange">3 · Failed</span></td>
+            <td>FAIL</td>
+            <td>Insufficient balance</td>
+            <td>Balance $395.01, amount $15.99: insufficient funds</td>
+            <td>2026-06-08 20:30</td>
+          </tr>
+          <tr>
+            <td>9</td>
+            <td>1009</td>
+            <td>2026-06-08</td>
+            <td>••4821</td>
+            <td>10001</td>
+            <td><span class="badge badge-blue">interlace</span></td>
+            <td><span class="badge badge-green">2 · Consumption</span></td>
+            <td>2 · Settlement</td>
+            <td>tx_ch_009</td>
+            <td>cli_009</td>
+            <td class="amount negative">-$12.50</td>
+            <td>$0.05</td>
+            <td>$0.00</td>
+            <td>$0.05</td>
+            <td>$1,441.51</td>
+            <td>$1,429.01</td>
+            <td>USD</td>
+            <td>USD</td>
+            <td>12.50</td>
+            <td>Starbucks</td>
+            <td>5812</td>
+            <td>Eating Places</td>
+            <td>Vancouver</td>
+            <td>CA</td>
+            <td>2026-06-08 08:15</td>
+            <td>2026-06-08 08:15</td>
+            <td><span class="badge badge-green">2 · Success</span></td>
+            <td>CLOSED</td>
+            <td>Starbucks purchase</td>
+            <td>-</td>
+            <td>2026-06-08 08:15</td>
+          </tr>
+          <tr>
+            <td>10</td>
+            <td>1010</td>
+            <td>2026-06-08</td>
+            <td>••6732</td>
+            <td>10001</td>
+            <td><span class="badge badge-blue">interlace</span></td>
+            <td><span class="badge badge-red">6 · Reversal</span></td>
+            <td>1 · Authorization</td>
+            <td>tx_ch_010</td>
+            <td>cli_010</td>
+            <td class="amount zero">$0.00</td>
+            <td>$0.00</td>
+            <td>$0.00</td>
+            <td>$0.00</td>
+            <td>$379.02</td>
+            <td>$379.02</td>
+            <td>USD</td>
+            <td>USD</td>
+            <td>0.00</td>
+            <td>Hilton Hotels</td>
+            <td>7011</td>
+            <td>Hotels</td>
+            <td>Chicago</td>
+            <td>US</td>
+            <td>2026-06-08 19:00</td>
+            <td>2026-06-08 19:01</td>
+            <td><span class="badge badge-green">2 · Success</span></td>
+            <td>CLOSED</td>
+            <td>Authorization reversal</td>
+            <td>Auth expired, amount released</td>
+            <td>2026-06-08 19:01</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <button class="page-btn" disabled>‹ Prev</button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <button class="page-btn">4</button>
+        <button class="page-btn">5</button>
+        <span class="page-info">... 10 pages</span>
+        <button class="page-btn">Next ›</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

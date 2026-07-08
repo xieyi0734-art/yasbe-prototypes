@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YASBe 项目文件导航</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f5f5;color:#333;padding:40px}
+.container{max-width:1200px;margin:0 auto}
+h1{font-size:28px;margin-bottom:8px;color:#1a1a2e}
+.sub{color:#666;margin-bottom:32px;font-size:14px}
+.section{margin-bottom:36px}
+.section h2{font-size:20px;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid #e59303;color:#1a1a2e}
+.section h3{font-size:15px;margin:16px 0 8px;color:#555}
+.file-list{display:flex;flex-wrap:wrap;gap:6px}
+.file-item{background:#fff;border:1px solid #e0e0e0;border-radius:6px;padding:8px 14px;font-size:13px;transition:border-color .2s}
+.file-item:hover{border-color:#e59303}
+.file-item a{color:#333;text-decoration:none}
+.file-item .v{color:#999;font-size:11px;margin-left:4px}
+.note{background:#fffbe6;border:1px solid #ffe58f;border-radius:6px;padding:10px 14px;font-size:13px;color:#8c6e00;margin-bottom:24px}
+.note strong{color:#d48806}
+.tag{display:inline-block;background:#e59303;color:#fff;font-size:10px;padding:2px 7px;border-radius:4px;margin-left:6px;vertical-align:middle}
+.tag-green{background:#52c41a}
+.tag-blue{background:#1677ff}
+.tag-gray{background:#999}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>📂 YASBe 项目文件索引</h1>
+<p class="sub">整理日期：2026-06-10 · 总计 <span id="fileCount"></span> 个文件</p>
+
+<div class="note">
+<strong>📌 命名规范</strong> ：
+<code>&lt;序号&gt;-&lt;英文模块名&gt;-&lt;中文/英文页面名&gt;-v&lt;版本号&gt;.html</code><br>
+<strong>📌 版本说明</strong>：<code>v6</code> 为最新版，旧版本统一归档至 <code>archive/</code>
+</div>
+
+<div class="section">
+<h2>🖥️ 管理端原型 <span class="tag">admin/</span></h2>
+
+<h3>📇 卡片管理 Card Management</h3>
+<div class="file-list">
+  <div class="file-item"><a href="admin/prototypes/card-management/02-Card-Detail.html">02-Card-Detail.html</a></div>
+  <div class="file-item"><a href="admin/prototypes/card-management/03-Card-Management.html">03-Card-Management.html</a></div>
+</div>
+
+<h3>👤 客户详情 Customer</h3>
+<div class="file-list">
+  <div class="file-item"><a href="admin/prototypes/customer/01-Customer-Detail-Cards-Tab.html">01-Customer-Detail-Cards-Tab.html</a></div>
+  <div class="file-item"><a href="admin/prototypes/customer/10-Customer-Detail-Referrals-Tab.html">10-Customer-Detail-Referrals-Tab.html</a></div>
+  <div class="file-item"><a href="admin/prototypes/client-profile/11-Client-Profile-Modal.html">11-Client-Profile-Modal.html</a></div>
+</div>
+
+<h3>📖 卡片介绍 Card Introduction</h3>
+<div class="file-list">
+  <div class="file-item"><a href="admin/prototypes/card-intro/12-Card-Introduction.html">12-Card-Introduction.html</a></div>
+  <div class="file-item"><a href="admin/prototypes/card-intro/CardIntroduction.html">CardIntroduction.html <span class="v">(旧版)</span></a></div>
+  <div class="file-item"><a href="admin/prototypes/card-intro/CardIntroduction_v5.html">CardIntroduction_v5.html</a></div>
+</div>
+
+<h3>📡 渠道 & 类型 & 分销</h3>
+<div class="file-list">
+  <div class="file-item"><a href="admin/prototypes/channel/07-Channel-Management.html">07-Channel-Management.html</a></div>
+  <div class="file-item"><a href="admin/prototypes/card-type/08-Card-Type-Management.html">08-Card-Type-Management.html</a></div>
+  <div class="file-item"><a href="admin/prototypes/distribution/09-Distribution-Config.html">09-Distribution-Config.html</a></div>
+</div>
+
+<h3>💳 交易 & 收款</h3>
+<div class="file-list">
+  <div class="file-item"><a href="admin/prototypes/transaction/17-Card-Transaction-List.html">17-Card-Transaction-List.html</a></div>
+  <div class="file-item"><a href="admin/prototypes/transaction/18-Card-Transaction-Review.html">18-Card-Transaction-Review.html</a></div>
+  <div class="file-item"><a href="admin/prototypes/crypto/19-Crypto-Collection-Settings.html">19-Crypto-Collection-Settings.html</a></div>
+</div>
+
+<div class="file-list" style="margin-top:8px">
+  <div class="file-item"><a href="admin/prototypes/index.html">📋 旧索引页</a></div>
+</div>
+</div>
+
+<div class="section">
+<h2>📱 客户端原型 <span class="tag tag-green">client/</span></h2>
+
+<h3>🏦 卡片概览 Card Overview</h3>
+<div class="file-list">
+  <div class="file-item"><a href="client/prototypes/card-overview/01-Card-Account-Overview-v2.html">01-Card-Account-Overview-v2.html</a></div>
+  <div class="file-item"><a href="client/prototypes/card-overview/01-Card-Accounting-Transaction-List.html">01-Card-Accounting-Transaction-List.html</a></div>
+  <div class="file-item"><a href="client/prototypes/card-overview/card-transaction-snapshot.html">card-transaction-snapshot.html</a></div>
+</div>
+
+<h3>💳 卡片管理 Card Management</h3>
+<div class="file-list">
+  <div class="file-item"><a href="client/prototypes/card-management/12-卡片管理-v6.html">12-卡片管理-v6.html <span class="tag tag-blue">最新</span></a></div>
+  <div class="file-item"><a href="client/prototypes/card-management/11-卡片管理-v2.html">11-卡片管理-v2.html</a></div>
+</div>
+
+<h3>📖 卡片介绍页 Card Introduction</h3>
+<div class="file-list">
+  <div class="file-item"><a href="client/prototypes/card-intro/01-Card-Introduction-Web.html">01-Card-Introduction-Web.html</a></div>
+  <div class="file-item"><a href="client/prototypes/card-intro/13-卡片介绍页-Web-v9.html">13-卡片介绍页-Web-v9.html <span class="tag tag-blue">最新</span></a></div>
+  <div class="file-item"><a href="client/prototypes/card-intro/13-卡片介绍页-Web-v8.html">13-卡片介绍页-Web-v8.html</a></div>
+  <div class="file-item"><a href="client/prototypes/card-intro/14-卡片介绍页-管理端.html">14-卡片介绍页-管理端.html</a></div>
+  <div class="file-item"><a href="client/prototypes/card-intro/15-卡片介绍页-用户端.html">15-卡片介绍页-用户端.html</a></div>
+</div>
+
+<h3>💰 费用 & 账单 Fee & Billing</h3>
+<div class="file-list">
+  <div class="file-item"><a href="client/prototypes/fee-billing/02-Fee-Management-v2.html">02-Fee-Management-v2.html</a></div>
+  <div class="file-item"><a href="client/prototypes/fee-billing/21-费用结算.html">21-费用结算.html</a></div>
+  <div class="file-item"><a href="client/prototypes/fee-billing/22-账单管理.html">22-账单管理.html</a></div>
+</div>
+
+<h3>📊 账务 Accounting</h3>
+<div class="file-list">
+  <div class="file-item"><a href="client/prototypes/accounting/23-争议工单.html">23-争议工单.html</a></div>
+  <div class="file-item"><a href="client/prototypes/accounting/24-争议工单详情.html">24-争议工单详情.html</a></div>
+  <div class="file-item"><a href="client/prototypes/accounting/25-财务看板.html">25-财务看板.html</a></div>
+</div>
+
+<h3>📋 申请卡片 Card Apply</h3>
+<div class="file-list">
+  <div class="file-item"><a href="client/prototypes/card-apply/16-申请卡片页-用户端.html">16-申请卡片页-用户端.html</a></div>
+  <div class="file-item"><a href="client/prototypes/card-apply/16-推荐卡片-v1.html">16-推荐卡片-v1.html</a></div>
+</div>
+
+<div class="file-list" style="margin-top:8px">
+  <div class="file-item"><a href="client/prototypes/index.html">📋 旧索引页</a></div>
+  <div class="file-item"><a href="client/prototypes/index-账务管理.html">📋 账务管理索引页</a></div>
+</div>
+</div>
+
+<div class="section">
+<h2>📐 架构图 <span class="tag tag-gray">diagrams/</span></h2>
+<div class="file-list">
+  <div class="file-item"><a href="diagrams/Card模块账务_v3.0_功能架构图.html">Card模块账务_v3.0_功能架构图.html</a></div>
+  <div class="file-item"><a href="diagrams/YASBee-账务功能架构图.html">YASBee-账务功能架构图.html</a></div>
+  <div class="file-item"><a href="diagrams/card-accounting-architecture.html">card-accounting-architecture.html</a></div>
+</div>
+</div>
+
+<div class="section">
+<h2>📄 PRD 文档 <span class="tag tag-gray">prd/</span></h2>
+<h3>v1.0</h3>
+<div class="file-list">
+  <div class="file-item"><a href="prd/v1.0/Card模块账务功能_PRD_v1.0.md">Card模块账务功能_PRD_v1.0.md</a></div>
+  <div class="file-item"><a href="prd/v1.0/Card模块账务管理_PRD_v1.0.md">Card模块账务管理_PRD_v1.0.md</a></div>
+  <div class="file-item"><a href="prd/v1.0/Card模块账务管理端_PRD_v1.0.md">Card模块账务管理端_PRD_v1.0.md</a></div>
+  <div class="file-item"><a href="prd/v1.0/card模块-管理端PRD.md">card模块-管理端PRD.md</a></div>
+  <div class="file-item"><a href="prd/v1.0/YASBee-Card-Module-Admin-PRD.md">YASBee-Card-Module-Admin-PRD.md</a></div>
+  <div class="file-item"><a href="prd/v1.0/YASBee_卡片介绍页_PRD_v1.0.md">YASBee_卡片介绍页_PRD_v1.0.md</a></div>
+  <div class="file-item"><a href="prd/v1.0/KYC_KYB-开卡字段拆分建议.md">KYC_KYB-开卡字段拆分建议.md</a></div>
+</div>
+<h3>v1.4</h3>
+<div class="file-list">
+  <div class="file-item"><a href="prd/YASBe Card模块PRD v1.4.md">YASBe Card模块PRD v1.4.md</a></div>
+</div>
+<h3>v2.0</h3>
+<div class="file-list">
+  <div class="file-item"><a href="prd/v2.0/Card模块账务功能_PRD_v2.0.md">Card模块账务功能_PRD_v2.0.md</a></div>
+</div>
+<h3>v3.0</h3>
+<div class="file-list">
+  <div class="file-item"><a href="prd/v3.0/Card模块账务功能_PRD_v3.0.md">Card模块账务功能_PRD_v3.0.md</a></div>
+</div>
+</div>
+
+<div class="section">
+<h2>🗄️ 归档 <span class="tag tag-gray">archive/</span></h2>
+<h3>旧版客户端原型</h3>
+<div class="file-list">
+  <div class="file-item"><a href="archive/12-卡片管理-v3.html">12-卡片管理-v3.html</a></div>
+  <div class="file-item"><a href="archive/12-卡片管理-v4.html">12-卡片管理-v4.html</a></div>
+  <div class="file-item"><a href="archive/12-卡片管理-v5.html">12-卡片管理-v5.html</a></div>
+</div>
+<h3>旧版 YASBe 文件</h3>
+<div class="file-list">
+  <div class="file-item"><a href="archive/yasbe-old/YASBe.html">YASBe.html</a></div>
+  <div class="file-item"><a href="archive/yasbe-old/YASBe_注销流程原型_2026-04-28.html">YASBe_注销流程原型_2026-04-28.html</a></div>
+  <div class="file-item"><a href="archive/yasbe-old/Submit account KYB.html">Submit account KYB.html</a></div>
+</div>
+</div>
+
+<div class="section">
+<h2>📦 其他文档 <span class="tag tag-gray">docs/</span></h2>
+<div class="file-list">
+  <div class="file-item">YASBe 用户账号注销流程.docx</div>
+  <div class="file-item">YASBe 公司简介.docx</div>
+  <div class="file-item">YASBe Email notification template.fig</div>
+  <div class="file-item">YASBe账号注销功PRDv1.0.docx</div>
+  <div class="file-item">Use caase _VCs and investment funds.docx</div>
+</div>
+</div>
+
+<div class="section">
+<h2>🔧 工具脚本 <span class="tag tag-gray">scripts/</span></h2>
+<div class="file-list">
+  <div class="file-item">fix_ol.py</div>
+  <div class="file-item">fix_script.py</div>
+  <div class="file-item">fix2.py</div>
+</div>
+</div>
+
+</div>
+
+<script>
+document.getElementById('fileCount').textContent = document.querySelectorAll('.file-item').length;
+</script>
+</body>
+</html>

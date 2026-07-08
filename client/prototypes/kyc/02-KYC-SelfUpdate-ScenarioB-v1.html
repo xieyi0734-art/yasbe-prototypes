@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KYC - Update Information (Scenario B)</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; }
+
+    body {
+      background: #f5f6fa;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 24px;
+    }
+
+    .container {
+      max-width: 720px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .back-btn {
+      width: 36px;
+      height: 36px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      color: #333;
+    }
+
+    .back-btn:hover { background: #f0f0f0; }
+
+    .page-title { font-size: 22px; font-weight: 700; color: #1a1a2e; }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #e8f5e9;
+      color: #2e7d32;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .status-badge .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #2e7d32;
+    }
+
+    /* Info Banners */
+    .info-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .info-banner.blue {
+      background: #e3f2fd;
+      border: 1px solid #bbdefb;
+      color: #1565c0;
+    }
+
+    .info-banner .icon {
+      font-size: 20px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* Section Card */
+    .section-card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 16px;
+      border: 1px solid #e8eaed;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title .count-badge {
+      background: #f0f0f5;
+      color: #666;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    /* Form Fields */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .form-row.full { grid-template-columns: 1fr; }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #666;
+    }
+
+    .form-group .field-value {
+      font-size: 15px;
+      color: #1a1a2e;
+      padding: 10px 14px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border: 1px solid #e8eaed;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .form-group .field-value.unmodified {
+      color: #999;
+    }
+
+    .form-group input, .form-group select {
+      font-size: 15px;
+      color: #1a1a2e;
+      padding: 10px 14px;
+      border: 2px solid #1976d2;
+      border-radius: 8px;
+      outline: none;
+      background: white;
+      width: 100%;
+    }
+
+    .form-group input:focus, .form-group select:focus {
+      border-color: #1565c0;
+      box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+    }
+
+    .form-group input.edited, .form-group select.edited {
+      border-color: #e65100;
+      background: #fff3e0;
+    }
+
+    .change-indicator {
+      font-size: 11px;
+      color: #e65100;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 2px;
+    }
+
+    /* Document Upload */
+    .doc-section {
+      margin-top: 16px;
+    }
+
+    .doc-section-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 12px;
+    }
+
+    .current-doc {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      border: 1px solid #e8eaed;
+      margin-bottom: 12px;
+    }
+
+    .current-doc .doc-icon {
+      font-size: 24px;
+    }
+
+    .current-doc .doc-info {
+      flex: 1;
+    }
+
+    .current-doc .doc-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .current-doc .doc-date {
+      font-size: 12px;
+      color: #999;
+    }
+
+    .current-doc .doc-status {
+      font-size: 12px;
+      color: #2e7d32;
+      font-weight: 500;
+    }
+
+    .upload-area {
+      border: 2px dashed #1976d2;
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #f5f9ff;
+    }
+
+    .upload-area:hover {
+      background: #e3f2fd;
+      border-color: #1565c0;
+    }
+
+    .upload-area .upload-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .upload-area p {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .upload-area .upload-hint {
+      font-size: 12px;
+      color: #999;
+      margin-top: 4px;
+    }
+
+    /* Changes Summary */
+    .changes-summary {
+      background: #fff8e1;
+      border: 1px solid #ffe082;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+    }
+
+    .changes-summary .changes-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #e65100;
+      margin-bottom: 8px;
+    }
+
+    .changes-summary .changes-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .changes-summary .changes-list li {
+      font-size: 13px;
+      color: #5d4037;
+      padding: 4px 0;
+      padding-left: 16px;
+      position: relative;
+    }
+
+    .changes-summary .changes-list li::before {
+      content: "•";
+      position: absolute;
+      left: 4px;
+      color: #e65100;
+    }
+
+    /* Bottom Action */
+    .bottom-bar {
+      background: white;
+      border-radius: 16px;
+      padding: 20px 24px;
+      border: 1px solid #e8eaed;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 8px;
+    }
+
+    .bottom-bar .info-text {
+      font-size: 13px;
+      color: #999;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 12px 28px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary {
+      background: #f5f5f5;
+      color: #333;
+      border: 1px solid #e0e0e0;
+    }
+
+    .btn-secondary:hover { background: #e8e8e8; }
+
+    .btn-secondary:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: #1976d2;
+      color: white;
+    }
+
+    .btn-primary:hover { background: #1565c0; }
+
+    .btn-primary:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Modal Overlay */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal {
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      max-width: 440px;
+      width: 90%;
+      text-align: center;
+    }
+
+    .modal .modal-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .modal h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 8px;
+    }
+
+    .modal p {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .modal .btn-group {
+      justify-content: center;
+    }
+
+    /* History Timeline */
+    .timeline {
+      margin-top: 12px;
+    }
+
+    .timeline-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .timeline-item:last-child { border-bottom: none; }
+
+    .timeline-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #1976d2;
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+
+    .timeline-dot.approved { background: #2e7d32; }
+    .timeline-dot.suspended { background: #e65100; }
+
+    .timeline-content {
+      flex: 1;
+    }
+
+    .timeline-content .tl-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .timeline-content .tl-desc {
+      font-size: 12px;
+      color: #999;
+      margin-top: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-left">
+        <button class="back-btn" onclick="history.back()">←</button>
+        <span class="page-title">KYC Verification</span>
+      </div>
+      <div class="status-badge">
+        <span class="dot"></span>
+        Verified
+      </div>
+    </div>
+
+    <!-- Info Banner -->
+    <div class="info-banner blue">
+      <span class="icon">ℹ️</span>
+      <div>
+        <strong>Your KYC is currently verified.</strong> You can update your personal information below. Only changed fields will be submitted for review. Your account access will not be affected during this process.
+      </div>
+    </div>
+
+    <!-- Changes Summary (hidden initially) -->
+    <div class="changes-summary" id="changesSummary" style="display:none;">
+      <div class="changes-title">📝 Changes detected</div>
+      <ul class="changes-list" id="changesList">
+      </ul>
+    </div>
+
+    <!-- Personal Information Section -->
+    <div class="section-card">
+      <div class="section-title">
+        Personal Information
+        <span class="count-badge">Unchanged fields grayed out</span>
+      </div>
+
+      <!-- Full Name - Unchanged -->
+      <div class="form-row full">
+        <div class="form-group">
+          <label>Full Name (as shown on ID)</label>
+          <div class="field-value unmodified">
+            John Michael Doe
+            <span style="font-size:11px;color:#999;">✓ Verified</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Date of Birth & Gender -->
+      <div class="form-row">
+        <div class="form-group">
+          <label>Date of Birth</label>
+          <div class="field-value unmodified">
+            1990-03-15
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Gender</label>
+          <div class="field-value unmodified">
+            Male
+          </div>
+        </div>
+      </div>
+
+      <!-- Nationality & Country of Birth -->
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nationality</label>
+          <div class="field-value unmodified">
+            United States
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Country of Birth</label>
+          <div class="field-value unmodified">
+            United States
+          </div>
+        </div>
+      </div>
+
+      <!-- Passport/ID Number - **EDITABLE** -->
+      <div class="form-row full">
+        <div class="form-group">
+          <label>Passport / ID Number <span style="color:#e65100;">*</span></label>
+          <input type="text" value="AB1234567" oninput="trackChanges()" id="idNumber">
+          <div class="change-indicator" id="idNumberIndicator" style="display:none;">✏️ Edited</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Document Upload Section -->
+    <div class="section-card">
+      <div class="section-title">
+        Identity Documents
+        <span class="count-badge">Replace current documents</span>
+      </div>
+
+      <!-- Current Passport -->
+      <div class="doc-section">
+        <div class="doc-section-title">Passport / ID Card</div>
+        <div class="current-doc">
+          <span class="doc-icon">🪪</span>
+          <div class="doc-info">
+            <div class="doc-name">passport_USA.pdf</div>
+            <div class="doc-date">Uploaded: Mar 15, 2024</div>
+          </div>
+          <span class="doc-status">✓ On file</span>
+        </div>
+
+        <!-- Upload New -->
+        <div class="upload-area" onclick="document.getElementById('fileUpload').click()">
+          <div class="upload-icon">📄</div>
+          <p><strong>Click to upload a new document</strong></p>
+          <p class="upload-hint">PDF, JPG, PNG (max 10MB)</p>
+          <input type="file" id="fileUpload" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="trackChanges()">
+        </div>
+        <div id="newDocName" style="display:none;margin-top:8px;font-size:13px;color:#e65100;font-weight:500;">
+          📎 New file selected: <span id="fileName"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Address Section -->
+    <div class="section-card">
+      <div class="section-title">
+        Address Information
+        <span class="count-badge">Unchanged</span>
+      </div>
+
+      <div class="form-row full">
+        <div class="form-group">
+          <label>Residential Address</label>
+          <div class="field-value unmodified">
+            123 Main Street, Apt 4B, New York, NY 10001, USA
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Employment Section -->
+    <div class="section-card">
+      <div class="section-title">
+        Employment Information
+        <span class="count-badge">Unchanged</span>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Employment Status</label>
+          <div class="field-value unmodified">
+            Employed
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Occupation</label>
+          <div class="field-value unmodified">
+            Software Engineer
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Review History -->
+    <div class="section-card">
+      <div class="section-title">
+        Review History
+        <span class="count-badge">Last 3 records</span>
+      </div>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-dot approved"></div>
+          <div class="timeline-content">
+            <div class="tl-title">KYC Approved</div>
+            <div class="tl-desc">Mar 18, 2024 14:32 · Reviewed by Admin</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <div class="tl-title">Initial Submission</div>
+            <div class="tl-desc">Mar 15, 2024 09:15</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Action Bar -->
+    <div class="bottom-bar">
+      <div class="info-text" id="statusText">
+        Modify any field above to submit changes for review
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-secondary" onclick="resetForm()">Cancel</button>
+        <button class="btn btn-primary" id="submitBtn" disabled onclick="submitChanges()">Submit for Review</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div class="modal-overlay" id="successModal">
+    <div class="modal">
+      <div class="modal-icon">✅</div>
+      <h3>Changes Submitted</h3>
+      <p>
+        Your information update has been submitted for review.<br>
+        Your current KYC status remains <strong>Verified</strong>.<br>
+        We'll notify you once the review is complete.
+      </p>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="closeModal()">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Track which fields have been changed
+    let changes = {};
+
+    function trackChanges() {
+      changes = {};
+      const idNum = document.getElementById('idNumber').value;
+      const originalId = 'AB1234567';
+      const fileUpload = document.getElementById('fileUpload');
+
+      // Check ID number
+      if (idNum !== originalId) {
+        changes['Passport / ID Number'] = `"${originalId}" → "${idNum}"`;
+        document.getElementById('idNumberIndicator').style.display = 'flex';
+        document.getElementById('idNumber').classList.add('edited');
+      } else {
+        delete changes['Passport / ID Number'];
+        document.getElementById('idNumberIndicator').style.display = 'none';
+        document.getElementById('idNumber').classList.remove('edited');
+      }
+
+      // Check file upload
+      if (fileUpload.files.length > 0) {
+        changes['Identity Document'] = `New file: ${fileUpload.files[0].name}`;
+        document.getElementById('newDocName').style.display = 'block';
+        document.getElementById('fileName').textContent = fileUpload.files[0].name;
+      } else {
+        delete changes['Identity Document'];
+        document.getElementById('newDocName').style.display = 'none';
+      }
+
+      // Update UI
+      const hasChanges = Object.keys(changes).length > 0;
+      const changesSummary = document.getElementById('changesSummary');
+      const changesList = document.getElementById('changesList');
+      const submitBtn = document.getElementById('submitBtn');
+      const statusText = document.getElementById('statusText');
+
+      if (hasChanges) {
+        changesSummary.style.display = 'block';
+        changesList.innerHTML = Object.entries(changes).map(([field, detail]) =>
+          `<li><strong>${field}</strong> — ${detail}</li>`
+        ).join('');
+        submitBtn.disabled = false;
+        statusText.textContent = `${Object.keys(changes).length} field(s) changed — submit for review`;
+      } else {
+        changesSummary.style.display = 'none';
+        submitBtn.disabled = true;
+        statusText.textContent = 'Modify any field above to submit changes for review';
+      }
+    }
+
+    function resetForm() {
+      document.getElementById('idNumber').value = 'AB1234567';
+      document.getElementById('idNumber').classList.remove('edited');
+      document.getElementById('idNumberIndicator').style.display = 'none';
+      document.getElementById('fileUpload').value = '';
+      document.getElementById('newDocName').style.display = 'none';
+      changes = {};
+      document.getElementById('changesSummary').style.display = 'none';
+      document.getElementById('submitBtn').disabled = true;
+      document.getElementById('statusText').textContent = 'Modify any field above to submit changes for review';
+    }
+
+    function submitChanges() {
+      document.getElementById('successModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('successModal').classList.remove('active');
+    }
+  </script>
+</body>
+</html>

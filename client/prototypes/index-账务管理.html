@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YASBee 账务模块原型 - 导航</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f0f2f5; color: #1a1a1a; padding: 40px; }
+.container { max-width: 720px; margin: 0 auto; }
+h1 { font-size: 24px; font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+h1 .icon { width: 36px; height: 36px; background: #f59f00; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #fff; }
+.subtitle { font-size: 14px; color: #888; margin-bottom: 32px; border-bottom: 1px solid #e5e7eb; padding-bottom: 16px; }
+.module { background: #fff; border-radius: 14px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 16px; overflow: hidden; }
+.module-header { padding: 16px 20px; font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; background: #fafbfc; border-bottom: 1px solid #e5e7eb; }
+.module-body { padding: 8px 12px; }
+.page-item { display: flex; align-items: center; padding: 10px 12px; border-radius: 8px; cursor: pointer; transition: all .1s; text-decoration: none; color: #1a1a1a; }
+.page-item:hover { background: #f5f5f5; }
+.page-item .icon { width: 32px; height: 32px; background: #f0f2f5; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; margin-right: 12px; flex-shrink: 0; }
+.page-item .info { flex: 1; }
+.page-item .title { font-size: 14px; font-weight: 600; }
+.page-item .desc { font-size: 12px; color: #888; margin-top: 2px; }
+.page-item .arrow { font-size: 16px; color: #ccc; }
+.page-item:hover .arrow { color: #f59f00; }
+.badge { display: inline-block; padding: 1px 6px; border-radius: 6px; font-size: 10px; font-weight: 700; margin-left: 8px; }
+.badge-new { background: #dc2626; color: #fff; }
+.badge-list { background: #eef2ff; color: #4f46e5; }
+.badge-detail { background: #f0fdf4; color: #16a34a; }
+.badge-dash { background: #fff3e0; color: #f59f00; }
+.footer { text-align: center; padding: 24px; font-size: 12px; color: #aaa; }
+</style>
+</head>
+<body>
+<div class="container">
+<h1><span class="icon">YB</span> YASBee 账务模块 · HTML 原型导航</h1>
+<div class="subtitle">卡片管理 > 账务子模块 · 左侧菜单导航 · 共 6 个页面</div>
+
+<div class="module">
+  <div class="module-header">💰 费用结算</div>
+  <div class="module-body">
+    <a class="page-item" href="21-费用结算.html" target="_blank">
+      <div class="icon">📋</div>
+      <div class="info"><div class="title">费用结算列表 <span class="badge badge-list">列表</span></div><div class="desc">按周期展示结算记录 · 点击行展开单卡费用明细 · 查看详情弹窗</div></div>
+      <div class="arrow">→</div>
+    </a>
+  </div>
+</div>
+
+<div class="module">
+  <div class="module-header">📄 账单管理</div>
+  <div class="module-body">
+    <a class="page-item" href="22-账单管理.html" target="_blank">
+      <div class="icon">📑</div>
+      <div class="info"><div class="title">账单列表 <span class="badge badge-list">列表</span></div><div class="desc">月度账单列表 · 标记已确认操作 · 顶部统计看板</div></div>
+      <div class="arrow">→</div>
+    </a>
+  </div>
+</div>
+
+<div class="module">
+  <div class="module-header">⚡ 争议工单</div>
+  <div class="module-body">
+    <a class="page-item" href="23-争议工单.html" target="_blank" style="border-bottom:1px solid #f5f5f5;">
+      <div class="icon">📋</div>
+      <div class="info"><div class="title">争议工单列表 <span class="badge badge-list">列表</span></div><div class="desc">争议工单列表 · 类型/金额/状态 · 顶部统计看板</div></div>
+      <div class="arrow">→</div>
+    </a>
+    <a class="page-item" href="24-争议工单详情.html" target="_blank">
+      <div class="icon">🔍</div>
+      <div class="info"><div class="title">争议工单详情 <span class="badge badge-detail">详情</span></div><div class="desc">工单信息 · 处理记录时间线 · 退款/驳回操作 · 证据材料</div></div>
+      <div class="arrow">→</div>
+    </a>
+  </div>
+</div>
+
+<div class="module">
+  <div class="module-header">📈 财务看板</div>
+  <div class="module-body">
+    <a class="page-item" href="25-财务看板.html" target="_blank">
+      <div class="icon">📊</div>
+      <div class="info"><div class="title">财务 Dashboard <span class="badge badge-dash">看板</span></div><div class="desc">KPI 指标 · 收入趋势图 · 费用构成圆环 · 返佣趋势 · Top 5 卡片</div></div>
+      <div class="arrow">→</div>
+    </a>
+  </div>
+</div>
+
+<div class="footer">Created for YASBee Management Console · 2026-06</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YASBee - 争议工单</title>
+<style>
+:root {
+  --sidebar-bg: #1a1a2e; --sidebar-text: #8e9ab4; --sidebar-hover: #2a2a4e;
+  --header-bg: #1a2536; --bg: #f0f2f5; --card-bg: #ffffff;
+  --text: #1a1a1a; --text-muted: #888; --accent: #f59f00; --accent-hover: #e08d00;
+  --primary: #4f46e5; --primary-light: #eef2ff; --success: #16a34a; --success-light: #f0fdf4;
+  --danger: #dc2626; --danger-light: #fef2f2; --warning: #d97706; --warning-light: #fffbeb;
+  --border: #e5e7eb; --shadow: 0 1px 3px rgba(0,0,0,.08); --shadow-lg: 0 8px 24px rgba(0,0,0,.14);
+  --radius: 10px; --radius-lg: 14px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
+.app { display: flex; min-height: 100vh; }
+
+/* Sidebar */
+.sidebar { width: 220px; flex-shrink: 0; background: var(--sidebar-bg); min-height: 100vh; display: flex; flex-direction: column; position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; }
+.sidebar-logo { padding: 20px 16px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,.06); }
+.logo-icon { width: 32px; height: 32px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; color: #fff; }
+.logo-text { font-size: 17px; font-weight: 700; color: #fff; letter-spacing: .5px; }
+.sidebar-nav { flex: 1; padding: 12px 8px; overflow-y: auto; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; color: var(--sidebar-text); font-size: 13.5px; cursor: pointer; }
+.nav-item:hover { background: var(--sidebar-hover); color: #fff; }
+.nav-item.active { background: rgba(255,255,255,.1); color: #fff9c4; font-weight: 600; }
+.nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
+.nav-section { font-size: 10px; color: rgba(255,255,255,.25); text-transform: uppercase; letter-spacing: 1.5px; padding: 16px 12px 6px; }
+.nav-sub-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px 8px 42px; border-radius: 8px; color: var(--sidebar-text); font-size: 13px; cursor: pointer; }
+.nav-sub-item:hover { background: var(--sidebar-hover); color: #fff; }
+.nav-sub-item.active { background: rgba(245,159,0,.15); color: var(--accent); font-weight: 600; border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; }
+.sidebar-footer { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,.06); display: flex; align-items: center; gap: 10px; }
+.avatar { width: 34px; height: 34px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.user-info { overflow: hidden; }
+.user-info .name { font-size: 13px; color: #fff; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-info div:last-child { font-size: 11px; color: var(--sidebar-text); }
+
+/* Main */
+.main { margin-left: 220px; flex: 1; min-height: 100vh; display: flex; flex-direction: column; }
+.top-header { background: var(--header-bg); padding: 0 28px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 90; }
+.top-header h1 { font-size: 18px; font-weight: 700; color: #fff; }
+.top-header-right { display: flex; align-items: center; gap: 12px; }
+.search-box { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,.08); border-radius: 8px; padding: 7px 12px; }
+.search-box input { background: none; border: none; outline: none; color: #fff; font-size: 13px; width: 180px; }
+.search-box input::placeholder { color: rgba(255,255,255,.4); }
+.notif { background: none; border: none; font-size: 18px; cursor: pointer; position: relative; padding: 4px; }
+.notif .dot { position: absolute; top: 2px; right: 2px; width: 7px; height: 7px; background: var(--danger); border-radius: 50%; border: 2px solid var(--header-bg); }
+.avatar-btn { width: 32px; height: 32px; background: var(--accent); border-radius: 50%; border: none; color: #fff; font-size: 12px; font-weight: 700; cursor: pointer; }
+
+.content { padding: 24px 28px 40px; }
+.breadcrumb { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+.breadcrumb .current { color: var(--text); font-weight: 500; }
+
+/* Stats Row */
+.stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 20px; }
+.stat-card { background: var(--card-bg); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow); }
+.stat-label { font-size: 11.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+.stat-value { font-size: 22px; font-weight: 800; color: var(--text); }
+.stat-sub { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+
+.filter-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; background: var(--card-bg); border-radius: var(--radius); padding: 14px 18px; box-shadow: var(--shadow); flex-wrap: wrap; }
+.filter-group { display: flex; align-items: center; gap: 6px; }
+.filter-group label { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+.filter-group select, .filter-group input { padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; outline: none; background: #fff; color: var(--text); }
+.filter-group select:focus, .filter-group input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(245,159,0,.1); }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 16px; border-radius: 8px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s; white-space: nowrap; }
+.btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.12); }
+.btn-accent { background: var(--accent); color: #fff; }
+.btn-accent:hover { background: var(--accent-hover); }
+.btn-outline { background: #fff; border: 1.5px solid var(--border); color: var(--text); }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+.btn-link { background: none; border: none; color: var(--primary); cursor: pointer; font-size: 13px; font-weight: 500; padding: 4px 6px; }
+.btn-link:hover { text-decoration: underline; }
+
+.table-wrap { background: var(--card-bg); border-radius: var(--radius-lg); box-shadow: var(--shadow); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+thead th { background: #f8f9fa; padding: 12px 14px; font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .3px; text-align: left; border-bottom: 2px solid var(--border); white-space: nowrap; }
+tbody td { padding: 12px 14px; font-size: 13px; border-bottom: 1px solid #f0f0f0; }
+tbody tr:hover { background: #fafafa; }
+.text-muted { color: var(--text-muted); }
+.text-accent { color: var(--accent); font-weight: 600; }
+.text-success { color: var(--success); }
+.text-danger { color: var(--danger); }
+.text-right { text-align: right; }
+.mono { font-family: "Courier New", monospace; letter-spacing: .5px; }
+
+.pagination { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-top: 1px solid var(--border); }
+.pg-info { font-size: 12px; color: var(--text-muted); }
+.pg-btns { display: flex; gap: 4px; }
+.pg-btn { width: 30px; height: 30px; border: 1px solid var(--border); border-radius: 6px; background: #fff; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.pg-btn:hover { border-color: var(--accent); color: var(--accent); }
+.pg-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.pg-btn:disabled { opacity: .3; cursor: not-allowed; }
+
+.badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+.badge-green { background: var(--success-light); color: var(--success); }
+.badge-yellow { background: var(--warning-light); color: var(--warning); }
+.badge-gray { background: #f3f4f6; color: #6b7280; }
+.badge-blue { background: var(--primary-light); color: var(--primary); }
+.badge-red { background: var(--danger-light); color: var(--danger); }
+
+.toast { position: fixed; top: 20px; right: 20px; z-index: 2000; padding: 12px 20px; border-radius: var(--radius); font-size: 13px; font-weight: 500; box-shadow: var(--shadow-lg); display: none; animation: fadeIn .2s; }
+.toast.show { display: block; }
+.toast.success { background: var(--success-light); border: 1px solid #bbf7d0; color: var(--success); }
+.toast.warn { background: var(--warning-light); border: 1px solid #fde68a; color: var(--warning); }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="sidebar">
+    <div class="sidebar-logo"><div class="logo-icon">YB</div><span class="logo-text">YASBee</span></div>
+    <div class="sidebar-nav">
+      <div class="nav-item"><span class="icon">📊</span>Dashboard</div>
+      <div class="nav-item"><span class="icon">👥</span>用户管理</div>
+      <div class="nav-section">💳 CARD</div>
+      <div class="nav-item active"><span class="icon">💳</span>卡片管理</div>
+      <div class="nav-sub-item">📋 费用结算</div>
+      <div class="nav-sub-item">📄 账单管理</div>
+      <div class="nav-sub-item active">⚡ 争议工单</div>
+      <div class="nav-sub-item">📈 财务看板</div>
+      <div class="nav-section">🌐 CHANNEL</div>
+      <div class="nav-item"><span class="icon">📡</span>渠道管理</div>
+      <div class="nav-item"><span class="icon">🃏</span>卡务管理</div>
+      <div class="nav-section">⚙️ SYSTEM</div>
+      <div class="nav-item"><span class="icon">🔧</span>系统设置</div>
+      <div class="nav-item"><span class="icon">📝</span>操作日志</div>
+    </div>
+    <div class="sidebar-footer"><div class="avatar">DX</div><div class="user-info"><div class="name">Driven Xie</div><div>admin@yasbee.com</div></div></div>
+  </div>
+
+  <div class="main">
+    <div class="top-header">
+      <h1>💳 卡片管理</h1>
+      <div class="top-header-right">
+        <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="搜索卡片、用户..."></div>
+        <button class="notif">🔔<span class="dot"></span></button>
+        <button class="avatar-btn">DX</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="breadcrumb">卡片管理 / <span class="current">争议工单</span></div>
+
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-label">待处理工单</div><div class="stat-value text-danger">5</div><div class="stat-sub">⚠️ 需尽快处理</div></div>
+        <div class="stat-card"><div class="stat-label">处理中</div><div class="stat-value text-warning">3</div><div class="stat-sub">技术方跟进中</div></div>
+        <div class="stat-card"><div class="stat-label">本月争议总金额</div><div class="stat-value">$1,245.00</div><div class="stat-sub">共 8 笔</div></div>
+        <div class="stat-card"><div class="stat-label">本月已处理</div><div class="stat-value text-success">6</div><div class="stat-sub">成功率 75%</div></div>
+      </div>
+
+      <div class="filter-bar">
+        <div class="filter-group"><label>状态</label><select><option>全部</option><option>待处理</option><option>处理中</option><option>已退款</option><option>驳回</option></select></div>
+        <div class="filter-group"><label>争议类型</label><select><option>全部</option><option>未授权交易</option><option>重复扣款</option><option>金额不符</option><option>交易未收到</option></select></div>
+        <div class="filter-group"><label>日期范围</label><input type="text" placeholder="2026-06-01 ~ 2026-06-30" style="width:200px;"></div>
+        <button class="btn btn-accent btn-sm">🔍 搜索</button>
+        <button class="btn btn-outline btn-sm">📥 导出 CSV</button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>工单编号</th><th>提交时间</th><th>卡片后4位</th><th>持卡人</th><th>争议类型</th><th class="text-right">争议金额</th><th class="text-right">已处理金额</th><th>Chargeback</th><th>状态</th><th>操作</th></tr>
+          </thead>
+          <tbody id="dispute-tbody"></tbody>
+        </table>
+        <div class="pagination">
+          <span class="pg-info">共 <strong>18</strong> 条工单记录</span>
+          <div class="pg-btns">
+            <button class="pg-btn" disabled>‹</button>
+            <button class="pg-btn active">1</button>
+            <button class="pg-btn">2</button>
+            <button class="pg-btn">›</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+var disputeData = [
+  {id:'DSP-20260601', time:'2026-06-28 14:23', last4:'8842', user:'U-10032', type:'未授权交易', amt:350.00, processed:350.00, cb:true, status:'已全额退款', sc:'badge-green'},
+  {id:'DSP-20260602', time:'2026-06-27 09:15', last4:'7716', user:'U-08721', type:'重复扣款', amt:89.50, processed:89.50, cb:true, status:'已部分退款', sc:'badge-blue'},
+  {id:'DSP-20260603', time:'2026-06-26 16:48', last4:'6634', user:'U-11204', type:'金额不符', amt:245.00, processed:0, cb:false, status:'处理中', sc:'badge-yellow'},
+  {id:'DSP-20260604', time:'2026-06-25 11:02', last4:'5519', user:'U-04567', type:'交易未收到', amt:120.00, processed:0, cb:true, status:'待处理', sc:'badge-red'},
+  {id:'DSP-20260605', time:'2026-06-24 08:30', last4:'4412', user:'U-15678', type:'未授权交易', amt:560.00, processed:0, cb:true, status:'待处理', sc:'badge-red'},
+  {id:'DSP-20260606', time:'2026-06-22 15:10', last4:'3321', user:'U-09876', type:'重复扣款', amt:35.00, processed:35.00, cb:false, status:'待处理', sc:'badge-red'},
+].map(function(d){d.id=d.id;return d;});
+
+function renderDisputes() {
+  var tb = document.getElementById('dispute-tbody');
+  var html = '';
+  disputeData.forEach(function(d) {
+    html += '<tr>';
+    html += '<td><span class="mono" style="font-weight:600;color:var(--primary)">'+d.id+'</span></td>';
+    html += '<td>'+d.time+'</td>';
+    html += '<td><span class="mono">•••• '+d.last4+'</span></td>';
+    html += '<td>'+d.user+'</td>';
+    html += '<td>'+d.type+'</td>';
+    html += '<td class="text-right" style="font-weight:600;">$'+d.amt.toFixed(2)+'</td>';
+    html += '<td class="text-right">'+(d.processed > 0 ? '$'+d.processed.toFixed(2) : '—')+'</td>';
+    html += '<td>'+(d.cb ? '<span class="badge badge-red">$35.00</span>' : '<span class="text-muted">—</span>')+'</td>';
+    html += '<td><span class="badge '+d.sc+'">'+d.status+'</span></td>';
+    html += '<td><button class="btn-link" onclick="showToast(\'打开工单详情页: '+d.id+'\',\'success\')">查看详情</button></td>';
+    html += '</tr>';
+  });
+  tb.innerHTML = html;
+}
+
+function showToast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast '+type+' show';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function(){t.classList.remove('show');}, 2500);
+}
+renderDisputes();
+</script>
+</body>
+</html>

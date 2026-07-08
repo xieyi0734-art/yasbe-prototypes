@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customer Detail - Cards Tab - YASBee Admin</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;color:#1D2129;background:#F3F4F6;line-height:1.5}
+.sidebar{width:260px;background:#1D2129;color:#fff;height:100vh;position:fixed;left:0;top:0;overflow-y:auto}
+.sidebar-header{padding:20px;font-size:20px;font-weight:700;color:#E59303;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-item{display:flex;align-items:center;gap:12px;padding:12px 20px;color:#9CA3AF;font-size:14px;cursor:pointer;transition:all .15s}
+.sidebar-item:hover{color:#fff;background:rgba(255,255,255,.05)}
+.sidebar-item.active{color:#E59303;background:rgba(229,147,3,.1);border-right:3px solid #E59303}
+.sidebar-label{padding:8px 20px 4px;font-size:11px;color:#6B7280;text-transform:uppercase;letter-spacing:1px}
+.main{margin-left:260px;padding:32px}
+.stat-card{background:#fff;border-radius:12px;border:1px solid #E5E7EB;padding:20px}
+.stat-value{font-size:25px;font-weight:700}
+.stat-label{font-size:13px;color:#86909C;margin-bottom:4px}
+.badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:500}
+.badge-active{background:#DCFCE7;color:#166534}
+.badge-frozen{background:#FEF9C3;color:#854D0E}
+.badge-closed{background:#FCE7F3;color:#9D174D}
+.btn-primary{background:#E59303;color:#fff;border:none;border-radius:8px;padding:8px 20px;font-size:14px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-primary:hover{background:#d48402}
+.btn-text{background:none;border:none;color:#E59303;font-size:13px;font-weight:500;cursor:pointer;padding:4px 8px}
+.btn-text:hover{color:#d48402}
+.filter-input{border:1px solid #D1D5DB;border-radius:8px;padding:8px 12px;font-size:14px;outline:none;width:180px}
+.filter-input:focus{border-color:#E59303;box-shadow:0 0 0 2px rgba(229,147,3,.15)}
+.filter-select{border:1px solid #D1D5DB;border-radius:8px;padding:8px 12px;font-size:14px;outline:none;cursor:pointer;background:#fff;width:140px}
+.filter-select:focus{border-color:#E59303;box-shadow:0 0 0 2px rgba(229,147,3,.15)}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;border:1px solid #E5E7EB;overflow:hidden}
+th{text-align:left;padding:12px 16px;font-size:13px;font-weight:500;color:#6B7280;border-bottom:1px solid #E5E7EB;background:#F9FAFB;white-space:nowrap}
+td{padding:14px 16px;font-size:14px;border-bottom:1px solid #F3F4F6}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#F9FAFB}
+.page-btn{padding:6px 12px;border:1px solid #D1D5DB;border-radius:6px;background:#fff;cursor:pointer;font-size:13px;color:#4B5563}
+.page-btn:hover{border-color:#E59303;color:#E59303}
+.page-btn.active{border-color:#E59303;background:#E59303;color:#fff}
+.breadcrumb{font-size:14px;color:#86909C;margin-bottom:8px}
+.breadcrumb span{color:#1D2129;font-weight:500}
+.tabs{display:flex;gap:4px;background:#F3F4F6;padding:4px;border-radius:8px;margin-bottom:20px;width:fit-content}
+.tab{padding:8px 20px;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;color:#4B5563;transition:all .15s}
+.tab:hover{background:rgba(0,0,0,.04);color:#1D2129}
+.tab.active{background:#E59303;color:#fff}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;overflow-y:auto}
+.modal-overlay.active{display:flex;align-items:center;justify-content:center}
+.modal{background:#fff;border-radius:16px;padding:32px;width:480px;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,.15);margin:auto}
+.modal-title{font-size:18px;font-weight:600;margin-bottom:24px}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+<div class="sidebar-header">YASBee 管理后台</div>
+<div class="sidebar-label">主</div>
+<div class="sidebar-item" style="color:#fff;"><span>🪪</span> 客户管理 <span style="margin-left:auto;font-size:10px;">▾</span></div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📈 概览</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">✅ 审核验证</div>
+<div class="sidebar-item active" style="padding-left:36px;font-size:13px;">📋 客户列表</div>
+<div class="sidebar-item"><span>💰</span> 资产管理</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">💵 法币</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">₿ 加密货币</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">🔄 兑换</div>
+<div class="sidebar-item"><span>💳</span> 卡片管理</div>
+<div class="sidebar-item"><span>🌐</span> 渠道管理 <span style="margin-left:auto;font-size:10px;">▾</span></div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📡 渠道管理</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">🃏 卡务管理</div>
+<div class="sidebar-item"><span>📈</span> 投资管理</div>
+<div class="sidebar-label">系统</div>
+<div class="sidebar-item"><span>⚙️</span> 系统管理</div>
+</div>
+
+<div class="main">
+<div class="breadcrumb">客户管理 / 客户列表 / <span>客户详情</span></div>
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+<h1 style="font-size:24px;font-weight:700;">客户详情</h1>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+<div class="tab">Personal Info</div>
+<div class="tab">Bank Account</div>
+<div class="tab">Crypto Wallet</div>
+<div class="tab">Convert</div>
+<div class="tab active">Cards</div>
+<div class="tab">Investment</div>
+</div>
+
+<!-- User Level & Limits (combined block) -->
+<div style="background:#fff;border-radius:12px;border:1px solid #E5E7EB;padding:20px;margin-bottom:20px;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+<div style="font-size:16px;font-weight:600;color:#1D2129;">📊 用户等级 & 限额</div>
+<div style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px;color:#E59303;font-weight:500;" onclick="openModal('editLimitsModal')">
+<span>✏️</span><span>编辑限额</span>
+</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
+<div>
+<div style="font-size:12px;color:#86909C;margin-bottom:2px;">用户等级</div>
+<div style="font-size:18px;font-weight:700;">等级2</div>
+<div style="font-size:13px;color:#E59303;font-weight:500;margin-top:1px;">标准</div>
+</div>
+<div>
+<div style="font-size:12px;color:#86909C;margin-bottom:2px;">单笔限额</div>
+<div style="font-size:18px;font-weight:700;">$5,000.00</div>
+</div>
+<div>
+<div style="font-size:12px;color:#86909C;margin-bottom:2px;">每日限额</div>
+<div style="font-size:18px;font-weight:700;">$20,000.00</div>
+<div style="font-size:12px;color:#86909C;margin-top:4px;">$8,500.00 已用</div>
+</div>
+<div>
+<div style="font-size:12px;color:#86909C;margin-bottom:2px;">每月限额</div>
+<div style="font-size:18px;font-weight:700;">$100,000.00</div>
+<div style="font-size:12px;color:#86909C;margin-top:4px;">$32,400.00 已用</div>
+</div>
+</div>
+</div>
+
+<!-- Stats: 4 cards -->
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
+<div class="stat-card">
+<div class="stat-label">总余额</div>
+<div class="stat-value">$24,580.00</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">总消费</div>
+<div class="stat-value">$142,680.50</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">交易中余额</div>
+<div class="stat-value">$3,245.60</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">卡片总数</div>
+<div class="stat-value">8</div>
+</div>
+</div>
+
+<!-- Filter + New card button -->
+<div style="background:#fff;border-radius:12px;border:1px solid #E5E7EB;padding:16px 20px;margin-bottom:20px;display:flex;gap:12px;align-items:center;">
+<select class="filter-select" onchange="filterTable()">
+<option value="all">全部状态</option>
+<option value="使用中">使用中</option>
+<option value="已冻结">已冻结</option>
+<option value="已关闭">已关闭</option>
+</select>
+<input class="filter-input" placeholder="卡号后4位" oninput="filterTable()">
+<div style="margin-left:auto;">
+<button class="btn-primary" onclick="openModal('createCardModal')">+ 发新卡</button>
+</div>
+</div>
+
+<!-- Table: 11 columns including card name -->
+<table>
+<thead>
+<tr>
+<th>卡号</th>
+<th>卡片名称</th>
+<th>渠道</th>
+<th>有效期</th>
+<th>安全码</th>
+<th>标签</th>
+<th>余额</th>
+<th>净消费</th>
+<th>可用余额</th>
+<th>状态</th>
+<th style="width:140px;">操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="font-family:monospace;font-size:13px;">480********4821</td>
+<td><span style="color:#4B5563;">YASBee</span></td>
+<td><span class="badge" style="background:#EDE9FE;color:#6D28D9;">Interlace</span></td>
+<td>05/28</td>
+<td style="font-family:monospace;">***</td>
+<td><span class="badge" style="background:#8B5CF6;color:#fff;">营销推广</span></td>
+<td style="font-weight:600;">$2,580.00</td>
+<td style="font-weight:600;">$12,450.00</td>
+<td style="font-weight:600;">$2,580.00</td>
+<td><span class="badge badge-active">使用中</span></td>
+<td><div style="display:flex;gap:8px;justify-content:flex-end;"><button class="btn-text" onclick="openModal('freezeModal')">冻结</button><button class="btn-text">详情</button></div></td>
+</tr>
+<tr>
+<td style="font-family:monospace;font-size:13px;">440********9034</td>
+<td><span style="color:#4B5563;">YASBee</span></td>
+<td><span class="badge" style="background:#EDE9FE;color:#6D28D9;">Interlace</span></td>
+<td>11/27</td>
+<td style="font-family:monospace;">***</td>
+<td><span class="badge" style="background:#3B82F6;color:#fff;">运营</span></td>
+<td style="font-weight:600;">$4,780.00</td>
+<td style="font-weight:600;">$18,230.00</td>
+<td style="font-weight:600;">$4,780.00</td>
+<td><span class="badge badge-active">使用中</span></td>
+<td><div style="display:flex;gap:8px;justify-content:flex-end;"><button class="btn-text" onclick="openModal('freezeModal')">冻结</button><button class="btn-text">详情</button></div></td>
+</tr>
+<tr>
+<td style="font-family:monospace;font-size:13px;">520********6712</td>
+<td><span style="color:#4B5563;">YASBee</span></td>
+<td><span class="badge" style="background:#EDE9FE;color:#6D28D9;">Interlace</span></td>
+<td>03/27</td>
+<td style="font-family:monospace;">***</td>
+<td><span class="badge" style="background:#EAB308;color:#fff;">订阅</span></td>
+<td style="font-weight:600;">$890.00</td>
+<td style="font-weight:600;">$3,450.00</td>
+<td style="font-weight:600;">$890.00</td>
+<td><span class="badge badge-frozen">已冻结</span></td>
+<td><div style="display:flex;gap:8px;justify-content:flex-end;"><button class="btn-text" onclick="openModal('unfreezeModal')">解冻</button><button class="btn-text">详情</button></div></td>
+</tr>
+<tr>
+<td style="font-family:monospace;font-size:13px;">490********3345</td>
+<td><span style="color:#4B5563;">YASBee</span></td>
+<td><span class="badge" style="background:#FEF9C3;color:#854D0E;">CardNet</span></td>
+<td>09/26</td>
+<td style="font-family:monospace;">***</td>
+<td><span class="badge" style="background:#8B5CF6;color:#fff;">营销推广</span></td>
+<td style="font-weight:600;">$0.00</td>
+<td style="font-weight:600;">$0.00</td>
+<td style="font-weight:600;">$0.00</td>
+<td><span class="badge badge-closed">已关闭</span></td>
+<td><div style="display:flex;gap:8px;justify-content:flex-end;opacity:.5;"><button class="btn-text" disabled style="cursor:not-allowed;">冻结</button><button class="btn-text">详情</button></div></td>
+</tr>
+<tr>
+<td style="font-family:monospace;font-size:13px;">410********2598</td>
+<td><span style="color:#4B5563;">YASBee</span></td>
+<td><span class="badge" style="background:#EDE9FE;color:#6D28D9;">Interlace</span></td>
+<td>01/28</td>
+<td style="font-family:monospace;">***</td>
+<td><span class="badge" style="background:#22C55E;color:#fff;">差旅</span></td>
+<td style="font-weight:600;">$3,420.00</td>
+<td style="font-weight:600;">$9,860.00</td>
+<td style="font-weight:600;">$3,420.00</td>
+<td><span class="badge badge-active">使用中</span></td>
+<td><div style="display:flex;gap:8px;justify-content:flex-end;"><button class="btn-text" onclick="openModal('freezeModal')">冻结</button><button class="btn-text">详情</button></div></td>
+</tr>
+</tbody>
+</table>
+
+<!-- Pagination -->
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;font-size:13px;color:#86909C;">
+| 显示 1-5 条，共 8 张卡片</div>
+<div style="display:flex;gap:4px;align-items:center;">
+<button class="page-btn">‹</button>
+<button class="page-btn active">1</button>
+<button class="page-btn">2</button>
+<button class="page-btn">›</button>
+</div>
+</div>
+</div>
+
+<!-- Modal: Edit Limits -->
+<div class="modal-overlay" id="editLimitsModal">
+<div class="modal" style="width:480px;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+<div class="modal-title">编辑限额</div>
+<span style="font-size:24px;cursor:pointer;color:#86909C;" onclick="closeModal('editLimitsModal')">✕</span>
+</div>
+<div style="margin-bottom:16px;">
+<label style="display:block;font-size:13px;color:#4B5563;margin-bottom:4px;">用户等级</label>
+<select style="width:100%;border:1px solid #D1D5DB;border-radius:8px;padding:10px 12px;font-size:14px;outline:none;">
+<option>等级1 (基础)</option>
+<option selected>等级2 (标准)</option>
+<option>等级3 (高级)</option>
+<option>等级4 (VIP)</option>
+</select>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+<div>
+<label style="display:block;font-size:13px;color:#4B5563;margin-bottom:4px;">单笔限额</label>
+<input type="number" value="5000" style="width:100%;border:1px solid #D1D5DB;border-radius:8px;padding:10px 12px;font-size:14px;outline:none;">
+</div>
+<div>
+<label style="display:block;font-size:13px;color:#4B5563;margin-bottom:4px;">每日限额</label>
+<input type="number" value="20000" style="width:100%;border:1px solid #D1D5DB;border-radius:8px;padding:10px 12px;font-size:14px;outline:none;">
+</div>
+</div>
+<div style="margin-bottom:16px;">
+<label style="display:block;font-size:13px;color:#4B5563;margin-bottom:4px;">每月限额</label>
+<input type="number" value="100000" style="width:100%;border:1px solid #D1D5DB;border-radius:8px;padding:10px 12px;font-size:14px;outline:none;">
+</div>
+<div style="display:flex;gap:8px;justify-content:flex-end;">
+<button style="padding:8px 20px;border:1px solid #D1D5DB;border-radius:8px;background:#fff;cursor:pointer;font-size:14px;" onclick="closeModal('editLimitsModal')">取消</button>
+<button class="btn-primary" onclick="alert('✅ 限额已保存 (原型)');closeModal('editLimitsModal')">保存</button>
+</div>
+</div>
+</div>
+
+<!-- Modal: Create New Card -->
+<div class="modal-overlay" id="createCardModal">
+<div class="modal">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+<div class="modal-title">发新卡</div>
+<span style="font-size:24px;cursor:pointer;color:#86909C;" onclick="closeModal('createCardModal')">✕</span>
+</div>
+<div style="margin-bottom:16px;">
+<label style="display:block;font-size:13px;color:#4B5563;margin-bottom:4px;">卡片名称</label>
+<input type="text" placeholder="如 YASBee" style="width:100%;border:1px solid #D1D5DB;border-radius:8px;padding:10px 12px;font-size:14px;outline:none;">
+</div>
+<div style="margin-bottom:16px;">
+<label style="display:block;font-size:13px;color:#4B5563;margin-bottom:4px;">发卡渠道</label>
+<select style="width:100%;border:1px solid #D1D5DB;border-radius:8px;padding:10px 12px;font-size:14px;outline:none;">
+<option>Interlace</option>
+<option>CardNet</option>
+</select>
+</div>
+<div style="margin-bottom:16px;">
+<label style="display:block;font-size:13px;color:#4B5563;margin-bottom:4px;">标签</label>
+<select style="width:100%;border:1px solid #D1D5DB;border-radius:8px;padding:10px 12px;font-size:14px;outline:none;">
+<option>营销推广</option>
+<option>运营</option>
+<option>订阅</option>
+<option>差旅</option>
+</select>
+</div>
+<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:24px;">
+<button style="padding:8px 20px;border:1px solid #D1D5DB;border-radius:8px;background:#fff;cursor:pointer;font-size:14px;" onclick="closeModal('createCardModal')">取消</button>
+<button class="btn-primary" onclick="alert('✅ 发卡成功 (原型)');closeModal('createCardModal')">确认发卡</button>
+</div>
+</div>
+</div>
+
+<!-- Modal: Freeze Confirm -->
+<div class="modal-overlay" id="freezeModal">
+<div class="modal" style="width:400px;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+<div class="modal-title">确认冻结</div>
+<span style="font-size:24px;cursor:pointer;color:#86909C;" onclick="closeModal('freezeModal')">✕</span>
+</div>
+<p style="font-size:14px;color:#4B5563;margin-bottom:8px;">确定要冻结该卡片？冻结后所有交易将被中断。</p>
+<p style="font-size:13px;color:#86909C;margin-bottom:20px;">可随时解冻恢复使用。</p>
+<div style="margin-bottom:16px;">
+<label style="display:block;font-size:13px;color:#4B5563;margin-bottom:4px;">冻结原因</label>
+<select style="width:100%;border:1px solid #D1D5DB;border-radius:8px;padding:10px 12px;font-size:14px;outline:none;">
+<option>可疑交易</option>
+<option>客户申请</option>
+<option>风控触发</option>
+<option>其他</option>
+</select>
+</div>
+<div style="display:flex;gap:8px;justify-content:flex-end;">
+<button style="padding:8px 20px;border:1px solid #D1D5DB;border-radius:8px;background:#fff;cursor:pointer;font-size:14px;" onclick="closeModal('freezeModal')">取消</button>
+<button class="btn-primary" onclick="alert('✅ 卡片已冻结 (原型)');closeModal('freezeModal')">确认冻结</button>
+</div>
+</div>
+</div>
+
+<!-- Modal: Unfreeze Confirm -->
+<div class="modal-overlay" id="unfreezeModal">
+<div class="modal" style="width:400px;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+<div class="modal-title">确认解冻</div>
+<span style="font-size:24px;cursor:pointer;color:#86909C;" onclick="closeModal('unfreezeModal')">✕</span>
+</div>
+<p style="font-size:14px;color:#4B5563;margin-bottom:20px;">确定要解冻该卡片？解冻后卡片恢复正常使用。</p>
+<div style="display:flex;gap:8px;justify-content:flex-end;">
+<button style="padding:8px 20px;border:1px solid #D1D5DB;border-radius:8px;background:#fff;cursor:pointer;font-size:14px;" onclick="closeModal('unfreezeModal')">取消</button>
+<button class="btn-primary" onclick="alert('✅ 卡片已解冻 (原型)');closeModal('unfreezeModal')">确认解冻</button>
+</div>
+</div>
+</div>
+
+<script>
+function openModal(id){document.getElementById(id).classList.add('active')}
+function closeModal(id){document.getElementById(id).classList.remove('active')}
+document.addEventListener('click',function(e){if(e.target.classList.contains('modal-overlay')&&e.target.classList.contains('active')){e.target.classList.remove('active')}});
+
+function filterTable(){
+var status=document.querySelector('.filter-select').value;
+var search=document.querySelector('.filter-input').value.toLowerCase();
+var rows=document.querySelectorAll('tbody tr');
+var visible=0;
+rows.forEach(function(r){
+var s=r.querySelector('td:nth-child(10) .badge').textContent.trim();
+var c=r.querySelector('td:first-child').textContent.trim().slice(-4);
+var match=(status=='all'||s==status)&&(!search||c.slice(-4).includes(search));
+r.style.display=match?'':'none';
+if(match) visible++;
+});
+document.querySelector('.main>div:last-child>div:first-child').textContent='显示 1-'+Math.min(visible,rows.length)+' 条，共 '+rows.length+' 张卡片';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Card Introduction - Beeznis Admin</title>
+<style>
+:root {
+  --color-primary: #E59303;
+  --color-primary-hover: #d08400;
+  --color-sidebar-bg: #1D2129;
+  --color-sidebar-text: #86909C;
+  --color-sidebar-hover: rgba(255,255,255,.08);
+  --color-sidebar-active: #E59303;
+  --color-bg: #F0F2F5;
+  --color-card-bg: #FFFFFF;
+  --color-text: #1D2129;
+  --color-text-secondary: #86909C;
+  --color-border: #E5E8EB;
+  --color-success: #52C41A;
+  --color-success-light: #F6FFED;
+  --color-error: #F5222D;
+  --color-warning: #FAAD14;
+  --color-warning-light: #FFFBEB;
+  --color-info: #1890FF;
+  --color-info-light: #E6F7FF;
+  --radius: 8px;
+  --shadow: 0 1px 2px rgba(0,0,0,.06);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,.12);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 14px;
+  line-height: 1.5;
+}
+/* ===== Layout ===== */
+.app { display: flex; min-height: 100vh; }
+/* ===== Sidebar ===== */
+.sidebar {
+  width: 240px; flex-shrink: 0; background: var(--color-sidebar-bg);
+  min-height: 100vh; display: flex; flex-direction: column;
+  position: fixed; left: 0; top: 0; bottom: 0; z-index: 100;
+}
+.sidebar-logo {
+  height: 56px; padding: 0 20px; display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  flex-shrink: 0;
+}
+.logo-icon {
+  width: 32px; height: 32px; background: var(--color-primary); border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 14px; color: #fff;
+}
+.logo-text { font-size: 15px; font-weight: 600; color: #fff; }
+.sidebar-nav { flex: 1; padding: 8px 0; overflow-y: auto; }
+.nav-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 20px; color: var(--color-sidebar-text); font-size: 14px;
+  cursor: pointer; transition: all .15s; user-select: none;
+  border-left: 3px solid transparent;
+}
+.nav-item:hover { background: var(--color-sidebar-hover); color: #e5e6e8; }
+.nav-item.active {
+  background: rgba(229,147,3,.15); color: #fff; font-weight: 500;
+  border-left-color: var(--color-sidebar-active);
+}
+.nav-item .icon { width: 20px; text-align: center; font-size: 16px; flex-shrink: 0; }
+.nav-section {
+  padding: 16px 20px 4px; font-size: 11px; color: rgba(255,255,255,.35);
+  text-transform: uppercase; letter-spacing: 1px; font-weight: 600;
+}
+/* ===== Main ===== */
+.main { margin-left: 240px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+.topbar {
+  background: var(--color-card-bg); height: 56px;
+  border-bottom: 1px solid var(--color-border);
+  padding: 0 24px; display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 50;
+}
+.breadcrumb { font-size: 13px; color: var(--color-text-secondary); }
+.breadcrumb .current { color: var(--color-text); font-weight: 500; }
+.breadcrumb span { margin: 0 6px; }
+.topbar-right { display: flex; align-items: center; gap: 20px; }
+.notif-icon { position: relative; cursor: pointer; color: var(--color-text-secondary); font-size: 18px; }
+.notif-dot {
+  position: absolute; top: -2px; right: -4px;
+  width: 7px; height: 7px; background: var(--color-error); border-radius: 50%;
+}
+.avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600; color: #fff; cursor: pointer;
+  background: linear-gradient(135deg, #E59303, #f5b342);
+}
+/* ===== Content ===== */
+.content { padding: 24px; max-width: 1200px; }
+/* ===== Page Header ===== */
+.page-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+}
+.page-header-left { display: flex; align-items: center; gap: 12px; }
+.back-btn {
+  width: 32px; height: 32px; border-radius: var(--radius);
+  border: 1px solid var(--color-border); background: var(--color-card-bg);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: var(--color-text-secondary); transition: all .15s;
+}
+.back-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.page-header h1 { font-size: 20px; font-weight: 600; }
+.page-header-actions { display: flex; gap: 8px; }
+.btn {
+  padding: 6px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 500;
+  border: none; cursor: pointer; transition: all .15s; display: inline-flex;
+  align-items: center; gap: 6px; line-height: 22px;
+}
+.btn-sm { padding: 4px 12px; font-size: 12px; }
+.btn-primary { background: var(--color-primary); color: #fff; }
+.btn-primary:hover { background: var(--color-primary-hover); }
+.btn-outline {
+  background: var(--color-card-bg); border: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+.btn-outline:hover { border-color: var(--color-primary); color: var(--color-primary); }
+/* ===== Hero Section ===== */
+.card-hero {
+  background: var(--color-card-bg); border-radius: 12px;
+  box-shadow: var(--shadow-lg); padding: 28px; margin-bottom: 20px;
+  display: flex; gap: 36px;
+}
+.card-visual { flex-shrink: 0; }
+.card-face {
+  width: 340px; height: 200px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  border-radius: 14px; padding: 22px 24px; position: relative;
+  color: #fff; display: flex; flex-direction: column;
+  box-shadow: 0 12px 40px rgba(0,0,0,.25);
+  transition: transform .25s ease;
+}
+.card-face:hover { transform: translateY(-3px); }
+.card-face .chip {
+  width: 38px; height: 28px;
+  background: linear-gradient(135deg, #D4AF37, #FFD700); border-radius: 4px;
+  margin-bottom: 14px;
+}
+.card-face .card-number { font-size: 19px; letter-spacing: 3px; margin-bottom: 10px; }
+.card-face .card-meta {
+  display: flex; justify-content: space-between; font-size: 12px;
+  color: rgba(255,255,255,.7);
+}
+.card-face .brand-overlay {
+  position: absolute; bottom: 16px; right: 24px;
+  font-size: 22px; font-weight: 800; color: rgba(255,255,255,.12);
+  letter-spacing: 1px;
+}
+.card-face .virtual-badge {
+  position: absolute; top: 18px; right: 22px;
+  font-size: 10px; background: rgba(255,255,255,.15);
+  padding: 3px 8px; border-radius: 4px; color: rgba(255,255,255,.7);
+}
+/* ===== Card Info Panel ===== */
+.card-info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.card-title-row {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.card-title-row h2 { font-size: 22px; font-weight: 700; }
+.tag {
+  display: inline-flex; padding: 2px 10px; border-radius: 4px;
+  font-size: 11px; font-weight: 500; line-height: 20px;
+}
+.tag-channel { background: rgba(229,147,3,.12); color: var(--color-primary); border: 1px solid rgba(229,147,3,.2); }
+.tag-prepaid { background: #E6F7FF; color: #1890FF; border: 1px solid rgba(24,144,255,.2); }
+.tag-virtual { background: #F9F0FF; color: #722ED1; border: 1px solid rgba(114,46,209,.15); }
+.card-desc {
+  font-size: 13px; color: var(--color-text-secondary);
+  margin-bottom: 18px; line-height: 1.6;
+}
+/* ===== Fee Summary Grid ===== */
+.fee-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 18px; }
+.fee-card {
+  background: var(--color-bg); border-radius: var(--radius); padding: 14px 12px;
+  text-align: center; border: 1px solid var(--color-border);
+}
+.fee-card .fee-label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 4px; font-weight: 500; }
+.fee-card .fee-value { font-size: 20px; font-weight: 700; }
+.fee-card .fee-sub { font-size: 10px; color: var(--color-text-secondary); margin-top: 2px; }
+.fee-card .fee-value.free { color: var(--color-success); }
+.fee-card.fee-highlight { border-color: var(--color-primary); background: #FFFBE6; }
+/* ===== Support Tags ===== */
+.support-section { margin-bottom: 14px; }
+.support-section:last-child { margin-bottom: 0; }
+.support-section h4 {
+  font-size: 11px; font-weight: 600; color: var(--color-text-secondary);
+  text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px;
+}
+.tag-group { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag-currency {
+  padding: 4px 12px; border-radius: 14px; font-size: 12px; font-weight: 500;
+}
+.tag-currency.main { background: rgba(229,147,3,.12); color: var(--color-primary); }
+.tag-currency.other {
+  background: var(--color-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);
+}
+.tag-payment {
+  display: flex; align-items: center; gap: 4px;
+  padding: 4px 12px; border-radius: var(--radius); font-size: 12px;
+}
+.tag-payment.supported { background: var(--color-success-light); color: var(--color-success); border: 1px solid rgba(82,196,26,.2); }
+.tag-payment.unsupported {
+  background: var(--color-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);
+  opacity: .6;
+}
+/* ===== Detail Grid ===== */
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.detail-card {
+  background: var(--color-card-bg); border-radius: 12px;
+  box-shadow: var(--shadow); padding: 20px;
+}
+.detail-card.full { grid-column: 1 / -1; }
+.detail-card h3 {
+  font-size: 14px; font-weight: 600; margin-bottom: 14px;
+  padding-bottom: 10px; border-bottom: 1px solid var(--color-border);
+}
+.detail-card h3 .sub { font-weight: 400; color: var(--color-text-secondary); font-size: 12px; }
+/* ===== Fee Table ===== */
+.fee-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.fee-table th {
+  text-align: left; padding: 8px 14px; color: var(--color-text-secondary);
+  font-weight: 500; font-size: 11px; text-transform: uppercase;
+  letter-spacing: .3px; border-bottom: 2px solid var(--color-border);
+  background: #FAFAFA;
+}
+.fee-table td {
+  padding: 10px 14px; border-bottom: 1px solid rgba(0,0,0,.04);
+}
+.fee-table tr:last-child td { border-bottom: none; }
+.fee-table .td-right { text-align: right; font-weight: 600; }
+.fee-table .td-note { color: var(--color-text-secondary); font-size: 12px; }
+.fee-table .highlight-row { background: #FFFBE6; }
+.fee-table .rebate-row td { color: var(--color-primary); }
+/* ===== Business Grid ===== */
+.biz-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.biz-item {
+  background: var(--color-bg); border: 1px solid var(--color-border);
+  border-radius: var(--radius); padding: 16px 12px; text-align: center;
+  transition: all .15s;
+}
+.biz-item:hover { border-color: var(--color-primary); box-shadow: var(--shadow); }
+.biz-item .biz-icon { font-size: 26px; margin-bottom: 8px; }
+.biz-item .biz-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.biz-item .biz-desc { font-size: 11px; color: var(--color-text-secondary); }
+.biz-item.disabled { opacity: .4; filter: grayscale(1); cursor: not-allowed; }
+.biz-item.disabled:hover { border-color: var(--color-border); box-shadow: none; }
+/* ===== Config Table ===== */
+.config-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.config-table td {
+  padding: 8px 14px; border-bottom: 1px solid rgba(0,0,0,.04);
+  vertical-align: top;
+}
+.config-table td:first-child { color: var(--color-text-secondary); width: 130px; font-size: 12px; }
+.config-table tr:last-child td { border-bottom: none; }
+.config-status {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-weight: 500;
+}
+.config-status.active { color: var(--color-success); }
+.config-status.inactive { color: var(--color-error); }
+/* ===== Responsive ===== */
+@media (max-width: 1024px) {
+  .card-hero { flex-direction: column; }
+  .card-visual { width: 100%; }
+  .card-face { width: 100%; max-width: 340px; }
+  .detail-grid { grid-template-columns: 1fr; }
+  .biz-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .fee-grid { grid-template-columns: repeat(2, 1fr); }
+  .biz-grid { grid-template-columns: repeat(2, 1fr); }
+  .page-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- ===== Sidebar (Beeznis Style: #1D2129) ===== -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">B</div>
+      <div class="logo-text">Beeznis Admin</div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section">Overview</div>
+      <div class="nav-item"><span class="icon">&#x1F4CA;</span> Dashboard</div>
+      <div class="nav-section">Cards</div>
+      <div class="nav-item"><span class="icon">&#x1F4B3;</span> Card Management</div>
+      <div class="nav-item active"><span class="icon">&#x1F4C4;</span> Card Products</div>
+      <div class="nav-section">Business</div>
+      <div class="nav-item"><span class="icon">&#x1F464;</span> Users</div>
+      <div class="nav-item"><span class="icon">&#x1F9FE;</span> KYC / KYB</div>
+      <div class="nav-item"><span class="icon">&#x1F4B0;</span> Transactions</div>
+      <div class="nav-section">Finance</div>
+      <div class="nav-item"><span class="icon">&#x1F4B5;</span> Settlement</div>
+      <div class="nav-item"><span class="icon">&#x1F4C8;</span> Dashboard</div>
+      <div class="nav-item"><span class="icon">&#x2696;&#xFE0F;</span> Disputes</div>
+      <div class="nav-section">System</div>
+      <div class="nav-item"><span class="icon">&#x1F6E1;&#xFE0F;</span> Risk Rules</div>
+      <div class="nav-item"><span class="icon">&#x1F527;</span> Settings</div>
+    </div>
+  </div>
+
+  <!-- ===== Main Content ===== -->
+  <div class="main">
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div class="breadcrumb">
+        Card Products <span>&gt;</span> <span class="current">Card Introduction</span>
+      </div>
+      <div class="topbar-right">
+        <div class="notif-icon">&#x1F514;<span class="notif-dot"></span></div>
+        <div class="avatar">DX</div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <!-- Page Header -->
+      <div class="page-header">
+        <div class="page-header-left">
+          <button class="back-btn" onclick="history.back()">&#x2190;</button>
+          <h1>Card Introduction</h1>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-outline btn-sm">Edit Card</button>
+          <button class="btn btn-primary btn-sm">Configure Fees</button>
+        </div>
+      </div>
+
+      <!-- ===== Hero: Card Visual + Fee Summary ===== -->
+      <div class="card-hero">
+        <!-- Left: Card Visual -->
+        <div class="card-visual">
+          <div class="card-face">
+            <div class="chip"></div>
+            <div class="card-number">6212 8801 2345 6789</div>
+            <div class="card-meta">
+              <span>VALID THRU 12/28</span>
+              <span>CARDHOLDER</span>
+            </div>
+            <span class="virtual-badge">virtual</span>
+            <span class="brand-overlay">YASBEE</span>
+          </div>
+        </div>
+
+        <!-- Right: Info + Fees + Support -->
+        <div class="card-info">
+          <div class="card-title-row">
+            <h2>Standard Prepaid Card</h2>
+            <span class="tag tag-channel">Interlace</span>
+            <span class="tag tag-prepaid">Prepaid</span>
+            <span class="tag tag-virtual">Virtual</span>
+          </div>
+          <div class="card-desc">
+            Standard virtual prepaid card supporting multi-currency top-ups and global online spending. Suitable for cross-border payments, subscription services, and digital wallet funding.
+          </div>
+
+          <!-- Fee Summary: 4 columns -->
+          <div class="fee-grid">
+            <div class="fee-card">
+              <div class="fee-label">Opening Fee</div>
+              <div class="fee-value free">$0</div>
+              <div class="fee-sub">One-time</div>
+            </div>
+            <div class="fee-card fee-highlight">
+              <div class="fee-label">Monthly Fee</div>
+              <div class="fee-value">$0.12~$0.25</div>
+              <div class="fee-sub">Per month (active)</div>
+            </div>
+            <div class="fee-card">
+              <div class="fee-label">Consumption Fee</div>
+              <div class="fee-value free">0%</div>
+              <div class="fee-sub">0% rate + $0/fx</div>
+            </div>
+            <div class="fee-card">
+              <div class="fee-label">Recharge Fee</div>
+              <div class="fee-value free">0%</div>
+              <div class="fee-sub">0% rate + $0/fx</div>
+            </div>
+          </div>
+
+          <!-- Supported Currencies -->
+          <div class="support-section">
+            <h4>Supported Currencies</h4>
+            <div class="tag-group">
+              <span class="tag-currency main">USD</span>
+              <span class="tag-currency other">EUR</span>
+              <span class="tag-currency other">GBP</span>
+              <span class="tag-currency other">JPY</span>
+              <span class="tag-currency other">CNY</span>
+              <span class="tag-currency other">HKD</span>
+              <span class="tag-currency other">SGD</span>
+              <span class="tag-currency other">AUD</span>
+              <span class="tag-currency other">CAD</span>
+            </div>
+          </div>
+
+          <!-- Payment Methods -->
+          <div class="support-section">
+            <h4>Payment Methods</h4>
+            <div class="tag-group">
+              <span class="tag-payment supported">&#x2714; Online</span>
+              <span class="tag-payment unsupported">&#x2718; POS (Offline)</span>
+              <span class="tag-payment unsupported">&#x2718; Apple Pay</span>
+              <span class="tag-payment unsupported">&#x2718; Google Pay</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== Detail Grid ===== -->
+      <div class="detail-grid">
+        <!-- Fee Detail Table -->
+        <div class="detail-card full">
+          <h3>All Fee Details <span class="sub">Based on YASBee platform fee configuration</span></h3>
+          <table class="fee-table">
+            <thead>
+              <tr>
+                <th>Fee Type</th>
+                <th>Amount / Rate</th>
+                <th>Charge Method</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Opening Fee</td>
+                <td class="td-right" style="color:var(--color-success);">$0</td>
+                <td>One-time</td>
+                <td class="td-note">Currently free promotion</td>
+              </tr>
+              <tr>
+                <td>Opening Fee Rate</td>
+                <td class="td-right" style="color:var(--color-success);">0%</td>
+                <td>Percentage of opening amount</td>
+                <td class="td-note">Mutually exclusive with Opening Fee</td>
+              </tr>
+              <tr>
+                <td>Recharge Fee</td>
+                <td class="td-right"><span style="color:var(--color-success);">0%</span> + <span style="color:var(--color-success);">$0</span>/tx</td>
+                <td>Per transaction</td>
+                <td class="td-note">Rate + fixed fee, currently free</td>
+              </tr>
+              <tr>
+                <td>Consumption Fee</td>
+                <td class="td-right"><span style="color:var(--color-success);">0%</span> + <span style="color:var(--color-success);">$0</span>/tx</td>
+                <td>Per transaction</td>
+                <td class="td-note">Rate + fixed fee, currently free</td>
+              </tr>
+              <tr>
+                <td>Monthly Fee</td>
+                <td class="td-right">$0.12 ~ $0.25</td>
+                <td>Monthly deduction</td>
+                <td class="td-note">Charged when card is active</td>
+              </tr>
+              <tr>
+                <td>First Open Discount</td>
+                <td class="td-right" style="color:var(--color-success);">$0</td>
+                <td>One-time waiver</td>
+                <td class="td-note">First card opening fee waiver</td>
+              </tr>
+              <tr>
+                <td>Chargeback</td>
+                <td class="td-right">$35</td>
+                <td>Per dispute</td>
+                <td class="td-note">Dispute processing fee</td>
+              </tr>
+              <tr class="rebate-row">
+                <td>Rebate</td>
+                <td class="td-right">Based on Rebate Rate</td>
+                <td>Behavior-triggered</td>
+                <td class="td-note">&#x1F4A1; Not a platform fee — issued in YASBee tokens</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Supported Business Scenarios -->
+        <div class="detail-card">
+          <h3>Supported Business Scenarios</h3>
+          <div class="biz-grid">
+            <div class="biz-item">
+              <div class="biz-icon">&#x1F6D2;</div>
+              <div class="biz-name">Online Shopping</div>
+              <div class="biz-desc">E-commerce platforms</div>
+            </div>
+            <div class="biz-item disabled">
+              <div class="biz-icon">&#x1F3EA;</div>
+              <div class="biz-name">POS Offline</div>
+              <div class="biz-desc">Physical stores</div>
+            </div>
+            <div class="biz-item">
+              <div class="biz-icon">&#x1F4B0;</div>
+              <div class="biz-name">Wallet Top-up</div>
+              <div class="biz-desc">Crypto wallet funding</div>
+            </div>
+            <div class="biz-item disabled">
+              <div class="biz-icon">&#x1F4B1;</div>
+              <div class="biz-name">Currency Exchange</div>
+              <div class="biz-desc">Auto multi-currency</div>
+            </div>
+            <div class="biz-item">
+              <div class="biz-icon">&#x1F4CB;</div>
+              <div class="biz-name">Bill Payment</div>
+              <div class="biz-desc">Subscription billing</div>
+            </div>
+            <div class="biz-item">
+              <div class="biz-icon">&#x1F504;</div>
+              <div class="biz-name">Digital Wallet</div>
+              <div class="biz-desc">Apple Pay / GPay</div>
+            </div>
+            <div class="biz-item">
+              <div class="biz-icon">&#x2708;&#xFE0F;</div>
+              <div class="biz-name">Travel</div>
+              <div class="biz-desc">Flights & hotels</div>
+            </div>
+            <div class="biz-item">
+              <div class="biz-icon">&#x1F3AE;</div>
+              <div class="biz-name">Subscriptions</div>
+              <div class="biz-desc">SaaS / streaming</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Configuration -->
+        <div class="detail-card">
+          <h3>Card Configuration</h3>
+          <table class="config-table">
+            <tr><td>Card ID</td><td>ditch_card_001</td></tr>
+            <tr><td>Card Name</td><td>Standard Prepaid Card</td></tr>
+            <tr><td>BIN</td><td>621288</td></tr>
+            <tr><td>Channel</td><td>Interlace (MoR)</td></tr>
+            <tr><td>Card Type</td><td>Prepaid (0)</td></tr>
+            <tr><td>Card Model</td><td>Virtual (0)</td></tr>
+            <tr><td>Status</td><td><span class="config-status active">&#x25CF; Active</span></td></tr>
+            <tr><td>Base Currency</td><td>USD</td></tr>
+            <tr><td>Apple Pay</td><td><span style="color:var(--color-text-secondary);">&#x2718; Not supported</span></td></tr>
+            <tr><td>Google Pay</td><td><span style="color:var(--color-text-secondary);">&#x2718; Not supported</span></td></tr>
+            <tr><td>Created</td><td>2026-03-15 10:30:00</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- Footer Note -->
+      <div style="font-size:12px;color:var(--color-text-secondary);text-align:center;padding:20px 0;">
+        Data sourced from YASBee admin card product configuration. Monthly fee is a YASBee-defined user-side fee.
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

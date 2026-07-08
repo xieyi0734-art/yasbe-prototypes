@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YASBee - 卡片介绍</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --sidebar-bg: #1a1a2e;
+  --sidebar-text: #8e9ab4;
+  --sidebar-hover: #2a2a4e;
+  --header-bg: #1a2536;
+  --bg: #f0f2f5;
+  --card-bg: #ffffff;
+  --text: #1a1a1a;
+  --text-muted: #888;
+  --accent: #f59f00;
+  --accent-hover: #e08d00;
+  --primary: #4f46e5;
+  --primary-light: #eef2ff;
+  --primary-dark: #3730a3;
+  --success: #16a34a;
+  --success-light: #f0fdf4;
+  --danger: #dc2626;
+  --border: #e5e7eb;
+  --border-light: #f0f0f0;
+  --shadow: 0 1px 3px rgba(0,0,0,.08);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.1);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,.14);
+  --radius: 10px;
+  --radius-lg: 14px;
+  --max-width: 1200px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ===== Layout ===== */
+.app { display: flex; min-height: 100vh; }
+.sidebar { width: 220px; flex-shrink: 0; background: var(--sidebar-bg); min-height: 100vh; display: flex; flex-direction: column; position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; }
+.sidebar-logo { padding: 20px 16px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,.06); }
+.logo-icon { width: 32px; height: 32px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; color: #fff; }
+.logo-text { font-size: 17px; font-weight: 700; color: #fff; letter-spacing: .5px; }
+.sidebar-nav { flex: 1; padding: 12px 8px; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; color: var(--sidebar-text); font-size: 13.5px; cursor: pointer; transition: all .15s; }
+.nav-item:hover { background: var(--sidebar-hover); color: #fff; }
+.nav-item.active { background: rgba(255,255,255,.1); color: #fff9c4; font-weight: 600; }
+.nav-item .icon { font-size: 16px; }
+.sidebar-footer { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,.06); display: flex; align-items: center; gap: 10px; }
+.avatar { width: 34px; height: 34px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.user-info { overflow: hidden; }
+.user-info .name { font-size: 13px; color: #fff; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-info div:last-child { font-size: 11px; color: var(--sidebar-text); }
+
+.main { margin-left: 220px; flex: 1; min-height: 100vh; display: flex; flex-direction: column; }
+.top-header { background: var(--header-bg); padding: 0 28px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 90; }
+.top-header h1 { font-size: 18px; font-weight: 700; color: #fff; }
+.top-header-right { display: flex; align-items: center; gap: 12px; }
+.search-box { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,.08); border-radius: 8px; padding: 7px 12px; }
+.search-box input { background: none; border: none; outline: none; color: #fff; font-size: 13px; width: 180px; }
+.search-box input::placeholder { color: rgba(255,255,255,.4); }
+.notif { background: none; border: none; font-size: 18px; cursor: pointer; position: relative; padding: 4px; }
+.notif .dot { position: absolute; top: 2px; right: 2px; width: 7px; height: 7px; background: var(--danger); border-radius: 50%; border: 2px solid var(--header-bg); }
+.avatar-btn { width: 32px; height: 32px; background: var(--accent); border-radius: 50%; border: none; color: #fff; font-size: 12px; font-weight: 700; cursor: pointer; }
+
+/* ===== Content ===== */
+.content { flex: 1; }
+
+/* ===== Hero Section ===== */
+.hero {
+  background: linear-gradient(135deg, #0f1729 0%, #1a2a4a 50%, #2d4a6e 100%);
+  padding: 56px 32px 50px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 30% 50%, rgba(79,70,229,.15) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 50%, rgba(245,159,0,.1) 0%, transparent 60%);
+  pointer-events: none;
+}
+.hero-inner { max-width: var(--max-width); margin: 0 auto; position: relative; }
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.12);
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  color: rgba(255,255,255,.6);
+  margin-bottom: 16px;
+}
+.hero-badge strong { color: var(--accent); font-weight: 600; }
+.hero h1 {
+  font-size: 36px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.5px;
+  margin-bottom: 10px;
+}
+.hero h1 span { color: var(--accent); }
+.hero p {
+  font-size: 15px;
+  color: rgba(255,255,255,.65);
+  max-width: 600px;
+  margin: 0 auto 26px;
+  line-height: 1.7;
+}
+.hero-actions { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+
+/* ===== Section ===== */
+.section {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 36px 32px;
+}
+.section-title { margin-bottom: 28px; }
+.section-title h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.section-title p { font-size: 13.5px; color: var(--text-muted); }
+
+/* ===== Card Showcase ===== */
+.card-showcase { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+/* Virtual Card Face */
+.vcard {
+  border-radius: var(--radius-lg);
+  padding: 26px 24px;
+  color: #fff;
+  position: relative;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.vcard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: .12;
+  background-image: radial-gradient(circle at 30% 40%, #fff 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
+}
+.vcard-bb { background: linear-gradient(135deg, #0d3b2e, #1a7a5c); }
+.vcard-bz { background: linear-gradient(135deg, #1e1b4b, #4f46e5); }
+.vcard .chip {
+  width: 40px; height: 30px;
+  background: linear-gradient(135deg, #ffd166, #f59f00);
+  border-radius: 5px;
+  margin-bottom: 14px;
+  position: relative;
+  overflow: hidden;
+}
+.vcard .chip::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 26px; height: 18px;
+  border: 1.5px solid rgba(0,0,0,.2);
+  border-radius: 3px;
+}
+.vcard-brand-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: auto; }
+.vcard-brand { font-size: 15px; font-weight: 800; letter-spacing: 1.5px; }
+.vcard-network { font-size: 10.5px; background: rgba(255,255,255,.15); padding: 3px 9px; border-radius: 4px; font-weight: 600; }
+.vcard-number { font-family: "Courier New", monospace; font-size: 20px; letter-spacing: 3px; font-weight: 600; margin: 5px 0 8px; text-shadow: 0 1px 2px rgba(0,0,0,.2); }
+.vcard-meta { display: flex; justify-content: space-between; font-size: 11px; opacity: .8; }
+.vcard-meta span { display: flex; flex-direction: column; gap: 2px; }
+.vcard-meta .label { font-size: 8.5px; opacity: .6; text-transform: uppercase; letter-spacing: .5px; }
+
+/* Card Info Panel */
+.card-info-panel {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  box-shadow: var(--shadow);
+  margin-top: 12px;
+}
+.card-info-panel h3 {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-info-panel h3 .tag {
+  font-size: 10.5px;
+  background: var(--primary-light);
+  color: var(--primary);
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+.card-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+
+/* ===== Fee Table ===== */
+.fee-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.fee-table th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  padding: 7px 10px;
+  border-bottom: 2px solid var(--border);
+}
+.fee-table td { padding: 8px 10px; border-bottom: 1px solid var(--border-light); }
+.fee-table tr:last-child td { border-bottom: none; }
+.fee-table td:first-child { font-weight: 600; }
+.fee-table .fee-label { display: flex; align-items: center; gap: 5px; }
+.fee-table .fee-badge { font-size: 9.5px; background: var(--success-light); color: var(--success); padding: 1px 5px; border-radius: 3px; font-weight: 600; }
+.fee-table .fee-value { font-weight: 700; color: var(--primary); text-align: right; }
+.fee-table .fee-free { color: var(--success); font-weight: 700; }
+
+/* ===== Business Grid ===== */
+.business-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.biz-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow);
+  transition: all .2s;
+  text-align: center;
+}
+.biz-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.biz-icon {
+  width: 44px; height: 44px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  margin: 0 auto 10px;
+}
+.biz-card h4 { font-size: 13.5px; font-weight: 700; margin-bottom: 3px; }
+.biz-card p { font-size: 11.5px; color: var(--text-muted); line-height: 1.5; }
+
+/* ===== Carousel ===== */
+.carousel-wrap { position: relative; margin-bottom: 14px; }
+.carousel-track { display: flex; overflow: hidden; border-radius: var(--radius); }
+.carousel-slide { min-width: 100%; transition: transform 0.35s ease; display: flex; justify-content: center; }
+.carousel-card {
+  width: 100%; max-width: 400px; border: 2px solid var(--border); border-radius: var(--radius-lg);
+  padding: 20px 22px; cursor: pointer; transition: all .2s;
+  background: var(--card-bg); position: relative;
+}
+.carousel-card:hover { border-color: var(--primary); box-shadow: 0 2px 12px rgba(79,70,229,0.12); }
+.carousel-card.selected { border-color: var(--primary); background: var(--primary-light); box-shadow: 0 0 0 1px var(--primary); }
+.carousel-card .selected-badge {
+  position: absolute; top: 10px; right: 10px; font-size: 11px; font-weight: 600;
+  background: var(--primary); color: #fff; padding: 2px 8px; border-radius: 4px;
+  display: none;
+}
+.carousel-card.selected .selected-badge { display: block; }
+.carousel-card .cc-tag {
+  display: inline-block; font-size: 10px; padding: 2px 6px; border-radius: 4px;
+  background: var(--primary-light); color: var(--primary); font-weight: 600; margin-bottom: 6px;
+}
+.carousel-card .cc-name { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+.carousel-card .cc-desc { font-size: 12.5px; color: var(--text-muted); line-height: 1.6; margin-bottom: 10px; }
+.carousel-card .cc-fees { display: flex; gap: 14px; flex-wrap: wrap; background: var(--bg); border-radius: 8px; padding: 10px 14px; }
+.carousel-card .cc-fee-item { text-align: center; }
+.carousel-card .cc-fee-item .l { font-size: 10px; color: var(--text-muted); }
+.carousel-card .cc-fee-item .v { font-size: 14px; font-weight: 700; }
+.carousel-card .cc-fee-item .v.green { color: var(--success); }
+.carousel-controls { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 10px; }
+.carousel-arrow {
+  width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--border);
+  background: var(--card-bg); cursor: pointer; font-size: 16px; color: var(--text);
+  display: flex; align-items: center; justify-content: center; transition: all .15s;
+}
+.carousel-arrow:hover { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
+.carousel-dots { display: flex; gap: 6px; }
+.carousel-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--border);
+  cursor: pointer; transition: all .2s; border: none;
+}
+.carousel-dot.active { background: var(--primary); width: 20px; border-radius: 4px; }
+
+/* Field Confirm (from v3) */
+.field-confirm { background: var(--bg); border-radius: var(--radius); overflow: hidden; }
+.field-section { padding: 12px 16px; border-bottom: 1px solid var(--border); }
+.field-section:last-child { border-bottom: none; }
+.field-section-title { font-size: 11px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.field-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 5px 0; font-size: 13px; }
+.field-row .fl { color: var(--text-muted); min-width: 90px; flex-shrink: 0; }
+.field-row .fr { font-weight: 500; text-align: right; max-width: 320px; }
+.field-row .fr.ok { color: var(--success); font-size: 11.5px; background: var(--success-light); padding: 1px 6px; border-radius: 4px; }
+.field-row .fr .upload-btn { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border: 1.5px dashed var(--primary); border-radius: 6px; color: var(--primary); font-size: 12px; cursor: pointer; background: #fffbf0; transition: all .15s; }
+.field-row .fr .upload-btn:hover { background: var(--primary-light); border-color: var(--primary); }
+.field-row .fr .upload-btn.done { border-style: solid; border-color: var(--success); color: var(--success); background: var(--success-light); }
+.field-row .fr .upload-doc-hint { font-size: 10px; color: var(--text-muted); display: block; margin-top: 2px; }
+.field-section-note { font-size: 11.5px; color: var(--warning); background: var(--warning-light); padding: 8px 12px; border-radius: 8px; margin-top: 10px; display: flex; align-items: flex-start; gap: 6px; }
+.field-section-note.info { color: var(--text-muted); background: var(--bg); border: 1px solid var(--border); }
+.field-section-note.success { color: var(--success); background: var(--success-light); border: 1px solid #bbf7d0; }
+.fi { width: 100%; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 12.5px; color: var(--text); background: var(--card-bg); outline: none; transition: border-color .15s; }
+.fi:focus { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); }
+
+/* ===== Features Grid ===== */
+.features-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.feature-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 20px 16px;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+.feature-icon { font-size: 26px; margin-bottom: 8px; }
+.feature-card h4 { font-size: 13.5px; font-weight: 700; margin-bottom: 3px; }
+.feature-card p { font-size: 11.5px; color: var(--text-muted); line-height: 1.5; }
+
+/* ===== CTA ===== */
+.cta-section {
+  background: linear-gradient(135deg, #1a2536 0%, #2d4a6e 100%);
+  border-radius: var(--radius-lg);
+  padding: 36px;
+  text-align: center;
+}
+.cta-section h3 { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+.cta-section p { font-size: 13.5px; color: rgba(255,255,255,.6); margin-bottom: 18px; }
+
+/* ===== Buttons ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 20px;
+  border-radius: 8px;
+  border: none;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,.15); }
+.btn:active { transform: translateY(0); }
+.btn-accent { background: var(--accent); color: #fff; }
+.btn-accent:hover { background: var(--accent-hover); }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-ghost { background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,.25); }
+.btn-ghost:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.4); }
+.btn-lg { padding: 12px 28px; font-size: 14.5px; }
+
+/* ===== Footer ===== */
+.footer { text-align: center; padding: 24px 24px; font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--border); }
+
+/* Responsive */
+@media (max-width: 1000px) {
+  .card-showcase { grid-template-columns: 1fr; }
+  .features-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 700px) {
+  .business-grid { grid-template-columns: repeat(2, 1fr); }
+  .features-grid { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 26px; }
+  .vcard-number { font-size: 17px; letter-spacing: 2px; }
+  .cta-section { padding: 24px 18px; }
+}
+@media (max-width: 500px) {
+  .business-grid { grid-template-columns: 1fr; }
+}
+
+/* ===== Modal Styles ===== */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay.show { display: flex; }
+body.modal-open { overflow: hidden; }
+.modal { background: var(--card-bg); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); width: 100%; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; }
+.modal-lg { max-width: 700px; }
+.modal-md { max-width: 560px; }
+.modal-xl { max-width: 880px; }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.modal-header h2 { font-size: 16px; font-weight: 700; }
+.modal-close { width: 30px; height: 30px; background: var(--bg); border: none; border-radius: 6px; cursor: pointer; font-size: 16px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; transition: all .15s; }
+.modal-close:hover { background: var(--border); color: var(--text); }
+.modal-body { padding: 20px 24px; flex: 1; overflow-y: auto; }
+.modal-footer { display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding: 16px 24px 20px; border-top: 1px solid var(--border); flex-shrink: 0; }
+
+/* Step Indicator */
+.step-indicator { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+.step-dot { height: 6px; border-radius: 3px; background: var(--border); transition: all .3s; }
+.step-dot.done { background: var(--success); width: 32px; }
+.step-dot.current { background: var(--primary); width: 48px; }
+.step-dot.pending { width: 24px; }
+
+/* BIN Cards (v5 style) */
+.bin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.bin-card { border: 2px solid var(--border); border-radius: var(--radius); padding: 16px 18px; cursor: pointer; transition: all .15s; position: relative; }
+.bin-card:hover { border-color: var(--primary); background: var(--primary-light); }
+.bin-card.selected { border-color: var(--primary); background: var(--primary-light); box-shadow: 0 0 0 1px var(--primary); }
+.bin-card .r { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; display: block; }
+.bin-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.bin-card .fee { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+.bin-card .badge { display: inline-block; font-size: 10px; padding: 2px 6px; border-radius: 4px; background: var(--primary-light); color: var(--primary); font-weight: 600; }
+
+/* Field Confirm (v5 style) */
+.field-confirm { background: var(--bg); border-radius: var(--radius); overflow: hidden; }
+.fc-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; border-bottom: 1px solid var(--border); font-size: 13px; }
+.fc-row:last-child { border-bottom: none; }
+.fc-row .fc-label { color: var(--text-muted); }
+.fc-row .fc-value { font-weight: 500; }
+
+/* Toast */
+.toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); background: #333; color: #fff; padding: 12px 24px; border-radius: 10px; font-size: 14px; z-index: 2000; opacity: 0; transition: all .3s; pointer-events: none; backdrop-filter: blur(8px); }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.success { background: rgba(22, 163, 74, .92); }
+.toast.warn { background: rgba(234, 179, 8, .92); }
+
+/* Toast */
+.toast { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); z-index: 9999; padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 600; box-shadow: 0 6px 24px rgba(0,0,0,.18); opacity: 0; transition: all .3s; pointer-events: none; }
+.toast.show { opacity: 1; pointer-events: auto; }
+.toast { background: #333; color: #fff; }
+.toast.success { background: var(--success); color: #fff; }
+.toast.warn { background: var(--accent); color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">Y</div>
+      <span class="logo-text">YASBee</span>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-item"><span class="icon">📊</span>总览</div>
+      <div class="nav-item active"><span class="icon">💳</span>卡片管理</div>
+      <div class="nav-item"><span class="icon">🔄</span>交易记录</div>
+      <div class="nav-item"><span class="icon">💰</span>充值管理</div>
+      <div class="nav-item"><span class="icon">📋</span>账单中心</div>
+      <div class="nav-item"><span class="icon">🎯</span>返佣中心</div>
+      <div class="nav-item"><span class="icon">⚙️</span>设置</div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="avatar">D</div>
+      <div class="user-info">
+        <div class="name">Driven Xie</div>
+        <div>Administrator</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+
+    <!-- Top Header -->
+    <div class="top-header">
+      <h1>💳 卡片介绍</h1>
+      <div class="top-header-right">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="搜索...">
+        </div>
+        <button class="notif">🔔<span class="dot"></span></button>
+        <button class="avatar-btn">D</button>
+      </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content">
+
+      <!-- Hero -->
+      <div class="hero">
+        <div class="hero-inner">
+          <div class="hero-badge">⚡ Powered by <strong>Interlace</strong> · Visa Network</div>
+          <h1>YASBee <span>虚拟卡</span></h1>
+          <p>Crypto &amp; Fiat 双通道充值，USD 结算，全球线上消费。<br>个人卡与企业卡双模式，满足你的跨境支付需求。</p>
+          <div class="hero-actions">
+            <a href="#" class="btn btn-accent btn-lg" onclick="event.preventDefault();onc('kyc')">👤 申请个人卡</a>
+            <a href="#" class="btn btn-primary btn-lg" onclick="event.preventDefault();onc('kyb')">🏢 申请企业卡</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card Showcase -->
+      <div class="section">
+        <div class="section-title">
+          <h2>选择你的卡片</h2>
+          <p>两种 BIN 方案，不同费率结构，按需选择</p>
+        </div>
+        <div class="card-showcase">
+
+          <!-- BB-BIN Card -->
+          <div>
+            <div class="vcard vcard-bb">
+              <div class="chip"></div>
+              <div class="vcard-brand-row">
+                <span class="vcard-brand">YASBee</span>
+                <span class="vcard-network">VISA · Prepaid</span>
+              </div>
+              <div class="vcard-number">•••• •••• •••• 4582</div>
+              <div class="vcard-meta">
+                <span><span class="label">Card Holder</span>YASBEE USER</span>
+                <span><span class="label">Expires</span>09/28</span>
+                <span><span class="label">CVV</span>•••</span>
+              </div>
+            </div>
+            <div class="card-info-panel">
+              <h3>BB-BIN <span class="tag">🇨🇦 加拿大</span></h3>
+              <div class="card-desc">基于加拿大 BIN 发行的预付虚拟卡，支持 USD 结算，适合北美及全球线上消费场景。FX 费率为 1.5%，国际交易稳定顺畅。</div>
+              <table class="fee-table">
+                <tr><th colspan="2">Fee Details</th></tr>
+                <tr><td><span class="fee-label">📦 Issuance Fee</span></td><td class="fee-value">$0.30 / card</td></tr>
+                <tr><td><span class="fee-label">📅 Monthly Fee</span></td><td class="fee-value">$0.12 ~ $0.25 / card / mo</td></tr>
+                <tr><td><span class="fee-label">🛒 Domestic TX</span></td><td class="fee-value">$0.10 / tx</td></tr>
+                <tr><td><span class="fee-label">🌍 International TX</span></td><td class="fee-value">$0.20 / tx</td></tr>
+                <tr><td><span class="fee-label">💱 FX Fee</span></td><td class="fee-value">1.5%</td></tr>
+                <tr><td><span class="fee-label">📱 Apple Pay / GPay</span></td><td class="fee-value">0.20%</td></tr>
+                <tr><td><span class="fee-label">⛽ Top-up Fee</span><span class="fee-badge">Free</span></td><td class="fee-free">$0</td></tr>
+                <tr><td><span class="fee-label">💸 Refund Fee</span></td><td class="fee-value">2%</td></tr>
+                <tr><td><span class="fee-label">⚖️ Chargeback</span></td><td class="fee-value">$35 / case</td></tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- BZ-BIN Card -->
+          <div>
+            <div class="vcard vcard-bz">
+              <div class="chip"></div>
+              <div class="vcard-brand-row">
+                <span class="vcard-brand">YASBee</span>
+                <span class="vcard-network">VISA · Prepaid</span>
+              </div>
+              <div class="vcard-number">•••• •••• •••• 6731</div>
+              <div class="vcard-meta">
+                <span><span class="label">Card Holder</span>YASBEE USER</span>
+                <span><span class="label">Expires</span>04/29</span>
+                <span><span class="label">CVV</span>•••</span>
+              </div>
+            </div>
+            <div class="card-info-panel">
+              <h3>BZ-BIN <span class="tag">🇺🇸 美国</span></h3>
+              <div class="card-desc">基于美国 BIN 发行的预付虚拟卡，USD 本币交易免 FX 费，适合美元高频消费场景。Pass through + 5bps 超低汇兑附加。</div>
+              <table class="fee-table">
+                <tr><th colspan="2">Fee Details</th></tr>
+                <tr><td><span class="fee-label">📦 Issuance Fee</span></td><td class="fee-value">$0.30 / card</td></tr>
+                <tr><td><span class="fee-label">📅 Monthly Fee</span></td><td class="fee-value">$0.12 ~ $0.25 / card / mo</td></tr>
+                <tr><td><span class="fee-label">🛒 Domestic TX</span></td><td class="fee-value">$0.10 / tx</td></tr>
+                <tr><td><span class="fee-label">🌍 International TX</span></td><td class="fee-value">$0.20 / tx</td></tr>
+                <tr><td><span class="fee-label">💱 FX Fee</span></td><td class="fee-value" style="color:var(--success)">Pass through + 5bps</td></tr>
+                <tr><td><span class="fee-label">📱 Apple Pay / GPay</span></td><td class="fee-value">0.20%</td></tr>
+                <tr><td><span class="fee-label">⛽ Top-up Fee</span><span class="fee-badge">Free</span></td><td class="fee-free">$0</td></tr>
+                <tr><td><span class="fee-label">💸 Refund Fee</span></td><td class="fee-value">2%</td></tr>
+                <tr><td><span class="fee-label">⚖️ Chargeback</span></td><td class="fee-value">$35 / case</td></tr>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Supported Business -->
+      <div class="section" style="padding-top:0;">
+        <div class="section-title">
+          <h2>支持的业务场景</h2>
+          <p>YASBee 虚拟卡覆盖多种线上消费和跨境支付场景</p>
+        </div>
+        <div class="business-grid">
+          <div class="biz-card">
+            <div class="biz-icon" style="background:#e8f4fd;">🛒</div>
+            <h4>线上购物</h4>
+            <p>Amazon、eBay、Shopify 等国际电商平台消费支付</p>
+          </div>
+          <div class="biz-card">
+            <div class="biz-icon" style="background:#fff3e0;">✈️</div>
+            <h4>跨境支付</h4>
+            <p>跨境 SaaS 订阅、海外服务器、域名等国际账单支付</p>
+          </div>
+          <div class="biz-card">
+            <div class="biz-icon" style="background:#f3e8ff;">📱</div>
+            <h4>数字服务</h4>
+            <p>Google Play、App Store、Netflix、Spotify 等数字消费</p>
+          </div>
+          <div class="biz-card">
+            <div class="biz-icon" style="background:#e8fde7;">💼</div>
+            <h4>企业采购</h4>
+            <p>企业级 SaaS、云服务 (AWS/GCP/Azure)、广告投放 (Google/Facebook)</p>
+          </div>
+          <div class="biz-card">
+            <div class="biz-icon" style="background:#fde8e8;">🔄</div>
+            <h4>费用管理</h4>
+            <p>员工多卡管理、部门预算分配、消费限额管控</p>
+          </div>
+          <div class="biz-card">
+            <div class="biz-icon" style="background:#edf2ff;">🏦</div>
+            <h4>Crypto 消费</h4>
+            <p>USDT/USDC 充值后直接消费，无需先换汇到法币账户</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Why YASBee -->
+      <div class="section" style="padding-top:0;">
+        <div class="section-title">
+          <h2>为什么选择 YASBee</h2>
+          <p>核心优势让跨境支付更简单</p>
+        </div>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h4>实时到账</h4>
+            <p>Crypto 充值 ≤10 秒到账，Fiat 即时到账</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🛡️</div>
+            <h4>双通道充值</h4>
+            <p>支持 USDT/USDC 和 Fiat 双通道，灵活方便</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">💳</div>
+            <h4>多卡管理</h4>
+            <p>同一账户可持有多张卡片，冻结/解冻/限额一键管理</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🌐</div>
+            <h4>全球可用</h4>
+            <p>Visa 网络覆盖全球，USD 结算，多币种自动换汇</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="section" style="padding-top:0;">
+        <div class="cta-section">
+          <h3>准备好开始了吗？</h3>
+          <p>几分钟完成认证，即刻开通你的首张 YASBee 虚拟卡</p>
+          <div class="hero-actions">
+            <a href="#" class="btn btn-accent btn-lg" onclick="event.preventDefault();onc('kyc')">👤 申请个人卡</a>
+            <a href="#" class="btn btn-primary btn-lg" onclick="event.preventDefault();onc('kyb')">🏢 申请企业卡</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p>YASBee · Virtual Card Product · Powered by Interlace &amp; Visa Network</p>
+        <p style="margin-top:4px;">&copy; 2026 YASBee. All rights reserved.</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===== KYC Modal (个人卡) ===== -->
+<div id="modalKYC" class="modal-overlay">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h2>👤 申请个人卡</h2>
+      <button class="modal-close" onclick="cm('modalKYC')">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Step Dots -->
+      <div class="step-indicator">
+        <div id="kyc-dot-1" class="step-dot current"></div>
+        <div id="kyc-dot-2" class="step-dot pending"></div>
+        <div id="kyc-dot-3" class="step-dot pending"></div>
+        <div id="kyc-dot-4" class="step-dot pending"></div>
+      </div>
+      <div class="step-labels">
+        <span id="kyc-lb-1" class="active">选择 BIN</span>
+        <span id="kyc-lb-2">填写信息</span>
+        <span id="kyc-lb-3">开卡须知</span>
+        <span id="kyc-lb-4">确认费率</span>
+      </div>
+
+      <!-- ===== Step 1: 选择卡类型 (轮播) ===== -->
+      <div id="kyc-step-1">
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px;">选择卡类型（BIN方案）</div>
+        <div class="carousel-wrap">
+          <div class="carousel-track" id="kyc-carousel-track">
+            <div class="carousel-slide">
+              <div class="carousel-card selected" onclick="kycSelCarousel(0)">
+                <div class="selected-badge">已选 ✓</div>
+                <div class="cc-tag">🇨🇦 加拿大</div>
+                <div class="cc-name">BB-BIN 方案</div>
+                <div class="cc-desc">个人/企业通用 · 多币种<br>适合北美及全球消费场景</div>
+                <div class="cc-fees">
+                  <div class="cc-fee-item"><div class="l">FX费率</div><div class="v green">1.5%</div></div>
+                  <div class="cc-fee-item"><div class="l">月费</div><div class="v green">$0.25</div></div>
+                  <div class="cc-fee-item"><div class="l">跨境费</div><div class="v green">0%</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="carousel-slide">
+              <div class="carousel-card" onclick="kycSelCarousel(1)">
+                <div class="selected-badge">已选 ✓</div>
+                <div class="cc-tag">🇺🇸 美国</div>
+                <div class="cc-name">BZ-BIN 方案</div>
+                <div class="cc-desc">个人/企业通用 · 多币种<br>专注美元消费场景</div>
+                <div class="cc-fees">
+                  <div class="cc-fee-item"><div class="l">FX费率</div><div class="v green">Pass through<br>+5bps</div></div>
+                  <div class="cc-fee-item"><div class="l">月费</div><div class="v green">$0.25</div></div>
+                  <div class="cc-fee-item"><div class="l">跨境费</div><div class="v green">0%</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="carousel-controls">
+          <button class="carousel-arrow" onclick="kycCarouselPrev()">‹</button>
+          <div class="carousel-dots">
+            <span class="carousel-dot active" onclick="kycGoTo(0)"></span>
+            <span class="carousel-dot" onclick="kycGoTo(1)"></span>
+          </div>
+          <button class="carousel-arrow" onclick="kycCarouselNext()">›</button>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);background:var(--bg);padding:10px 12px;border-radius:8px;margin-top:10px;">
+          💡 如需了解各BIN方案的详细限额和费率,请参考卡类型说明
+        </div>
+      </div>
+
+      <!-- ===== Step 2: KYC字段确认(PRD全字段) ===== -->
+      <div id="kyc-step-2" style="display:none;">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:4px;">确认个人信息 - 提交至 Interlace 认证</h3>
+        <p style="font-size:12.5px;color:var(--text-muted);margin-bottom:14px;">以下信息将从您的 KYC 档案中预填，请确认/修改后提交认证</p>
+        <div class="field-confirm">
+          <!-- 基本信息 -->
+          <div class="field-section">
+            <div class="field-section-title">👤 基本信息</div>
+            <div class="field-row"><span class="fl">First Name</span><span class="fr"><input class="fi" value="Jia Ming" id="kyc-f-fname"></span></div>
+            <div class="field-row"><span class="fl">Last Name</span><span class="fr"><input class="fi" value="Xie" id="kyc-f-lname"></span></div>
+            <div class="field-row"><span class="fl">Date of Birth</span><span class="fr"><input class="fi" type="date" value="1995-03-18" id="kyc-f-dob"></span></div>
+            <div class="field-row"><span class="fl">Nationality</span><span class="fr"><input class="fi" value="CN" id="kyc-f-nationality"></span></div>
+            <div class="field-row"><span class="fl">Gender</span><span class="fr"><select class="fi" id="kyc-f-gender"><option value="M" selected>M (Male)</option><option value="F">F (Female)</option></select></span></div>
+          </div>
+          <!-- 证件信息 -->
+          <div class="field-section">
+            <div class="field-section-title">🪪 证件信息(必填)</div>
+            <div class="field-row"><span class="fl">ID Type</span><span class="fr"><select class="fi" id="kyc-f-idtype"><option value="PASSPORT">PASSPORT (护照)</option><option value="CN-RIC" selected>CN-RIC (中国居民身份证)</option><option value="HK-HKID">HK-HKID (香港身份证)</option><option value="DLN">DLN (驾照)</option><option value="Government-Issued ID Card">Government-Issued ID Card (政府签发身份证)</option></select></span></div>
+            <div class="field-row"><span class="fl">National ID Number</span><span class="fr"><input class="fi" value="310***********1234" id="kyc-f-nid"></span></div>
+            <div class="field-row"><span class="fl">Issue Date</span><span class="fr"><input class="fi" type="date" value="2016-06-15" id="kyc-f-issue"></span></div>
+            <div class="field-row"><span class="fl">Expiry Date</span><span class="fr"><input class="fi" type="date" value="2036-06-15" id="kyc-f-exp"></span></div>
+            <div class="field-row"><span class="fl">ID Front(正面)</span><span class="fr"><span class="upload-btn done" id="kyc-f-front">📎 已上传</span><span class="upload-doc-hint">支持 JPG/PNG/PDF,≤10MB</span></span></div>
+            <div class="field-row"><span class="fl">ID Back(背面)</span><span class="fr"><span class="upload-btn done" id="kyc-f-back">📎 已上传</span><span class="upload-doc-hint">支持 JPG/PNG/PDF,≤10MB</span></span></div>
+            <div class="field-row"><span class="fl">Selfie(自拍照)</span><span class="fr"><span class="upload-btn done" id="kyc-f-selfie">📎 自拍照已上传</span><span class="upload-doc-hint">请确保面部清晰可见</span></span></div>
+          </div>
+          <!-- 联系方式 -->
+          <div class="field-section">
+            <div class="field-section-title">📞 联系方式(必填)</div>
+            <div class="field-row"><span class="fl">Country Code</span><span class="fr"><select class="fi" id="kyc-f-cc"><option value="+86" selected>+86 中国</option><option value="+1">+1 美国</option><option value="+65">+65 新加坡</option></select></span></div>
+            <div class="field-row"><span class="fl">Phone Number</span><span class="fr"><input class="fi" value="138****8888" id="kyc-f-phone"></span></div>
+          </div>
+          <!-- 账户用途 -->
+          <div class="field-section">
+            <div class="field-section-title">💼 账户用途(必填)</div>
+            <div class="field-row"><span class="fl">Account Purpose</span><span class="fr"><select class="fi" id="kyc-f-purpose"><option value="Living Expense" selected>Living Expense (生活消费)</option><option value="Cross-border Payment">Cross-border Payment (跨境支付)</option><option value="Business">Business (商业)</option></select></span></div>
+          </div>
+          <!-- 地址信息 -->
+          <div class="field-section">
+            <div class="field-section-title">🏠 地址信息(必填)</div>
+            <div class="field-row"><span class="fl">Address Line 1</span><span class="fr"><input class="fi" value="No.88 Nanjing West Road, Jing'an District" id="kyc-f-addr1"></span></div>
+            <div class="field-row"><span class="fl">Address Line 2</span><span class="fr"><input class="fi" value="Room 1203, Tower A" id="kyc-f-addr2"></span></div>
+            <div class="field-row"><span class="fl">City</span><span class="fr"><input class="fi" value="Shanghai" id="kyc-f-city"></span></div>
+            <div class="field-row"><span class="fl">State</span><span class="fr"><input class="fi" value="SH" id="kyc-f-state"></span></div>
+            <div class="field-row"><span class="fl">Country</span><span class="fr"><input class="fi" value="CN" id="kyc-f-country"></span></div>
+            <div class="field-row"><span class="fl">Postal Code</span><span class="fr"><input class="fi" value="200041" id="kyc-f-postal"></span></div>
+          </div>
+          <!-- 可选信息 -->
+          <div class="field-section">
+            <div class="field-section-title">📝 可选信息</div>
+            <div class="field-row"><span class="fl">Middle Name</span><span class="fr"><input class="fi" placeholder="可选" id="kyc-f-mname"></span></div>
+            <div class="field-row"><span class="fl">Occupation</span><span class="fr"><input class="fi" value="产品经理 (541100)" id="kyc-f-occupation"></span></div>
+            <div class="field-row"><span class="fl">Annual Salary</span><span class="fr"><select class="fi" id="kyc-f-salary"><option>请选择</option><option selected>$50,000 - $100,000</option><option>$100,000 - $200,000</option><option>$200,000+</option></select></span></div>
+            <div class="field-row"><span class="fl">Expected Monthly Vol.</span><span class="fr"><input class="fi" value="$3,000 - $5,000" id="kyc-f-monthly"></span></div>
+            <div class="field-row"><span class="fl">SSN</span><span class="fr"><input class="fi" placeholder="仅 US 用户填写" id="kyc-f-ssn"></span></div>
+          </div>
+        </div>
+        <div class="field-section-note info" style="margin-top:10px;">
+          <span>✅</span>
+          <span>以下信息已从您的 KYC 档案中预填，您可直接修改后提交。若证件信息有误，请联系我们。</span>
+        </div>
+      </div>
+
+      <!-- ===== Step 3: 责任说明 + 风险划分 + 同意开卡 ===== -->
+      <div id="kyc-step-3" style="display:none;">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:4px;">确认开卡</h3>
+        <p style="font-size:12.5px;color:var(--text-muted);margin-bottom:14px;">请阅读并确认以下条款后提交开卡申请</p>
+        <div class="field-confirm">
+          <div class="field-section">
+            <div class="field-section-title">⚖️ 责任说明</div>
+            <div style="font-size:12.5px;color:var(--text);line-height:1.7;padding:8px 0;">
+              <p style="margin-bottom:8px;">• 开卡申请人须确保提交的身份信息真实、准确、完整。</p>
+              <p style="margin-bottom:8px;">• 卡片仅限申请人本人使用，不得转借、出租或出售给他人。</p>
+              <p style="margin-bottom:8px;">• 卡片使用须遵守当地法律法规及发卡行相关规定。</p>
+              <p>• 申请人应对卡片账户内的所有交易负责。</p>
+            </div>
+          </div>
+          <div class="field-section">
+            <div class="field-section-title">⚠️ 风险划分</div>
+            <div style="font-size:12.5px;color:var(--text);line-height:1.7;padding:8px 0;">
+              <p style="margin-bottom:8px;"><b>平台责任：</b>因平台系统故障导致的资金损失由平台承担。</p>
+              <p style="margin-bottom:8px;"><b>用户责任：</b>因用户泄露卡片信息、密码或未妥善保管卡片导致的损失由用户自行承担。</p>
+              <p style="margin-bottom:8px;"><b>不可抗力：</b>因自然灾害、战争、政府管制等不可抗力导致的损失，双方互不承担责任。</p>
+              <p><b>争议处理：</b>双方应友好协商解决争议，协商不成的可提交仲裁机构处理。</p>
+            </div>
+          </div>
+          <div class="field-section">
+            <div class="field-section-title">✅ 同意开卡通知</div>
+            <div style="font-size:12.5px;color:var(--text);line-height:1.7;padding:8px 0;">
+              <p style="margin-bottom:12px;">开卡申请提交后，系统将进行 KYC 身份认证，认证通过后卡片自动开立。开卡成功后您将收到通知。</p>
+              <label class="checkbox-wrap" style="padding:12px 14px;border:1.5px solid var(--border);border-radius:8px;display:flex;align-items:flex-start;gap:10px;cursor:pointer;" id="kyc-agree-box">
+                <input type="checkbox" id="kyc-agree-checkbox" style="width:18px;height:18px;accent-color:var(--primary);flex-shrink:0;margin-top:2px;" onchange="kycToggleAgree()">
+                <span style="font-size:12.5px;line-height:1.6;">
+                  我已阅读并同意 <b>《YASBee 卡片服务协议》</b> 及 <b>《风险揭示书》</b>，确认提交开卡申请。
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: 确认费率 + 支付 -->
+      <div id="kyc-step-4" style="display:none;">
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">确认以下卡片信息和费用，选择支付方式完成开卡。</p>
+        <div id="kyc-fee-detail"><!-- filled by JS --></div>
+        <div style="margin-bottom:12px;">
+          <p style="font-size:11.5px;font-weight:600;color:var(--text-muted);margin-bottom:8px;">选择支付方式</p>
+          <div class="payment-option selected" onclick="kycPaySel(this,'usdt')">
+            <div class="po-row">
+              <div>
+                <div class="po-name">USDT (TRC-20)</div>
+                <div class="po-desc">即时到账 · 免手续费</div>
+                <span class="po-badge usdt">USDT</span>
+              </div>
+              <div class="po-amount">$5.30 <span class="usd">USD</span></div>
+            </div>
+          </div>
+          <div class="payment-option" onclick="kycPaySel(this,'usdc')">
+            <div class="po-row">
+              <div>
+                <div class="po-name">USDC (ERC-20)</div>
+                <div class="po-desc">即时到账 · 免手续费</div>
+                <span class="po-badge usdc">USDC</span>
+              </div>
+              <div class="po-amount">$5.30 <span class="usd">USD</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="field-section-note success" style="border:1px solid #bbf7d0;">
+          ✅ 开卡金 $5.30（含 $0.30 开卡费 + $5.00 预充值金）将直接从充值账户扣除，开卡成功后卡片实时激活。
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="kyc-back" style="display:none;color:var(--text);border-color:var(--border);" onclick="kycBack()">← 上一步</button>
+      <button class="btn btn-primary" id="kyc-next" onclick="kycNext()">下一步 →</button>
+      <button class="btn btn-accent" id="kyc-go" style="display:none;" onclick="kycGo()">✅ 确认开卡</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== KYB Modal (企业卡) ===== -->
+<div id="modalKYB" class="modal-overlay">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h2>🏢 申请企业卡</h2>
+      <button class="modal-close" onclick="cm('modalKYB')">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Step Dots -->
+      <div class="step-indicator">
+        <div id="kyb-dot-1" class="step-dot current"></div>
+        <div id="kyb-dot-2" class="step-dot pending"></div>
+        <div id="kyb-dot-3" class="step-dot pending"></div>
+        <div id="kyb-dot-4" class="step-dot pending"></div>
+      </div>
+      <div class="step-labels">
+        <span id="kyb-lb-1" class="active">选择 BIN</span>
+        <span id="kyb-lb-2">企业信息</span>
+        <span id="kyb-lb-3">开卡须知</span>
+        <span id="kyb-lb-4">确认费率</span>
+      </div>
+
+      <!-- ===== KYB Step 1: 选择卡类型 (轮播) ===== -->
+      <div id="kyb-step-1">
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px;">选择卡类型（BIN方案）</div>
+        <div class="carousel-wrap">
+          <div class="carousel-track" id="kyb-carousel-track">
+            <div class="carousel-slide">
+              <div class="carousel-card selected" onclick="kybSelCarousel(0)">
+                <div class="selected-badge">已选 ✓</div>
+                <div class="cc-tag">🇨🇦 加拿大</div>
+                <div class="cc-name">BB-BIN 方案</div>
+                <div class="cc-desc">企业通用 · 多币种<br>适合北美及全球企业消费场景</div>
+                <div class="cc-fees">
+                  <div class="cc-fee-item"><div class="l">FX费率</div><div class="v green">1.5%</div></div>
+                  <div class="cc-fee-item"><div class="l">月费</div><div class="v green">$0.25</div></div>
+                  <div class="cc-fee-item"><div class="l">跨境费</div><div class="v green">0%</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="carousel-slide">
+              <div class="carousel-card" onclick="kybSelCarousel(1)">
+                <div class="selected-badge">已选 ✓</div>
+                <div class="cc-tag">🇺🇸 美国</div>
+                <div class="cc-name">BZ-BIN 方案</div>
+                <div class="cc-desc">企业通用 · 多币种<br>专注美元企业消费场景</div>
+                <div class="cc-fees">
+                  <div class="cc-fee-item"><div class="l">FX费率</div><div class="v green">Pass through<br>+5bps</div></div>
+                  <div class="cc-fee-item"><div class="l">月费</div><div class="v green">$0.25</div></div>
+                  <div class="cc-fee-item"><div class="l">跨境费</div><div class="v green">0%</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="carousel-controls">
+          <button class="carousel-arrow" onclick="kybCarouselPrev()">‹</button>
+          <div class="carousel-dots">
+            <span class="carousel-dot active" onclick="kybGoTo(0)"></span>
+            <span class="carousel-dot" onclick="kybGoTo(1)"></span>
+          </div>
+          <button class="carousel-arrow" onclick="kybCarouselNext()">›</button>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);background:var(--bg);padding:10px 12px;border-radius:8px;margin-top:10px;">
+          💡 如需了解各BIN方案的详细限额和费率,请参考卡类型说明
+        </div>
+      </div>
+
+      <!-- ===== KYB Step 2: KYB字段确认(公司+UBO+企业文档) ===== -->
+      <div id="kyb-step-2" style="display:none;">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:4px;">确认企业信息 - 提交至 Interlace 认证</h3>
+        <p style="font-size:12.5px;color:var(--text-muted);margin-bottom:14px;">以下信息将从企业的 KYB 档案中预填，请确认/修改后提交认证</p>
+        <div class="field-confirm">
+          <!-- 公司信息 -->
+          <div class="field-section">
+            <div class="field-section-title">🏢 公司信息</div>
+            <div class="field-row"><span class="fl">Company Name(CN)</span><span class="fr"><input class="fi" value="YASBe Technology Limited" id="kyb-f-cname"></span></div>
+            <div class="field-row"><span class="fl">Company Name(EN)</span><span class="fr"><input class="fi" value="YASBe Technology Limited" id="kyb-f-cnameEn"></span></div>
+            <div class="field-row"><span class="fl">Registration Number</span><span class="fr"><input class="fi" value="91510100MA*****" id="kyb-f-regno"></span></div>
+            <div class="field-row"><span class="fl">Legal Representative</span><span class="fr"><input class="fi" value="Xie Jia Ming" id="kyb-f-legal"></span></div>
+            <div class="field-row"><span class="fl">Company Type</span><span class="fr"><select class="fi" id="kyb-f-ctype"><option value="Limited Liability Company" selected>Limited Liability Company</option><option value="Joint Stock">Joint Stock</option><option value="Sole Proprietorship">Sole Proprietorship</option></select></span></div>
+            <div class="field-row"><span class="fl">Registered Address</span><span class="fr"><input class="fi" value="Chengdu City, Sichuan Province" id="kyb-f-regaddr"></span></div>
+            <div class="field-row"><span class="fl">Business License No.</span><span class="fr"><input class="fi" value="91510100MA*********" id="kyb-f-blic"></span></div>
+            <div class="field-row"><span class="fl">Business License</span><span class="fr"><span class="upload-btn done" id="kyb-f-bldoc">📎 已上传</span><span class="upload-doc-hint">支持 JPG/PNG/PDF,≤10MB</span></span></div>
+            <div class="field-row"><span class="fl">Company docs</span><span class="fr"><span class="upload-btn" id="kyb-f-cdocs">📎 上传文件</span><span class="upload-doc-hint">支持 PDF/ZIP,≤20MB</span></span></div>
+          </div>
+          <!-- UBO 信息 -->
+          <div class="field-section">
+            <div class="field-section-title">👤 实际受益人(UBO)</div>
+            <div class="field-row"><span class="fl">First Name</span><span class="fr"><input class="fi" value="Jia Ming" id="kyb-f-ubofn"></span></div>
+            <div class="field-row"><span class="fl">Last Name</span><span class="fr"><input class="fi" value="Xie" id="kyb-f-uboln"></span></div>
+            <div class="field-row"><span class="fl">Country Code</span><span class="fr"><select class="fi" id="kyb-f-ubocc"><option value="+86" selected>+86 中国</option><option value="+1">+1 美国</option><option value="+65">+65 新加坡</option></select></span></div>
+            <div class="field-row"><span class="fl">Phone</span><span class="fr"><input class="fi" value="138****8888" id="kyb-f-ubophone"></span></div>
+            <div class="field-row"><span class="fl">ID Document</span><span class="fr"><span class="upload-btn done" id="kyb-f-uboid">📎 已上传</span><span class="upload-doc-hint">护照或身份证扫描件</span></span></div>
+          </div>
+        </div>
+        <div class="field-section-note info" style="margin-top:10px;">
+          <span>✅</span>
+          <span>以下信息已从企业的 KYB 档案中预填，您可直接修改后提交。若公司信息有误，请联系我们。</span>
+        </div>
+      </div>
+
+      <!-- ===== KYB Step 3: 责任说明 + 同意开卡 ===== -->
+      <div id="kyb-step-3" style="display:none;">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:4px;">确认开卡</h3>
+        <p style="font-size:12.5px;color:var(--text-muted);margin-bottom:14px;">请阅读并确认以下条款后提交开卡申请</p>
+        <div class="field-confirm">
+          <div class="field-section">
+            <div class="field-section-title">⚖️ 责任说明</div>
+            <div style="font-size:12.5px;color:var(--text);line-height:1.7;padding:8px 0;">
+              <p style="margin-bottom:8px;">• 开卡企业须确保提交的企业信息真实、准确、完整。</p>
+              <p style="margin-bottom:8px;">• 企业卡片仅限登记企业使用，不得转借、出租或出售给其他实体。</p>
+              <p style="margin-bottom:8px;">• 卡片使用须遵守当地法律法规及发卡行相关规定。</p>
+              <p>• 企业应对卡片账户内的所有交易负责。</p>
+            </div>
+          </div>
+          <div class="field-section">
+            <div class="field-section-title">⚠️ 风险划分</div>
+            <div style="font-size:12.5px;color:var(--text);line-height:1.7;padding:8px 0;">
+              <p style="margin-bottom:8px;"><b>平台责任：</b>因平台系统故障导致的资金损失由平台承担。</p>
+              <p style="margin-bottom:8px;"><b>用户责任：</b>因企业泄露卡片信息、密码或未妥善保管卡片导致的损失由企业自行承担。</p>
+              <p style="margin-bottom:8px;"><b>不可抗力：</b>因自然灾害、战争、政府管制等不可抗力导致的损失，双方互不承担责任。</p>
+              <p><b>争议处理：</b>双方应友好协商解决争议，协商不成的可提交仲裁机构处理。</p>
+            </div>
+          </div>
+          <div class="field-section">
+            <div class="field-section-title">✅ 同意开卡通知</div>
+            <div style="font-size:12.5px;color:var(--text);line-height:1.7;padding:8px 0;">
+              <p style="margin-bottom:12px;">开卡申请提交后，系统将进行 KYB 企业认证，认证通过后卡片自动开立。开卡成功后您将收到通知。</p>
+              <label class="checkbox-wrap" style="padding:12px 14px;border:1.5px solid var(--border);border-radius:8px;display:flex;align-items:flex-start;gap:10px;cursor:pointer;" id="kyb-agree-box">
+                <input type="checkbox" id="kyb-agree-checkbox" style="width:18px;height:18px;accent-color:var(--primary);flex-shrink:0;margin-top:2px;" onchange="kybToggleAgree()">
+                <span style="font-size:12.5px;line-height:1.6;">
+                  我已阅读并同意 <b>《YASBee 企业卡片服务协议》</b> 及 <b>《风险揭示书》</b>，确认提交开卡申请。
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: 确认费率 + 支付 -->
+      <div id="kyb-step-4" style="display:none;">
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">确认企业卡信息和费用。</p>
+        <div id="kyb-fee-detail"><!-- filled by JS --></div>
+        <div style="margin-bottom:12px;">
+          <p style="font-size:11.5px;font-weight:600;color:var(--text-muted);margin-bottom:8px;">选择支付方式</p>
+          <div class="payment-option selected" onclick="kybPaySel(this,'usdt')">
+            <div class="po-row">
+              <div>
+                <div class="po-name">USDT (TRC-20)</div>
+                <div class="po-desc">即时到账 · 免手续费</div>
+                <span class="po-badge usdt">USDT</span>
+              </div>
+              <div class="po-amount">$5.30 <span class="usd">USD</span></div>
+            </div>
+          </div>
+          <div class="payment-option" onclick="kybPaySel(this,'usdc')">
+            <div class="po-row">
+              <div>
+                <div class="po-name">USDC (ERC-20)</div>
+                <div class="po-desc">即时到账 · 免手续费</div>
+                <span class="po-badge usdc">USDC</span>
+              </div>
+              <div class="po-amount">$5.30 <span class="usd">USD</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="field-section-note success" style="border:1px solid #bbf7d0;">
+          ✅ 开卡金 $5.30（含 $0.30 开卡费 + $5.00 预充值金）将从企业账户扣除，开卡成功后卡片即时激活。
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="kyb-back" style="display:none;color:var(--text);border-color:var(--border);" onclick="kybBack()">← 上一步</button>
+      <button class="btn btn-primary" id="kyb-next" onclick="kybNext()">下一步 →</button>
+      <button class="btn btn-accent" id="kyb-go" style="display:none;" onclick="kybGo()">✅ 确认开卡</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<script>
+// ===== Utils =====
+function $(id){return document.getElementById(id);}
+function om(id){$(id).classList.add('show');document.body.classList.add('modal-open');}
+function cm(id){$(id).classList.remove('show');document.body.classList.remove('modal-open');}
+document.querySelectorAll('.modal-overlay').forEach(function(o){o.addEventListener('click',function(e){if(e.target===this)cm(this.id);});});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')document.querySelectorAll('.modal-overlay.show').forEach(function(m){cm(m.id);});});
+
+function showToast(msg,type){
+  var t=$('toast');t.textContent=msg;t.className='toast show '+(type||'');
+  setTimeout(function(){t.classList.remove('show');},3000);
+}
+
+// ===== KYC Flow =====
+var kycStep=1, kycBin='bb', kycPayMethod='usdt';
+
+function onc(type){
+  if(type==='kyc'){kycStep=1;kycBin='bb';kycPayMethod='usdt';kycCarouselIdx=0;kycSelCarousel(0);kycShowStep();om('modalKYC');}
+  else{kybStep=1;kybBin='bb';kybPayMethod='usdt';kybCarouselIdx=0;kybSelCarousel(0);kybShowStep();om('modalKYB');}
+}
+
+function kycShowStep(){
+  for(var i=1;i<=4;i++){
+    $('kyc-step-'+i).style.display=i===kycStep?'block':'none';
+    var d=$('kyc-dot-'+i);
+    d.className='step-dot '+(i<kycStep?'done':i===kycStep?'current':'pending');
+    var lb=$('kyc-lb-'+i);
+    lb.className=i===kycStep?'active':(i<kycStep?'done':'');
+  }
+  $('kyc-back').style.display=kycStep>1?'inline-flex':'none';
+  $('kyc-next').style.display=kycStep<4?'inline-flex':'none';
+  $('kyc-go').style.display=kycStep===4?'inline-flex':'none';
+  if(kycStep===4) kycShowFee();
+}
+
+function kycSelBin(el,bin){
+  document.querySelectorAll('#modalKYC .bin-option').forEach(function(x){x.classList.remove('selected');});
+  el.classList.add('selected');kycBin=bin;
+}
+
+// ===== KYC Carousel =====
+var kycCarouselIdx=0;
+function kycSelCarousel(idx){
+  kycCarouselIdx=idx;
+  var track=$('kyc-carousel-track');
+  track.style.transform='translateX(-'+(idx*100)+'%)';
+  var cards=track.querySelectorAll('.carousel-card');
+  cards.forEach(function(c,i){c.classList.toggle('selected',i===idx);});
+  var dots=document.querySelectorAll('#modalKYC .carousel-dot');
+  dots.forEach(function(d,i){d.classList.toggle('active',i===idx);});
+  if(idx===0){kycBin='bb';}else{kycBin='bz';}
+}
+function kycCarouselNext(){
+  kycSelCarousel(Math.min(kycCarouselIdx+1,1));
+}
+function kycCarouselPrev(){
+  kycSelCarousel(Math.max(kycCarouselIdx-1,0));
+}
+function kycGoTo(idx){kycSelCarousel(idx);}
+
+function kycNext(){
+  if(kycStep===3){
+    var cb=$('kyc-agree-checkbox');
+    if(!cb||!cb.checked){showToast('请先同意服务协议和风险揭示书','warn');return;}
+  }
+  if(kycStep<4){kycStep++;kycShowStep();}
+}
+
+function kycBack(){if(kycStep>1){kycStep--;kycShowStep();}}
+
+function kycToggleAgree(){
+  var cb=$('kyc-agree-checkbox');
+}
+
+function kycPaySel(el,method){
+  document.querySelectorAll('#modalKYC .payment-option').forEach(function(x){x.classList.remove('selected');});
+  el.classList.add('selected');kycPayMethod=method;
+}
+
+function kycShowFee(){
+  var bin=kycBin==='bb'?'BB-BIN 🇨🇦':'BZ-BIN 🇺🇸';
+  var cardClass=kycBin==='bb'?'vcard-bb-bg':'vcard-bz-bg';
+  var fx=kycBin==='bb'?'1.5%':'Pass through + 5bps';
+  $('kyc-fee-detail').innerHTML=
+    '<div class="fee-confirm-card '+cardClass+'">'+
+      '<div class="card-info-row"><span class="label">方案</span><span class="value">'+bin+'</span></div>'+
+      '<div class="card-info-row"><span class="label">类型</span><span class="value">个人卡 · Visa Prepaid</span></div>'+
+      '<div class="divider"></div>'+
+      '<div class="card-info-row"><span class="label">📦 开卡费</span><span class="value">$0.30</span></div>'+
+      '<div class="card-info-row"><span class="label">📅 月费</span><span class="value">$0.12 ~ $0.25/月</span></div>'+
+      '<div class="card-info-row"><span class="label">🛒 交易费 (境内)</span><span class="value">$0.10/笔</span></div>'+
+      '<div class="card-info-row"><span class="label">🌍 交易费 (跨境)</span><span class="value">$0.20/笔</span></div>'+
+      '<div class="card-info-row"><span class="label">💱 FX 费</span><span class="value">'+fx+'</span></div>'+
+      '<div class="card-info-row"><span class="label">💰 开卡金</span><span class="value" style="font-size:18px;font-weight:800;color:var(--primary);">$5.30</span></div>'+
+    '</div>';
+}
+
+function kycGo(){
+  var cb=$('kyc-agree-checkbox');
+  if(cb&&!cb.checked){showToast('请先同意服务协议和风险揭示书','warn');return;}
+  cm('modalKYC');
+  showToast('✅ 个人卡申请已提交，KYC 审核中...','success');
+  setTimeout(function(){
+    showToast('✅ KYC 审核通过！卡片已开卡成功！','success');
+  },2000);
+}
+
+// ===== KYB Flow =====
+var kybStep=1, kybBin='bb', kybPayMethod='usdt';
+
+function kybShowStep(){
+  for(var i=1;i<=4;i++){
+    $('kyb-step-'+i).style.display=i===kybStep?'block':'none';
+    var d=$('kyb-dot-'+i);
+    d.className='step-dot '+(i<kybStep?'done':i===kybStep?'current':'pending');
+    var lb=$('kyb-lb-'+i);
+    lb.className=i===kybStep?'active':(i<kybStep?'done':'');
+  }
+  $('kyb-back').style.display=kybStep>1?'inline-flex':'none';
+  $('kyb-next').style.display=kybStep<4?'inline-flex':'none';
+  $('kyb-go').style.display=kybStep===4?'inline-flex':'none';
+  if(kybStep===4) kybShowFee();
+}
+
+function kybSelBin(el,bin){
+  document.querySelectorAll('#modalKYB .bin-option').forEach(function(x){x.classList.remove('selected');});
+  el.classList.add('selected');kybBin=bin;
+}
+
+// ===== KYB Carousel =====
+var kybCarouselIdx=0;
+function kybSelCarousel(idx){
+  kybCarouselIdx=idx;
+  var track=$('kyb-carousel-track');
+  track.style.transform='translateX(-'+(idx*100)+'%)';
+  var cards=track.querySelectorAll('.carousel-card');
+  cards.forEach(function(c,i){c.classList.toggle('selected',i===idx);});
+  var dots=document.querySelectorAll('#modalKYB .carousel-dot');
+  dots.forEach(function(d,i){d.classList.toggle('active',i===idx);});
+  if(idx===0){kybBin='bb';}else{kybBin='bz';}
+}
+function kybCarouselNext(){
+  kybSelCarousel(Math.min(kybCarouselIdx+1,1));
+}
+function kybCarouselPrev(){
+  kybSelCarousel(Math.max(kybCarouselIdx-1,0));
+}
+function kybGoTo(idx){kybSelCarousel(idx);}
+
+function kybNext(){
+  if(kybStep===3){
+    var cb=$('kyb-agree-checkbox');
+    if(!cb||!cb.checked){showToast('请先同意服务协议和风险揭示书','warn');return;}
+  }
+  if(kybStep<4){kybStep++;kybShowStep();}
+}
+
+function kybBack(){if(kybStep>1){kybStep--;kybShowStep();}}
+
+function kybToggleAgree(){
+  var cb=$('kyb-agree-checkbox');
+}
+
+function kybPaySel(el,method){
+  document.querySelectorAll('#modalKYB .payment-option').forEach(function(x){x.classList.remove('selected');});
+  el.classList.add('selected');kybPayMethod=method;
+}
+
+function kybShowFee(){
+  var bin=kybBin==='bb'?'BB-BIN 🇨🇦':'BZ-BIN 🇺🇸';
+  var cardClass=kybBin==='bb'?'vcard-bb-bg':'vcard-bz-bg';
+  var fx=kybBin==='bb'?'1.5%':'Pass through + 5bps';
+  $('kyb-fee-detail').innerHTML=
+    '<div class="fee-confirm-card '+cardClass+'">'+
+      '<div class="card-info-row"><span class="label">方案</span><span class="value">'+bin+'</span></div>'+
+      '<div class="card-info-row"><span class="label">类型</span><span class="value">企业卡 · Visa Prepaid</span></div>'+
+      '<div class="divider"></div>'+
+      '<div class="card-info-row"><span class="label">📦 开卡费</span><span class="value">$0.30</span></div>'+
+      '<div class="card-info-row"><span class="label">📅 月费</span><span class="value">$0.12 ~ $0.25/月</span></div>'+
+      '<div class="card-info-row"><span class="label">🛒 交易费 (境内)</span><span class="value">$0.10/笔</span></div>'+
+      '<div class="card-info-row"><span class="label">🌍 交易费 (跨境)</span><span class="value">$0.20/笔</span></div>'+
+      '<div class="card-info-row"><span class="label">💱 FX 费</span><span class="value">'+fx+'</span></div>'+
+      '<div class="card-info-row"><span class="label">💰 开卡金</span><span class="value" style="font-size:18px;font-weight:800;color:var(--primary);">$5.30</span></div>'+
+    '</div>';
+}
+
+function kybGo(){
+  var cb=$('kyb-agree-checkbox');
+  if(cb&&!cb.checked){showToast('请先同意服务协议和风险揭示书','warn');return;}
+  cm('modalKYB');
+  showToast('✅ 企业卡申请已提交，KYB 审核中...','success');
+  setTimeout(function(){
+    showToast('✅ KYB 审核通过！企业卡已开卡成功！','success');
+  },2500);
+}
+</script>
+
+</body>
+</html>

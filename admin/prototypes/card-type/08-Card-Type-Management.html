@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>卡务管理 - Beeznis Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', -apple-system, sans-serif; background: #f5f6fa; color: #1a1d29; }
+.header { background: #fff; padding: 20px 32px; border-bottom: 1px solid #eef0f4; display: flex; justify-content: space-between; align-items: center; }
+.header h1 { font-size: 22px; font-weight: 600; color: #1a1d29; }
+.header p { font-size: 13px; color: #6b7280; margin-top: 4px; }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; border: none; cursor: pointer; transition: all .2s; text-decoration: none; }
+.btn-primary { background: #E59303; color: #fff; }
+.btn-primary:hover { background: #d08400; }
+.btn-secondary { background: #f3f4f6; color: #374151; }
+.btn-secondary:hover { background: #e5e7eb; }
+.btn-danger { background: #fee2e2; color: #dc2626; }
+.btn-danger:hover { background: #fecaca; }
+.btn-success { background: #d1fae5; color: #059669; }
+.btn-success:hover { background: #a7f3d0; }
+.btn-sm { padding: 5px 12px; font-size: 12px; }
+.container { max-width: 1400px; margin: 0 auto; padding: 24px 32px; }
+.filters { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.04); display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+.filter-group { display: flex; flex-direction: column; gap: 4px; }
+.filter-group label { font-size: 12px; color: #6b7280; font-weight: 500; }
+.filter-group input, .filter-group select { padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; min-width: 160px; outline: none; transition: border-color .2s; }
+.filter-group input:focus, .filter-group select:focus { border-color: #E59303; box-shadow: 0 0 0 3px rgba(229,147,3,.08); }
+.table-wrapper { background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.04); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+thead { background: #f9fafb; }
+th { padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: .03em; border-bottom: 1px solid #eef0f4; white-space: nowrap; }
+td { padding: 14px 16px; font-size: 13px; border-bottom: 1px solid #f3f4f6; vertical-align: middle; }
+tr:hover td { background: #fdfdfd; }
+.badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+.badge-active { background: #d1fae5; color: #059669; }
+.badge-inactive { background: #f3f4f6; color: #9ca3af; }
+.badge-budget { background: #dbeafe; color: #2563eb; }
+.badge-prepaid { background: #fef3c7; color: #d97706; }
+.badge-virtual { background: #ede9fe; color: #7c3aed; }
+.badge-physical { background: #fce7f3; color: #db2777; }
+.badge-channel { background: #fff7ed; color: #ea580c; }
+.card-preview { width: 56px; height: 36px; border-radius: 4px; object-fit: cover; border: 1px solid #eef0f4; display: block; }
+.wallet-icon { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+.wallet-on { background: #d1fae5; color: #059669; }
+.wallet-off { background: #f3f4f6; color: #d1d5db; }
+.pagination { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-top: 1px solid #eef0f4; background: #fafbfc; }
+.pagination-info { font-size: 12px; color: #6b7280; }
+.pagination-btns { display: flex; gap: 4px; }
+.page-btn { padding: 6px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: #fff; font-size: 12px; color: #374151; cursor: pointer; transition: all .1s; }
+.page-btn:hover { border-color: #E59303; color: #E59303; }
+.page-btn.active { background: #E59303; color: #fff; border-color: #E59303; }
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 1000; overflow-y: auto; padding: 40px 16px; }
+.modal-overlay.active { display: flex; align-items: flex-start; justify-content: center; }
+.modal { background: #fff; border-radius: 16px; width: 100%; max-width: 820px; margin: auto; box-shadow: 0 20px 60px rgba(0,0,0,.12); animation: modalIn .2s ease-out; }
+@keyframes modalIn { from { opacity: 0; transform: translateY(16px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 28px; border-bottom: 1px solid #eef0f4; }
+.modal-header h2 { font-size: 17px; font-weight: 600; }
+.modal-close { width: 32px; height: 32px; border-radius: 8px; border: none; background: #f3f4f6; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #6b7280; transition: all .15s; }
+.modal-close:hover { background: #e5e7eb; color: #1a1d29; }
+.modal-body { padding: 24px 28px; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 28px; border-top: 1px solid #eef0f4; }
+.form-section { margin-bottom: 24px; }
+.form-section-title { font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid #f3f4f6; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 14px; }
+.form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+.form-group { display: flex; flex-direction: column; gap: 4px; }
+.form-group.full { grid-column: 1 / -1; }
+.form-group label { font-size: 12px; color: #6b7280; font-weight: 500; }
+.form-group input, .form-group select, .form-group textarea { padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; outline: none; transition: border-color .2s; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #E59303; box-shadow: 0 0 0 3px rgba(229,147,3,.08); }
+.form-group textarea { resize: vertical; min-height: 60px; font-family: inherit; }
+.toggle { position: relative; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+.toggle input { display: none; }
+.toggle-slider { width: 40px; height: 22px; background: #d1d5db; border-radius: 11px; transition: all .2s; position: relative; }
+.toggle-slider::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: all .2s; box-shadow: 0 1px 2px rgba(0,0,0,.1); }
+.toggle input:checked + .toggle-slider { background: #E59303; }
+.toggle input:checked + .toggle-slider::after { left: 20px; }
+.toggle-label { font-size: 12px; color: #374151; }
+.image-upload { display: flex; align-items: center; gap: 12px; }
+.image-upload input[type="file"] { display: none; }
+.image-upload-btn { padding: 8px 14px; border: 1px dashed #d1d5db; border-radius: 6px; font-size: 12px; color: #6b7280; cursor: pointer; transition: all .15s; }
+.image-upload-btn:hover { border-color: #E59303; color: #E59303; }
+.image-preview { width: 60px; height: 38px; border-radius: 4px; object-fit: cover; border: 1px solid #eef0f4; display: none; }
+.image-preview.show { display: block; }
+.fee-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.fee-item { background: #f9fafb; border-radius: 8px; padding: 12px 14px; }
+.fee-item label { display: block; font-size: 11px; color: #6b7280; font-weight: 500; margin-bottom: 6px; }
+.fee-item .fee-inputs { display: flex; gap: 8px; align-items: center; }
+.fee-item .fee-inputs input { flex: 1; padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 12px; outline: none; }
+.fee-item .fee-inputs input:focus { border-color: #E59303; box-shadow: 0 0 0 3px rgba(229,147,3,.08); }
+.fee-item .fee-inputs span { font-size: 11px; color: #9ca3af; white-space: nowrap; }
+.detail-grid { display: grid; grid-template-columns: 240px 1fr; gap: 24px; margin-bottom: 20px; }
+.detail-card-preview { width: 100%; border-radius: 8px; border: 1px solid #eef0f4; }
+.detail-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.detail-field { display: flex; flex-direction: column; gap: 2px; }
+.detail-field.full { grid-column: 1 / -1; }
+.detail-field .label { font-size: 11px; color: #9ca3af; font-weight: 500; }
+.detail-field .value { font-size: 13px; color: #1a1d29; font-weight: 500; }
+.fee-detail-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+.fee-detail-table th, .fee-detail-table td { padding: 8px 12px; font-size: 12px; border: 1px solid #f3f4f6; text-align: center; }
+.fee-detail-table th { background: #f9fafb; font-weight: 500; color: #6b7280; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <h1>卡务管理</h1>
+    <p>管理所有渠道卡的配置、费率和钱包支持</p>
+  </div>
+  <button class="btn btn-primary" onclick="openAddModal()">＋ 新建卡片</button>
+</div>
+<div class="container">
+<div class="filters">
+  <div class="filter-group">
+    <label>所属渠道</label>
+    <select id="f-channel"><option value="">全部渠道</option><option>Stripe</option><option>Interlace</option><option>Marqeta</option></select>
+  </div>
+  <div class="filter-group">
+    <label>卡片类型</label>
+    <select id="f-type"><option value="">全部</option><option>Budget</option><option>Prepaid</option></select>
+  </div>
+  <div class="filter-group">
+    <label>卡模型</label>
+    <select id="f-model"><option value="">全部</option><option>虚拟卡</option><option>实体卡</option></select>
+  </div>
+  <div class="filter-group">
+    <label>状态</label>
+    <select id="f-status"><option value="">全部</option><option>启用</option><option>禁用</option></select>
+  </div>
+  <div class="filter-group">
+    <label>搜索</label>
+    <input type="text" id="f-search" placeholder="卡片名称 / 渠道卡编码" style="min-width:200px;">
+  </div>
+  <button class="btn btn-secondary btn-sm" onclick="applyFilters()">查询</button>
+  <button class="btn btn-secondary btn-sm" onclick="resetFilters()">重置</button>
+</div>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr>
+  <th>卡片名称</th>
+  <th>渠道卡编码</th>
+  <th>所属渠道</th>
+  <th>类型</th>
+  <th>卡模型</th>
+  <th>卡片正面</th>
+  <th>Google Wallet</th>
+  <th>Apple Pay</th>
+  <th>费率摘要</th>
+  <th>状态</th>
+  <th>创建时间</th>
+  <th>操作</th>
+</tr>
+</thead>
+<tbody id="card-tbody"></tbody>
+</table>
+<div class="pagination">
+  <div class="pagination-info">共 <span id="total-count">0</span> 条，第 <span id="current-page">1</span>/<span id="total-pages">1</span> 页</div>
+  <div class="pagination-btns" id="pagination-btns"></div>
+</div>
+</div>
+</div>
+
+<!-- 新增/编辑弹窗 -->
+<div class="modal-overlay" id="addModal">
+<div class="modal">
+<div class="modal-header">
+  <h2 id="addModalTitle">新建卡片</h2>
+  <button class="modal-close" onclick="closeAddModal()">✕</button>
+</div>
+<div class="modal-body">
+  <div class="form-section">
+    <div class="form-section-title">基本信息</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>卡片名称 <span style="color:#dc2626;">*</span></label>
+        <input type="text" id="f-name" placeholder="例：Standard Debit Card">
+      </div>
+      <div class="form-group">
+        <label>渠道卡编码 <span style="color:#dc2626;">*</span></label>
+        <input type="text" id="f-code" placeholder="例：STRIPE_DEBIT_V1">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>所属渠道 <span style="color:#dc2626;">*</span></label>
+        <select id="f-ditch"><option value="">请选择渠道</option><option>Stripe</option><option>Interlace</option><option>Marqeta</option></select>
+      </div>
+      <div class="form-group">
+        <label>备注</label>
+        <input type="text" id="f-remark" placeholder="内部备注（选填）">
+      </div>
+    </div>
+  </div>
+  <div class="form-section">
+    <div class="form-section-title">卡片属性</div>
+    <div class="form-row three">
+      <div class="form-group">
+        <label>卡片类型 <span style="color:#dc2626;">*</span></label>
+        <select id="f-card-type"><option>Budget</option><option>Prepaid</option></select>
+      </div>
+      <div class="form-group">
+        <label>卡模型 <span style="color:#dc2626;">*</span></label>
+        <select id="f-card-model"><option>虚拟卡</option><option>实体卡</option></select>
+      </div>
+      <div class="form-group">
+        <label>状态</label>
+        <select id="f-status-input"><option value="1">启用</option><option value="0">禁用</option></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>卡片正面</label>
+        <div class="image-upload">
+          <label class="image-upload-btn">选择图片<input type="file" accept="image/*" onchange="previewCardImage(this)"></label>
+          <img class="image-preview" id="card-preview-img">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>&nbsp;</label>
+        <div style="font-size:11px;color:#9ca3af;">建议尺寸 300×190px，支持 JPG/PNG</div>
+      </div>
+    </div>
+  </div>
+  <div class="form-section">
+    <div class="form-section-title">钱包支持</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Google Wallet</label>
+        <label class="toggle">
+          <input type="checkbox" id="f-google-wallet">
+          <span class="toggle-slider"></span>
+          <span class="toggle-label" id="gw-label">未启用</span>
+        </label>
+      </div>
+      <div class="form-group">
+        <label>Apple Pay</label>
+        <label class="toggle">
+          <input type="checkbox" id="f-apple-pay">
+          <span class="toggle-slider"></span>
+          <span class="toggle-label" id="ap-label">未启用</span>
+        </label>
+      </div>
+    </div>
+  </div>
+  <div class="form-section">
+    <div class="form-section-title">费率设置</div>
+    <div class="fee-grid">
+      <div class="fee-item">
+        <label>开卡费 (opening_fee)</label>
+        <div class="fee-inputs"><input type="number" id="f-opening-fee" step="0.0001" placeholder="0.0000"><span>USD</span></div>
+      </div>
+      <div class="fee-item">
+        <label>开卡费率 (opening_fee_rate)</label>
+        <div class="fee-inputs"><input type="number" id="f-opening-fee-rate" step="0.0001" placeholder="0.0000"><span>%</span></div>
+      </div>
+      <div class="fee-item">
+        <label>充值费率 (recharge_fee_rate)</label>
+        <div class="fee-inputs"><input type="number" id="f-recharge-fee-rate" step="0.0001" placeholder="0.0000"><span>%</span></div>
+      </div>
+      <div class="fee-item">
+        <label>充值固定费 (recharge_fixed_fee)</label>
+        <div class="fee-inputs"><input type="number" id="f-recharge-fixed-fee" step="0.0001" placeholder="0.0000"><span>USD</span></div>
+      </div>
+      <div class="fee-item">
+        <label>消费费率 (consumption_fee_rate)</label>
+        <div class="fee-inputs"><input type="number" id="f-consumption-fee-rate" step="0.0001" placeholder="0.0000"><span>%</span></div>
+      </div>
+      <div class="fee-item">
+        <label>消费固定费 (consumption_fixed_fee)</label>
+        <div class="fee-inputs"><input type="number" id="f-consumption-fixed-fee" step="0.0001" placeholder="0.0000"><span>USD</span></div>
+      </div>
+      <div class="fee-item">
+        <label>首次开卡减免 (first_open_discount)</label>
+        <div class="fee-inputs"><input type="number" id="f-first-open-discount" step="0.0001" placeholder="0.0000"><span>USD</span></div>
+      </div>
+      <div class="fee-item">
+        <label>返佣比例 (rebate_rate)</label>
+        <div class="fee-inputs"><input type="number" id="f-rebate-rate" step="0.0001" min="0" max="100" placeholder="0.0000"><span>%</span></div>
+      </div>
+      <div class="fee-item">
+        <label>支持币种 (support_currency)</label>
+        <div class="fee-inputs"><input type="text" id="f-support-currency" placeholder="USD,EUR,GBP"><span style="font-size:10px;">逗号分隔</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-secondary" onclick="closeAddModal()">取消</button>
+  <button class="btn btn-primary" onclick="saveCard()">保存</button>
+</div>
+</div>
+</div>
+
+<!-- 详情弹窗 -->
+<div class="modal-overlay" id="detailModal">
+<div class="modal" style="max-width:700px;">
+<div class="modal-header">
+  <h2>卡片详情 — <span id="detail-title"></span></h2>
+  <button class="modal-close" onclick="closeDetailModal()">✕</button>
+</div>
+<div class="modal-body">
+  <div class="detail-grid">
+    <div><img class="detail-card-preview" id="detail-card-img" src="" style="display:none;"></div>
+    <div class="detail-fields">
+      <div class="detail-field"><span class="label">卡片名称</span><span class="value" id="d-name"></span></div>
+      <div class="detail-field"><span class="label">渠道卡编码</span><span class="value" id="d-code"></span></div>
+      <div class="detail-field"><span class="label">所属渠道</span><span class="value" id="d-ditch"></span></div>
+      <div class="detail-field"><span class="label">卡片类型</span><span class="value" id="d-card-type"></span></div>
+      <div class="detail-field"><span class="label">卡模型</span><span class="value" id="d-card-model"></span></div>
+      <div class="detail-field"><span class="label">状态</span><span class="value" id="d-status"></span></div>
+      <div class="detail-field"><span class="label">Google Wallet</span><span class="value" id="d-gw"></span></div>
+      <div class="detail-field"><span class="label">Apple Pay</span><span class="value" id="d-ap"></span></div>
+      <div class="detail-field full"><span class="label">备注</span><span class="value" id="d-remark"></span></div>
+    </div>
+  </div>
+  <div class="form-section-title">费率详情</div>
+  <table class="fee-detail-table">
+    <thead><tr><th>费用项目</th><th>费率 (百分比)</th><th>固定手续费</th></tr></thead>
+    <tbody>
+      <tr><td style="text-align:left;">开卡费</td><td id="d-opening-rate">—</td><td id="d-opening-fee">—</td></tr>
+      <tr><td style="text-align:left;">充值</td><td id="d-recharge-rate">—</td><td id="d-recharge-fixed">—</td></tr>
+      <tr><td style="text-align:left;">消费</td><td id="d-consumption-rate">—</td><td id="d-consumption-fixed">—</td></tr>
+      <tr><td style="text-align:left;">首次开卡减免</td><td colspan="2" id="d-first-open-discount" style="text-align:left;">—</td></tr>
+      <tr><td style="text-align:left;">返佣比例</td><td colspan="2" id="d-rebate-rate" style="text-align:left;">—</td></tr>
+      <tr><td style="text-align:left;">支持币种</td><td colspan="2" id="d-support-currency" style="text-align:left;">—</td></tr>
+    </tbody>
+  </table>
+  <div style="font-size:11px;color:#9ca3af;margin-top:8px;">* 费率 = 交易金额的百分比；固定手续费 = 每笔交易的固定金额（USD）</div>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-secondary" onclick="closeDetailModal()">关闭</button>
+</div>
+</div>
+</div>
+
+<script>
+const mockCards = [
+  { id: 1, ditch_name: 'Stripe', name: 'Standard Debit Card', code: 'STRIPE_DBT_V1', card_type: 'Budget', card_model: '虚拟卡', front_pic: '', opening_fee: 2.5000, opening_fee_rate: 0.0000, recharge_fee_rate: 1.5000, recharge_fixed_fee: 0.5000, consumption_fee_rate: 2.0000, consumption_fixed_fee: 0.0000, first_open_discount: 1.0000, rebate_rate: 0.5000, support_currency: 'USD,EUR', google_wallet: 1, apple_pay: 0, status: 1, remark: '默认充值消费卡', create_time: '2026-04-15 10:30:00' },
+  { id: 2, ditch_name: 'Stripe', name: 'Premium Rewards Card', code: 'STRIPE_PRM_V1', card_type: 'Budget', card_model: '虚拟卡', front_pic: '', opening_fee: 0.0000, opening_fee_rate: 0.0000, recharge_fee_rate: 1.0000, recharge_fixed_fee: 0.0000, consumption_fee_rate: 1.5000, consumption_fixed_fee: 0.0000, first_open_discount: 0.0000, rebate_rate: 1.0000, support_currency: 'USD', google_wallet: 1, apple_pay: 1, status: 1, remark: '', create_time: '2026-04-10 08:15:00' },
+  { id: 3, ditch_name: 'Interlace', name: 'Travel Prepaid Card', code: 'INTLACE_TP_V1', card_type: 'Prepaid', card_model: '虚拟卡', front_pic: '', opening_fee: 5.0000, opening_fee_rate: 0.0000, recharge_fee_rate: 0.0000, recharge_fixed_fee: 0.0000, consumption_fee_rate: 2.5000, consumption_fixed_fee: 0.5000, first_open_discount: 2.0000, rebate_rate: 0.0000, support_currency: 'USD,EUR,GBP', google_wallet: 0, apple_pay: 0, status: 1, remark: '旅行专用预付费卡', create_time: '2026-04-05 14:20:00' },
+  { id: 4, ditch_name: 'Marqeta', name: 'Business Expense Card', code: 'MARQ_BIZ_V1', card_type: 'Budget', card_model: '实体卡', front_pic: '', opening_fee: 10.0000, opening_fee_rate: 0.0000, recharge_fee_rate: 0.5000, recharge_fixed_fee: 0.0000, consumption_fee_rate: 1.0000, consumption_fixed_fee: 0.0000, first_open_discount: 5.0000, rebate_rate: 0.3000, support_currency: 'USD', google_wallet: 1, apple_pay: 1, status: 1, remark: '企业报销卡', create_time: '2026-03-28 09:00:00' },
+  { id: 5, ditch_name: 'Interlace', name: 'Student Budget Card', code: 'INTLACE_STU_V1', card_type: 'Budget', card_model: '虚拟卡', front_pic: '', opening_fee: 0.0000, opening_fee_rate: 0.0000, recharge_fee_rate: 1.0000, recharge_fixed_fee: 0.0000, consumption_fee_rate: 1.5000, consumption_fixed_fee: 0.0000, first_open_discount: 0.0000, rebate_rate: 0.0000, support_currency: 'USD', google_wallet: 0, apple_pay: 0, status: 0, remark: '学生卡，已下线', create_time: '2026-03-15 16:45:00' },
+  { id: 6, ditch_name: 'Stripe', name: 'Gold Elite Card', code: 'STRIPE_GOLD_V2', card_type: 'Prepaid', card_model: '实体卡', front_pic: '', opening_fee: 50.0000, opening_fee_rate: 0.0000, recharge_fee_rate: 0.0000, recharge_fixed_fee: 0.0000, consumption_fee_rate: 1.0000, consumption_fixed_fee: 0.0000, first_open_discount: 10.0000, rebate_rate: 2.0000, support_currency: 'USD,EUR,GBP,JPY', google_wallet: 1, apple_pay: 1, status: 1, remark: '高端实体卡', create_time: '2026-03-01 11:30:00' },
+  { id: 7, ditch_name: 'Marqeta', name: 'Flexible Prepaid', code: 'MARQ_FLEX_V1', card_type: 'Prepaid', card_model: '虚拟卡', front_pic: '', opening_fee: 0.0000, opening_fee_rate: 2.0000, recharge_fee_rate: 3.0000, recharge_fixed_fee: 1.0000, consumption_fee_rate: 3.5000, consumption_fixed_fee: 0.5000, first_open_discount: 0.0000, rebate_rate: 0.0000, support_currency: 'USD,EUR', google_wallet: 0, apple_pay: 0, status: 1, remark: '', create_time: '2026-02-20 13:10:00' },
+  { id: 8, ditch_name: 'Interlace', name: 'Corporate Prepaid', code: 'INTLACE_CORP_V1', card_type: 'Prepaid', card_model: '实体卡', front_pic: '', opening_fee: 20.0000, opening_fee_rate: 0.5000, recharge_fee_rate: 0.0000, recharge_fixed_fee: 0.0000, consumption_fee_rate: 2.0000, consumption_fixed_fee: 1.0000, first_open_discount: 8.0000, rebate_rate: 1.5000, support_currency: 'USD,GBP', google_wallet: 1, apple_pay: 0, status: 0, remark: '企业预付费实体卡', create_time: '2026-02-10 10:00:00' }
+];
+let cards = [...mockCards];
+let editingId = null;
+let currentPage = 1;
+const pageSize = 8;
+
+function applyFilters() {
+  const ch = document.getElementById('f-channel').value;
+  const ct = document.getElementById('f-type').value;
+  const cm = document.getElementById('f-model').value;
+  const st = document.getElementById('f-status').value;
+  const q = document.getElementById('f-search').value.toLowerCase();
+  cards = mockCards.filter(c => {
+    if (ch && c.ditch_name !== ch) return false;
+    if (ct && c.card_type !== ct) return false;
+    if (cm === '虚拟卡' && c.card_model !== '虚拟卡') return false;
+    if (cm === '实体卡' && c.card_model !== '实体卡') return false;
+    if (st === '启用' && c.status !== 1) return false;
+    if (st === '禁用' && c.status !== 0) return false;
+    if (q && !c.name.toLowerCase().includes(q) && !c.code.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  currentPage = 1;
+  renderTable();
+}
+
+function resetFilters() {
+  document.querySelectorAll('.filters select').forEach(s => s.value = '');
+  document.getElementById('f-search').value = '';
+  cards = [...mockCards];
+  currentPage = 1;
+  renderTable();
+}
+
+function formatFee(v) { return v ? '$' + parseFloat(v).toFixed(4) : '—'; }
+function formatFeeRate(v) { return v ? parseFloat(v).toFixed(4) + '%' : '—'; }
+
+function feeSummary(c) {
+  let p = [];
+  if (c.opening_fee || c.opening_fee_rate) {
+    let s = '开卡';
+    if (c.opening_fee) s += '$' + parseFloat(c.opening_fee).toFixed(2);
+    if (c.opening_fee_rate) s += (c.opening_fee ? '+' : '') + parseFloat(c.opening_fee_rate).toFixed(2) + '%';
+    p.push(s);
+  }
+  if (c.recharge_fee_rate || c.recharge_fixed_fee) {
+    let s = '充值';
+    if (c.recharge_fee_rate) s += parseFloat(c.recharge_fee_rate).toFixed(2) + '%';
+    if (c.recharge_fixed_fee) s += (c.recharge_fee_rate ? '+' : '') + '$' + parseFloat(c.recharge_fixed_fee).toFixed(2);
+    p.push(s);
+  }
+  if (c.consumption_fee_rate || c.consumption_fixed_fee) {
+    let s = '消费';
+    if (c.consumption_fee_rate) s += parseFloat(c.consumption_fee_rate).toFixed(2) + '%';
+    if (c.consumption_fixed_fee) s += (c.consumption_fee_rate ? '+' : '') + '$' + parseFloat(c.consumption_fixed_fee).toFixed(2);
+    p.push(s);
+  }
+  if (c.first_open_discount) p.push('首开-$' + parseFloat(c.first_open_discount).toFixed(2));
+  if (c.rebate_rate) p.push('返佣' + parseFloat(c.rebate_rate).toFixed(2) + '%');
+  return p.join(' / ') || '无费率';
+}
+
+function renderTable() {
+  const tbody = document.getElementById('card-tbody');
+  const total = cards.length;
+  const pages = Math.max(1, Math.ceil(total / pageSize));
+  currentPage = Math.min(currentPage, pages);
+  const start = (currentPage - 1) * pageSize;
+  const pd = cards.slice(start, start + pageSize);
+  if (!pd.length) {
+    tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;padding:40px;color:#9ca3af;">暂无数据</td></tr>';
+  } else {
+    tbody.innerHTML = pd.map(c => {
+      const gw = c.google_wallet ? '<span class="wallet-icon wallet-on">&#10003;</span>' : '<span class="wallet-icon wallet-off">—</span>';
+      const ap = c.apple_pay ? '<span class="wallet-icon wallet-on">&#10003;</span>' : '<span class="wallet-icon wallet-off">—</span>';
+      const st = c.status === 1 ? '<span class="badge badge-active">启用</span>' : '<span class="badge badge-inactive">禁用</span>';
+      const tp = c.card_type === 'Budget' ? '<span class="badge badge-budget">Budget</span>' : '<span class="badge badge-prepaid">Prepaid</span>';
+      const md = c.card_model === '虚拟卡' ? '<span class="badge badge-virtual">虚拟卡</span>' : '<span class="badge badge-physical">实体卡</span>';
+      const fp = c.front_pic ? '<img class="card-preview" src="'+c.front_pic+'">' : '<span style="color:#d1d5db;font-size:11px;">无图片</span>';
+      const actBtnClass = c.status === 1 ? 'btn-danger' : 'btn-success';
+      const actBtnText = c.status === 1 ? '禁用' : '启用';
+      return '<tr><td><strong>'+c.name+'</strong></td><td><code style="font-size:11px;color:#6b7280;">'+c.code+'</code></td><td><span class="badge badge-channel">'+c.ditch_name+'</span></td><td>'+tp+'</td><td>'+md+'</td><td>'+fp+'</td><td style="text-align:center;">'+gw+'</td><td style="text-align:center;">'+ap+'</td><td><span style="font-size:11px;color:#6b7280;">'+feeSummary(c)+'</span></td><td>'+st+'</td><td style="font-size:11px;color:#9ca3af;">'+c.create_time+'</td><td><button class="btn btn-secondary btn-sm" onclick="viewDetail('+c.id+')">详情</button> <button class="btn btn-secondary btn-sm" onclick="editCard('+c.id+')">编辑</button> <button class="btn '+actBtnClass+' btn-sm" onclick="toggleStatus('+c.id+')">'+actBtnText+'</button></td></tr>';
+    }).join('');
+  }
+  document.getElementById('total-count').textContent = total;
+  document.getElementById('current-page').textContent = currentPage;
+  document.getElementById('total-pages').textContent = pages;
+  let ph = '';
+  for (let i = 1; i <= pages; i++) ph += '<button class="page-btn'+(i===currentPage?' active':'')+'" onclick="goPage('+i+')">'+i+'</button>';
+  document.getElementById('pagination-btns').innerHTML = ph;
+}
+
+function goPage(p) { currentPage = p; renderTable(); }
+
+function openAddModal() {
+  editingId = null;
+  document.getElementById('addModalTitle').textContent = '新建卡片';
+  ['f-name','f-code','f-remark','f-opening-fee','f-opening-fee-rate','f-recharge-fee-rate','f-recharge-fixed-fee','f-consumption-fee-rate','f-consumption-fixed-fee','f-first-open-discount','f-rebate-rate','f-support-currency'].forEach(function(id) { document.getElementById(id).value = ''; });
+  document.getElementById('f-ditch').value = '';
+  document.getElementById('f-card-type').value = 'Budget';
+  document.getElementById('f-card-model').value = '虚拟卡';
+  document.getElementById('f-status-input').value = '1';
+  document.getElementById('f-google-wallet').checked = false;
+  document.getElementById('f-apple-pay').checked = false;
+  document.getElementById('gw-label').textContent = '未启用';
+  document.getElementById('ap-label').textContent = '未启用';
+  document.getElementById('card-preview-img').className = 'image-preview';
+  document.getElementById('addModal').classList.add('active');
+}
+
+function closeAddModal() { document.getElementById('addModal').classList.remove('active'); }
+
+function editCard(id) {
+  var c = mockCards.find(function(x) { return x.id === id; });
+  if (!c) return;
+  editingId = id;
+  document.getElementById('addModalTitle').textContent = '编辑卡片';
+  document.getElementById('f-name').value = c.name;
+  document.getElementById('f-code').value = c.code;
+  document.getElementById('f-ditch').value = c.ditch_name;
+  document.getElementById('f-card-type').value = c.card_type;
+  document.getElementById('f-card-model').value = c.card_model;
+  document.getElementById('f-status-input').value = String(c.status);
+  document.getElementById('f-remark').value = c.remark || '';
+  document.getElementById('f-opening-fee').value = c.opening_fee;
+  document.getElementById('f-opening-fee-rate').value = c.opening_fee_rate;
+  document.getElementById('f-recharge-fee-rate').value = c.recharge_fee_rate;
+  document.getElementById('f-recharge-fixed-fee').value = c.recharge_fixed_fee;
+  document.getElementById('f-consumption-fee-rate').value = c.consumption_fee_rate;
+  document.getElementById('f-consumption-fixed-fee').value = c.consumption_fixed_fee;
+  document.getElementById('f-first-open-discount').value = c.first_open_discount !== undefined ? c.first_open_discount : 0;
+  document.getElementById('f-rebate-rate').value = c.rebate_rate !== undefined ? c.rebate_rate : 0;
+  document.getElementById('f-support-currency').value = c.support_currency || '';
+  document.getElementById('f-google-wallet').checked = c.google_wallet === 1;
+  document.getElementById('f-apple-pay').checked = c.apple_pay === 1;
+  document.getElementById('gw-label').textContent = c.google_wallet ? '已启用' : '未启用';
+  document.getElementById('ap-label').textContent = c.apple_pay ? '已启用' : '未启用';
+  if (c.front_pic) {
+    document.getElementById('card-preview-img').src = c.front_pic;
+    document.getElementById('card-preview-img').className = 'image-preview show';
+  }
+  document.getElementById('addModal').classList.add('active');
+}
+
+function saveCard() {
+  var name = document.getElementById('f-name').value.trim();
+  var code = document.getElementById('f-code').value.trim();
+  var ditch = document.getElementById('f-ditch').value;
+  if (!name) { alert('请填写卡片名称'); return; }
+  if (!code) { alert('请填写渠道卡编码'); return; }
+  if (!ditch) { alert('请选择所属渠道'); return; }
+  var data = {
+    name: name, code: code, ditch_name: ditch,
+    card_type: document.getElementById('f-card-type').value,
+    card_model: document.getElementById('f-card-model').value,
+    status: parseInt(document.getElementById('f-status-input').value),
+    remark: document.getElementById('f-remark').value.trim(),
+    opening_fee: parseFloat(document.getElementById('f-opening-fee').value) || 0,
+    opening_fee_rate: parseFloat(document.getElementById('f-opening-fee-rate').value) || 0,
+    recharge_fee_rate: parseFloat(document.getElementById('f-recharge-fee-rate').value) || 0,
+    recharge_fixed_fee: parseFloat(document.getElementById('f-recharge-fixed-fee').value) || 0,
+    consumption_fee_rate: parseFloat(document.getElementById('f-consumption-fee-rate').value) || 0,
+    consumption_fixed_fee: parseFloat(document.getElementById('f-consumption-fixed-fee').value) || 0,
+    first_open_discount: parseFloat(document.getElementById('f-first-open-discount').value) || 0,
+    rebate_rate: parseFloat(document.getElementById('f-rebate-rate').value) || 0,
+    support_currency: document.getElementById('f-support-currency').value.trim(),
+    google_wallet: document.getElementById('f-google-wallet').checked ? 1 : 0,
+    apple_pay: document.getElementById('f-apple-pay').checked ? 1 : 0,
+    front_pic: document.getElementById('card-preview-img').src || ''
+  };
+  if (editingId) {
+    var idx = mockCards.findIndex(function(x) { return x.id === editingId; });
+    if (idx >= 0) Object.assign(mockCards[idx], data);
+  } else {
+    data.id = Math.max.apply(Math, mockCards.map(function(c) { return c.id; })) + 1;
+    data.create_time = new Date().toISOString().replace('T',' ').substring(0,19);
+    mockCards.push(data);
+  }
+  cards = mockCards.slice();
+  applyFilters();
+  closeAddModal();
+}
+
+function toggleStatus(id) {
+  var c = mockCards.find(function(x) { return x.id === id; });
+  if (!c) return;
+  c.status = c.status === 1 ? 0 : 1;
+  cards = mockCards.slice();
+  applyFilters();
+}
+
+function viewDetail(id) {
+  var c = mockCards.find(function(x) { return x.id === id; });
+  if (!c) return;
+  document.getElementById('detail-title').textContent = c.name;
+  document.getElementById('d-name').textContent = c.name;
+  document.getElementById('d-code').textContent = c.code;
+  document.getElementById('d-ditch').textContent = c.ditch_name;
+  document.getElementById('d-card-type').textContent = c.card_type === 'Budget' ? 'Budget' : 'Prepaid';
+  document.getElementById('d-card-model').textContent = c.card_model;
+  document.getElementById('d-status').textContent = c.status === 1 ? '启用' : '禁用';
+  document.getElementById('d-gw').textContent = c.google_wallet ? '支持' : '不支持';
+  document.getElementById('d-ap').textContent = c.apple_pay ? '支持' : '不支持';
+  document.getElementById('d-remark').textContent = c.remark || '—';
+  document.getElementById('d-opening-fee').textContent = formatFee(c.opening_fee);
+  document.getElementById('d-opening-rate').textContent = formatFeeRate(c.opening_fee_rate);
+  document.getElementById('d-recharge-rate').textContent = formatFeeRate(c.recharge_fee_rate);
+  document.getElementById('d-recharge-fixed').textContent = formatFee(c.recharge_fixed_fee);
+  document.getElementById('d-consumption-rate').textContent = formatFeeRate(c.consumption_fee_rate);
+  document.getElementById('d-consumption-fixed').textContent = formatFee(c.consumption_fixed_fee);
+  document.getElementById('d-first-open-discount').textContent = c.first_open_discount ? '$' + parseFloat(c.first_open_discount).toFixed(4) : '—';
+  document.getElementById('d-rebate-rate').textContent = c.rebate_rate ? parseFloat(c.rebate_rate).toFixed(4) + '%' : '—';
+  document.getElementById('d-support-currency').textContent = c.support_currency || '—';
+  var img = document.getElementById('detail-card-img');
+  if (c.front_pic) { img.src = c.front_pic; img.style.display = 'block'; } else { img.style.display = 'none'; }
+  document.getElementById('detailModal').classList.add('active');
+}
+
+function closeDetailModal() { document.getElementById('detailModal').classList.remove('active'); }
+
+function previewCardImage(input) {
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('card-preview-img').src = e.target.result;
+      document.getElementById('card-preview-img').className = 'image-preview show';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+document.querySelectorAll('.toggle input').forEach(function(t) {
+  t.addEventListener('change', function() {
+    var lbl = this.closest('.form-group').querySelector('.toggle-label');
+    if (lbl) lbl.textContent = this.checked ? '已启用' : '未启用';
+  });
+});
+
+renderTable();
+</script>
+</body>
+</html>

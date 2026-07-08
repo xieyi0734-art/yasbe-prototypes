@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>风控事件 - Beeznis 管理后台</title>
+<style>
+:root {
+  --bg: #141414;
+  --card: #1e1e1e;
+  --card2: #262626;
+  --border: #333;
+  --text: #e0e0e0;
+  --text2: #999;
+  --primary: #E59303;
+  --success: #52c41a;
+  --danger: #ff4d4f;
+  --warning: #faad14;
+  --info: #1890ff;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  padding:24px 32px;
+  min-height:100vh;
+}
+.app-layout { display:flex; gap:24px; }
+.sidebar {
+  width:220px; flex-shrink:0;
+  background: var(--card);
+  border-radius:12px;
+  padding:16px;
+  height: calc(100vh - 48px);
+  position:sticky; top:24px;
+}
+.sidebar-logo { font-size:20px; font-weight:700; color:var(--primary); margin-bottom:24px; padding:8px 12px; }
+.sidebar-item {
+  padding:10px 12px; border-radius:8px;
+  font-size:14px; color:var(--text2); cursor:pointer;
+  display:flex; align-items:center; gap:10px;
+  margin-bottom:4px; transition:all .15s;
+}
+.sidebar-item:hover { background:var(--card2); color:var(--text); }
+.sidebar-item.active { background:var(--primary); color:#fff; font-weight:600; }
+.sidebar-item .icon { width:18px; text-align:center; }
+.sidebar-section { font-size:11px; color:var(--text2); text-transform:uppercase; letter-spacing:1px; padding:12px 12px 6px; margin-top:12px; border-top:1px solid var(--border); }
+.main-content { flex:1; min-width:0; }
+.page-header {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:24px;
+}
+.page-header h1 { font-size:22px; font-weight:600; }
+.page-header .subtitle { font-size:13px; color:var(--text2); margin-top:4px; }
+.header-actions { display:flex; gap:12px; align-items:center; }
+.btn {
+  padding:8px 20px; border-radius:8px; border:none;
+  font-size:14px; cursor:pointer; font-weight:500;
+  transition:all .15s; display:inline-flex; align-items:center; gap:6px;
+}
+.btn-primary { background:var(--primary); color:#fff; }
+.btn-primary:hover { filter:brightness(1.1); }
+.btn-default { background:var(--card2); color:var(--text); border:1px solid var(--border); }
+.btn-default:hover { border-color:var(--text2); }
+.btn-sm { padding:4px 12px; font-size:12px; border-radius:6px; }
+.btn-success { background:var(--success); color:#fff; }
+.btn-success:hover { filter:brightness(1.1); }
+.btn-danger { background:transparent; color:var(--danger); border:1px solid var(--danger); }
+.btn-danger:hover { background:var(--danger); color:#fff; }
+.btn-warning { background:transparent; color:var(--warning); border:1px solid var(--warning); }
+.btn-warning:hover { background:var(--warning); color:#000; }
+.stats-bar {
+  display:grid; grid-template-columns:repeat(4,1fr); gap:16px;
+  margin-bottom:24px;
+}
+.stat-card {
+  background:var(--card); border-radius:10px; padding:16px 20px;
+  border:1px solid var(--border);
+}
+.stat-card .label { font-size:12px; color:var(--text2); margin-bottom:6px; }
+.stat-card .value { font-size:24px; font-weight:700; }
+.stat-card .value.gold { color:var(--primary); }
+.stat-card .value.green { color:var(--success); }
+.stat-card .value.red { color:var(--danger); }
+.stat-card .value.blue { color:var(--info); }
+.stat-card .sub { font-size:12px; color:var(--text2); margin-top:4px; }
+.filter-bar {
+  display:flex; gap:12px; align-items:center;
+  margin-bottom:16px; flex-wrap:wrap;
+}
+.filter-bar input, .filter-bar select {
+  background:var(--card); border:1px solid var(--border); border-radius:8px;
+  padding:8px 12px; color:var(--text); font-size:13px;
+  outline:none; min-width:140px;
+}
+.filter-bar input::placeholder { color:var(--text2); }
+.filter-bar select option { background:var(--card); color:var(--text); }
+.filter-bar .search-box { position:relative; }
+.filter-bar .search-box input { padding-left:32px; }
+.filter-bar .search-icon { position:absolute; left:10px; top:50%; transform:translateY(-50%); color:var(--text2); font-size:13px; }
+.table-container {
+  background:var(--card); border-radius:10px; border:1px solid var(--border);
+  overflow:hidden;
+}
+table { width:100%; border-collapse:collapse; }
+thead th {
+  padding:12px 16px; text-align:left; font-size:12px;
+  color:var(--text2); font-weight:500; text-transform:uppercase;
+  background:var(--card2); border-bottom:1px solid var(--border);
+  white-space:nowrap;
+}
+tbody td {
+  padding:12px 16px; font-size:13px; border-bottom:1px solid var(--border);
+  vertical-align:middle;
+}
+tbody tr:last-child td { border-bottom:none; }
+tbody tr:hover { background:rgba(229,147,3,.04); }
+tbody tr.expandable { cursor:pointer; }
+tbody tr.expandable:hover { background:rgba(229,147,3,.08); }
+tbody tr.expanded td { border-bottom-color:transparent; }
+tbody tr.detail-row td {
+  padding:0; border-bottom:1px solid var(--border);
+  background:var(--card2);
+}
+.detail-inner { padding:20px 24px; }
+.tag {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:2px 10px; border-radius:100px; font-size:12px; font-weight:500;
+}
+.tag-pending { background:rgba(250,173,20,.15); color:var(--warning); }
+.tag-reviewing { background:rgba(24,144,255,.15); color:var(--info); }
+.tag-resolved { background:rgba(82,196,26,.15); color:var(--success); }
+.tag-dismissed { background:rgba(153,153,153,.15); color:var(--text2); }
+.tag-blocked { background:rgba(255,77,79,.15); color:var(--danger); }
+.tag-flagged { background:rgba(250,173,20,.15); color:var(--warning); }
+.tag-frozen { background:rgba(255,77,79,.15); color:var(--danger); }
+.tag-notified { background:rgba(24,144,255,.15); color:var(--info); }
+.pagination {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:12px 16px; border-top:1px solid var(--border);
+  font-size:12px; color:var(--text2);
+}
+.pagination .page-btns { display:flex; gap:4px; }
+.pagination .page-btn {
+  padding:4px 10px; border-radius:4px; cursor:pointer; border:1px solid var(--border); background:transparent; color:var(--text2); font-size:12px;
+}
+.pagination .page-btn.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+.empty-state { text-align:center; padding:60px 20px; color:var(--text2); }
+.empty-state .icon { font-size:48px; margin-bottom:12px; }
+.empty-state .text { font-size:14px; }
+.detail-section { margin-bottom:24px; }
+.detail-section:last-child { margin-bottom:0; }
+.detail-section h3 { font-size:13px; color:var(--primary); margin-bottom:12px; font-weight:600; display:flex; align-items:center; gap:6px; }
+.detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.detail-item { }
+.detail-item .dl { font-size:11px; color:var(--text2); margin-bottom:2px; }
+.detail-item .dv { font-size:13px; }
+.detail-actions { display:flex; gap:10px; margin-top:16px; flex-wrap:wrap; }
+.detail-table { width:100%; font-size:12px; }
+.detail-table td { padding:6px 8px; border-bottom:1px solid var(--border); }
+.detail-table td:first-child { color:var(--text2); width:120px; }
+.review-log { }
+.review-log-item { padding:10px 0; border-bottom:1px solid var(--border); font-size:12px; }
+.review-log-item:last-child { border-bottom:none; }
+.review-log-item .rl-time { color:var(--text2); font-size:11px; }
+.review-log-item .rl-action { margin:4px 0; font-weight:500; }
+.review-log-item .rl-note { color:var(--text2); }
+.priority-dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; }
+.priority-high { background:var(--danger); }
+.priority-medium { background:var(--warning); }
+.priority-low { background:var(--success); }
+</style>
+</head>
+<body>
+
+<div class="app-layout">
+  <div class="sidebar">
+    <div class="sidebar-logo">⚡ Beeznis</div>
+    <div class="sidebar-item"><span class="icon">📊</span> 总览</div>
+    <div class="sidebar-section">Card</div>
+    <div class="sidebar-item"><span class="icon">🏦</span> 上游管理</div>
+    <div class="sidebar-item"><span class="icon">💳</span> 卡片服务</div>
+    <div class="sidebar-item"><span class="icon">📋</span> 卡片列表</div>
+    <div class="sidebar-item"><span class="icon">🔄</span> 交易查询</div>
+    <div class="sidebar-section">风控管理</div>
+    <div class="sidebar-item"><span class="icon">⚙️</span> 规则管理</div>
+    <div class="sidebar-item active"><span class="icon">🚨</span> Risk Events</div>
+    <div class="sidebar-section">System</div>
+    <div class="sidebar-item"><span class="icon">👥</span> 客户管理</div>
+    <div class="sidebar-item"><span class="icon">📄</span> 操作日志</div>
+  </div>
+
+  <div class="main-content">
+    <div class="page-header">
+      <div>
+        <h1>风控事件</h1>
+        <div class="subtitle">实时监控和处理风控规则触发的风险事件</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-default">📥 导出</button>
+        <button class="btn btn-primary">↻ 自动刷新 (30秒)</button>
+      </div>
+    </div>
+
+
+    <div class="filter-bar">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input placeholder="搜索事件 ID、卡片、客户..." id="searchInput" oninput="filterEvents()">
+      </div>
+      <select id="filterStatus" onchange="filterEvents()">
+        <option value="">全部状态</option>
+        <option value="pending:待审核</option>
+        <option value="reviewing">审核中</option>
+        <option value="resolved">已解决</option>
+        <option value="dismissed">已驳回</option>
+      </select>
+      <select id="filterAction" onchange="filterEvents()">
+        <option value="">全部动作</option>
+        <option value="blocked">已拦截</option>
+        <option value="flagged">已标记</option>
+        <option value="frozen">已冻结</option>
+        <option value="notified">已通知</option>
+      </select>
+      <select id="filterPriority" onchange="filterEvents()">
+        <option value="">全部优先级</option>
+        <option value="high">高</option>
+        <option value="medium">中</option>
+        <option value="low">低</option>
+      </select>
+      <button class="btn btn-sm btn-default" onclick="filterEvents()">↻ 刷新</button>
+    </div>
+
+    <div class="table-container">
+      <table id="eventTable">
+        <thead>
+          <tr>
+            <th>事件 ID</th>
+            <th>优先级</th>
+            <th>触发规则</th>
+            <th>卡片</th>
+            <th>金额</th>
+            <th>执行动作</th>
+            <th>触发时间</th>
+          </tr>
+        </thead>
+        <tbody id="eventBody"></tbody>
+      </table>
+      <div class="pagination">
+        <span>显示 1-10 / 共 47 条</span>
+        <div class="page-btns">
+          <button class="page-btn">‹</button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn">3</button>
+          <button class="page-btn">4</button>
+          <button class="page-btn">5</button>
+          <button class="page-btn">›</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const events = [
+  {id:'EVT-20260624-001',priority:'high',rule:'Single Transaction Limit',card:'••••4582',customer:'陈晓蕾',amount:12500,currency:'USD',action:'blocked',actionLabel:'已拦截',status:'pending',statusLabel:'待审核',time:'2026-06-24 14:32:18',details:{merchant:'Amazon.com',country:'US',mcc:'5311',ip:'216.58.214.14',device:'Chrome/Windows',riskScore:85,cardProduct:'Business Platinum',customerTier:'Premium'},reviewLog:[{time:'14:33:05',action:'已分配审核员',user:'System',note:'根据优先级自动分配'}]},
+  {id:'EVT-20260624-002',priority:'high',rule:'BIN Attack Detection',card:'••••8845',customer:'Smith 女士',amount:0,currency:'N/A',action:'frozen',actionLabel:"已冻结",status:'reviewing',statusLabel:"审核中",time:'2026-06-24 14:15:22',details:{merchant:'N/A (declined)',country:'US',mcc:'N/A',ip:'103.235.46.22',device:'Unknown',riskScore:95,attempts:8,timeWindow:'2 minutes',cardProduct:'Standard',customerTier:'Basic'},reviewLog:[{time:'14:16:10',action:'卡片已自动冻结',user:'System',note:'8 consecutive declined attempts detected'},{time:'14:18:45',action:'已分配审核员',user:'System',note:'风控团队已通过邮件通知'}]},
+  {id:'EVT-20260624-003',priority:'medium',rule:'High-Frequency Micro Txns',card:'••••1256',customer:'王博',amount:1280,currency:'USD',action:'flagged',actionLabel:"已标记",status:'pending',statusLabel:'待审核',time:'2026-06-24 14:08:45',details:{merchant:'Multiple (12 txns)',country:'US',mcc:'Various',ip:'192.168.1.45',device:'iOS/Safari',riskScore:62,txnCount:12,timeWindow:'5 min',avgAmount:106.67,cardProduct:'Gold',customerTier:'Standard'},reviewLog:[]},
+  {id:'EVT-20260624-004',priority:'high',rule:'Cross-Border High Risk',card:'••••7750',customer:'未知（新客户）',amount:3500,currency:'USD',action:'blocked',actionLabel:"已拦截",status:'pending',statusLabel:'待审核',time:'2026-06-24 13:55:10',details:{merchant:'Crypto Exchange',country:'NG',mcc:'6051',ip:'197.210.88.15',device:'Android/Chrome',riskScore:78,cardProduct:'Standard',customerTier:'Unverified'},reviewLog:[]},
+  {id:'EVT-20260624-005',priority:'medium',rule:'Abnormal Time Trading',card:'••••3698',customer:'刘明',amount:420,currency:'USD',action:'flagged',actionLabel:"已标记",status:'resolved',statusLabel:"已解决",time:'2026-06-24 04:32:01',details:{merchant:'Steam Games',country:'US',mcc:'5816',ip:'73.162.45.18',device:'Windows/Edge',riskScore:35,cardProduct:'Student',customerTier:'Basic'},reviewLog:[{time:'04:35:00',action:'已自动驳回',user:'System',note:'Cardholder confirmed via SMS OTP'}]},
+  {id:'EVT-20260624-006',priority:'low',rule:'Per-MCC Velocity Limit',card:'••••2147',customer:'金莎拉',amount:890,currency:'USD',action:'notified',actionLabel:"已通知",status:'dismissed',statusLabel:"已驳回",time:'2026-06-24 11:20:33',details:{merchant:'Shell Gas Station',country:'US',mcc:'5541',ip:'68.45.12.90',device:'iOS/App',riskScore:20,cardProduct:'Business Standard',customerTier:'Premium'},reviewLog:[{time:'11:22:15',action:'驳回 - 误报',user:'Admin (John)',note:'客户经常使用此商户，已调整规则阈值'}]},
+  {id:'EVT-20260624-007',priority:'high',rule:'Gambling MCC Block',card:'••••5923',customer:'张涛',amount:2500,currency:'USD',action:'blocked',actionLabel:"已拦截",status:'pending',statusLabel:'待审核',time:'2026-06-24 10:45:08',details:{merchant:'Bet365',country:'MT',mcc:'7801',ip:'185.55.44.12',device:'Android/Chrome',riskScore:90,cardProduct:'Gold',customerTier:'Standard'},reviewLog:[]},
+  {id:'EVT-20260624-008',priority:'medium',rule:'New Card Rapid Usage',card:'••••3301',customer:'朴丽莎',amount:3450,currency:'USD',action:'flagged',actionLabel:"已标记",status:'reviewing',statusLabel:"审核中",time:'2026-06-24 09:28:15',details:{merchant:'Best Buy, Walmart, Target',country:'US',mcc:'5732,5411,5311',ip:'24.56.88.12',device:'Windows/Chrome',riskScore:55,cardAge:'2 hours',txnCount:5,timeWindow:'45 min',cardProduct:'Standard',customerTier:'Standard'},reviewLog:[{time:'09:30:00',action:'已分配审核员',user:'System',note:'新卡激活 &lt; 24h'}]},
+  {id:'EVT-20260624-009',priority:'low',rule:'Card Not Present Risk',card:'••••6740',customer:'David Brown',amount:199,currency:'USD',action:'flagged',actionLabel:"已标记",status:'resolved',statusLabel:"已解决",time:'2026-06-24 08:15:42',details:{merchant:'Netflix',country:'US',mcc:'5815',ip:'67.89.12.34',device:'Smart TV',riskScore:25,billingCountry:'US',shippingCountry:'N/A (digital)',cardProduct:'Standard',customerTier:'Premium'},reviewLog:[{time:'08:20:00',action:'已解决 - 正常交易',user:'Admin (Sarah)',note:'数字订阅服务，属正常行为'}]},
+  {id:'EVT-20260624-010',priority:'high',rule:'Suspicious Device Fingerprint',card:'••••9112',customer:'赵雨晴',amount:7800,currency:'USD',action:'frozen',actionLabel:"已冻结",status:'reviewing',statusLabel:"审核中",time:'2026-06-24 07:52:30',details:{merchant:'Unknown (emulator)',country:'Unknown',mcc:'N/A',ip:'45.33.32.156',device:'Android Emulator',riskScore:92,cardProduct:'Business Platinum',customerTier:'Premium'},reviewLog:[{time:'07:53:15',action:'卡片已自动冻结',user:'System',note:'检测到模拟器 - 高置信度欺诈'},{time:'07:55:00',action:'已通知客户',user:'System',note:'短信已发送至注册手机'}]}
+];
+
+const actionColors = {blocked:'tag-blocked',flagged:'tag-flagged',frozen:'tag-frozen',notified:'tag-notified'};
+const priorityClass = {high:'priority-high',medium:'priority-medium',low:'priority-low'};
+
+function renderEvents(data) {
+  const tbody = document.getElementById('eventBody');
+  if (!data || data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="icon">✅</div><div class="text">没有符合筛选条件的事件</div></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = data.map((e, idx) => {
+    return `<tr>
+      <td style="font-family:monospace;font-size:12px">${e.id}</td>
+      <td><span class="priority-dot ${priorityClass[e.priority]}"></span>${e.priority.charAt(0).toUpperCase()+e.priority.slice(1)}</td>
+      <td>${e.rule}</td>
+      <td>${e.card}</td>
+      <td><strong>${e.currency === 'N/A' ? '—' : e.currency === 'USD' ? '$' : ''}${e.amount > 0 ? e.amount.toLocaleString() : '—'}</strong></td>
+      <td><span class="tag ${actionColors[e.action] || ''}">${e.actionLabel}</span></td>
+      <td style="font-size:12px;color:var(--text2);white-space:nowrap">${e.time}</td>
+    </tr>`;
+  }).join('');
+}
+
+
+function filterEvents() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const status = document.getElementById('filterStatus').value;
+  const action = document.getElementById('filterAction').value;
+  const priority = document.getElementById('filterPriority').value;
+  let filtered = events.filter(e => {
+    if (q && !e.id.toLowerCase().includes(q) && !e.card.includes(q) && !e.customer.toLowerCase().includes(q) && !e.rule.toLowerCase().includes(q)) return false;
+    if (status && e.status !== status) return false;
+    if (action && e.action !== action) return false;
+    if (priority && e.priority !== priority) return false;
+    return true;
+  });
+  renderEvents(filtered);
+}
+
+renderEvents(events);
+</script>
+</body>
+</html>

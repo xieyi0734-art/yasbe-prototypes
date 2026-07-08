@@ -1,0 +1,330 @@
+           <h1>风控规则管理</h1>
+          <div class="subtitle">管理交易风控策略 — 支持自定义规则和系统内置规则</div>
+         </div>
+         <div class="header-actions">
+           <button class="btn btn-default" onclick="showImportPresets()">
+             📥 导入模板
+           </button>
+           <button class="btn btn-primary" onclick="openNewRule()" id="createRuleBtn">
+             + 创建规则
+           </button>
+         </div>
+       </div>
+
+       <!-- Tabs: 自定义规则 / 系统规则 -->
+       <div class="tabs">
+         <div class="tab active" data-tab="custom" onclick="switchTab('custom')">自定义规则</div>
+         <div class="tab" data-tab="system" onclick="switchTab('system')">系统规则</div>
+       </div>
+
+       <!-- Stats (shown on custom tab only) -->
+       <div id="customStats" class="stats-bar">
+         <div class="stat-card">
+           <div class="label">规则总数</div>
+           <div class="value gold">8</div>
+           <div class="sub">本月新增 2 条</div>
+         </div>
+         <div class="stat-card">
+           <div class="label">运行中</div>
+           <div class="value green">6</div>
+           <div class="sub">3 条已停用</div>
+         </div>
+         <div class="stat-card">
+           <div class="label">今日事件</div>
+           <div class="value red">47</div>
+           <div class="sub">12 条超过 15 分钟未处理</div>
+         </div>
+         <div class="stat-card">
+           <div class="label">平均响应</div>
+           <div class="value">1.2s</div>
+           <div class="sub">符合 SLA ✅</div>
+         </div>
+       </div>
+
+       <!-- System tab stats -->
+       <div id="systemStats" class="stats-bar" style="display:none">
+         <div class="stat-card">
+           <div class="label">预置规则</div>
+           <div class="value gold">2</div>
+           <div class="sub">系统内置，不可删除</div>
+         </div>
+         <div class="stat-card">
+           <div class="label">运行中</div>
+           <div class="value green">2</div>
+           <div class="sub">全部启用</div>
+         </div>
+         <div class="stat-card">
+           <div class="label">上月触发</div>
+           <div class="value red">23</div>
+           <div class="sub">累计拦截 18 张卡片</div>
+         </div>
+         <div class="stat-card">
+           <div class="label">自动处理率</div>
+           <div class="value">100%</div>
+           <div class="sub">无需人工介入 ✅</div>
+         </div>
+       </div>
+
+       <!-- Custom tab: Filters + Table + Pagination (unchanged) -->
+       <div id="customSection">
+         <div class="filter-bar">
+           <div class="search-box">
+             <span class="search-icon">🔍</span>
+             <input placeholder="搜索规则名称..." oninput="filterRules()" id="searchInput">
+           </div>
+           <select id="filter类型" onchange="filterRules()">
+             <option value="">全部类型</option>
+             <option value="transaction">交易(金额)</option>
+             <option value="velocity">频次(笔数)</option>
+           </select>
+           <select id="filter状态" onchange="filterRules()">
+             <option value="">全部状态</option>
+             <option value="active">运行中</option>
+             <option value="inactive">已停用</option>
+             <option value="error">异常</option>
+           </select>
+           <button class="btn btn-sm btn-default" onclick="filterRules()">↻ 刷新</button>
+         </div>
+
+         <div class="table-container">
+           <table id="ruleTable">
+             <thead>
+               <tr>
+                 <th>规则名称</th>
+                 <th>类型</th>
+                 <th>状态</th>
+                 <th>优先级</th>
+                 <th>命中次数</th>
+                 <th>最后触发</th>
+                 <th>操作</th>
+               </tr>
+             </thead>
+             <tbody id="ruleBody">
+             </tbody>
+           </table>
+           <div class="pagination">
+             <span id="paginationInfo">显示 1-8 / 共 8 条</span>
+             <div class="page-btns">
+               <button class="page-btn">‹</button>
+               <button class="page-btn active">1</button>
+               <button class="page-btn">2</button>
+               <button class="page-btn">›</button>
+             </div>
+           </div>
+         </div>
+       </div>
+
+       <!-- System tab content -->
+       <div id="systemSection" style="display:none">
+         <div class="system-rules">
+           <!-- Rule 1: 拒付超过数量 -->
+           <div class="system-rule-card">
+             <div class="sys-rule-header">
+               <div class="sys-rule-left">
+                 <span class="sys-rule-icon">🛡️</span>
+                 <div>
+                   <div class="sys-rule-name">拒付超过数量后冻结</div>
+                   <div class="sys-rule-desc">当卡片累计拒付次数超过设定阈值时，自动冻结卡片并发送邮件通知管理员与持卡人</div>
+                 </div>
+               </div>
+               <div class="sys-rule-right">
+                 <div class="toggle active" id="sysToggle1" onclick="toggleSystemRule(1)"></div>
+               </div>
+             </div>
+             <div class="sys-rule-body">
+               <div class="sys-param-row">
+                 <span class="sys-param-label">拒付次数阈值</span>
+                 <div class="sys-param-control">
+                   <button class="num-btn" onclick="adjustThreshold(1, -1)">−</button>
+                   <input type="number" class="num-input" id="threshold1" value="3" min="1" max="99">
+                   <button class="num-btn" onclick="adjustThreshold(1, 1)">+</button>
+                   <span class="sys-param-unit">次 / 自然月</span>
+                 </div>
+               </div>
+               <div class="sys-param-row">
+                 <span class="sys-param-label">触发动作</span>
+                 <div class="sys-action-summary">
+                   <span class="action-tag">🔒 冻结卡片</span>
+                   <span class="action-tag">📧 发送邮件通知</span>
+                 </div>
+               </div>
+               <div class="sys-param-row">
+                 <span class="sys-param-label">上月命中</span>
+                 <span class="sys-hit-count">12 张卡片冻结</span>
+               </div>
+             </div>
+           </div>
+
+           <!-- Rule 2: 无充值消费自动冻结 -->
+           <div class="system-rule-card">
+             <div class="sys-rule-header">
+               <div class="sys-rule-left">
+                 <span class="sys-rule-icon">⏳</span>
+                 <div>
+                   <div class="sys-rule-name">次月无充值消费记录自动冻结</div>
+                   <div class="sys-rule-desc">每月初检测上一自然月，卡片既无充值入金也无消费交易记录时，自动冻结卡片</div>
+                 </div>
+               </div>
+               <div class="sys-rule-right">
+                 <div class="toggle active" id="sysToggle2" onclick="toggleSystemRule(2)"></div>
+               </div>
+             </div>
+             <div class="sys-rule-body">
+               <div class="sys-param-row">
+                 <span class="sys-param-label">检测周期</span>
+                 <span class="sys-param-value">每月 1 日 00:00</span>
+               </div>
+               <div class="sys-param-row">
+                 <span class="sys-param-label">检测范围</span>
+                 <span class="sys-param-value">上一自然月（全部卡片）</span>
+               </div>
+               <div class="sys-param-row">
+                 <span class="sys-param-label">触发动作</span>
+                 <div class="sys-action-summary">
+                   <span class="action-tag">🔒 冻结卡片</span>
+                 </div>
+               </div>
+               <div class="sys-param-row">
+                 <span class="sys-param-label">上月命中</span>
+                 <span class="sys-hit-count">11 张卡片冻结</span>
+               </div>
+             </div>
+           </div>
+         </div>
+       </div>
+     </div>
+   </div>
+
+   <!-- ====== MODALS (unchanged) ====== -->
+   <!-- Create/编辑规则 Modal -->
+   <div class="modal-overlay" id="ruleModal">
+     <div class="modal">
+       <div class="modal-header">
+         <h2 id="modalTitle">创建风控规则</h2>
+         <button class="modal-close" onclick="closeModal('ruleModal')">✕</button>
+       </div>
+       <div class="modal-body">
+         <div class="form-group">
+           <label>规则名称</label>
+           <input placeholder="e.g. 单笔交易限额 - 卡片">
+         </div>
+         <div class="form-row">
+           <div class="form-group">
+             <label>规则类型</label>
+             <select id="ruleTypeSelect" onchange="updateConditionBuilder()">
+               <option value="transaction">交易(金额)</option>
+               <option value="velocity">频次(笔数)</option>
+             </select>
+           </div>
+           <div class="form-group">
+             <label>优先级</label>
+             <select>
+               <option>1 - 最高</option>
+               <option>2 - 高</option>
+               <option selected>3 - 普通</option>
+               <option>4 - 低</option>
+               <option>5 - 最低</option>
+             </select>
+           </div>
+         </div>
+
+         <div class="form-group">
+           <label>条件配置</label>
+           <div class="condition-group" id="conditionGroup">
+             <div class="cond-header">
+               <span id="condHeader">AND — 所有条件需同时满足</span>
+             </div>
+             <div id="conditionRows">
+               <div class="cond-row">
+                 <select id="condField0">
+                   <option value="single_amount">单笔金额</option>
+                   <option value="daily_amount">日累计金额</option>
+                   <option value="monthly_amount">月累计金额</option>
+                 </select>
+                 <select id="condOp0">
+                   <option>大于(&gt;)</option>
+                   <option>小于(&lt;)</option>
+                   <option>等于(=)</option>
+                   <option>在范围内</option>
+                 </select>
+                 <input id="condVal0" value="5000">
+                 <select id="condUnit0" style="min-width:90px">
+                   <option>USD</option>
+                 </select>
+                 <span class="cond-remove" onclick="this.closest('.cond-row').remove()">✕</span>
+               </div>
+             </div>
+             <div style="margin-top:8px">
+               <span class="cond-add" onclick="addCondition()">+ 添加条件</span>
+               <span style="margin:0 12px;color:var(--text2)">|</span>
+               <span class="cond-add" onclick="addOrGroup()">+ 添加 OR 条件组</span>
+             </div>
+           </div>
+         </div>
+
+         <div class="form-group">
+           <label>触发动作</label>
+           <select>
+             <option>拦截交易</option>
+             <option>标记待审核</option>
+             <option>冻结卡片</option>
+             <option>仅通知管理员</option>
+           </select>
+         </div>
+
+         <div class="form-row">
+           <div class="form-group">
+             <label>生效范围</label>
+             <select>
+               <option>全部卡片</option>
+               <option>按 BIN 范围</option>
+               <option>按卡种</option>
+               <option>按客户等级</option>
+               <option>按通道</option>
+             </select>
+           </div>
+           <div class="form-group">
+             <label>冷却时间（分钟）</label>
+             <input placeholder="30" value="30">
+             <div class="hint">同规则再次触发的间隔时间</div>
+           </div>
+         </div>
+
+
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('ruleModal')">取消</button>
+        <button class="btn btn-primary" onclick="alert('规则已保存')">保存规则</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Import Presets Modal -->
+<div class="modal-overlay" id="presetModal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h2>从模板导入</h2>
+      <button class="modal-close" onclick="closeModal('presetModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="preset-grid" id="presetGrid">
+        <div class="preset-card" onclick="selectPreset(this, '单笔交易限额')">
+           <div class="name">💰 单笔交易限额</div>
+           <div class="desc">单笔交易超过 5000 USD 时拦截或标记</div>
+           <div class="meta"><span class="badge">交易(金额)</span>1 个条件</div>
+         </div>
+         <div class="preset-card" onclick="selectPreset(this, '日累计限额')">
+           <div class="name">📊 日累计限额</div>
+           <div class="desc">卡片单日累计交易额超过 15000 USD 触发</div>
+           <div class="meta"><span class="badge">交易(金额)</span>1 个条件</div>
+         </div>
+         <div class="preset-card" onclick="selectPreset(this, '高频交易检测')">
+           <div class="name">⚡ 高频交易检测</div>
+           <div class="desc">1 分钟内超过 5 笔交易，防小额试探攻击</div>
+           <div class="meta"><span class="badge">频次(笔数)</span>1 个条件</div>
+         </div>
+         <div class="preset-card" onclick="selectPreset(this, 'BIN 攻击防护')">
+           <div class="name">🔒 BIN 攻击防护</div>
+           <div class="desc">同一 BIN 高频拒付检测，10 分钟内 5+ 失败</div>
+           <div class="meta"><span class="badge">频次(笔数)</span>2 个条件</div>
+         </div>

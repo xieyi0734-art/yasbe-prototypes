@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Card Accounting - YASBee Admin Prototype</title>
+<style>
+:root {
+  --color-primary: #E59303;
+  --color-sidebar-bg: #1D2129;
+  --color-bg: #F0F2F5;
+  --color-card-bg: #FFFFFF;
+  --color-text: #1D2129;
+  --color-text-secondary: #86909C;
+  --color-border: #E5E8EB;
+  --color-success: #52C41A;
+  --color-error: #F5222D;
+  --color-warning: #FAAD14;
+  --radius: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--color-bg); color: var(--color-text); font-size: 14px;
+}
+
+/* Layout */
+.app { display: flex; min-height: 100vh; }
+.sidebar {
+  width: 240px; flex-shrink: 0; background: var(--color-sidebar-bg);
+  min-height: 100vh; display: flex; flex-direction: column;
+  position: fixed; left: 0; top: 0; bottom: 0; z-index: 100;
+}
+.sidebar-logo { padding: 20px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,.06); }
+.logo-icon { width: 32px; height: 32px; background: var(--color-primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; color: #fff; }
+.logo-text { font-size: 17px; font-weight: 700; color: #fff; }
+.sidebar-nav { flex: 1; padding: 12px 8px; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius); color: #86909C; font-size: 14px; cursor: pointer; transition: all .15s; }
+.nav-item:hover { background: rgba(255,255,255,.08); color: #fff; }
+.nav-item.active { background: var(--color-primary); color: #fff; }
+.nav-icon { font-size: 16px; width: 20px; text-align: center; }
+.nav-section { padding: 8px 12px 4px; font-size: 11px; color: #5B5F6B; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-top: 8px; }
+.sidebar-footer { padding: 16px; border-top: 1px solid rgba(255,255,255,.06); display: flex; align-items: center; gap: 10px; color: #fff; font-size: 13px; }
+.avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--color-primary); display: flex; align-items: center; justify-content: center; font-size: 14px; color: #fff; font-weight: 600; }
+
+/* Header */
+.header {
+  margin-left: 240px; padding: 16px 24px; background: #fff;
+  border-bottom: 1px solid var(--color-border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.breadcrumb { font-size: 13px; color: var(--color-text-secondary); }
+.breadcrumb span { color: var(--color-text); font-weight: 600; }
+
+/* Content */
+.content { margin-left: 240px; padding: 24px; }
+
+/* Stat Cards */
+.stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 20px; }
+.stat-card { background: var(--color-card-bg); border-radius: var(--radius); padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+.stat-label { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 6px; }
+.stat-value { font-size: 24px; font-weight: 700; color: var(--color-text); }
+.stat-sub { font-size: 12px; color: var(--color-text-secondary); margin-top: 4px; }
+.stat-sub .green { color: var(--color-success); }
+.stat-sub .red { color: var(--color-error); }
+
+/* Filters */
+.filters { background: var(--color-card-bg); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.06); display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+.filter-group { display: flex; flex-direction: column; gap: 4px; }
+.filter-group label { font-size: 12px; color: var(--color-text-secondary); font-weight: 500; }
+.filter-group input, .filter-group select {
+  padding: 6px 10px; border: 1px solid var(--color-border); border-radius: 4px;
+  font-size: 13px; outline: none; min-width: 120px; background: #fff;
+}
+.filter-group input:focus, .filter-group select:focus { border-color: var(--color-primary); box-shadow: 0 0 0 2px rgba(229,147,3,.1); }
+.filter-group input[type="date"] { min-width: 130px; }
+.btn { padding: 6px 16px; border-radius: 4px; font-size: 13px; cursor: pointer; border: 1px solid var(--color-border); background: #fff; color: var(--color-text); transition: all .15s; }
+.btn-primary { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+.btn-primary:hover { background: #d08400; }
+.btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+
+/* Table Card */
+.table-card { background: var(--color-card-bg); border-radius: var(--radius); box-shadow: 0 1px 3px rgba(0,0,0,.06); overflow: hidden; }
+.table-header { padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border); }
+.table-header h3 { font-size: 15px; font-weight: 600; }
+.table-count { font-size: 13px; color: var(--color-text-secondary); }
+
+/* Table - Horizontal Scroll */
+.table-wrap { overflow-x: auto; }
+table { min-width: 1600px; width: 100%; border-collapse: collapse; font-size: 12px; }
+thead { background: #FAFAFA; }
+th {
+  padding: 10px 10px; text-align: left; font-weight: 600; font-size: 11px;
+  color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: .3px;
+  white-space: nowrap; border-bottom: 1px solid var(--color-border); position: sticky; top: 0; background: #FAFAFA; z-index: 1;
+}
+td { padding: 10px 10px; border-bottom: 1px solid rgba(0,0,0,.04); white-space: nowrap; }
+tr:hover td { background: #F8F9FA; }
+tr:nth-child(even) td { background: #FAFAFA; }
+tr:nth-child(even):hover td { background: #F5F6F8; }
+
+/* Badges */
+.badge {
+  display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;
+}
+.badge-blue { background: #E6F7FF; color: #1890FF; }
+.badge-green { background: #DCFCE7; color: #166534; }
+.badge-red { background: #FEE2E2; color: #991B1B; }
+.badge-yellow { background: #FEF3C7; color: #92400E; }
+.badge-purple { background: #F3E8FF; color: #7C3AED; }
+.badge-orange { background: #FFF7ED; color: #C2410C; }
+.badge-gray { background: #F3F4F6; color: #6B7280; }
+
+/* Amount colors */
+.amount-positive { color: var(--color-success); font-weight: 600; }
+.amount-negative { color: var(--color-error); font-weight: 600; }
+.amount-zero { color: var(--color-text-secondary); }
+.before-after { color: var(--color-text-secondary); font-size: 12px; }
+.available-pos { color: var(--color-success); font-weight: 600; }
+.available-neg { color: var(--color-error); font-weight: 600; }
+
+/* Pagination */
+.pagination { display: flex; justify-content: flex-end; align-items: center; gap: 8px; padding: 12px 20px; border-top: 1px solid var(--color-border); }
+.page-btn {
+  padding: 4px 10px; border: 1px solid var(--color-border); border-radius: 4px;
+  background: #fff; cursor: pointer; font-size: 13px; color: var(--color-text); transition: all .15s;
+}
+.page-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.page-btn.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+.page-btn:disabled { opacity: .4; cursor: not-allowed; }
+.page-info { font-size: 13px; color: var(--color-text-secondary); margin-right: 8px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">Y</div>
+      <div class="logo-text">YASBee</div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-item"><span class="nav-icon">📊</span>Dashboard</div>
+      <div class="nav-section">Card Management</div>
+      <div class="nav-item"><span class="nav-icon">💳</span>Card List</div>
+      <div class="nav-item active"><span class="nav-icon">📋</span>Card Accounting</div>
+      <div class="nav-item"><span class="nav-icon">🔁</span>Settlement</div>
+      <div class="nav-section">Channel</div>
+      <div class="nav-item"><span class="nav-icon">📡</span>Channel Management</div>
+      <div class="nav-item"><span class="nav-icon">🃏</span>Card Service</div>
+      <div class="nav-section">System</div>
+      <div class="nav-item"><span class="nav-icon">👥</span>Users</div>
+      <div class="nav-item"><span class="nav-icon">⚙️</span>Settings</div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="avatar">D</div>
+      <div>
+        <div style="font-weight:600;font-size:13px;">Driven Xie</div>
+        <div style="font-size:11px;color:#86909C;">xieyi0734@gmail.com</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div style="flex:1;display:flex;flex-direction:column;">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="breadcrumb">Card Management / <span>Card Accounting</span></div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn" onclick="alert('Export CSV')">📥 Export</button>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+
+      <!-- Stats -->
+      <div class="stats" id="statsRow">
+        <div class="stat-card">
+          <div class="stat-label">Total Transactions</div>
+          <div class="stat-value" id="statTotalTxns">248</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Amount</div>
+          <div class="stat-value" id="statTotalAmount">$1,283,450.00</div>
+          <div class="stat-sub"><span class="green">▲ +$892,300</span> <span class="red">▼ -$391,150</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Fee</div>
+          <div class="stat-value" id="statTotalFee">$18,922.50</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Consumption Fee</div>
+          <div class="stat-value" id="statConsumpFee">$12,450.80</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Recharge Fee</div>
+          <div class="stat-value" id="statRechargeFee">$6,471.70</div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters">
+        <div class="filter-group">
+          <label>Card ID</label>
+          <input type="text" placeholder="e.g. 10001" id="filterCardId" style="width:110px;">
+        </div>
+        <div class="filter-group">
+          <label>User ID</label>
+          <input type="text" placeholder="e.g. 5001" id="filterUserId" style="width:100px;">
+        </div>
+        <div class="filter-group">
+          <label>Channel</label>
+          <select id="filterChannel">
+            <option value="">All</option>
+            <option value="interlace">Interlace</option>
+            <option value="svf">SVF</option>
+            <option value="stripe">Stripe</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Type</label>
+          <select id="filterType">
+            <option value="">All Types</option>
+            <option value="1">Recharge</option>
+            <option value="2">Consumption</option>
+            <option value="3">Refund</option>
+            <option value="4">Fee</option>
+            <option value="5">Transfer Out</option>
+            <option value="6">Reversal</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Status</label>
+          <select id="filterStatus">
+            <option value="">All Statuses</option>
+            <option value="1">Processing</option>
+            <option value="2">Success</option>
+            <option value="3">Failed</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>From</label>
+          <input type="date" id="filterDateFrom">
+        </div>
+        <div class="filter-group">
+          <label>To</label>
+          <input type="date" id="filterDateTo">
+        </div>
+        <div class="filter-group" style="align-self:flex-end;">
+          <button class="btn btn-primary" onclick="applyFilters()">🔍 Search</button>
+          <button class="btn" onclick="resetFilters()" style="margin-left:4px;">Reset</button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-card">
+        <div class="table-header">
+          <h3>📋 Transaction Records</h3>
+          <span class="table-count" id="recordCount">Showing 1–10 of 248 records</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:40px;">#</th>
+                <th>Txn ID</th>
+                <th>Client Txn ID</th>
+                <th>Card ID</th>
+                <th>User ID</th>
+                <th>Channel</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Fee</th>
+                <th>Consump. Fee</th>
+                <th>Recharge Fee</th>
+                <th>Before</th>
+                <th>After</th>
+                <th>Frozen</th>
+                <th>Available</th>
+                <th>Currency</th>
+                <th>Merchant</th>
+                <th>MCC</th>
+                <th>City</th>
+                <th>Country</th>
+                <th>State</th>
+                <th>Status</th>
+                <th>Detail</th>
+                <th>Remark</th>
+                <th>Txn Time</th>
+                <th>Complete Time</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="pagination"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ======================== MOCK DATA ========================
+var mockData = [];
+
+var channels = ['interlace', 'svf', 'stripe'];
+var types = [1, 2, 3, 4, 5, 6];
+var statuses = [1, 2, 3];
+var typeNames = {1:'Recharge', 2:'Consumption', 3:'Refund', 4:'Fee', 5:'Transfer Out', 6:'Reversal'};
+var statusNames = {1:'Processing', 2:'Success', 3:'Failed'};
+var currencies = ['USD', 'USD', 'USD', 'USD', 'EUR'];
+var merchants = [
+  'Amazon Web Services', 'Apple Inc.', 'Google LLC', 'Netflix', 'Spotify',
+  'Uber Technologies', 'DoorDash', 'Airbnb', 'Microsoft Corp', 'Starbucks',
+  'Walmart', 'Target', 'Best Buy', 'Nike', 'Adidas',
+  'Samsung Electronics', 'Sony Interactive', 'Delta Air Lines', 'Marriott Hotels', 'Hilton'
+];
+var mccList = ['5812', '5734', '5732', '5815', '5816', '5941', '5944', '5310', '5411', '5814', '7011', '4511', '7298', '5999', '5968'];
+var cities = ['San Francisco', 'New York', 'Seattle', 'Los Angeles', 'Austin', 'Chicago', 'Miami', 'Boston', 'Denver', 'Portland'];
+var countries = ['USA', 'USA', 'USA', 'USA', 'GBR', 'CAN', 'DEU', 'JPN', 'AUS', 'FRA'];
+var states = ['CA', 'NY', 'WA', 'TX', 'IL', 'FL', 'MA', 'CO', 'OR', 'AZ'];
+var details = ['Online purchase', 'Subscription', 'POS payment', 'ATM withdraw', 'Invoice payment', 'Transfer', 'Fee deduction', 'Refund', 'Chargeback'];
+var remarks = ['', '', '', '', '', 'Insufficient funds', 'Card expired', 'Fraud detected', 'Limit exceeded', 'Approved'];
+
+function padNum(n) { return String(n).padStart(6,'0'); }
+
+for (var i = 1; i <= 248; i++) {
+  var ch = channels[Math.floor(Math.random() * channels.length)];
+  var tp = types[Math.floor(Math.random() * types.length)];
+  var st = statuses[Math.floor(Math.random() * statuses.length)];
+  // Bias toward success
+  if (Math.random() < 0.6) st = 2;
+  var amount = 0;
+  if (tp === 1) { amount = parseFloat((Math.random() * 5000 + 50).toFixed(2)); }
+  else if (tp === 2) { amount = parseFloat((-Math.random() * 500 - 5).toFixed(2)); }
+  else if (tp === 3) { amount = parseFloat((Math.random() * 2000 + 20).toFixed(2)); }
+  else if (tp === 4) { amount = parseFloat((-Math.random() * 50 - 1).toFixed(2)); }
+  else if (tp === 5) { amount = parseFloat((-Math.random() * 1000 - 10).toFixed(2)); }
+  else if (tp === 6) { amount = parseFloat((Math.random() * 300 - 100).toFixed(2)); }
+  if (st === 3) amount = 0;
+
+  var fee = tp === 2 ? parseFloat((Math.random() * 3 + 0.1).toFixed(2)) : 0;
+  var consFee = tp === 2 ? parseFloat((Math.random() * 1.5).toFixed(2)) : 0;
+  var rechFee = tp === 1 ? parseFloat((Math.random() * 2).toFixed(2)) : 0;
+
+  var before = parseFloat((Math.random() * 8000 + 200).toFixed(2));
+  var after = parseFloat((before + amount).toFixed(2));
+  var frozen = parseFloat((Math.random() * 500).toFixed(2));
+  var avail = parseFloat((after - frozen).toFixed(2));
+  if (avail < 0) avail = 0;
+
+  var mIdx = Math.floor(Math.random() * merchants.length);
+  var time = new Date(2026, 5, Math.floor(Math.random() * 20) + 1, Math.floor(Math.random() * 24), Math.floor(Math.random() * 60));
+  var complete = new Date(time.getTime() + Math.floor(Math.random() * 3600000));
+
+  mockData.push({
+    id: i,
+    transactionId: 'TXN' + padNum(i),
+    clientTxnId: 'CLT-' + Math.random().toString(36).substring(2,10).toUpperCase(),
+    accountCardId: Math.floor(Math.random() * 500 + 10000),
+    userId: Math.floor(Math.random() * 500 + 5000),
+    channel: ch,
+    type: tp,
+    amount: amount,
+    fee: fee,
+    consumptionFee: consFee,
+    rechargeFee: rechFee,
+    before: before,
+    after: after,
+    frozen: frozen,
+    available: avail,
+    currency: currencies[Math.floor(Math.random() * currencies.length)],
+    merchant: merchants[mIdx],
+    mcc: mccList[Math.floor(Math.random() * mccList.length)],
+    city: cities[Math.floor(Math.random() * cities.length)],
+    country: countries[Math.floor(Math.random() * countries.length)],
+    state: states[Math.floor(Math.random() * states.length)],
+    status: st,
+    detail: details[Math.floor(Math.random() * details.length)],
+    remark: remarks[Math.floor(Math.random() * remarks.length)],
+    time: time,
+    completeTime: complete
+  });
+}
+
+// ======================== RENDER ========================
+var pageSize = 10;
+var currentPage = 1;
+var filteredData = mockData;
+
+function fmtDate(d) {
+  var dd = new Date(d);
+  return dd.toISOString().slice(0,19).replace('T',' ');
+}
+
+function fmtAmount(v, noSign) {
+  var abs = Math.abs(v).toFixed(2);
+  if (v === 0) return '<span class="amount-zero">$0.00</span>';
+  if (v > 0) return '<span class="amount-positive">' + (noSign ? '' : '+') + '$' + abs + '</span>';
+  return '<span class="amount-negative">-$' + abs + '</span>';
+}
+
+function fmtPlain(v) {
+  return '$' + Math.abs(v).toFixed(2);
+}
+
+function typeBadge(t) {
+  var map = {1:'badge-green', 2:'badge-blue', 3:'badge-yellow', 4:'badge-purple', 5:'badge-orange', 6:'badge-gray'};
+  return '<span class="badge ' + (map[t]||'badge-gray') + '">' + typeNames[t] + '</span>';
+}
+
+function statusBadge(s) {
+  var map = {1:'badge-yellow', 2:'badge-green', 3:'badge-red'};
+  return '<span class="badge ' + (map[s]||'badge-gray') + '">' + statusNames[s] + '</span>';
+}
+
+function channelBadge(c) {
+  var map = {interlace:'badge-blue', svf:'badge-purple', stripe:'badge-green'};
+  var names = {interlace:'Interlace', svf:'SVF', stripe:'Stripe'};
+  return '<span class="badge ' + (map[c]||'badge-gray') + '">' + (names[c]||c) + '</span>';
+}
+
+function renderTable() {
+  var start = (currentPage - 1) * pageSize;
+  var end = Math.min(start + pageSize, filteredData.length);
+  var pageData = filteredData.slice(start, end);
+
+  var html = '';
+  for (var i = 0; i < pageData.length; i++) {
+    var r = pageData[i];
+    var amountClass = r.amount > 0 ? 'amount-positive' : (r.amount < 0 ? 'amount-negative' : 'amount-zero');
+    var availClass = r.available > 0 ? 'available-pos' : 'available-neg';
+    html += '<tr>' +
+      '<td>' + (start + i + 1) + '</td>' +
+      '<td style="font-weight:600;font-size:11px;font-family:monospace;">' + r.transactionId + '</td>' +
+      '<td style="font-size:11px;font-family:monospace;color:var(--color-text-secondary);">' + r.clientTxnId + '</td>' +
+      '<td>' + r.accountCardId + '</td>' +
+      '<td>' + r.userId + '</td>' +
+      '<td>' + channelBadge(r.channel) + '</td>' +
+      '<td>' + typeBadge(r.type) + '</td>' +
+      '<td>' + fmtAmount(r.amount) + '</td>' +
+      '<td>' + (r.fee > 0 ? fmtAmount(r.fee, true) : '<span class="amount-zero">-</span>') + '</td>' +
+      '<td>' + (r.consumptionFee > 0 ? fmtAmount(r.consumptionFee, true) : '<span class="amount-zero">-</span>') + '</td>' +
+      '<td>' + (r.rechargeFee > 0 ? fmtAmount(r.rechargeFee, true) : '<span class="amount-zero">-</span>') + '</td>' +
+      '<td><span class="before-after">' + fmtPlain(r.before) + '</span></td>' +
+      '<td>' + fmtAmount(r.after) + '</td>' +
+      '<td><span class="before-after">' + fmtPlain(r.frozen) + '</span></td>' +
+      '<td><span class="' + availClass + '">' + fmtPlain(r.available) + '</span></td>' +
+      '<td>' + r.currency + '</td>' +
+      '<td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;" title="' + r.merchant + '">' + r.merchant + '</td>' +
+      '<td style="font-family:monospace;font-size:11px;">' + r.mcc + '</td>' +
+      '<td>' + r.city + '</td>' +
+      '<td>' + r.country + '</td>' +
+      '<td>' + r.state + '</td>' +
+      '<td>' + statusBadge(r.status) + '</td>' +
+      '<td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;color:var(--color-text-secondary);font-size:11px;" title="' + r.detail + '">' + r.detail + '</td>' +
+      '<td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;color:var(--color-text-secondary);font-size:11px;" title="' + r.remark + '">' + (r.remark || '-') + '</td>' +
+      '<td style="font-size:11px;color:var(--color-text-secondary);">' + fmtDate(r.time) + '</td>' +
+      '<td style="font-size:11px;color:var(--color-text-secondary);">' + fmtDate(r.completeTime) + '</td>' +
+      '</tr>';
+  }
+  document.getElementById('tableBody').innerHTML = html;
+  document.getElementById('recordCount').innerText = 'Showing ' + (start+1) + '–' + end + ' of ' + filteredData.length + ' records';
+  renderPagination();
+  updateStats();
+}
+
+function renderPagination() {
+  var totalPages = Math.ceil(filteredData.length / pageSize);
+  var html = '<span class="page-info">Page ' + currentPage + ' of ' + totalPages + '</span>';
+  html += '<button class="page-btn" onclick="goPage(1)" ' + (currentPage === 1 ? 'disabled' : '') + '>«</button>';
+  html += '<button class="page-btn" onclick="goPage(' + (currentPage - 1) + ')" ' + (currentPage === 1 ? 'disabled' : '') + '>‹</button>';
+
+  var startPage = Math.max(1, currentPage - 2);
+  var endPage = Math.min(totalPages, currentPage + 2);
+  for (var p = startPage; p <= endPage; p++) {
+    html += '<button class="page-btn' + (p === currentPage ? ' active' : '') + '" onclick="goPage(' + p + ')">' + p + '</button>';
+  }
+
+  html += '<button class="page-btn" onclick="goPage(' + (currentPage + 1) + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>›</button>';
+  html += '<button class="page-btn" onclick="goPage(' + totalPages + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>»</button>';
+  document.getElementById('pagination').innerHTML = html;
+}
+
+function goPage(p) {
+  if (p < 1 || p > Math.ceil(filteredData.length / pageSize)) return;
+  currentPage = p;
+  renderTable();
+}
+
+function updateStats() {
+  var totalTxns = filteredData.length;
+  var totalAmount = 0, totalFee = 0, totalConsFee = 0, totalRechFee = 0;
+  var posSum = 0, negSum = 0;
+  for (var i = 0; i < filteredData.length; i++) {
+    var r = filteredData[i];
+    totalAmount += r.amount;
+    totalFee += r.fee;
+    totalConsFee += r.consumptionFee;
+    totalRechFee += r.rechargeFee;
+    if (r.amount > 0) posSum += r.amount;
+    if (r.amount < 0) negSum += r.amount;
+  }
+  document.getElementById('statTotalTxns').innerText = totalTxns;
+  document.getElementById('statTotalAmount').innerText = '$' + totalAmount.toFixed(2);
+  document.getElementById('statTotalFee').innerText = '$' + totalFee.toFixed(2);
+  document.getElementById('statConsumpFee').innerText = '$' + totalConsFee.toFixed(2);
+  document.getElementById('statRechargeFee').innerText = '$' + totalRechFee.toFixed(2);
+
+  var subRow = document.querySelector('.stat-card:nth-child(2) .stat-sub');
+  if (subRow) {
+    subRow.innerHTML = '<span class="green">▲ +$' + posSum.toFixed(2) + '</span> <span class="red">▼ -$' + Math.abs(negSum).toFixed(2) + '</span>';
+  }
+}
+
+// ======================== FILTERS ========================
+function applyFilters() {
+  var cardId = document.getElementById('filterCardId').value.trim();
+  var userId = document.getElementById('filterUserId').value.trim();
+  var channel = document.getElementById('filterChannel').value;
+  var type = document.getElementById('filterType').value;
+  var status = document.getElementById('filterStatus').value;
+  var dateFrom = document.getElementById('filterDateFrom').value;
+  var dateTo = document.getElementById('filterDateTo').value;
+
+  filteredData = mockData.filter(function(r) {
+    if (cardId && String(r.accountCardId) !== cardId) return false;
+    if (userId && String(r.userId) !== userId) return false;
+    if (channel && r.channel !== channel) return false;
+    if (type && String(r.type) !== type) return false;
+    if (status && String(r.status) !== status) return false;
+    if (dateFrom) {
+      var from = new Date(dateFrom);
+      if (r.time < from) return false;
+    }
+    if (dateTo) {
+      var to = new Date(dateTo);
+      to.setHours(23,59,59,999);
+      if (r.time > to) return false;
+    }
+    return true;
+  });
+
+  currentPage = 1;
+  renderTable();
+}
+
+function resetFilters() {
+  document.getElementById('filterCardId').value = '';
+  document.getElementById('filterUserId').value = '';
+  document.getElementById('filterChannel').value = '';
+  document.getElementById('filterType').value = '';
+  document.getElementById('filterStatus').value = '';
+  document.getElementById('filterDateFrom').value = '';
+  document.getElementById('filterDateTo').value = '';
+  filteredData = mockData;
+  currentPage = 1;
+  renderTable();
+}
+
+// ======================== INIT ========================
+renderTable();
+</script>
+</body>
+</html>

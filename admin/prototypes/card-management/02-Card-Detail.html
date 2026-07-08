@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>原型 - 卡片详情</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased; color: #1D2129; background: #F3F4F6; line-height: 1.5; }
+.sidebar { width: 260px; background: #1D2129; color: #fff; height: 100vh; position: fixed; left: 0; top: 0; overflow-y: auto; }
+.sidebar-item { display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #9CA3AF; font-size: 14px; cursor: pointer; transition: all .15s; }
+.sidebar-item:hover { color: #fff; background: rgba(255,255,255,.05); }
+.sidebar-item.active { color: #E59303; background: rgba(229,147,3,.1); border-right: 3px solid #E59303; }
+.sidebar-header { padding: 20px; font-size: 20px; font-weight: 700; color: #E59303; border-bottom: 1px solid rgba(255,255,255,.1); }
+.main { margin-left: 260px; padding: 24px; }
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.breadcrumb { font-size: 14px; color: #86909C; }
+.breadcrumb span { color: #1D2129; }
+.stat-card { background: #fff; border-radius: 12px; border: 1px solid #E5E7EB; padding: 20px; }
+.card-visual { background: linear-gradient(135deg, #1D2129 0%, #374151 100%); border-radius: 16px; padding: 24px; color: #fff; width: 100%; max-width: 400px; box-shadow: 0 8px 30px rgba(0,0,0,.15); }
+.card-visual .chip { width: 40px; height: 30px; background: linear-gradient(135deg, #f6d365, #fda085); border-radius: 4px; }
+.tabs { display: flex; gap: 4px; background: #F3F4F6; padding: 4px; border-radius: 8px; }
+.tab { padding: 8px 20px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; color: #4B5563; transition: all .15s; }
+.tab.active { background: #E59303; color: #fff; }
+.ant-table { width: 100%; background: #fff; border-radius: 12px; border: 1px solid #E5E7EB; overflow: hidden; }
+.ant-table thead th { background: #F9FAFB; padding: 10px 14px; font-size: 12px; font-weight: 500; color: #6B7280; text-align: left; border-bottom: 1px solid #E5E7EB; }
+.ant-table tbody td { padding: 10px 14px; font-size: 13px; border-bottom: 1px solid #F3F4F6; }
+.ant-table tbody tr:hover { background: #F9FAFB; }
+.btn-primary { background: #E59303; color: #fff; border: none; border-radius: 8px; padding: 8px 20px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all .15s; }
+.btn-primary:hover { background: #d48402; }
+.btn-ghost { background: transparent; color: #E59303; border: 1px solid #E59303; border-radius: 8px; padding: 8px 16px; font-size: 13px; cursor: pointer; transition: all .15s; }
+.btn-ghost:hover { background: rgba(229,147,3,.08); }
+.btn-xs { padding: 4px 10px; font-size: 12px; border-radius: 6px; }
+.badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+.badge-active { background: #DCFCE7; color: #166534; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: flex; align-items: center; justify-content: center; z-index: 1000; overflow-y: auto; }
+.modal { background: #fff; border-radius: 16px; padding: 24px; width: 480px; max-width: 90vw; box-shadow: 0 20px 60px rgba(0,0,0,.15); margin: auto; }
+.modal-title { font-size: 18px; font-weight: 600; margin-bottom: 20px; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+<div class="sidebar-header">YASBee 管理后台</div>
+<div style="padding: 12px 0;">
+<div class="sidebar-item"><span>📊</span> 仪表盘</div>
+<div class="sidebar-item"><span>🪪</span> 客户管理 <span style="margin-left:auto;font-size:10px;">▾</span></div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📈 概览</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">✅ 审核验证</div>
+<div class="sidebar-item"><span>💳</span> 卡片管理</div>
+<div class="sidebar-item"><span>🌐</span> 渠道管理 <span style="margin-left:auto;font-size:10px;">▾</span></div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📡 渠道管理</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">🃏 卡务管理</div>
+<div class="sidebar-item"><span>📈</span> 投资管理</div>
+<div class="sidebar-item"><span>⚙️</span> 系统管理</div>
+</div>
+</div>
+
+<!-- Main -->
+<div class="main">
+<!-- Breadcrumb -->
+<div class="breadcrumb" style="margin-bottom:8px;">
+客户管理 / 客户列表 / 客户详情 / <span>卡片详情</span>
+</div>
+
+<!-- Header -->
+<div class="page-header" style="margin-bottom:16px;">
+<div style="display:flex;align-items:center;gap:12px;">
+<span style="font-size:20px;cursor:pointer;color:#86909C;" onclick="history.back()">‹ 返回</span>
+<h1 style="font-size:22px;font-weight:700;">卡片详情</h1>
+<span class="badge badge-active">使用中</span>
+</div>
+<div style="display:flex;gap:8px;">
+<button class="btn-ghost btn-xs" onclick="openFreezeModal('•••• •••• •••• 4821')">🔒 冻结</button>
+<button class="btn-ghost btn-xs" style="opacity:.4;cursor:not-allowed;" disabled>📌 占位</button>
+</div>
+</div>
+
+<div style="display:flex;gap:24px;margin-bottom:20px;">
+<!-- Card Visual + 已隐藏 Tab -->
+<div style="flex:0 0 auto;">
+<div class="card-visual">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;">
+<div class="chip"></div>
+<span style="font-size:11px;color:rgba(255,255,255,.6);">YASBee · 虚拟卡</span>
+</div>
+<div style="font-size:20px;font-family:monospace;letter-spacing:2px;margin-bottom:16px;">•••• •••• •••• 4821</div>
+<div style="display:flex;justify-content:space-between;font-size:12px;color:rgba(255,255,255,.7);">
+<div>CARD HOLDER<br><span style="font-size:14px;color:#fff;font-weight:600;">John Smith</span></div>
+<div>EXPIRY<br><span style="font-size:14px;color:#fff;font-weight:600;">12/27</span></div>
+<div>安全码<br><span style="font-size:14px;color:#fff;font-weight:600;">•••</span></div>
+</div>
+</div>
+<!-- 已隐藏 Info -->
+<div style="margin-top:8px;">
+<div class="tabs" style="background:transparent;padding:0;">
+<div class="tab active" style="background:#E59303;color:#fff;" onclick="switchCardTab('detail')">显示详情</div>
+<div class="tab" onclick="switchCardTab('hidden')" style="position:relative;">
+已隐藏
+<span style="font-size:10px;color:#E59303;margin-left:4px;">🔒</span>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Right: Fin Stats + 卡片信息 -->
+<div style="flex:1;">
+<!-- 4-Col Financial Stats -->
+<div class="grid-4" style="margin-bottom:16px;">
+<div class="stat-card" style="padding:16px;">
+<div style="font-size:12px;color:#86909C;">可用余额</div>
+<div style="font-size:22px;font-weight:700;color:#166534;">$5,200.00</div>
+</div>
+<div class="stat-card" style="padding:16px;">
+<div style="font-size:12px;color:#86909C;">总支出</div>
+<div style="font-size:22px;font-weight:700;">$12,340.00</div>
+</div>
+<div class="stat-card" style="padding:16px;">
+<div style="font-size:12px;color:#86909C;">Total 退款</div>
+<div style="font-size:22px;font-weight:700;color:#059669;">$340.00</div>
+</div>
+<div class="stat-card" style="padding:16px;">
+<div style="font-size:12px;color:#86909C;">Total 充值</div>
+<div style="font-size:22px;font-weight:700;color:#059669;">$17,200.00</div>
+</div>
+</div>
+
+<!-- 卡片信息 Grid -->
+<div style="background:#fff;border-radius:12px;border:1px solid #E5E7EB;padding:20px;">
+<div style="font-size:15px;font-weight:600;margin-bottom:16px;">卡片信息</div>
+<div class="grid-3">
+<div>
+<div style="font-size:12px;color:#86909C;">Tag</div>
+<div style="font-size:14px;font-weight:500;display:flex;align-items:center;gap:6px;">
+<span class="badge" style="background:#EDE9FE;color:#6D28D9;font-size:12px;">营销推广</span>
+<span style="font-size:12px;color:#E59303;cursor:pointer;">✎</span>
+</div>
+</div>
+<div>
+<div style="font-size:12px;color:#86909C;">邮箱</div>
+<div style="font-size:14px;font-weight:500;">john.smith@company.com</div>
+</div>
+<div>
+<div style="font-size:12px;color:#86909C;">场景</div>
+<div style="font-size:14px;font-weight:500;display:flex;align-items:center;gap:6px;">
+<span>数字广告</span>
+<span style="font-size:12px;color:#E59303;cursor:pointer;">✎</span>
+</div>
+</div>
+<div>
+<div style="font-size:12px;color:#86909C;">账单地址</div>
+<div style="font-size:14px;font-weight:500;">123 Market St, San Francisco, CA</div>
+</div>
+<div>
+<div style="font-size:12px;color:#86909C;">费用 Group</div>
+<div style="font-size:14px;font-weight:500;display:flex;align-items:center;gap:6px;">
+<span>标准</span>
+<span style="font-size:12px;color:#E59303;cursor:pointer;">✎</span>
+</div>
+</div>
+<div>
+<div style="font-size:12px;color:#86909C;">创建时间</div>
+<div style="font-size:14px;font-weight:500;">2026-03-15 10:32 UTC</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- 交易记录 Table -->
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+<h2 style="font-size:17px;font-weight:600;">交易记录</h2>
+<button class="btn-primary btn-xs" onclick="document.getElementById('addRecordModal').style.display='flex'">+ 新增记录</button>
+</div>
+
+    <table class="ant-table">
+    <thead>
+    <tr>
+    <th>时间</th>
+    <th>ID</th>
+    <th>类型</th>
+    <th>显示详情</th>
+    <th>备注</th>
+    <th>金额</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+    <td style="font-size:12px;color:#86909C;">2026-05-20 14:32</td>
+    <td style="font-family:monospace;font-size:12px;">TXN-4821-001</td>
+    <td><span class="badge" style="background:#DBEAFE;color:#1E40AF;">消费</span></td>
+    <td>Google Ads #May Campaign</td>
+    <td style="font-size:12px;color:#86909C;">—</td>
+    <td style="font-weight:600;color:#DC2626;">-$1,200.00</td>
+    </tr>
+    <tr>
+    <td style="font-size:12px;color:#86909C;">2026-05-19 09:15</td>
+    <td style="font-family:monospace;font-size:12px;">TXN-4821-002</td>
+    <td><span class="badge" style="background:#D1FAE5;color:#065F46;">充值</span></td>
+    <td>钱包充值</td>
+    <td style="color:#E59303;font-size:12px;">运营充值</td>
+    <td style="font-weight:600;color:#059669;">+$5,000.00</td>
+
+    </tr>
+    <tr>
+    <td style="font-size:12px;color:#86909C;">2026-05-18 16:44</td>
+    <td style="font-family:monospace;font-size:12px;">TXN-4821-003</td>
+    <td><span class="badge" style="background:#FEF3C7;color:#92400E;">退款</span></td>
+    <td>Google Ads 充值</td>
+    <td style="font-size:12px;color:#86909C;">—</td>
+    <td style="font-weight:600;color:#059669;">+$120.00</td>
+    </tr>
+    <tr>
+    <td style="font-size:12px;color:#86909C;">2026-05-17 08:00</td>
+    <td style="font-family:monospace;font-size:12px;">FEE-4821-001</td>
+    <td><span class="badge" style="background:#F3E8FF;color:#7C3AED;">费用</span></td>
+    <td>月费（2026年5月）</td>
+    <td style="font-size:12px;color:#86909C;">—</td>
+    <td style="font-weight:600;color:#DC2626;">-$0.25</td>
+    </tr>
+    <tr>
+    <td style="font-size:12px;color:#86909C;">2026-05-15 11:20</td>
+    <td style="font-family:monospace;font-size:12px;">TXN-4821-004</td>
+    <td><span class="badge" style="background:#DBEAFE;color:#1E40AF;">消费</span></td>
+    <td>Meta Ads Q2 推广</td>
+    <td style="font-size:12px;color:#86909C;">—</td>
+    <td style="font-weight:600;color:#DC2626;">-$3,450.00</td>
+    </tr>
+    </tbody>
+  </table>
+
+<!-- Pagination -->
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-size:13px;color:#86909C;">
+<div>显示 1-5 条，共 24 条</div>
+<div style="display:flex;gap:4px;">
+<button style="padding:4px 8px;border:1px solid #D1D5DB;border-radius:4px;background:#fff;cursor:pointer;">‹</button>
+<button style="padding:4px 10px;border:1px solid #E59303;border-radius:4px;background:#E59303;color:#fff;cursor:pointer;">1</button>
+<button style="padding:4px 10px;border:1px solid #D1D5DB;border-radius:4px;background:#fff;cursor:pointer;">2</button>
+<button style="padding:4px 10px;border:1px solid #D1D5DB;border-radius:4px;background:#fff;cursor:pointer;">3</button>
+<button style="padding:4px 10px;border:1px solid #D1D5DB;border-radius:4px;background:#fff;cursor:pointer;">5</button>
+<button style="padding:4px 8px;border:1px solid #D1D5DB;border-radius:4px;background:#fff;cursor:pointer;">›</button>
+</div>
+</div>
+</div>
+
+<!-- 编辑卡片弹窗 -->
+<div class="modal-overlay" id="editModal" style="display:none;">
+<div class="modal">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+<div class="modal-title">编辑卡片</div>
+<span style="font-size:24px;cursor:pointer;color:#86909C;" onclick="document.getElementById('editModal').style.display='none'">✕</span>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;">
+<div>
+<label style="font-size:14px;font-weight:500;color:#4B5563;">Tag</label>
+<input type="text" value="营销推广" style="width:100%;margin-top:6px;border:1px solid #D1D5DB;border-radius:8px;padding:10px 12px;font-size:14px;">
+</div>
+<div>
+<label style="font-size:14px;font-weight:500;color:#4B5563;">场景</label>
+<input type="text" value="数字广告" style="width:100%;margin-top:6px;border:1px solid #D1D5DB;border-radius:8px;padding:10px 12px;font-size:14px;">
+</div>
+<div>
+<label style="font-size:14px;font-weight:500;color:#4B5563;">费用 Group</label>
+<select style="width:100%;margin-top:6px;border:1px solid #D1D5DB;border-radius:8px;padding:10px 12px;font-size:14px;">
+<option selected>标准</option>
+<option>高级</option>
+<option>企业</option>
+</select>
+</div>
+<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;">
+<button style="padding:10px 24px;border:1px solid #D1D5DB;border-radius:8px;background:#fff;cursor:pointer;font-size:14px;" onclick="document.getElementById('editModal').style.display='none'">取消</button>
+<button class="btn-primary" onclick="alert('Saved! (prototype)')">保存更改</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- 新增记录 Modal -->
+<div class="modal-overlay" id="addRecordModal" style="display:none;">
+<div class="modal">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+<div class="modal-title">新增交易记录</div>
+<span style="font-size:24px;cursor:pointer;color:#86909C;" onclick="document.getElementById('addRecordModal').style.display='none'">✕</span>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+<div>
+<label style="font-size:14px;font-weight:500;color:#4B5563;">类型</label>
+<select style="width:100%;margin-top:6px;border:1px solid #D1D5DB;border-radius:8px;padding:10px 12px;font-size:14px;">
+<option>充值</option>
+<option>退款</option>
+<option>费用 Adjustment</option>
+</select>
+</div>
+<div>
+<label style="font-size:14px;font-weight:500;color:#4B5563;">金额 (USD)</label>
+<input type="number" placeholder="0.00" style="width:100%;margin-top:6px;border:1px solid #D1D5DB;border-radius:8px;padding:10px 12px;font-size:14px;">
+</div>
+</div>
+<div>
+<label style="font-size:14px;font-weight:500;color:#4B5563;">显示详情 / 备注</label>
+<textarea style="width:100%;margin-top:6px;border:1px solid #D1D5DB;border-radius:8px;padding:10px 12px;font-size:14px;resize:vertical;min-height:60px;" placeholder="Describe this record..."></textarea>
+</div>
+<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;">
+<button style="padding:10px 24px;border:1px solid #D1D5DB;border-radius:8px;background:#fff;cursor:pointer;font-size:14px;" onclick="document.getElementById('addRecordModal').style.display='none'">取消</button>
+<button class="btn-primary" onclick="alert('Record added! (prototype)')">新增记录</button>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+function switchCardTab(tab) {
+alert('Tab switched to ' + tab + ' (prototype)\n\n已隐藏 Tab: Shows full card number, CVV, expiry — requires wind control/admin permission.');
+}
+function confirmDelete(btn) {
+if (confirm('Delete this record? This will hide it from the user side. An audit log will be kept.')) {
+btn.closest('tr').style.opacity = '.3';
+}
+}
+function openFreezeModal(cardId) {
+document.getElementById('freezeCardId2').textContent = cardId;
+document.getElementById('freezeModal2').style.display = 'flex';
+}
+function closeFreezeModal2() {
+document.getElementById('freezeModal2').style.display = 'none';
+}
+</script>
+
+<!-- Freeze Card Modal -->
+<div class="modal-overlay" id="freezeModal2" style="display:none;">
+<div class="modal" style="width:480px;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+<div class="modal-title">🔒 冻结卡片</div>
+<span style="font-size:24px;cursor:pointer;color:#86909C;" onclick="closeFreezeModal2()">✕</span>
+</div>
+<div style="padding:12px;background:#F9FAFB;border-radius:8px;margin-bottom:20px;font-size:14px;">
+卡片: <strong id="freezeCardId2">•••• 4821</strong>
+</div>
+<div class="form-group">
+<label>冻结原因</label>
+<select style="width:100%;border:1px solid #D1D5DB;border-radius:8px;padding:10px 12px;font-size:14px;outline:none;">
+<option value="">请选择原因</option>
+<option>客户申请冻结</option>
+<option>疑似盗刷</option>
+<option>风控规则触发</option>
+<option>账户异常</option>
+<option>其他</option>
+</select>
+</div>
+<div class="form-group">
+<label>备注（可选）</label>
+<input type="text" placeholder="补充冻结说明">
+</div>
+<div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:12px;font-size:13px;color:#991B1B;margin-bottom:16px;">
+⚠️ 冻结后卡片将无法进行任何交易，解冻需人工操作
+</div>
+<div style="display:flex;gap:8px;justify-content:flex-end;">
+<button style="padding:10px 24px;border:1px solid #D1D5DB;border-radius:8px;background:#fff;cursor:pointer;font-size:14px;" onclick="closeFreezeModal2()">取消</button>
+<button style="background:#DC2626;color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:14px;font-weight:500;cursor:pointer;" onclick="alert('卡片已冻结！(Prototype)');closeFreezeModal2()">确认冻结</button>
+</div>
+</div>
+</div>
+
+</body>
+</html>

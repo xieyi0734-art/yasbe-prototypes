@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YASBee 卡片账务功能架构图</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 40px;
+  display: flex;
+  justify-content: center;
+}
+.container { max-width: 1300px; width: 100%; }
+h1 {
+  font-size: 28px; font-weight: 700;
+  margin-bottom: 6px;
+  display: flex; align-items: center; gap: 12px;
+}
+h1 span { color: #f59f00; }
+.subtitle { color: #64748b; font-size: 14px; margin-bottom: 32px; }
+.arch-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+/* ===== Row ===== */
+.row { display: flex; gap: 16px; }
+.row-label {
+  writing-mode: vertical-lr;
+  text-orientation: mixed;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 3px;
+  padding: 12px 6px;
+  display: flex; align-items: center; justify-content: center;
+  min-width: 28px;
+  border-right: 1px solid #1e293b;
+}
+/* ===== Module Card ===== */
+.module {
+  flex: 1;
+  border-radius: 12px;
+  padding: 20px 18px;
+  border: 1.5px solid;
+  position: relative;
+  min-width: 0;
+}
+.module-header {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 14px; font-weight: 700;
+  margin-bottom: 12px;
+}
+.module-header .icon { font-size: 18px; }
+.fields { display: flex; flex-direction: column; gap: 4px; }
+.fields .field {
+  font-size: 11.5px;
+  color: #94a3b8;
+  padding: 3px 8px;
+  background: rgba(255,255,255,.04);
+  border-radius: 4px;
+  display: flex; align-items: center; gap: 6px;
+}
+.fields .field .tag {
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+/* ===== Color themes ===== */
+/* Layer 1 - 账户/总览 */
+.module-account {
+  background: rgba(8, 51, 68, .35);
+  border-color: #22d3ee;
+}
+.module-account .module-header { color: #22d3ee; }
+/* Layer 2 - 交易/操作 */
+.module-transaction {
+  background: rgba(6, 78, 59, .35);
+  border-color: #34d399;
+}
+.module-transaction .module-header { color: #34d399; }
+/* Layer 3 - 结算/对账 */
+.module-settlement {
+  background: rgba(76, 29, 149, .35);
+  border-color: #a78bfa;
+}
+.module-settlement .module-header { color: #a78bfa; }
+/* Layer 4 - 异常/退款 */
+.module-exception {
+  background: rgba(136, 19, 55, .35);
+  border-color: #fb7185;
+}
+.module-exception .module-header { color: #fb7185; }
+/* Layer 5 - 报表 */
+.module-report {
+  background: rgba(120, 53, 15, .3);
+  border-color: #fbbf24;
+}
+.module-report .module-header { color: #fbbf24; }
+/* Layer 6 - 手续费 */
+.module-fee {
+  background: rgba(251, 146, 60, .25);
+  border-color: #fb923c;
+}
+.module-fee .module-header { color: #fb923c; }
+
+/* Tags */
+.tag-cyan { background: rgba(34,211,238,.15); color: #22d3ee; }
+.tag-green { background: rgba(52,211,153,.15); color: #34d399; }
+.tag-violet { background: rgba(167,139,250,.15); color: #a78bfa; }
+.tag-rose { background: rgba(251,113,133,.15); color: #fb7185; }
+.tag-amber { background: rgba(251,191,36,.15); color: #fbbf24; }
+.tag-orange { background: rgba(251,146,60,.15); color: #fb923c; }
+
+/* ===== Flow Arrows ===== */
+.flow-row {
+  display: flex; align-items: center; justify-content: center;
+  padding: 4px 0;
+  gap: 8px;
+}
+.flow-arrow {
+  display: flex; align-items: center;
+  font-size: 11px;
+  color: #475569;
+  gap: 4px;
+}
+.flow-arrow svg { fill: #475569; }
+.flow-label {
+  font-size: 10px;
+  color: #64748b;
+  background: rgba(255,255,255,.04);
+  padding: 2px 10px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+/* ===== Permission ===== */
+.permission-bar {
+  margin-top: 32px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+.perm-card {
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.perm-card h3 {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 8px;
+}
+.perm-card .role-tag {
+  font-size: 10px;
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+.perm-card ul {
+  list-style: none;
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.perm-card ul li {
+  font-size: 11px;
+  color: #94a3b8;
+  padding: 3px 10px;
+  background: rgba(255,255,255,.04);
+  border-radius: 6px;
+}
+
+/* ===== Legend ===== */
+.legend {
+  display: flex; gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  padding: 14px 18px;
+  background: rgba(255,255,255,.03);
+  border-radius: 10px;
+  border: 1px solid #1e293b;
+}
+.legend-item {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11.5px; color: #94a3b8;
+}
+.legend-dot {
+  width: 12px; height: 12px;
+  border-radius: 3px;
+}
+
+/* ===== Dividers ===== */
+.layer-divider {
+  display: flex; align-items: center;
+  gap: 12px;
+  padding: 2px 0;
+}
+.layer-divider .line { flex: 1; height: 1px; background: linear-gradient(to right, transparent, #1e293b, transparent); }
+.layer-divider .label {
+  font-size: 10px; color: #475569;
+  white-space: nowrap;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+/* ===== Badge ===== */
+.module-badge {
+  position: absolute;
+  top: -8px; right: 14px;
+  font-size: 9px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-weight: 700;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1><span>YASBee</span> 管理端卡片账务功能架构图</h1>
+  <div class="subtitle">Card Financial Module — Admin Architecture v1.0</div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#22d3ee;"></div> 账户基础</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#34d399;"></div> 交易操作</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#a78bfa;"></div> 结算对账</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#fb7185;"></div> 异常处理</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#fbbf24;"></div> 报表分析</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#fb923c;"></div> 费用管理</div>
+  </div>
+
+  <!-- ====== LAYER 1: 账户总览 ====== -->
+  <div class="arch-grid">
+    <div class="row">
+      <div class="module module-account" style="flex:1.2;">
+        <div class="module-header"><span class="icon">🏦</span> 卡片账户总览</div>
+        <div class="fields">
+          <div class="field"><span class="tag tag-cyan">主键</span> 卡号 (CardNo) / 用户ID (UserId)</div>
+          <div class="field"><span class="tag tag-cyan">余额</span> 当前余额 (Balance) / 冻结金额 (FrozenAmt)</div>
+          <div class="field"><span class="tag tag-cyan">统计</span> 总充值 (TotalTopup) / 总消费 (TotalConsume)</div>
+          <div class="field"><span class="tag tag-cyan">状态</span> 卡片状态 (Status) / 激活时间 / 过期时间</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flow arrow -->
+    <div class="flow-row">
+      <div class="flow-arrow">查看余额/状态 <svg width="48" height="12" viewBox="0 0 48 12"><path d="M0 5h36l-5-5h2l6 6-6 6h-2l5-5H0z"/></svg> 点击卡片</div>
+    </div>
+
+    <!-- ====== LAYER 2: 交易流水 + 充值扣款 ====== -->
+    <div class="row">
+      <div class="module module-transaction">
+        <div class="module-header"><span class="icon">📋</span> 交易流水查询</div>
+        <div class="fields">
+          <div class="field"><span class="tag tag-green">类型</span> 充值 | 消费 | 退款 | 手续费 | 冻结/解冻</div>
+          <div class="field"><span class="tag tag-green">字段</span> 交易ID / 卡号 / 金额 / 币种 / 时间 / 状态</div>
+          <div class="field"><span class="tag tag-green">筛选</span> 时间范围 / 交易类型 / 金额区间 / 状态</div>
+          <div class="field"><span class="tag tag-green">状态</span> 待处理 / 成功 / 失败 / 申诉中</div>
+        </div>
+      </div>
+      <div class="module module-transaction">
+        <div class="module-header"><span class="icon">💰</span> 充值/扣款管理</div>
+        <div class="fields">
+          <div class="field"><span class="tag tag-green">手动</span> 单笔充值(MANUAL_DEPOSIT) / 单笔扣款(MANUAL_DEDUCT)</div>
+          <div class="field"><span class="tag tag-green">批量</span> CSV导入 / 批量扣款 / 批量充值</div>
+          <div class="field"><span class="tag tag-green">审计</span> 操作人(Operator) / 备注(Remark) / 操作时间</div>
+          <div class="field"><span class="tag tag-green">校验</span> 余额校验 / 限额校验 / 重复校验</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flow arrow -->
+    <div class="flow-row">
+      <div class="flow-arrow">充值/扣款 → 写入交易流水 <svg width="60" height="12" viewBox="0 0 60 12"><path d="M0 5h48l-5-5h2l6 6-6 6h-2l5-5H0z"/></svg> 进入结算对账</div>
+    </div>
+
+    <!-- ====== LAYER 3: 结算对账 ====== -->
+    <div class="row">
+      <div class="module module-settlement">
+        <div class="module-header"><span class="icon">🔄</span> 结算与对账</div>
+        <div class="fields">
+          <div class="field"><span class="tag tag-violet">平台账</span> 平台交易记录 (PlatformTx) / 内部记账</div>
+          <div class="field"><span class="tag tag-violet">渠道账</span> Interlace/发卡机构对账文件 (ChannelTx)</div>
+          <div class="field"><span class="tag tag-violet">对账</span> 逐笔匹配 / 金额核对 / 状态比对</div>
+          <div class="field"><span class="tag tag-violet">状态</span> 未对账 / 已对平 / 差异待处理 / 已调整</div>
+          <div class="field"><span class="tag tag-violet">差异</span> 差异金额 / 差异原因 / 处理人 / 处理方式</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flow arrow -->
+    <div class="flow-row">
+      <div class="flow-arrow">对账完成 → 计算手续费 <svg width="60" height="12" viewBox="0 0 60 12"><path d="M0 5h48l-5-5h2l6 6-6 6h-2l5-5H0z"/></svg> 处理差异</div>
+    </div>
+
+    <!-- ====== LAYER 4: 手续费 + 异常 ====== -->
+    <div class="row">
+      <div class="module module-fee" style="flex:0.9;">
+        <div class="module-header"><span class="icon">⚙️</span> 手续费管理</div>
+        <div class="fields">
+          <div class="field"><span class="tag tag-orange">渠道费</span> 支付网络手续费 (NetworkFee)</div>
+          <div class="field"><span class="tag tag-orange">银行费</span> 发卡机构处理费 (BankFee / Interchange)</div>
+          <div class="field"><span class="tag tag-orange">平台收入</span> 用户侧费用 - 渠道成本 = 平台毛利</div>
+          <div class="field"><span class="tag tag-orange">统计</span> 总手续费 / 净收入 / 费率区间</div>
+        </div>
+      </div>
+      <div class="module module-exception" style="flex:1.1;">
+        <div class="module-header"><span class="icon">⚠️</span> 异常与退款处理</div>
+        <div class="fields">
+          <div class="field"><span class="tag tag-rose">标记</span> 标记异常交易（原因、截图、凭证）</div>
+          <div class="field"><span class="tag tag-rose">退款</span> 发起退款 → 金额返还 → 冲销流水</div>
+          <div class="field"><span class="tag tag-rose">调整</span> 余额调整(ADJUST) / 冻结/解冻(FREEZE/UNFREEZE)</div>
+          <div class="field"><span class="tag tag-rose">审核</span> 异常单流转: 提交 → 运营初审 → 财务复核 → 完成</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flow arrow -->
+    <div class="flow-row">
+      <div class="flow-arrow">确认收入 → 聚合报表 <svg width="60" height="12" viewBox="0 0 60 12"><path d="M0 5h48l-5-5h2l6 6-6 6h-2l5-5H0z"/></svg> 异常数据进入专用报表</div>
+    </div>
+
+    <!-- ====== LAYER 5: 报表分析 ====== -->
+    <div class="row">
+      <div class="module module-report">
+        <div class="module-header"><span class="icon">📊</span> 报表与分析</div>
+        <div class="fields">
+          <div class="field"><span class="tag tag-amber">余额报表</span> 日/月余额汇总 / 账户余额分布 / 余额变动趋势</div>
+          <div class="field"><span class="tag tag-amber">收入/成本</span> 总充值 / 手续费收入 / 渠道成本 / 净收入</div>
+          <div class="field"><span class="tag tag-amber">对账报表</span> 对账汇总 / 差异明细 / 对账完成率 / 日/月报告</div>
+          <div class="field"><span class="tag tag-amber">异常报表</span> 异常交易统计 / 退款率 / 处理时效 / 分类分析</div>
+          <div class="field"><span class="tag tag-amber">导出</span> CSV / Excel / PDF 导出，支持定时推送</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== PERMISSION ====== -->
+  <h2 style="font-size:18px;margin-top:36px;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
+    🔐 权限矩阵
+  </h2>
+  <div class="permission-bar">
+    <div class="perm-card">
+      <h3>
+        👤 财务人员
+        <span class="role-tag" style="background:rgba(34,211,238,.15);color:#22d3ee;">Finance</span>
+      </h3>
+      <ul>
+        <li>查看交易流水</li>
+        <li>手动充值/扣款</li>
+        <li>结算对账操作</li>
+        <li>手续费管理</li>
+        <li>导出报表</li>
+        <li>收入成本分析</li>
+      </ul>
+    </div>
+    <div class="perm-card">
+      <h3>
+        🛠️ 运营/客服
+        <span class="role-tag" style="background:rgba(251,113,133,.15);color:#fb7185;">Operations</span>
+      </h3>
+      <ul>
+        <li>查看卡余额/状态</li>
+        <li>查看交易流水</li>
+        <li>标记异常交易</li>
+        <li>发起退款</li>
+        <li>提交异常单</li>
+        <li>查看余额报表</li>
+      </ul>
+    </div>
+    <div class="perm-card">
+      <h3>
+        👑 管理员
+        <span class="role-tag" style="background:rgba(251,191,36,.15);color:#fbbf24;">Admin</span>
+      </h3>
+      <ul>
+        <li>全部权限</li>
+        <li>配置费率参数</li>
+        <li>批量操作</li>
+        <li>审计日志</li>
+        <li>权限管理</li>
+        <li>系统参数配置</li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="margin-top:28px;padding:12px 16px;background:rgba(255,255,255,.02);border-radius:8px;border:1px solid #1e293b;display:flex;gap:24px;flex-wrap:wrap;font-size:11.5px;color:#64748b;">
+    <span>📅 版本: v1.0 · 2026-06-03</span>
+    <span>🎯 用途: 产品经理/开发讨论</span>
+    <span>🔗 数据流: 用户充值 → 交易流水 → 结算对账 → 手续费 → 收入确认 → 异常处理 → 报表分析</span>
+  </div>
+</div>
+</body>
+</html>

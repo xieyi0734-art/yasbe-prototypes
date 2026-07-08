@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YASBee - 财务看板</title>
+<style>
+:root {
+  --sidebar-bg: #1a1a2e; --sidebar-text: #8e9ab4; --sidebar-hover: #2a2a4e;
+  --header-bg: #1a2536; --bg: #f0f2f5; --card-bg: #ffffff;
+  --text: #1a1a1a; --text-muted: #888; --accent: #f59f00; --accent-hover: #e08d00;
+  --primary: #4f46e5; --primary-light: #eef2ff; --success: #16a34a; --success-light: #f0fdf4;
+  --danger: #dc2626; --danger-light: #fef2f2; --warning: #d97706; --warning-light: #fffbeb;
+  --border: #e5e7eb; --shadow: 0 1px 3px rgba(0,0,0,.08); --shadow-lg: 0 8px 24px rgba(0,0,0,.14);
+  --radius: 10px; --radius-lg: 14px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
+.app { display: flex; min-height: 100vh; }
+
+.sidebar { width: 220px; flex-shrink: 0; background: var(--sidebar-bg); min-height: 100vh; display: flex; flex-direction: column; position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; }
+.sidebar-logo { padding: 20px 16px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,.06); }
+.logo-icon { width: 32px; height: 32px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; color: #fff; }
+.logo-text { font-size: 17px; font-weight: 700; color: #fff; }
+.sidebar-nav { flex: 1; padding: 12px 8px; overflow-y: auto; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; color: var(--sidebar-text); font-size: 13.5px; cursor: pointer; }
+.nav-item:hover { background: var(--sidebar-hover); color: #fff; }
+.nav-item.active { background: rgba(255,255,255,.1); color: #fff9c4; font-weight: 600; }
+.nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
+.nav-section { font-size: 10px; color: rgba(255,255,255,.25); text-transform: uppercase; letter-spacing: 1.5px; padding: 16px 12px 6px; }
+.nav-sub-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px 8px 42px; border-radius: 8px; color: var(--sidebar-text); font-size: 13px; cursor: pointer; }
+.nav-sub-item:hover { background: var(--sidebar-hover); color: #fff; }
+.nav-sub-item.active { background: rgba(245,159,0,.15); color: var(--accent); font-weight: 600; border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; }
+.sidebar-footer { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,.06); display: flex; align-items: center; gap: 10px; }
+.avatar { width: 34px; height: 34px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; }
+.user-info { overflow: hidden; }
+.user-info .name { font-size: 13px; color: #fff; font-weight: 500; }
+.user-info div:last-child { font-size: 11px; color: var(--sidebar-text); }
+
+.main { margin-left: 220px; flex: 1; display: flex; flex-direction: column; }
+.top-header { background: var(--header-bg); padding: 0 28px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 90; }
+.top-header h1 { font-size: 18px; font-weight: 700; color: #fff; }
+.top-header-right { display: flex; align-items: center; gap: 12px; }
+.search-box { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,.08); border-radius: 8px; padding: 7px 12px; }
+.search-box input { background: none; border: none; outline: none; color: #fff; font-size: 13px; width: 180px; }
+.search-box input::placeholder { color: rgba(255,255,255,.4); }
+.notif { background: none; border: none; font-size: 18px; cursor: pointer; position: relative; padding: 4px; }
+.notif .dot { position: absolute; top: 2px; right: 2px; width: 7px; height: 7px; background: var(--danger); border-radius: 50%; border: 2px solid var(--header-bg); }
+.avatar-btn { width: 32px; height: 32px; background: var(--accent); border-radius: 50%; border: none; color: #fff; font-size: 12px; font-weight: 700; cursor: pointer; }
+
+.content { padding: 24px 28px 40px; }
+.breadcrumb { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+.breadcrumb .current { color: var(--text); font-weight: 500; }
+
+/* KPI Cards */
+.kpi-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 20px; }
+.kpi-card { background: var(--card-bg); border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: 18px; }
+.kpi-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+.kpi-value { font-size: 26px; font-weight: 800; color: var(--text); display: flex; align-items: baseline; gap: 6px; }
+.kpi-value .unit { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+.kpi-sub { font-size: 11.5px; margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+.kpi-up { color: var(--success); }
+.kpi-down { color: var(--danger); }
+
+/* Dashboard charts row */
+.dash-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.dash-card { background: var(--card-bg); border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: 20px; }
+.dash-card.full { grid-column: 1/-1; }
+.dash-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
+.dash-title .hint { font-size: 11px; color: var(--text-muted); font-weight: 400; }
+
+/* Bar chart */
+.bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 180px; padding-top: 10px; }
+.bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
+.bar-stack { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+.bar { width: 30px; border-radius: 4px 4px 0 0; min-height: 6px; transition: all .2s; position: relative; }
+.bar.fee { background: var(--primary); }
+.bar.reb { background: var(--accent); }
+.bar:hover { opacity: .8; }
+.bar-label { font-size: 10px; color: var(--text-muted); margin-top: 6px; white-space: nowrap; }
+.bar-value { font-size: 10px; color: var(--text-muted); margin-bottom: 2px; }
+
+/* Donut */
+.donut-wrap { display: flex; align-items: center; justify-content: center; gap: 24px; }
+.donut-legend { list-style: none; }
+.donut-legend li { display: flex; align-items: center; gap: 8px; font-size: 12px; margin-bottom: 8px; }
+.donut-legend li .dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+.donut-legend li .val { margin-left: auto; font-weight: 600; }
+.donut-svg { flex-shrink: 0; }
+
+/* Mini table */
+.mini-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.mini-table th { font-size: 11px; color: var(--text-muted); font-weight: 600; padding: 8px 6px; text-align: left; border-bottom: 1px solid var(--border); text-transform: uppercase; }
+.mini-table td { padding: 8px 6px; border-bottom: 1px solid #f5f5f5; }
+.mini-table tbody tr:hover { background: #fafafa; }
+.mini-table .mono { font-family: "Courier New", monospace; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; border-radius: 6px; border: none; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; }
+.btn-outline { background: #fff; border: 1.5px solid var(--border); color: var(--text); }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+.badge-green { background: var(--success-light); color: var(--success); }
+.badge-red { background: var(--danger-light); color: var(--danger); }
+.badge-blue { background: var(--primary-light); color: var(--primary); }
+.badge-yellow { background: var(--warning-light); color: var(--warning); }
+.text-success { color: var(--success); }
+.text-danger { color: var(--danger); }
+.text-accent { color: var(--accent); }
+.text-muted { color: var(--text-muted); }
+.text-right { text-align: right; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="sidebar">
+    <div class="sidebar-logo"><div class="logo-icon">YB</div><span class="logo-text">YASBee</span></div>
+    <div class="sidebar-nav">
+      <div class="nav-item"><span class="icon">📊</span>Dashboard</div>
+      <div class="nav-item"><span class="icon">👥</span>用户管理</div>
+      <div class="nav-section">💳 CARD</div>
+      <div class="nav-item active"><span class="icon">💳</span>卡片管理</div>
+      <div class="nav-sub-item">📋 费用结算</div>
+      <div class="nav-sub-item">📄 账单管理</div>
+      <div class="nav-sub-item">⚡ 争议工单</div>
+      <div class="nav-sub-item active">📈 财务看板</div>
+      <div class="nav-section">🌐 CHANNEL</div>
+      <div class="nav-item"><span class="icon">📡</span>渠道管理</div>
+      <div class="nav-item"><span class="icon">🃏</span>卡务管理</div>
+      <div class="nav-section">⚙️ SYSTEM</div>
+      <div class="nav-item"><span class="icon">🔧</span>系统设置</div>
+      <div class="nav-item"><span class="icon">📝</span>操作日志</div>
+    </div>
+    <div class="sidebar-footer"><div class="avatar">DX</div><div class="user-info"><div class="name">Driven Xie</div><div>admin@yasbee.com</div></div></div>
+  </div>
+
+  <div class="main">
+    <div class="top-header">
+      <h1>💳 卡片管理</h1>
+      <div class="top-header-right">
+        <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="搜索卡片、用户..."></div>
+        <button class="notif">🔔<span class="dot"></span></button>
+        <button class="avatar-btn">DX</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="breadcrumb">卡片管理 / <span class="current">财务看板</span></div>
+
+      <!-- KPI Row -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">本月净收入</div>
+          <div class="kpi-value">$8,745.30</div>
+          <div class="kpi-sub"><span class="kpi-up">↑ 5.2%</span> 较上月</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">本月总费用</div>
+          <div class="kpi-value">$4,074<span class="unit">.10</span></div>
+          <div class="kpi-sub"><span class="kpi-up">↑ 8.3%</span> 较上月</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">本月发卡量</div>
+          <div class="kpi-value">286</div>
+          <div class="kpi-sub"><span class="kpi-up">↑ 12%</span> 较上月</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">本月争议率</div>
+          <div class="kpi-value">1.2<span class="unit">%</span></div>
+          <div class="kpi-sub"><span class="kpi-down">↑ 0.3pp</span> 需关注</div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="dash-row">
+        <div class="dash-card">
+          <div class="dash-title">📊 月收入趋势 <span class="hint">近 6 月</span></div>
+          <div class="bar-chart" id="revenueChart"></div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-title">🧩 费用构成 <span class="hint">本月</span></div>
+          <div class="donut-wrap">
+            <svg class="donut-svg" width="140" height="140" viewBox="0 0 140 140">
+              <circle cx="70" cy="70" r="60" fill="none" stroke="#f0f0f0" stroke-width="18"/>
+              <circle cx="70" cy="70" r="60" fill="none" stroke="#4f46e5" stroke-width="18" stroke-dasharray="150 376" stroke-dashoffset="0" transform="rotate(-90 70 70)"/>
+              <circle cx="70" cy="70" r="60" fill="none" stroke="#f59f00" stroke-width="18" stroke-dasharray="80 376" stroke-dashoffset="-150" transform="rotate(-90 70 70)"/>
+              <circle cx="70" cy="70" r="60" fill="none" stroke="#16a34a" stroke-width="18" stroke-dasharray="70 376" stroke-dashoffset="-230" transform="rotate(-90 70 70)"/>
+              <circle cx="70" cy="70" r="60" fill="none" stroke="#dc2626" stroke-width="18" stroke-dasharray="20 376" stroke-dashoffset="-300" transform="rotate(-90 70 70)"/>
+              <text x="70" y="70" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="700">$4,074</text>
+            </svg>
+            <ul class="donut-legend">
+              <li><span class="dot" style="background:#4f46e5"></span>开卡费 <span class="val">$845.60</span></li>
+              <li><span class="dot" style="background:#f59f00"></span>消费费 <span class="val">$2,908</span></li>
+              <li><span class="dot" style="background:#16a34a"></span>充值费 <span class="val">$320.50</span></li>
+              <li><span class="dot" style="background:#dc2626"></span>优惠 <span class="val">−$85.00</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rebate & Chargeback Row -->
+      <div class="dash-row">
+        <div class="dash-card">
+          <div class="dash-title">🪙 返佣趋势 <span class="hint">近 6 月 · YB</span></div>
+          <div class="bar-chart" id="rebateChart"></div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-title">⚖️ Chargeback 统计 <span class="hint">本月</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div style="background:var(--bg);border-radius:var(--radius);padding:14px;text-align:center;">
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">Chargeback 笔数</div>
+              <div style="font-size:22px;font-weight:800;color:var(--danger);">3</div>
+            </div>
+            <div style="background:var(--bg);border-radius:var(--radius);padding:14px;text-align:center;">
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">Chargeback 费用</div>
+              <div style="font-size:22px;font-weight:800;color:var(--danger);">$105</div>
+            </div>
+            <div style="background:var(--bg);border-radius:var(--radius);padding:14px;text-align:center;">
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">拒付率</div>
+              <div style="font-size:22px;font-weight:800;color:var(--warning);">0.09%</div>
+            </div>
+            <div style="background:var(--bg);border-radius:var(--radius);padding:14px;text-align:center;">
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">已处理金额</div>
+              <div style="font-size:22px;font-weight:800;color:var(--text);">$439.50</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Cards -->
+      <div class="dash-card full">
+        <div class="dash-title">🔥 费用贡献 Top 5 卡片 <span class="hint">本月</span></div>
+        <table class="mini-table">
+          <thead><tr><th>排名</th><th>卡片后4位</th><th>BIN 类型</th><th>持卡人</th><th class="text-right">开卡费</th><th class="text-right">消费费</th><th class="text-right">充值费</th><th class="text-right">总贡献</th><th class="text-right">返佣 (YB)</th></tr></thead>
+          <tbody>
+            <tr><td><span class="badge badge-red">#1</span></td><td class="mono">•••• 8842</td><td>BB-BIN</td><td>U-10032</td><td class="text-right">$5.00</td><td class="text-right">$342.50</td><td class="text-right">$0.00</td><td class="text-right"><strong>$347.50</strong></td><td class="text-right text-success">15 YB</td></tr>
+            <tr><td><span class="badge badge-blue">#2</span></td><td class="mono">•••• 7716</td><td>BZ-BIN</td><td>U-08721</td><td class="text-right">$5.00</td><td class="text-right">$186.00</td><td class="text-right">$200.00</td><td class="text-right"><strong>$391.00</strong></td><td class="text-right text-success">10 YB</td></tr>
+            <tr><td>#3</td><td class="mono">•••• 6634</td><td>BB-BIN</td><td>U-11204</td><td class="text-right">$5.00</td><td class="text-right">$95.80</td><td class="text-right">$0.00</td><td class="text-right"><strong>$100.80</strong></td><td class="text-right text-success">5 YB</td></tr>
+            <tr><td>#4</td><td class="mono">•••• 5519</td><td>BB-BIN</td><td>U-04567</td><td class="text-right">$5.00</td><td class="text-right">$72.30</td><td class="text-right">$50.00</td><td class="text-right"><strong>$127.30</strong></td><td class="text-right text-success">4 YB</td></tr>
+            <tr><td>#5</td><td class="mono">•••• 4412</td><td>BZ-BIN</td><td>U-15678</td><td class="text-right">$5.00</td><td class="text-right">$58.00</td><td class="text-right">$0.00</td><td class="text-right"><strong>$63.00</strong></td><td class="text-right text-success">3 YB</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Revenue bar chart (近6月)
+var revData = [5922.00, 6375.00, 7488.00, 6906.70, 8085.50, 8745.30];
+var revLabels = ['2026-01','2026-02','2026-03','2026-04','2026-05','2026-06'];
+var maxRev = Math.max(...revData);
+var revChart = document.getElementById('revenueChart');
+var revHtml = '';
+revData.forEach(function(v,i) {
+  var h = (v/maxRev)*160;
+  revHtml += '<div class="bar-group"><div class="bar-stack"><div class="bar-value">$'+(v/1000).toFixed(1)+'k</div><div class="bar fee" style="height:'+h+'px"></div></div><div class="bar-label">'+revLabels[i]+'</div></div>';
+});
+revChart.innerHTML = revHtml;
+
+// Rebate bar chart
+var rebData = [5800, 6400, 8100, 7300, 8900, 4250];
+var maxReb = Math.max(...rebData);
+var rebChart = document.getElementById('rebateChart');
+var rebHtml = '';
+rebData.forEach(function(v,i) {
+  var h = (v/maxReb)*160;
+  rebHtml += '<div class="bar-group"><div class="bar-stack"><div class="bar-value">'+(v/1000).toFixed(1)+'k</div><div class="bar reb" style="height:'+h+'px"></div></div><div class="bar-label">'+revLabels[i]+'</div></div>';
+});
+rebChart.innerHTML = rebHtml;
+</script>
+</body>
+</html>

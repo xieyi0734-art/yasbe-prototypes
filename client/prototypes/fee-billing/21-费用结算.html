@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YASBee - 费用结算</title>
+<style>
+:root {
+  --sidebar-bg: #1a1a2e;
+  --sidebar-text: #8e9ab4;
+  --sidebar-hover: #2a2a4e;
+  --header-bg: #1a2536;
+  --bg: #f0f2f5;
+  --card-bg: #ffffff;
+  --text: #1a1a1a;
+  --text-muted: #888;
+  --accent: #f59f00;
+  --accent-hover: #e08d00;
+  --primary: #4f46e5;
+  --primary-light: #eef2ff;
+  --success: #16a34a;
+  --success-light: #f0fdf4;
+  --danger: #dc2626;
+  --danger-light: #fef2f2;
+  --warning: #d97706;
+  --warning-light: #fffbeb;
+  --border: #e5e7eb;
+  --shadow: 0 1px 3px rgba(0,0,0,.08);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,.14);
+  --radius: 10px;
+  --radius-lg: 14px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
+.app { display: flex; min-height: 100vh; }
+
+/* Sidebar */
+.sidebar { width: 220px; flex-shrink: 0; background: var(--sidebar-bg); min-height: 100vh; display: flex; flex-direction: column; position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; }
+.sidebar-logo { padding: 20px 16px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,.06); }
+.logo-icon { width: 32px; height: 32px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; color: #fff; }
+.logo-text { font-size: 17px; font-weight: 700; color: #fff; letter-spacing: .5px; }
+.sidebar-nav { flex: 1; padding: 12px 8px; overflow-y: auto; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; color: var(--sidebar-text); font-size: 13.5px; cursor: pointer; transition: all .15s; }
+.nav-item:hover { background: var(--sidebar-hover); color: #fff; }
+.nav-item.active { background: rgba(255,255,255,.1); color: #fff9c4; font-weight: 600; }
+.nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
+.nav-section { font-size: 10px; color: rgba(255,255,255,.25); text-transform: uppercase; letter-spacing: 1.5px; padding: 16px 12px 6px; }
+.nav-sub-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px 8px 42px; border-radius: 8px; color: var(--sidebar-text); font-size: 13px; cursor: pointer; transition: all .15s; }
+.nav-sub-item:hover { background: var(--sidebar-hover); color: #fff; }
+.nav-sub-item.active { background: rgba(245,159,0,.15); color: var(--accent); font-weight: 600; border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; }
+.sidebar-footer { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,.06); display: flex; align-items: center; gap: 10px; }
+.avatar { width: 34px; height: 34px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.user-info { overflow: hidden; }
+.user-info .name { font-size: 13px; color: #fff; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-info div:last-child { font-size: 11px; color: var(--sidebar-text); }
+
+/* Main */
+.main { margin-left: 220px; flex: 1; min-height: 100vh; display: flex; flex-direction: column; }
+.top-header { background: var(--header-bg); padding: 0 28px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 90; }
+.top-header h1 { font-size: 18px; font-weight: 700; color: #fff; }
+.top-header-right { display: flex; align-items: center; gap: 12px; }
+.search-box { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,.08); border-radius: 8px; padding: 7px 12px; }
+.search-box input { background: none; border: none; outline: none; color: #fff; font-size: 13px; width: 180px; }
+.search-box input::placeholder { color: rgba(255,255,255,.4); }
+.search-icon { font-size: 13px; opacity: .6; }
+.notif { background: none; border: none; font-size: 18px; cursor: pointer; position: relative; padding: 4px; }
+.notif .dot { position: absolute; top: 2px; right: 2px; width: 7px; height: 7px; background: var(--danger); border-radius: 50%; border: 2px solid var(--header-bg); }
+.avatar-btn { width: 32px; height: 32px; background: var(--accent); border-radius: 50%; border: none; color: #fff; font-size: 12px; font-weight: 700; cursor: pointer; }
+
+/* Content */
+.content { padding: 24px 28px 40px; }
+
+/* Breadcrumb */
+.breadcrumb { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+.breadcrumb span { color: var(--text-muted); }
+.breadcrumb .current { color: var(--text); font-weight: 500; }
+
+/* Stats Row */
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+.stat-card { background: var(--card-bg); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow); }
+.stat-label { font-size: 11.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+.stat-value { font-size: 22px; font-weight: 800; color: var(--text); }
+.stat-sub { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+
+/* Filter Bar */
+.filter-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; background: var(--card-bg); border-radius: var(--radius); padding: 14px 18px; box-shadow: var(--shadow); flex-wrap: wrap; }
+.filter-group { display: flex; align-items: center; gap: 6px; }
+.filter-group label { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+.filter-group select, .filter-group input { padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; outline: none; background: #fff; color: var(--text); }
+.filter-group select:focus, .filter-group input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(245,159,0,.1); }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 16px; border-radius: 8px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s; white-space: nowrap; }
+.btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.12); }
+.btn:active { transform: translateY(0); }
+.btn-accent { background: var(--accent); color: #fff; }
+.btn-accent:hover { background: var(--accent-hover); }
+.btn-outline { background: #fff; border: 1.5px solid var(--border); color: var(--text); }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+.btn-link { background: none; border: none; color: var(--primary); cursor: pointer; font-size: 13px; font-weight: 500; padding: 4px 6px; }
+.btn-link:hover { text-decoration: underline; }
+
+/* Table */
+.table-wrap { background: var(--card-bg); border-radius: var(--radius-lg); box-shadow: var(--shadow); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+thead th { background: #f8f9fa; padding: 12px 14px; font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .3px; text-align: left; border-bottom: 2px solid var(--border); white-space: nowrap; }
+tbody td { padding: 12px 14px; font-size: 13px; border-bottom: 1px solid #f0f0f0; }
+tbody tr:hover { background: #fafafa; }
+tbody tr.expanded { background: var(--primary-light); }
+.text-muted { color: var(--text-muted); }
+.text-accent { color: var(--accent); font-weight: 600; }
+.text-success { color: var(--success); }
+.text-danger { color: var(--danger); }
+.text-warning { color: var(--warning); }
+.text-primary { color: var(--primary); }
+.text-right { text-align: right; }
+.mono { font-family: "Courier New", monospace; letter-spacing: .5px; }
+
+/* Pagination */
+.pagination { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-top: 1px solid var(--border); }
+.pg-info { font-size: 12px; color: var(--text-muted); }
+.pg-btns { display: flex; gap: 4px; }
+.pg-btn { width: 30px; height: 30px; border: 1px solid var(--border); border-radius: 6px; background: #fff; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .1s; }
+.pg-btn:hover { border-color: var(--accent); color: var(--accent); }
+.pg-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.pg-btn:disabled { opacity: .3; cursor: not-allowed; }
+
+/* Expandable detail */
+.expand-row { display: none; }
+.expand-row.open { display: table-row; }
+.expand-cell { padding: 0 14px 14px !important; background: #fafbfc; }
+.expand-inner { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.sub-table { width: 100%; border-collapse: collapse; }
+.sub-table th { background: #f3f4f6; padding: 8px 12px; font-size: 11px; font-weight: 600; color: var(--text-muted); text-align: left; border-bottom: 1px solid var(--border); }
+.sub-table td { padding: 8px 12px; font-size: 12px; border-bottom: 1px solid #f5f5f5; }
+.sub-table tbody tr:hover { background: var(--primary-light); }
+
+/* Badge */
+.badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+.badge-green { background: var(--success-light); color: var(--success); }
+.badge-yellow { background: var(--warning-light); color: var(--warning); }
+.badge-gray { background: #f3f4f6; color: #6b7280; }
+.badge-blue { background: var(--primary-light); color: var(--primary); }
+.badge-red { background: var(--danger-light); color: var(--danger); }
+
+/* Modal */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; overflow-y: auto; padding: 20px; }
+.modal-overlay.active { display: flex; align-items: center; justify-content: center; }
+.modal { background: var(--card-bg); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); width: 100%; max-width: 560px; max-height: 85vh; padding: 24px; margin: auto; }
+.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+.modal-header h2 { font-size: 16px; font-weight: 700; color: var(--text); }
+.modal-close { width: 30px; height: 30px; background: var(--bg); border: none; border-radius: 6px; cursor: pointer; font-size: 16px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; }
+.modal-close:hover { background: var(--border); color: var(--text); }
+.modal-footer { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+
+/* Detail modal */
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.detail-item { }
+.detail-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+.detail-value { font-size: 14px; font-weight: 600; }
+.fee-card { background: var(--bg); border-radius: var(--radius); padding: 14px; text-align: center; }
+.fee-card .fee-label { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+.fee-card .fee-value { font-size: 18px; font-weight: 800; color: var(--text); }
+
+/* Toast */
+.toast { position: fixed; top: 20px; right: 20px; z-index: 2000; padding: 12px 20px; border-radius: var(--radius); font-size: 13px; font-weight: 500; box-shadow: var(--shadow-lg); display: none; animation: fadeIn .2s; }
+.toast.show { display: block; }
+.toast.success { background: var(--success-light); border: 1px solid #bbf7d0; color: var(--success); }
+.toast.warn { background: var(--warning-light); border: 1px solid #fde68a; color: var(--warning); }
+.toast.error { background: var(--danger-light); border: 1px solid #fecaca; color: var(--danger); }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Responsive table helper */
+.no-wrap { white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">YB</div>
+      <span class="logo-text">YASBee</span>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-item"><span class="icon">📊</span>Dashboard</div>
+      <div class="nav-item"><span class="icon">👥</span>用户管理</div>
+      <div class="nav-section">💳 CARD</div>
+      <div class="nav-item active"><span class="icon">💳</span>卡片管理</div>
+      <div class="nav-sub-item active">📋 费用结算</div>
+      <div class="nav-sub-item">📄 账单管理</div>
+      <div class="nav-sub-item">⚡ 争议工单</div>
+      <div class="nav-sub-item">📈 财务看板</div>
+      <div class="nav-section">🌐 CHANNEL</div>
+      <div class="nav-item"><span class="icon">📡</span>渠道管理</div>
+      <div class="nav-item"><span class="icon">🃏</span>卡务管理</div>
+      <div class="nav-section">⚙️ SYSTEM</div>
+      <div class="nav-item"><span class="icon">🔧</span>系统设置</div>
+      <div class="nav-item"><span class="icon">📝</span>操作日志</div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="avatar">DX</div>
+      <div class="user-info">
+        <div class="name">Driven Xie</div>
+        <div>admin@yasbee.com</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="top-header">
+      <h1>💳 卡片管理</h1>
+      <div class="top-header-right">
+        <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="搜索卡片、用户..."></div>
+        <button class="notif">🔔<span class="dot"></span></button>
+        <button class="avatar-btn">DX</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- Breadcrumb -->
+      <div class="breadcrumb">卡片管理 / <span class="current">费用结算</span></div>
+
+
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">本月总费用</div>
+          <div class="stat-value">$12,845.60</div>
+          <div class="stat-sub">↑ 8.3% 较上月</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">本月结算笔数</div>
+          <div class="stat-value">3,284</div>
+          <div class="stat-sub">↑ 12.1% 较上月</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">待结算</div>
+          <div class="stat-value">486</div>
+          <div class="stat-sub text-warning">⏳ 待处理</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">结算成功率</div>
+          <div class="stat-value">99.2%</div>
+          <div class="stat-sub text-success">正常</div>
+        </div>
+      </div>
+
+      <!-- Filter -->
+      <div class="filter-bar">
+        <div class="filter-group">
+          <label>结算周期</label>
+          <select id="f-period">
+            <option>日结算</option>
+            <option selected>月结算</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>状态</label>
+          <select id="f-status">
+            <option>全部</option>
+            <option>待结算</option>
+            <option>已结算</option>
+            <option>结算异常</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>日期范围</label>
+          <input type="text" placeholder="2026-06-01 ~ 2026-06-30" style="width:200px;">
+        </div>
+        <button class="btn btn-accent btn-sm" onclick="showToast('搜索筛选已应用','success')">🔍 搜索</button>
+        <button class="btn btn-outline btn-sm" onclick="showToast('已导出 CSV','success')">📥 导出 CSV</button>
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>结算编号</th>
+              <th>结算周期</th>
+              <th>结算日期</th>
+              <th>卡片总数</th>
+              <th class="text-right">开卡费</th>
+              <th class="text-right">充值费</th>
+              <th class="text-right">消费费</th>
+              <th class="text-right">首次优惠</th>
+              <th class="text-right">费用总计</th>
+              <th class="text-right">返佣 (YB)</th>
+              <th>状态</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="settle-tbody">
+          </tbody>
+        </table>
+        <div class="pagination">
+          <span class="pg-info">共 <strong>24</strong> 条结算记录</span>
+          <div class="pg-btns">
+            <button class="pg-btn" disabled>‹</button>
+            <button class="pg-btn active">1</button>
+            <button class="pg-btn">2</button>
+            <button class="pg-btn">3</button>
+            <button class="pg-btn">›</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Detail Modal -->
+<div id="modalDetail" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>结算详情</h2>
+      <button class="modal-close" onclick="closeModal('modalDetail')">✕</button>
+    </div>
+    <div class="modal-body" style="padding:0;">
+      <div class="detail-grid">
+        <div class="detail-item"><div class="detail-label">结算编号</div><div class="detail-value mono" id="m-id">—</div></div>
+        <div class="detail-item"><div class="detail-label">结算周期</div><div class="detail-value" id="m-period">—</div></div>
+        <div class="detail-item"><div class="detail-label">结算日期</div><div class="detail-value" id="m-date">—</div></div>
+        <div class="detail-item"><div class="detail-label">卡片总数</div><div class="detail-value" id="m-cards">—</div></div>
+        <div class="detail-item"><div class="detail-label">状态</div><div class="detail-value" id="m-status">—</div></div>
+      </div>
+      <div style="margin-top:16px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+        <div class="fee-card"><div class="fee-label">开卡费</div><div class="fee-value" id="m-open">—</div></div>
+        <div class="fee-card"><div class="fee-label">充值费</div><div class="fee-value" id="m-recharge">—</div></div>
+        <div class="fee-card"><div class="fee-label">消费费</div><div class="fee-value" id="m-consume">—</div></div>
+        <div class="fee-card"><div class="fee-label">首次优惠</div><div class="fee-value" id="m-discount">—</div></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding:12px 14px;background:var(--bg);border-radius:var(--radius);">
+        <div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;">费用总计</div><div style="font-size:20px;font-weight:800;" id="m-total">—</div></div>
+        <div style="text-align:right;"><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;">返佣 (YASBee)</div><div style="font-size:20px;font-weight:800;color:var(--success);" id="m-rebate">—</div></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalDetail')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<script>
+// Mock data
+var settleData = [
+  {id:'SET-20260601', period:'2026-06-01 ~ 2026-06-30', date:'2026-07-01', cards:286, openFee:845.60, rechargeFee:320.50, consumeFee:2908.00, discount:85.00, total:'$3,989.10', rebate:4250, status:'已结算', statusCls:'badge-green'},
+  {id:'SET-20260502', period:'2026-05-16 ~ 2026-05-31', date:'2026-06-01', cards:312, openFee:920.00, rechargeFee:415.00, consumeFee:3210.50, discount:92.00, total:'$4,453.50', rebate:5100, status:'已结算', statusCls:'badge-green'},
+  {id:'SET-20260501', period:'2026-05-01 ~ 2026-05-15', date:'2026-05-16', cards:268, openFee:780.00, rechargeFee:280.00, consumeFee:2650.00, discount:78.00, total:'$3,632.00', rebate:3800, status:'已结算', statusCls:'badge-green'},
+  {id:'SET-20260402', period:'2026-04-16 ~ 2026-04-30', date:'2026-05-01', cards:245, openFee:710.50, rechargeFee:255.20, consumeFee:2380.00, discount:71.00, total:'$3,274.70', rebate:3500, status:'已结算', statusCls:'badge-green'},
+  {id:'SET-20260401', period:'2026-04-01 ~ 2026-04-15', date:'2026-04-16', cards:230, openFee:680.00, rechargeFee:210.00, consumeFee:2150.00, discount:68.00, total:'$2,972.00', rebate:3200, status:'待结算', statusCls:'badge-yellow'},
+  {id:'SET-20260302', period:'2026-03-16 ~ 2026-03-31', date:'2026-04-01', cards:278, openFee:820.00, rechargeFee:350.00, consumeFee:2860.00, discount:82.00, total:'$3,948.00', rebate:4100, status:'已结算', statusCls:'badge-green'},
+  {id:'SET-20260301', period:'2026-03-01 ~ 2026-03-15', date:'2026-03-16', cards:195, openFee:580.00, rechargeFee:180.00, consumeFee:1980.00, discount:58.00, total:'$2,682.00', rebate:2600, status:'已结算', statusCls:'badge-green'},
+  {id:'SET-20260202', period:'2026-02-16 ~ 2026-02-28', date:'2026-03-01', cards:210, openFee:620.00, rechargeFee:200.00, consumeFee:2150.00, discount:62.00, total:'$2,908.00', rebate:2900, status:'已结算', statusCls:'badge-green'},
+];
+
+var settleExpanded = {};
+
+function renderTable() {
+  var tb = document.getElementById('settle-tbody');
+  var html = '';
+  settleData.forEach(function(d, idx) {
+    var isOpen = settleExpanded[idx];
+    var rowCls = isOpen ? 'expanded' : '';
+    html += '<tr class="'+rowCls+'" onclick="toggleExpand('+idx+')" style="cursor:pointer;">';
+    html += '<td><span class="mono text-primary" style="font-weight:600;">'+d.id+'</span></td>';
+    html += '<td>'+d.period+'</td>';
+    html += '<td>'+(d.date||'—')+'</td>';
+    html += '<td>'+d.cards+'</td>';
+    html += '<td class="text-right">$'+d.openFee.toFixed(2)+'</td>';
+    html += '<td class="text-right">$'+d.rechargeFee.toFixed(2)+'</td>';
+    html += '<td class="text-right">$'+d.consumeFee.toFixed(2)+'</td>';
+    html += '<td class="text-right">−$'+d.discount.toFixed(2)+'</td>';
+    html += '<td class="text-right" style="font-weight:700;">'+d.total+'</td>';
+    html += '<td class="text-right"><span class="text-success" style="font-weight:600;">'+d.rebate+'</span></td>';
+    html += '<td><span class="badge '+d.statusCls+'">'+d.status+'</span></td>';
+    html += '<td><button class="btn-link" onclick=\'event.stopPropagation();showDetail("' + d.id + '")\'>查看详情</button></td>';
+    html += '</tr>';
+
+    // Expand row
+    html += '<tr class="expand-row'+(isOpen?' open':'')+'" id="expand-'+idx+'">';
+    html += '<td colspan="12" class="expand-cell">';
+    html += '<div class="expand-inner">';
+    html += '<table class="sub-table"><thead><tr><th>卡片后4位</th><th>BIN类型</th><th>持卡人UID</th><th class="text-right">开卡金额</th><th class="text-right">充值金额</th><th class="text-right">消费笔数</th><th class="text-right">消费金额</th><th class="text-right">首次优惠</th><th class="text-right">返佣(YB)</th><th class="text-right">小计</th></tr></thead><tbody>';
+    // Mock sub data
+    var subItems = [
+      {last4:'8842', bin:'BB-BIN', uid:'U-10032', open:5.00, recharge:0, txCount:12, txAmount:342.50, disc:0.30, rebate:15, total:'$347.20'},
+      {last4:'7716', bin:'BZ-BIN', uid:'U-08721', open:5.00, recharge:200.00, txCount:8, txAmount:186.00, disc:0.30, rebate:10, total:'$390.70'},
+      {last4:'6634', bin:'BB-BIN', uid:'U-11204', open:5.00, recharge:0, txCount:5, txAmount:95.80, disc:0.30, rebate:5, total:'$100.50'},
+    ];
+    subItems.forEach(function(s) {
+      html += '<tr><td><span class="mono">•••• '+s.last4+'</span></td><td>'+s.bin+'</td><td>'+s.uid+'</td><td class="text-right">$'+s.open.toFixed(2)+'</td><td class="text-right">$'+s.recharge.toFixed(2)+'</td><td class="text-right">'+s.txCount+'</td><td class="text-right">$'+s.txAmount.toFixed(2)+'</td><td class="text-right">−$'+s.disc.toFixed(2)+'</td><td class="text-right"><span class="text-success">'+s.rebate+'</span></td><td class="text-right" style="font-weight:600;">'+s.total+'</td></tr>';
+    });
+    html += '</tbody></table></div></td></tr>';
+  });
+  tb.innerHTML = html;
+}
+
+function toggleExpand(idx) {
+  settleExpanded[idx] = !settleExpanded[idx];
+  renderTable();
+}
+
+function showDetail(id) {
+  var d = settleData.find(function(x){return x.id===id;});
+  if(!d) return;
+  var m = document.getElementById('modalDetail');
+  document.getElementById('m-id').textContent = d.id;
+  document.getElementById('m-period').textContent = d.period;
+  document.getElementById('m-date').textContent = d.date || '未结算';
+  document.getElementById('m-cards').textContent = d.cards;
+  document.getElementById('m-open').textContent = '$'+d.openFee.toFixed(2);
+  document.getElementById('m-recharge').textContent = '$'+d.rechargeFee.toFixed(2);
+  document.getElementById('m-consume').textContent = '$'+d.consumeFee.toFixed(2);
+  document.getElementById('m-discount').textContent = '−$'+d.discount.toFixed(2);
+  document.getElementById('m-total').textContent = d.total;
+  document.getElementById('m-rebate').textContent = d.rebate+' YB';
+  document.getElementById('m-status').textContent = d.status;
+  m.classList.add('active');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('active');
+}
+document.querySelectorAll('.modal-overlay').forEach(function(el){
+  el.addEventListener('click', function(e){if(e.target===this) this.classList.remove('active');});
+});
+
+// Toast
+function showToast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast '+type+' show';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function(){ t.classList.remove('show'); }, 2500);
+}
+
+renderTable();
+</script>
+
+</body>
+</html>

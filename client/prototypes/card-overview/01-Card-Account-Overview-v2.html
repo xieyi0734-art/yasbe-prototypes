@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Card Account Overview - Beeznis Admin</title>
+<style>
+:root {
+  --color-primary: #E59303;
+  --color-sidebar-bg: #1D2129;
+  --color-bg: #F0F2F5;
+  --color-card-bg: #FFFFFF;
+  --color-text: #1D2129;
+  --color-text-secondary: #86909C;
+  --color-border: #E5E8EB;
+  --color-success: #52C41A;
+  --color-error: #F5222D;
+  --color-warning: #FAAD14;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: var(--color-bg); color: var(--color-text); font-size: 14px; display: flex; min-height: 100vh; }
+.sidebar { width: 240px; background: var(--color-sidebar-bg); color: #fff; display: flex; flex-direction: column; flex-shrink: 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sidebar-logo { padding: 20px 16px 12px; border-bottom: 1px solid rgba(255,255,255,.06); }
+.sidebar-logo h2 { font-size: 16px; font-weight: 700; letter-spacing: 1px; }
+.sidebar-logo span { font-size: 11px; color: var(--color-text-secondary); }
+.sidebar-menu { padding: 8px 0; flex: 1; }
+.menu-item { display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: rgba(255,255,255,.75); font-size: 13px; cursor: pointer; transition: all .15s; text-decoration: none; }
+.menu-item:hover { background: rgba(255,255,255,.08); }
+.menu-item.active { background: var(--color-primary); color: #fff; font-weight: 600; }
+.menu-item .icon { font-size: 16px; width: 20px; text-align: center; }
+.submenu { padding-left: 36px; }
+.submenu .menu-item { font-size: 12px; padding: 8px 16px; }
+.submenu .menu-item.active { background: rgba(229,147,3,.2); color: var(--color-primary); }
+.sidebar-footer { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,.06); display: flex; align-items: center; gap: 10px; }
+.sidebar-footer .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--color-primary); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: #fff; }
+.main { flex: 1; min-width: 0; }
+.header { background: #fff; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--color-border); position: sticky; top: 0; z-index: 100; }
+.breadcrumb { font-size: 12px; color: var(--color-text-secondary); }
+.content { padding: 24px; }
+.page-title h1 { font-size: 22px; font-weight: 600; margin-bottom: 20px; }
+.search-card { background: #fff; border-radius: 8px; padding: 20px 24px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+.search-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+.search-row label { font-size: 12px; color: var(--color-text-secondary); display: block; margin-bottom: 4px; }
+.search-row input, .search-row select { padding: 7px 12px; border: 1px solid var(--color-border); border-radius: 6px; font-size: 13px; outline: none; }
+.search-row input:focus, .search-row select:focus { border-color: var(--color-primary); box-shadow: 0 0 0 2px rgba(229,147,3,.08); }
+.search-row .field { display: flex; flex-direction: column; }
+.btn-primary { background: var(--color-primary); color: #fff; border: none; padding: 8px 20px; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 500; transition: opacity .15s; }
+.btn-primary:hover { opacity: .85; }
+.btn-outline { background: #fff; color: var(--color-text); border: 1px solid var(--color-border); padding: 8px 20px; border-radius: 6px; font-size: 13px; cursor: pointer; transition: all .15s; }
+.btn-outline:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.btn-danger { background: var(--color-error); color: #fff; border: none; padding: 8px 20px; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 500; }
+.card-hero { display: flex; gap: 24px; margin-bottom: 20px; }
+.card-face-section { background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+.card-face { width: 340px; height: 200px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); border-radius: 14px; padding: 22px 24px; color: #fff; box-shadow: 0 8px 30px rgba(0,0,0,.2); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; transition: transform .2s; }
+.card-face:hover { transform: translateY(-3px); }
+.card-face .top { display: flex; justify-content: space-between; align-items: flex-start; }
+.card-face .chip { font-size: 32px; line-height: 1; }
+.card-face .brand { font-size: 11px; opacity: .7; letter-spacing: 1px; text-align: right; }
+.card-face .number { font-size: 18px; letter-spacing: 3px; font-family: "Courier New", monospace; margin: 8px 0; }
+.card-face .bottom { display: flex; justify-content: space-between; align-items: flex-end; }
+.card-face .info-item { font-size: 10px; opacity: .7; }
+.card-face .info-item strong { display: block; font-size: 13px; opacity: 1; margin-top: 2px; }
+.card-face .virtual-badge { position: absolute; top: 70px; right: -20px; background: rgba(114,46,209,.3); color: rgba(255,255,255,.7); font-size: 10px; padding: 2px 24px; transform: rotate(45deg); letter-spacing: 2px; text-transform: uppercase; }
+.fund-overview { flex: 1; background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+.fund-overview h3 { font-size: 14px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.fund-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.fund-item { background: var(--color-bg); border-radius: 8px; padding: 12px; border: 1px solid var(--color-border); }
+.fund-item .label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 4px; }
+.fund-item .value { font-size: 18px; font-weight: 700; }
+.fund-item .value.positive { color: var(--color-success); }
+.fund-item .value.negative { color: var(--color-error); }
+.fund-item .value.warning { color: var(--color-warning); }
+.fund-item .sub { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+.frozen-alert { margin-top: 10px; padding: 8px 12px; background: #FFF2F0; border: 1px solid #FFCCC7; border-radius: 6px; color: var(--color-error); font-size: 12px; display: none; align-items: center; gap: 6px; }
+.frozen-alert.show { display: flex; }
+.card-detail-row { background: #fff; border-radius: 8px; padding: 16px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.06); display: flex; flex-wrap: wrap; gap: 24px; }
+.detail-chip { display: flex; flex-direction: column; gap: 2px; }
+.detail-chip .label { font-size: 11px; color: var(--color-text-secondary); }
+.detail-chip .val { font-size: 13px; font-weight: 500; }
+.tab-bar { display: flex; background: #fff; border-radius: 8px 8px 0 0; border-bottom: 2px solid var(--color-border); box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+.tab-item { padding: 12px 24px; font-size: 13px; font-weight: 500; color: var(--color-text-secondary); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all .15s; }
+.tab-item:hover { color: var(--color-primary); }
+.tab-item.active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.table-card { background: #fff; border-radius: 0 0 8px 8px; box-shadow: 0 1px 3px rgba(0,0,0,.06); overflow: hidden; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table th { background: #FAFAFA; padding: 10px 14px; text-align: left; font-weight: 600; font-size: 12px; border-bottom: 1px solid var(--color-border); white-space: nowrap; }
+.data-table td { padding: 10px 14px; border-bottom: 1px solid #F0F0F0; }
+.data-table tr:nth-child(even) { background: #FAFAFA; }
+.data-table tr:hover { background: #F5F5F5; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+.badge-green { background: #DCFCE7; color: #166534; }
+.badge-orange { background: #FFF7ED; color: #9A3412; }
+.badge-red { background: #FEE2E2; color: #991B1B; }
+.badge-gray { background: #F3F4F6; color: #6B7280; }
+.badge-blue { background: #DBEAFE; color: #1D4ED8; }
+.badge-yellow { background: #FEF3C7; color: #92400E; }
+.badge-purple { background: #F3E8FF; color: #6B21A8; }
+.summary-bar { background: #F9FAFB; padding: 12px 16px; border-bottom: 1px solid var(--color-border); font-size: 12px; display: flex; flex-wrap: wrap; gap: 16px; }
+.summary-bar strong { color: var(--color-text); }
+.summary-bar .positive { color: var(--color-success); font-weight: 600; }
+.summary-bar .negative { color: var(--color-error); font-weight: 600; }
+.filter-bar { padding: 12px 16px; border-bottom: 1px solid var(--color-border); display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+.filter-bar .field { display: flex; flex-direction: column; }
+.filter-bar .field label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 3px; }
+.filter-bar input, .filter-bar select { padding: 6px 10px; border: 1px solid var(--color-border); border-radius: 4px; font-size: 12px; outline: none; }
+.filter-bar input:focus, .filter-bar select:focus { border-color: var(--color-primary); }
+.pagination { padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--color-text-secondary); border-top: 1px solid var(--color-border); }
+.pagination .pages { display: flex; gap: 4px; }
+.pagination .page-btn { padding: 4px 10px; border: 1px solid var(--color-border); border-radius: 4px; cursor: pointer; background: #fff; font-size: 12px; }
+.pagination .page-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.pagination .page-btn.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+.action-link { color: var(--color-primary); cursor: pointer; background: none; border: none; font-size: 12px; padding: 2px 4px; }
+.action-link:hover { text-decoration: underline; }
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 1000; overflow-y: auto; }
+.modal-overlay.active { display: flex; align-items: center; justify-content: center; }
+.modal { background: #fff; border-radius: 16px; width: 520px; max-width: 90vw; max-height: 85vh; padding: 24px; box-shadow: 0 20px 60px rgba(0,0,0,.15); margin: auto; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid var(--color-border); margin-bottom: 16px; }
+.modal-header h3 { font-size: 16px; font-weight: 600; }
+.modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--color-text-secondary); padding: 4px; line-height: 1; }
+.modal-close:hover { color: var(--color-text); }
+.modal-footer { display: flex; justify-content: flex-end; gap: 8px; padding-top: 16px; border-top: 1px solid var(--color-border); margin-top: 16px; }
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+.form-group .required::after { content: " *"; color: var(--color-error); }
+.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--color-border); border-radius: 6px; font-size: 13px; outline: none; font-family: inherit; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--color-primary); box-shadow: 0 0 0 2px rgba(229,147,3,.08); }
+.form-row { display: flex; gap: 12px; }
+.form-row .form-group { flex: 1; }
+.drawer-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.3); z-index: 999; }
+.drawer-overlay.active { display: block; }
+.drawer { position: fixed; top: 0; right: -480px; width: 480px; height: 100%; background: #fff; z-index: 1000; box-shadow: -4px 0 20px rgba(0,0,0,.1); transition: right .3s ease; display: flex; flex-direction: column; }
+.drawer.open { right: 0; }
+.drawer-header { padding: 20px 24px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; }
+.drawer-header h3 { font-size: 16px; font-weight: 600; }
+.drawer-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
+.drawer-body .info-row { display: flex; padding: 10px 0; border-bottom: 1px solid #F5F5F5; }
+.drawer-body .info-row .label { width: 120px; color: var(--color-text-secondary); font-size: 12px; flex-shrink: 0; }
+.drawer-body .info-row .value { flex: 1; font-size: 13px; font-weight: 500; }
+.drawer-footer { padding: 16px 24px; border-top: 1px solid var(--color-border); display: flex; justify-content: flex-end; gap: 8px; }
+.action-cards { display: flex; gap: 16px; margin-bottom: 20px; }
+.action-card { flex: 1; background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.06); border: 1px solid var(--color-border); }
+.action-card h4 { font-size: 14px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.csv-section { background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.06); border: 1px dashed var(--color-border); text-align: center; margin-bottom: 20px; }
+.csv-section .upload-area { border: 2px dashed var(--color-border); border-radius: 8px; padding: 30px; cursor: pointer; transition: all .15s; }
+.csv-section .upload-area:hover { border-color: var(--color-primary); background: #FFFBEB; }
+.alert { padding: 10px 14px; border-radius: 6px; font-size: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.alert-warning { background: #FFFBE6; border: 1px solid #FFE58F; color: #AD8B00; }
+.alert-info { background: #E6F7FF; border: 1px solid #91D5FF; color: #0050B3; }
+.alert-success { background: #F6FFED; border: 1px solid #B7EB8F; color: #389E0D; }
+.alert-error { background: #FFF2F0; border: 1px solid #FFCCC7; color: var(--color-error); }
+/* Column Picker */
+.col-picker-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.3); z-index: 999; }
+.col-picker-overlay.active { display: block; }
+.col-picker { position: fixed; top: 0; right: -360px; width: 360px; height: 100%; background: #fff; z-index: 1000; box-shadow: -4px 0 20px rgba(0,0,0,.1); transition: right .25s ease; display: flex; flex-direction: column; }
+.col-picker.open { right: 0; }
+.col-picker-header { padding: 16px 20px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; }
+.col-picker-body { flex: 1; overflow-y: auto; padding: 12px 20px; }
+.col-picker-body .col-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #F0F0F0; cursor: pointer; }
+.col-picker-body .col-item:hover { background: #FAFAFA; }
+.col-picker-body .col-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--color-primary); cursor: pointer; }
+.col-picker-body .col-item .col-label { font-size: 13px; flex: 1; cursor: pointer; }
+.col-picker-body .col-item .col-desc { font-size: 11px; color: var(--color-text-secondary); }
+.col-picker-footer { padding: 12px 20px; border-top: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; }
+</style>
+</head>
+<body>
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-logo"><h2>YASBE</h2><span>Admin Console</span></div>
+  <div class="sidebar-menu">
+    <a class="menu-item"><span class="icon">📊</span> Dashboard</a>
+    <a class="menu-item"><span class="icon">👤</span> Customer Management</a>
+    <a class="menu-item"><span class="icon">📂</span> KYC Management</a>
+    <a class="menu-item active"><span class="icon">🌐</span> Channel Management</a>
+    <div class="submenu">
+      <a class="menu-item"><span class="icon">📡</span> Card Service Management</a>
+      <a class="menu-item active"><span class="icon">💳</span> Card Account Overview</a>
+      <div class="submenu">
+        <a class="menu-item" style="padding-left:52px;font-size:11px;">🔍 Search Card</a>
+        <a class="menu-item active" style="padding-left:52px;font-size:11px;">📋 Account Overview</a>
+        <a class="menu-item" style="padding-left:52px;font-size:11px;">📊 Transaction History</a>
+        <a class="menu-item" style="padding-left:52px;font-size:11px;">💰 Recharge / Deduct</a>
+        <a class="menu-item" style="padding-left:52px;font-size:11px;">⚠️ Exception & Refund</a>
+      </div>
+      <a class="menu-item"><span class="icon">📄</span> Fee Management</a>
+      <a class="menu-item"><span class="icon">📥</span> Investment management</a>
+      <a class="menu-item"><span class="icon">🔄</span> Rebate Management</a>
+    </div>
+    <a class="menu-item"><span class="icon">📈</span> Reports</a>
+    <a class="menu-item"><span class="icon">⚙️</span> Settings</a>
+  </div>
+  <div class="sidebar-footer">
+    <div class="avatar">DX</div>
+    <div class="info"><div class="name">Driven Xie</div></div>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <div class="header">
+    <div class="header-left">
+      <span class="breadcrumb">Channel Management / <span>Card Account Overview</span></span>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-title">
+      <h1>💳 Card Account Overview</h1>
+    </div>
+
+      <!-- Search Card -->
+    <div class="search-card">
+      <div class="search-row">
+        <div class="field">
+          <label>Card Number</label>
+          <input type="text" id="searchCard" placeholder="e.g. 5274 83XX XXXX XXXX" style="width:220px;">
+        </div>
+        <div class="field">
+          <label>User ID / Name</label>
+          <input type="text" id="searchUser" placeholder="User ID or Name" style="width:180px;">
+        </div>
+        <div class="field">
+          <label>Transaction ID</label>
+          <input type="text" id="searchTxnId" placeholder="TXN-..." style="width:150px;">
+        </div>
+        <div class="field">
+          <label>Client Txn ID</label>
+          <input type="text" id="searchClientTxn" placeholder="Client ref" style="width:130px;">
+        </div>
+        <div class="field">
+          <label>Channel</label>
+          <select id="searchChannel" style="width:110px;">
+            <option value="">All</option>
+            <option>Interlace</option>
+            <option>SVF</option>
+            <option>Stripe</option>
+          </select>
+        </div>
+        <button class="btn-primary" onclick="searchCard()">🔍 Search</button>
+        <button class="btn-outline" onclick="clearSearch()">Clear</button>
+      </div>
+    </div>
+
+    <!-- Card Hero (card face + fund overview, shown after search) -->
+    <div id="cardResult" style="display:none;">
+      <div class="card-hero">
+        <div class="card-face-section">
+          <div class="card-face">
+            <div class="virtual-badge">VIRTUAL</div>
+            <div class="watermark">PREMIUM</div>
+            <div class="top">
+              <span class="chip">💳</span>
+              <span class="brand">YASBE</span>
+            </div>
+            <div class="number">5274 83<span style="opacity:0;">XX</span><span style="opacity:.4;">XX</span> XXXX XXXX</div>
+            <div class="bottom">
+              <div class="info-item">VALID THRU <strong>05/28</strong></div>
+              <div class="info-item">JOHN DOE</div>
+            </div>
+          </div>
+        </div>
+        <div class="fund-overview">
+          <h3>💰 Fund Overview</h3>
+          <div class="fund-grid">
+            <div class="fund-item">
+              <div class="label">Balance</div>
+              <div class="value">$1,250.00</div>
+              <div class="sub">Current balance</div>
+            </div>
+            <div class="fund-item">
+              <div class="label">Frozen</div>
+              <div class="value warning">$200.00</div>
+              <div class="sub">Temporarily held</div>
+            </div>
+            <div class="fund-item">
+              <div class="label">Available</div>
+              <div class="value positive">$1,050.00</div>
+              <div class="sub">Balance − Frozen</div>
+            </div>
+            <div class="fund-item">
+              <div class="label">Total Recharge</div>
+              <div class="value positive">$5,000.00</div>
+              <div class="sub">Lifetime top-up</div>
+            </div>
+            <div class="fund-item">
+              <div class="label">Total Spent</div>
+              <div class="value negative">$3,550.00</div>
+              <div class="sub">Lifetime spending</div>
+            </div>
+            <div class="fund-item">
+              <div class="label">Total Fees</div>
+              <div class="value negative">$12.50</div>
+              <div class="sub">Lifetime fees</div>
+            </div>
+          </div>
+          <div class="frozen-alert show" id="frozenAlert">
+            ⚠️ This card has <strong>$200.00</strong> in frozen funds. Please review.
+          </div>
+        </div>
+      </div>
+
+      <!-- Card Detail Row -->
+      <div class="card-detail-row">
+        <div class="detail-chip"><span class="label">User ID</span><span class="val">USR-20260601-XXXXX</span></div>
+        <div class="detail-chip"><span class="label">User Name</span><span class="val">John Doe</span></div>
+        <div class="detail-chip"><span class="label">Card Product</span><span class="val">Premium Card</span></div>
+        <div class="detail-chip"><span class="label">Status</span><span class="val"><span class="badge badge-green">Active</span></span></div>
+        <div class="detail-chip"><span class="label">Issued</span><span class="val">2026-06-02</span></div>
+      </div>
+
+      <!-- Tab Bar -->
+      <div class="tab-bar">
+        <div class="tab-item active" onclick="switchTab('txns')" id="tabTxns">📊 Transactions</div>
+        <div class="tab-item" onclick="switchTab('recharge')" id="tabRecharge">💰 Recharge / Deduct</div>
+        <div class="tab-item" onclick="switchTab('exception')" id="tabException">⚠️ Exception & Refund</div>
+      </div>
+
+      <!-- Tab: Transactions -->
+      <div class="tab-content active" id="contentTxns">
+        <div class="summary-bar">
+          <span><strong>📊 Summary:</strong> Total <strong>45</strong> records</span>
+          <span class="positive">Recharge: +$5,000.00 (12)</span>
+          <span class="negative">Spent: −$3,550.00 (30)</span>
+          <span class="negative">Fees: −$12.50 (3)</span>
+          <span class="positive">Refund: +$200.00 (2)</span>
+          <span style="margin-left:auto;">
+            <button class="btn-outline" style="padding:4px 12px;font-size:12px;" onclick="toggleColumnPicker()">⚙️ Customize Columns</button>
+          </span>
+        </div>
+        <div class="filter-bar">
+          <div class="field"><label>Type</label><select id="filterType"><option>All Types</option><option>Recharge</option><option>Consumption</option><option>Refund</option><option>Fee</option><option>Transfer Out</option><option>Reversal</option></select></div>
+          <div class="field"><label>Status</label><select id="filterStatus"><option>All Status</option><option>Success</option><option>Pending</option><option>Failed</option></select></div>
+          <div class="field"><label>Channel</label><select id="filterChannel"><option>All Channels</option><option>Interlace</option><option>SVF</option><option>Stripe</option></select></div>
+          <div class="field"><label>Date Range</label><select id="filterDate"><option>Today</option><option>This Week</option><option>This Month</option><option selected>Custom</option></select></div>
+          <div class="field"><label>Min Amount</label><input type="text" placeholder="$0" style="width:90px;"></div>
+          <div class="field"><label>Max Amount</label><input type="text" placeholder="$9999" style="width:90px;"></div>
+          <div class="field"><label>Txn ID</label><input type="text" placeholder="TXN-" style="width:140px;"></div>
+          <div class="field"><label>Client Txn ID</label><input type="text" placeholder="Client ref" style="width:130px;"></div>
+          <button class="btn-primary" style="padding:6px 16px;font-size:12px;">Search</button>
+          <button class="btn-outline" style="padding:6px 16px;font-size:12px;">Reset</button>
+        </div>
+
+        <!-- Column Picker Drawer -->
+        <div class="col-picker-overlay" id="colPickerOverlay" onclick="toggleColumnPicker()"></div>
+        <div class="col-picker" id="colPicker">
+          <div class="col-picker-header">
+            <span style="font-weight:600;">⚙️ Customize Columns</span>
+            <button onclick="toggleColumnPicker()" style="background:none;border:none;font-size:18px;cursor:pointer;line-height:1;">✕</button>
+          </div>
+          <div class="col-picker-body" id="colPickerBody">
+            <!-- columns populated by JS -->
+          </div>
+          <div class="col-picker-footer">
+            <span style="font-size:12px;color:var(--color-text-secondary);cursor:pointer;" onclick="resetColumns()">Reset to default</span>
+            <button class="btn-primary" onclick="applyColumnSettings()">Apply</button>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <div style="overflow-x:auto;">
+          <table class="data-table" id="txnTable">
+            <thead>
+              <tr id="tableHeader">
+                <!-- header populated by JS -->
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <!-- populated by JS -->
+            </tbody>
+          </table>
+          </div>
+          <div class="pagination">
+            <span>Showing 1-10 of 45 records</span>
+            <div class="pages">
+              <span class="page-btn active">1</span>
+              <span class="page-btn">2</span>
+              <span class="page-btn">3</span>
+              <span class="page-btn">4</span>
+              <span class="page-btn">5</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Recharge / Deduct -->
+      <div class="tab-content" id="contentRecharge">
+        <div class="action-cards">
+          <div class="action-card">
+            <h4>📥 Manual Recharge</h4>
+            <div class="form-group"><label class="required">Target Card</label><input type="text" placeholder="5274 83XX XXXX XXXX" value="5274 83XX XXXX XXXX"></div>
+            <div class="form-row">
+              <div class="form-group"><label class="required">Amount</label><input type="text" placeholder="$0.00"></div>
+              <div class="form-group"><label class="required">Currency</label><select><option>USD</option><option>USDT</option><option>USDC</option></select></div>
+            </div>
+            <div class="form-group"><label class="required">Source</label><select><option>Platform</option><option>Channel</option></select></div>
+            <div class="form-group"><label class="required">Remark</label><input type="text" placeholder="e.g. Testing funds, User compensation"></div>
+            <div class="alert alert-info">Single ≤ $10,000 | Daily cumulative ≤ $50,000 | ≥ $1,000 requires supervisor approval</div>
+            <button class="btn-primary" onclick="alert('Recharge submitted for approval')">Submit Recharge</button>
+          </div>
+          <div class="action-card">
+            <h4>📤 Manual Deduct</h4>
+            <div class="form-group"><label class="required">Target Card</label><input type="text" placeholder="5274 83XX XXXX XXXX" value="5274 83XX XXXX XXXX"></div>
+            <div class="form-row">
+              <div class="form-group"><label class="required">Amount</label><input type="text" placeholder="$0.00"></div>
+              <div class="form-group"><label class="required">Currency</label><select><option>USD</option><option>USDT</option><option>USDC</option></select></div>
+            </div>
+            <div class="form-group"><label class="required">Reason</label><select><option>Adjustment</option><option>Fee Recovery</option><option>Other</option></select></div>
+            <div class="form-group"><label class="required">Remark</label><input type="text" placeholder="Reason for deduction"></div>
+            <div class="alert alert-warning">Balance check: Deduct + Frozen ≤ Available balance</div>
+            <button class="btn-outline" onclick="alert('Balance verified. Submitting for approval...')">Submit Deduct</button>
+          </div>
+        </div>
+
+        <div class="csv-section">
+          <h4 style="margin-bottom:12px;">📄 CSV Batch Operation</h4>
+          <div class="upload-area" onclick="alert('CSV upload dialog opened')">
+            <div style="font-size:32px;margin-bottom:8px;">📁</div>
+            <div style="font-weight:500;margin-bottom:4px;">Click to upload CSV file</div>
+            <div style="font-size:12px;color:var(--color-text-secondary);">Download template: <a href="#" style="color:var(--color-primary);">CSV Template</a></div>
+          </div>
+        </div>
+
+        <h4 style="margin-bottom:12px;font-size:14px;">📋 Operation History</h4>
+        <div class="table-card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Operation ID</th>
+                <th>Type</th>
+                <th>Card Number</th>
+                <th>Amount</th>
+                <th>Operator</th>
+                <th>Remark</th>
+                <th>Approval Status</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>OPR-20260603-001</td>
+                <td><span class="badge badge-green">Recharge</span></td>
+                <td>5274 83XX XXXX 1234</td>
+                <td style="color:var(--color-success);font-weight:600;">+$100.00</td>
+                <td>admin@yasbe.io</td>
+                <td>Testing funds</td>
+                <td><span class="badge badge-green">Approved</span></td>
+                <td>2026-06-03 14:30</td>
+              </tr>
+              <tr>
+                <td>OPR-20260603-002</td>
+                <td><span class="badge badge-red">Deduct</span></td>
+                <td>5274 83XX XXXX 5678</td>
+                <td style="color:var(--color-error);font-weight:600;">−$50.00</td>
+                <td>admin@yasbe.io</td>
+                <td>Fee recovery</td>
+                <td><span class="badge badge-yellow">Pending</span></td>
+                <td>2026-06-03 12:00</td>
+              </tr>
+              <tr>
+                <td>OPR-20260602-001</td>
+                <td><span class="badge badge-green">Recharge</span></td>
+                <td>5274 83XX XXXX 1234</td>
+                <td style="color:var(--color-success);font-weight:600;">+$5,000.00</td>
+                <td>system</td>
+                <td>Initial top-up</td>
+                <td><span class="badge badge-green">Approved</span></td>
+                <td>2026-06-02 10:00</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="pagination"><span>Showing 1-3 of 12 records</span></div>
+        </div>
+      </div>
+
+      <!-- Tab: Exception & Refund -->
+      <div class="tab-content" id="contentException">
+        <div class="action-cards" style="margin-bottom:16px;">
+          <div class="action-card" style="flex:0.5;">
+            <h4>🚩 Mark as Abnormal</h4>
+            <div class="form-group"><label class="required">Transaction ID</label><input type="text" placeholder="TXN-20260603-XXXX"></div>
+            <div class="form-group"><label class="required">Reason</label><select><option>Fraud</option><option>Duplicate</option><option selected>Amount Mismatch</option><option>System Error</option><option>Other</option></select></div>
+            <div class="form-group"><label class="required">Description</label><textarea rows="3" placeholder="Describe the issue..."></textarea></div>
+            <button class="btn-danger" onclick="alert('Transaction flagged. Task created for risk team.')">Mark as Abnormal</button>
+          </div>
+          <div class="action-card" style="flex:0.5;">
+            <h4>🔄 Initiate Refund</h4>
+            <div class="form-group"><label class="required">Transaction ID</label><input type="text" placeholder="TXN-20260603-XXXX"></div>
+            <div class="form-row">
+              <div class="form-group"><label class="required">Refund Amount</label><input type="text" placeholder="$0.00"></div>
+              <div class="form-group"><label class="required">Reason</label><select><option>Merchant Error</option><option>System Error</option><option>User Request</option><option>Fraud</option></select></div>
+            </div>
+            <div class="form-group"><label class="required">Remark</label><input type="text" placeholder="Refund reason details"></div>
+            <div class="alert alert-info">≤ $100: direct | > $100: supervisor approval required</div>
+            <button class="btn-primary" onclick="alert('Refund initiated. Pending approval.')">Submit Refund</button>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:16px;margin-bottom:16px;">
+          <div class="action-card" style="flex:0.5;">
+            <h4>⚖️ Balance Adjustment</h4>
+            <div class="form-group"><label class="required">Card Number</label><input type="text" placeholder="5274 83XX XXXX XXXX"></div>
+            <div class="form-row">
+              <div class="form-group"><label class="required">Adjustment Amount</label><input type="text" placeholder="+$ or −$"></div>
+              <div class="form-group"><label class="required">Reason</label><select><option>System Error</option><option>Manual Correction</option><option>Reconciliation</option><option>Other</option></select></div>
+            </div>
+            <div class="form-group"><label class="required">Remark</label><input type="text" placeholder="Adjustment details"></div>
+            <div class="alert alert-warning">Requires supervisor approval</div>
+            <button class="btn-outline" onclick="alert('adjustment submitted for approval')">Submit Adjustment</button>
+          </div>
+          <div class="action-card" style="flex:0.5;">
+            <h4>📋 Dispute Tickets</h4>
+            <div class="table-card" style="box-shadow:none;border:1px solid var(--color-border);border-radius:8px;">
+              <table class="data-table" style="font-size:12px;">
+                <thead><tr><th>Ticket ID</th><th>Status</th><th>Amount</th><th>Created</th></tr></thead>
+                <tbody>
+                  <tr><td>DSP-20260603-001</td><td><span class="badge badge-yellow">Processing</span></td><td>$50.00</td><td>2026-06-03</td></tr>
+                  <tr><td>DSP-20260602-001</td><td><span class="badge badge-green">Resolved</span></td><td>$120.00</td><td>2026-06-02</td></tr>
+                  <tr><td>DSP-20260601-001</td><td><span class="badge badge-red">Closed</span></td><td>$35.00</td><td>2026-06-01</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Transaction Detail Drawer -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="txnDrawer">
+  <div class="drawer-header">
+    <h3>📄 Transaction Details</h3>
+    <span style="font-size:20px;cursor:pointer;" onclick="closeDrawer()">✕</span>
+  </div>
+  <div class="drawer-body" id="drawerBody">
+    <div class="info-row"><span class="label">Transaction ID</span><span class="value" id="dTxnId">TXN-20260603-001</span></div>
+    <div class="info-row"><span class="label">Type</span><span class="value" id="dType"><span class="badge badge-green">Recharge</span></span></div>
+    <div class="info-row"><span class="label">Amount</span><span class="value" style="color:var(--color-success);font-weight:600;" id="dAmount">+$100.00</span></div>
+    <div class="info-row"><span class="label">Currency</span><span class="value" id="dCurrency">USD</span></div>
+    <div class="info-row"><span class="label">Balance Before</span><span class="value" id="dBefore">$1,150.00</span></div>
+    <div class="info-row"><span class="label">Balance After</span><span class="value" id="dAfter">$1,250.00</span></div>
+    <div class="info-row"><span class="label">Status</span><span class="value" id="dStatus"><span class="badge badge-green">Success</span></span></div>
+    <div class="info-row"><span class="label">Upstream Txn ID</span><span class="value" id="dUpstream">INT-ILC-20260603-XXXXX</span></div>
+    <div class="info-row"><span class="label">Card Number</span><span class="value" id="dCard">5274 83XX XXXX XXXX</span></div>
+    <div class="info-row"><span class="label">Card Product</span><span class="value" id="dProduct">Premium Card</span></div>
+    <div class="info-row"><span class="label">Remark</span><span class="value" id="dRemark">Manual recharge by admin</span></div>
+    <div class="info-row"><span class="label">Operator</span><span class="value" id="dOperator">admin@yasbe.io</span></div>
+    <div class="info-row"><span class="label">Time</span><span class="value" id="dTime">2026-06-03 14:30:22</span></div>
+    <div class="info-row"><span class="label">Fee Breakdown</span><span class="value" id="dFee" style="font-size:12px;">No fees for this transaction</span></div>
+  </div>
+  <div class="drawer-footer">
+    <button class="btn-outline" onclick="closeDrawer()">Close</button>
+    <button class="btn-danger" onclick="alert('Mark as Abnormal dialog opened')">🚩 Mark as Abnormal</button>
+  </div>
+</div>
+
+<!-- Modal: Mark Abnormal -->
+<div class="modal-overlay" id="modalAbnormal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>🚩 Mark as Abnormal</h3>
+      <button class="modal-close" onclick="closeModal('modalAbnormal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Transaction ID</label><input type="text" value="TXN-20260603-001" readonly style="background:#F5F5F5;"></div>
+      <div class="form-group"><label class="required">Reason</label><select><option>Fraud</option><option>Duplicate</option><option selected>Amount Mismatch</option><option>System Error</option><option>Other</option></select></div>
+      <div class="form-group"><label class="required">Description</label><textarea rows="4" placeholder="Describe the anomaly in detail..."></textarea></div>
+      <div class="alert alert-warning">This will flag the transaction and create a task for the risk team.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('modalAbnormal')">Cancel</button>
+      <button class="btn-danger" onclick="alert('Transaction flagged! Task created.');closeModal('modalAbnormal')">Confirm Flag</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== Column Definitions =====
+// key: DB field, title: header text, default: shown by default, desc: tooltip
+const ALL_COLUMNS = [
+  { key: 'transaction_id', title: 'Transaction ID', desc: '渠道返回的交易ID', default: true },
+  { key: 'channel', title: 'Channel', desc: '渠道名称（interlace/svf/stripe）', default: true },
+  { key: 'type', title: 'Type', desc: '1=充值 2=消费 3=退款 4=手续费 5=转出 6=冲正', default: true },
+  { key: 'amount', title: 'Amount', desc: '结算金额', default: true },
+  { key: 'currency', title: 'Currency', desc: '结算币种', default: true },
+  { key: 'balance_before', title: 'Balance Before', desc: '交易前余额', default: true },
+  { key: 'balance_after', title: 'Balance After', desc: '交易后余额', default: true },
+  { key: 'fee', title: 'Fee', desc: '手续费', default: true },
+  { key: 'status', title: 'Status', desc: '1=处理中 2=成功 3=失败', default: true },
+  { key: 'transaction_time', title: 'Transaction Time', desc: '交易发生时间', default: true },
+  { key: 'merchant_name', title: 'Merchant', desc: '商户名称', default: false },
+  { key: 'merchant_mcc', title: 'MCC', desc: '商户类别码', default: false },
+  { key: 'mcc_category', title: 'MCC Category', desc: 'MCC分类名称', default: false },
+  { key: 'merchant_city', title: 'Merchant City', desc: '商户城市', default: false },
+  { key: 'merchant_country', title: 'Country', desc: '商户国家', default: false },
+  { key: 'client_transaction_id', title: 'Client Txn ID', desc: '客户端自定义交易ID', default: false },
+  { key: 'channel_card_transaction_id', title: 'Channel Card Txn ID', desc: '渠道卡交易ID', default: false },
+  { key: 'channel_card_id', title: 'Channel Card ID', desc: '渠道卡片ID', default: false },
+  { key: 'channel_account_id', title: 'Channel Account ID', desc: '渠道账户ID', default: false },
+  { key: 'transaction_type', title: 'Txn Type', desc: '1=消费授权 2=消费结算', default: false },
+  { key: 'channel_type', title: 'Channel Type', desc: '渠道原始交易类型', default: false },
+  { key: 'consumption_fee', title: 'Consumption Fee', desc: '消费手续费', default: false },
+  { key: 'recharge_fee', title: 'Recharge Fee', desc: '充值手续费', default: false },
+  { key: 'transaction_currency', title: 'Orig Currency', desc: '原始交易币种', default: false },
+  { key: 'transaction_amount', title: 'Orig Amount', desc: '原始交易金额', default: false },
+  { key: 'related_transaction_id', title: 'Related Txn ID', desc: '关联的渠道交易ID', default: false },
+  { key: 'complete_time', title: 'Complete Time', desc: '交易完成时间', default: false },
+  { key: 'channel_status', title: 'Channel Status', desc: '渠道原始状态', default: false },
+  { key: 'detail', title: 'Detail', desc: '交易补充描述', default: false },
+  { key: 'remark', title: 'Remark', desc: '备注/失败原因', default: false },
+  { key: 'action', title: 'Action', desc: '操作', default: true },
+];
+
+// ===== Mock Data =====
+const TYPE_MAP = { 1: 'Recharge', 2: 'Consumption', 3: 'Refund', 4: 'Fee', 5: 'Transfer Out', 6: 'Reversal' };
+const STATUS_MAP = { 1: 'Pending', 2: 'Success', 3: 'Failed' };
+const TYPE_BADGE = { 1: 'badge-green', 2: 'badge-orange', 3: 'badge-blue', 4: 'badge-gray', 5: 'badge-yellow', 6: 'badge-red' };
+const STATUS_BADGE = { 1: 'badge-yellow', 2: 'badge-green', 3: 'badge-red' };
+
+function generateMockData() {
+  const data = [];
+  const merchants = ['Amazon', 'Netflix', 'Uber Eats', 'Starbucks', 'Google', 'Apple', 'Shopify', 'Airbnb', 'Spotify', 'DoorDash'];
+  const mccCodes = ['5311', '5812', '5813', '4121', '5944', '5734', '7399', '7011'];
+  const mccNames = ['Department Stores', 'Restaurants', 'Bars', 'Taxicabs', 'Jewelry', 'Computer Stores', 'Business Services', 'Hotels'];
+  let id = 0;
+  for (let i = 0; i < 45; i++) {
+    id++;
+    const type = i % 6 + 1;
+    const isRecharge = type === 1;
+    const isFee = type === 4;
+    const isSuccess = i % 10 !== 2;
+    const amount = isRecharge ? (Math.random() * 1000 + 10) : isFee ? (Math.random() * 5 + 0.5) : -(Math.random() * 200 + 5);
+    const balanceBefore = Math.random() * 5000 + 100;
+    const fee = isFee ? 0 : Math.random() * 3;
+    const merchant = merchants[i % merchants.length];
+    const mccIdx = i % mccCodes.length;
+    data.push({
+      transaction_id: 'TXN-202606' + String(id).padStart(2,'0') + '-' + String(id).padStart(3,'0'),
+      channel: ['Interlace', 'SVF', 'Stripe'][i % 3],
+      type: type,
+      amount: amount,
+      currency: type === 1 && i % 5 === 0 ? 'USDT' : 'USD',
+      balance_before: balanceBefore,
+      balance_after: balanceBefore + amount,
+      fee: fee,
+      status: isSuccess ? 2 : (i % 10 === 2 ? 1 : 3),
+      transaction_time: '2026-06-' + String(Math.min(id, 30)).padStart(2,'0') + ' ' + String(8 + (i % 12)).padStart(2,'0') + ':' + String((i * 7) % 60).padStart(2,'0'),
+      complete_time: '2026-06-' + String(Math.min(id, 30)).padStart(2,'0') + ' ' + String(9 + (i % 12)).padStart(2,'0') + ':' + String((i * 7 + 3) % 60).padStart(2,'0'),
+      merchant_name: merchant,
+      merchant_mcc: mccCodes[mccIdx],
+      mcc_category: mccNames[mccIdx],
+      merchant_city: ['New York', 'Los Angeles', 'San Francisco', 'Chicago', 'Seattle', 'Miami'][i % 6],
+      merchant_country: ['US', 'US', 'US', 'US', 'US', 'US'][i % 6],
+      client_transaction_id: 'CLT-' + String(id).padStart(6,'0'),
+      channel_card_transaction_id: 'CHTXN-' + String(id).padStart(8,'0'),
+      channel_card_id: 'CRD-' + String(1000 + (i % 5)).padStart(6,'0'),
+      channel_account_id: 'ACC-' + String(500 + (i % 3)).padStart(6,'0'),
+      transaction_type: type === 2 ? (i % 2 + 1) : null,
+      channel_type: type,
+      consumption_fee: type === 2 ? Math.random() * 2 : 0,
+      recharge_fee: type === 1 ? Math.random() * 2 : 0,
+      transaction_currency: type === 1 && i % 4 === 0 ? 'USDT' : 'USD',
+      transaction_amount: amount * (0.95 + Math.random() * 0.1),
+      related_transaction_id: type === 3 ? 'TXN-202606' + String(id - 1).padStart(2,'0') + '-' + String(id - 1).padStart(3,'0') : '',
+      channel_status: isSuccess ? 'CLOSED' : (i % 10 === 2 ? 'PENDING' : 'FAIL'),
+      detail: type === 2 ? 'Purchase at ' + merchant : (type === 1 ? 'Card top-up via ' + ['wire','crypto','bank'][i % 3] : (type === 3 ? 'Refund for order' : 'Monthly service fee')),
+      remark: isSuccess ? '' : (i % 10 === 2 ? 'Awaiting upstream confirmation' : 'Insufficient funds'),
+    });
+  }
+  return data;
+}
+
+let mockData = generateMockData();
+let visibleColumns = ALL_COLUMNS.filter(c => c.default).map(c => c.key);
+
+// ===== Column Picker =====
+function toggleColumnPicker() {
+  const overlay = document.getElementById('colPickerOverlay');
+  const picker = document.getElementById('colPicker');
+  overlay.classList.toggle('active');
+  picker.classList.toggle('open');
+  if (picker.classList.contains('open')) renderColumnPicker();
+}
+
+function renderColumnPicker() {
+  const body = document.getElementById('colPickerBody');
+  body.innerHTML = ALL_COLUMNS.map(col => `
+    <div class="col-item" onclick="toggleCol('${col.key}')">
+      <input type="checkbox" id="cb_${col.key}" ${visibleColumns.includes(col.key) ? 'checked' : ''} onchange="event.stopPropagation();toggleCol('${col.key}')">
+      <div>
+        <div class="col-label">${col.title}</div>
+        <div class="col-desc">${col.desc}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleCol(key) {
+  const idx = visibleColumns.indexOf(key);
+  if (idx >= 0) {
+    visibleColumns.splice(idx, 1);
+  } else {
+    visibleColumns.push(key);
+  }
+  const cb = document.getElementById('cb_' + key);
+  if (cb) cb.checked = visibleColumns.includes(key);
+}
+
+function applyColumnSettings() {
+  toggleColumnPicker();
+  renderTable();
+}
+
+function resetColumns() {
+  visibleColumns = ALL_COLUMNS.filter(c => c.default).map(c => c.key);
+  renderColumnPicker();
+  renderTable();
+}
+
+// ===== Table Rendering =====
+function renderCell(row, key) {
+  if (key === 'action') {
+    return `<button class="action-link" onclick="openDrawer('${row.transaction_id}')">Details</button>`;
+  }
+  if (key === 'type') {
+    const val = TYPE_MAP[row.type] || 'Unknown';
+    const badgeCls = TYPE_BADGE[row.type] || 'badge-gray';
+    return `<span class="badge ${badgeCls}">${val}</span>`;
+  }
+  if (key === 'status') {
+    const val = STATUS_MAP[row.status] || 'Unknown';
+    const badgeCls = STATUS_BADGE[row.status] || 'badge-gray';
+    return `<span class="badge ${badgeCls}">${val}</span>`;
+  }
+  if (key === 'amount') {
+    const val = row.amount;
+    const color = val > 0 ? 'var(--color-success)' : 'var(--color-error)';
+    const sign = val > 0 ? '+' : '';
+    return `<span style="color:${color};font-weight:600;">${sign}$${Math.abs(val).toFixed(2)}</span>`;
+  }
+  if (['balance_before', 'balance_after', 'fee', 'consumption_fee', 'recharge_fee', 'transaction_amount'].includes(key)) {
+    const val = row[key] || 0;
+    return `$${Number(val).toFixed(2)}`;
+  }
+  if (['transaction_type', 'channel_type'].includes(key)) {
+    if (row[key] === null || row[key] === undefined) return '—';
+    if (key === 'transaction_type') return ['', 'Auth', 'Settlement'][row[key]] || row[key];
+    if (key === 'channel_type') return ['', 'Credit', 'Consumption', 'Refund', 'Fee'][row[key]] || row[key];
+  }
+  if (key === 'detail' || key === 'remark') {
+    return row[key] || '—';
+  }
+  if (key === 'transaction_time' || key === 'complete_time') {
+    return row[key] || '—';
+  }
+  return row[key] || '—';
+}
+
+function renderTable() {
+  const header = document.getElementById('tableHeader');
+  const body = document.getElementById('tableBody');
+
+  // Render header
+  header.innerHTML = visibleColumns.map(key => {
+    const col = ALL_COLUMNS.find(c => c.key === key);
+    return `<th>${col ? col.title : key}</th>`;
+  }).join('');
+
+  // Render rows
+  body.innerHTML = mockData.map(row => {
+    return '<tr>' + visibleColumns.map(key => `<td>${renderCell(row, key)}</td>`).join('') + '</tr>';
+  }).join('');
+}
+
+// ===== Existing Functions =====
+function searchCard() {
+  document.getElementById('cardResult').style.display = 'block';
+  renderTable();
+}
+function clearSearch() {
+  document.getElementById('searchCard').value = '';
+  document.getElementById('searchUser').value = '';
+  document.getElementById('cardResult').style.display = 'none';
+}
+function switchTab(tab) {
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  if (tab === 'txns') {
+    document.getElementById('tabTxns').classList.add('active');
+    document.getElementById('contentTxns').classList.add('active');
+  } else if (tab === 'recharge') {
+    document.getElementById('tabRecharge').classList.add('active');
+    document.getElementById('contentRecharge').classList.add('active');
+  } else if (tab === 'exception') {
+    document.getElementById('tabException').classList.add('active');
+    document.getElementById('contentException').classList.add('active');
+  }
+}
+function openDrawer(txnId) {
+  document.getElementById('drawerOverlay').classList.add('active');
+  document.getElementById('txnDrawer').classList.add('open');
+  document.getElementById('dTxnId').textContent = txnId;
+}
+function closeDrawer() {
+  document.getElementById('drawerOverlay').classList.remove('active');
+  document.getElementById('txnDrawer').classList.remove('open');
+}
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+document.addEventListener('click', function(e) {
+  document.querySelectorAll('.modal-overlay').forEach(m => {
+    if (e.target === m) m.classList.remove('active');
+  });
+});
+</script>
+</body>
+</html>

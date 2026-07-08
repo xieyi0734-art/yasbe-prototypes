@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>我的资料 - YASBee</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;background:#0F0F13;color:#fff;line-height:1.5;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+
+/* Profile Modal Card */
+.profile-modal{width:100%;max-width:400px;background:linear-gradient(165deg,#1A1A23 0%,#121218 100%);border-radius:24px;border:1px solid rgba(255,255,255,.06);overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.6)}
+
+/* Header gradient */
+.profile-header{position:relative;padding:32px 24px 24px;text-align:center;overflow:hidden}
+.profile-header::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:200px;height:200px;background:radial-gradient(circle,rgba(229,147,3,.12) 0%,transparent 70%);pointer-events:none}
+.avatar-wrap{width:72px;height:72px;border-radius:50%;margin:0 auto 14px;position:relative;background:linear-gradient(135deg,#E59303,#B87400);padding:3px}
+.avatar{width:100%;height:100%;border-radius:50%;background:#1E1E2A;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:600;color:#E59303}
+.profile-header h2{font-size:20px;font-weight:600;margin-bottom:2px}
+.profile-header .email{font-size:13px;color:rgba(255,255,255,.45)}
+.verify-badge{display:inline-flex;align-items:center;gap:4px;margin-top:8px;padding:3px 10px;background:rgba(229,147,3,.12);border:1px solid rgba(229,147,3,.2);border-radius:20px;font-size:11px;color:#E59303;font-weight:500}
+
+/* Divider */
+.divider{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);margin:0 24px}
+
+/* Info Section */
+.info-section{padding:20px 24px 12px}
+.info-section h3{font-size:13px;font-weight:600;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.05em;margin-bottom:14px}
+.info-grid{display:flex;flex-direction:column;gap:14px}
+.info-row{display:flex;justify-content:space-between;align-items:center}
+.info-row .label{font-size:13px;color:rgba(255,255,255,.4)}
+.info-row .value{font-size:14px;color:#fff;font-weight:500}
+.info-row .value.mono{font-family:monospace;font-size:13px;color:#E59303}
+
+/* Share Section */
+.share-section{padding:12px 24px 24px}
+.share-section h3{font-size:13px;font-weight:600;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.05em;margin-bottom:14px}
+.share-link-box{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:3px 3px 3px 14px;margin-bottom:10px}
+.share-link-box input{flex:1;background:transparent;border:none;color:rgba(255,255,255,.7);font-size:13px;font-family:monospace;outline:none;padding:10px 0}
+.share-link-box .copy-btn{padding:8px 16px;background:#E59303;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .15s}
+.share-link-box .copy-btn:hover{background:#d48402}
+.share-link-box .copy-btn.copied{background:#16A34A}
+
+.share-id-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0}
+.share-id-row .label{font-size:13px;color:rgba(255,255,255,.4)}
+.share-id-row .id-value{font-family:monospace;font-size:15px;font-weight:600;color:#E59303;letter-spacing:1px}
+.share-id-row .id-copy-btn{padding:4px 10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:6px;color:rgba(255,255,255,.5);font-size:11px;cursor:pointer;transition:all .15s}
+.share-id-row .id-copy-btn:hover{background:rgba(229,147,3,.15);border-color:rgba(229,147,3,.3);color:#E59303}
+.share-id-row .id-copy-btn.copied{background:rgba(22,163,74,.15);border-color:rgba(22,163,74,.3);color:#16A34A}
+
+/* Stats row */
+.share-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.share-stat{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:12px;text-align:center}
+.share-stat .num{font-size:20px;font-weight:700;color:#fff}
+.share-stat .lbl{font-size:11px;color:rgba(255,255,255,.35);margin-top:2px}
+
+/* Toast */
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(80px);background:rgba(22,163,74,.9);color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:500;opacity:0;transition:all .3s;pointer-events:none;backdrop-filter:blur(8px)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="profile-modal">
+  <!-- Header -->
+  <div class="profile-header">
+    <div class="avatar-wrap">
+      <div class="avatar">D</div>
+    </div>
+    <h2>Driven Xie</h2>
+    <div class="email">driven.xie@yasbee.com</div>
+    <div class="verify-badge">✓ 已验证用户</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Account Info -->
+  <div class="info-section">
+    <h3>账户信息</h3>
+    <div class="info-grid">
+      <div class="info-row">
+        <span class="label">用户 ID</span>
+        <span class="value mono">UID-10086</span>
+      </div>
+      <div class="info-row">
+        <span class="label">注册时间</span>
+        <span class="value">2026-01-15</span>
+      </div>
+      <div class="info-row">
+        <span class="label">认证状态</span>
+        <span class="value" style="color:#16A34A;">已认证 (KYC Level 2)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Share Info -->
+  <div class="share-section">
+    <h3>邀请好友</h3>
+
+    <!-- Share Link -->
+    <div class="share-link-box">
+      <input type="text" value="https://yasbee.com/ref/A7X9K2" id="shareLink" readonly>
+      <button class="copy-btn" onclick="copyLink()">复制链接</button>
+    </div>
+
+    <!-- Share ID -->
+    <div class="share-id-row">
+      <div>
+        <div class="label">分享 ID</div>
+        <div class="id-value">REF-A7X9K2</div>
+      </div>
+      <button class="id-copy-btn" onclick="copyID(this)">复制 ID</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="share-stats">
+      <div class="share-stat">
+        <div class="num">17</div>
+        <div class="lbl">已邀请人数</div>
+      </div>
+      <div class="share-stat">
+        <div class="num">$845</div>
+        <div class="lbl">累计返点收益</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+function copyLink() {
+  const input = document.getElementById('shareLink');
+  input.select();
+  navigator.clipboard.writeText(input.value).then(() => {
+    const btn = input.parentElement.querySelector('.copy-btn');
+    btn.textContent = '已复制';
+    btn.classList.add('copied');
+    showToast('链接已复制到剪贴板');
+    setTimeout(() => { btn.textContent = '复制链接'; btn.classList.remove('copied'); }, 2500);
+  });
+}
+
+function copyID(el) {
+  const id = 'REF-A7X9K2';
+  navigator.clipboard.writeText(id).then(() => {
+    el.textContent = '已复制 ✓';
+    el.classList.add('copied');
+    showToast('分享 ID 已复制');
+    setTimeout(() => { el.textContent = '复制 ID'; el.classList.remove('copied'); }, 2500);
+  });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>

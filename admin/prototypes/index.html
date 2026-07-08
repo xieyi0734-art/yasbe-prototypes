@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Card 模块管理端原型 · 总览</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased; color: #1D2129; background: #F3F4F6; line-height: 1.5; padding: 48px; }
+  .header { max-width: 1200px; margin: 0 auto 40px; }
+  .header h1 { font-size: 32px; font-weight: 700; }
+  .header p { font-size: 14px; color: #86909C; margin-top: 8px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
+  .card { background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; overflow: hidden; transition: all .2s; }
+  .card:hover { box-shadow: 0 12px 40px rgba(0,0,0,.08); transform: translateY(-2px); }
+  .card-body { padding: 24px; }
+  .card-badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; margin-bottom: 12px; }
+  .badge-blue { background: #DBEAFE; color: #1E40AF; }
+  .badge-green { background: #DCFCE7; color: #166534; }
+  .badge-purple { background: #EDE9FE; color: #6D28D9; }
+  .badge-yellow { background: #FEF3C7; color: #92400E; }
+  .card h3 { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+  .card p { font-size: 13px; color: #6B7280; margin-bottom: 16px; }
+  .card .meta { font-size: 12px; color: #9CA3AF; } 
+  .card .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: #E59303; color: #fff; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 500; }
+  .card .btn:hover { background: #d48402; }
+  .card .features { margin-bottom: 16px; }
+  .card .features li { font-size: 13px; color: #4B5563; margin-bottom: 4px; padding-left: 16px; position: relative; list-style: none; }
+  .card .features li::before { content: "•"; position: absolute; left: 4px; color: #E59303; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>💳 Card 模块 · 管理端原型</h1>
+  <p>基于 PRD v3.1 的交互式 HTML 原型，共 8 个页面文件</p>
+</div>
+<div class="grid">
+  <div class="card">
+    <div class="card-body">
+      <div class="card-badge badge-blue">MF-C101</div>
+      <h3>客户详情 → 卡片列表</h3>
+      <p>客户详情内的卡片列表：表格、充值、状态管理</p>
+      <ul class="features">
+        <li>4 列财务统计卡片（Available, Total Expense, Refund, Deposit）</li>
+        <li>卡片列表表格（卡号/类型/余额/状态/操作）</li>
+        <li>状态筛选标签 + 搜索框</li>
+        <li>「充值」「冻结」「查看详情」行操作</li>
+      </ul>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span class="meta">01-Customer-Detail-Cards-Tab.html</span>
+        <a class="btn" href="01-Customer-Detail-Cards-Tab.html" target="_blank">打开 →</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="card-badge badge-green">MF-C102 / C501</div>
+      <h3>卡片详情页</h3>
+      <p>单卡详情页面：余额、卡片信息、交易流水</p>
+      <ul class="features">
+        <li>卡片视觉模拟（卡面、品牌、持卡人、有效期）</li>
+        <li>Detail / Hidden Tab 切换（敏感信息保护）</li>
+        <li>4 列财务统计 + 卡片信息网格</li>
+        <li>交易记录表格（类型/金额/备注）</li>
+        <li>编辑卡片弹窗（Tag/Scene/Fee Group）</li>
+        <li>新增记录 弹窗（运营手动录入）</li>
+        <li>记录删除确认</li>
+      </ul>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span class="meta">02-Card-Detail.html</span>
+        <a class="btn" href="02-Card-Detail.html" target="_blank">打开 →</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="card-badge badge-purple">MF-C201~C204</div>
+      <h3>卡片管理页面</h3>
+      <p>卡片管理首页：完整筛选、批量操作、发卡</p>
+      <ul class="features">
+        <li>全站侧边栏导航（Card management 高亮）</li>
+        <li>3 列全局统计卡片（Total Balance / Spent / Cards）</li>
+        <li>多条件筛选栏（状态/标签/客户/卡号/持卡人）</li>
+        <li>全量卡片表格（342 张卡，分页）</li>
+        <li>批量勾选 + 发新卡 入口</li>
+        <li>行操作：🔍 查看 / 💰 充值 / 📄 详情</li>
+      </ul>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span class="meta">03-Card-Management.html</span>
+        <a class="btn" href="03-Card-Management.html" target="_blank">打开 →</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="card-badge badge-blue">MF-C301/C401</div>
+      <h3>卡片操作 · 发卡/充值/状态管理</h3>
+      <p>三个核心操作弹窗集成页面</p>
+      <ul class="features">
+        <li><strong>Deposit（MF-C301）</strong>: 金额输入、快捷选择按钮、Source Account 选择、备注</li>
+        <li><strong>状态管理（MF-C401）</strong>: 四宫格状态切换（Activate/Freeze/Unfreeze/Terminate）、Reason 选择</li>
+        <li><strong>发新卡</strong>: 客户选择、卡片类型（纯虚拟卡）、Tag/Scene/Fee Group</li>
+        <li><strong>Transaction Records</strong>: 类型筛选、搜索、新增记录 入口、导出CSV</li>
+        <li>二次确认弹窗</li>
+      </ul>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span class="meta">05-Card-Actions-Deposit-Status.html</span>
+        <a class="btn" href="05-Card-Actions-Deposit-Status.html" target="_blank">打开 →</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="card-badge badge-green">MF-F101/F201/F301</div>
+      <h3>费用管理 · 费率/返佣/费用查询</h3>
+      <p>三栏费率管理配置页</p>
+      <ul class="features">
+        <li><strong>MF-F101</strong>: Fee Group 选择、8 项费率编辑（Issue/Monthly/TXN/Conversion/Chargeback/KYC/Reversal）</li>
+        <li><strong>MF-F201</strong>: 5 级返佣阶梯配置（0% ~ 1.0%）、新增阶梯</li>
+        <li><strong>MF-F301</strong>: 按月费用查询、费用明细表、Rebate 抵扣、PDF 下载</li>
+      </ul>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span class="meta">06-Fee-Management.html</span>
+        <a class="btn" href="06-Fee-Management.html" target="_blank">打开 →</a>
+      </div>
+    </div>
+  <div class="card">
+    <div class="card-body">
+      <div class="card-badge badge-yellow">渠道管理</div>
+      <h3>渠道管理</h3>
+      <p>接卡渠道管理：余额监控、预警设置、启用/禁用</p>
+      <ul class="features">
+        <li>渠道列表表格（名称/类型/余额/状态）</li>
+        <li>平台余额显示 + 低余额预警颜色标记</li>
+        <li>预警阈值设置弹窗</li>
+        <li>启用/禁用开关</li>
+      </ul>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span class="meta">07-Channel-Management.html</span>
+        <a class="btn" href="07-Channel-Management.html" target="_blank">打开 →</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="card-badge badge-purple">卡务管理</div>
+      <h3>卡务管理</h3>
+      <p>渠道卡费率配置：配置渠道下的卡片类型、费率、钱包支持、状态管理</p>
+      <ul class="features">
+        <li>卡片类型列表表格（名称/编码/渠道/Budget或Prepaid/虚拟或实体/费率摘要/状态）</li>
+        <li>新增卡片类型弹窗（基本信息、卡片属性、钱包支持、6项费率表单、备注）</li>
+        <li>卡片卡面图片上传、Google Wallet / Apple Pay 开关</li>
+        <li>费率详情弹窗（开卡费/开卡费率/充值费率/充值固定费/消费费率/消费固定费）</li>
+        <li>启用/禁用开关</li>
+      </ul>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span class="meta">08-Card-Type-Management.html</span>
+        <a class="btn" href="08-Card-Type-Management.html" target="_blank">打开 →</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="card-badge" style="background:#FFF7ED;color:#C2410C;">🆕 分销配置</div>
+      <h3>分销配置页</h3>
+      <p>一级分销管理：配置返点比例、开关控制、规则说明</p>
+      <ul class="features">
+        <li>分销总开关（启用/禁用）</li>
+        <li>5 类返点比例配置（法币充值/提现、钱包充值/提现、卡片消费）</li>
+        <li>全局统计（总推荐人数、本月返点支出、累计返点、平均获客成本）</li>
+        <li>分销规则说明（一级分销、结算周期、注册有效期、返点上限）</li>
+      </ul>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span class="meta">09-Distribution-Config.html</span>
+        <a class="btn" href="09-Distribution-Config.html" target="_blank">打开 →</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="card-badge" style="background:#EDE9FE;color:#6D28D9;">🆕 Referrals Tab</div>
+      <h3>客户详情 — 下级客户列表</h3>
+      <p>客户详情页新增 Referrals Tab，展示该客户的所有下级</p>
+      <ul class="features">
+        <li>客户分享信息展示（分享链接 + 复制、分享 ID + 来源统计）</li>
+        <li>4 列汇总统计（下级人数、本月返点、累计返点、有效推荐率）</li>
+        <li>下级客户表格（姓名/邮箱/注册时间/分享方式/状态/本月消费/返点/活跃）</li>
+        <li>状态筛选 + 搜索 + 导出</li>
+      </ul>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span class="meta">10-Customer-Detail-Referrals-Tab.html</span>
+        <a class="btn" href="10-Customer-Detail-Referrals-Tab.html" target="_blank">打开 →</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="card-badge" style="background:#0F0F13;color:#E59303;border:1px solid rgba(229,147,3,.2);">🆕 客户端</div>
+      <h3>客户端 — 用户基础信息弹窗</h3>
+      <p>YASBee 客户端（深色主题），用户查看自己的账户信息和邀请链接</p>
+      <ul class="features">
+        <li>用户头像 / 姓名 / 邮箱 / 认证状态</li>
+        <li>账户信息（用户 ID、注册时间、KYC 状态）</li>
+        <li>分享链接 + 一键复制</li>
+        <li>分享 ID + 一键复制</li>
+        <li>邀请统计（已邀请人数、累计返点收益）</li>
+        <li>分享邀请链接 按钮（调用 Web Share API）</li>
+      </ul>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span class="meta">11-Client-Profile-Modal.html</span>
+        <a class="btn" href="11-Client-Profile-Modal.html" target="_blank">打开 →</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="card-badge badge-yellow">🆕 v2.0</div>
+      <h3>📊 Card Transaction List</h3>
+      <p>平台维度的全量卡片交易流水列表，供财务对账使用</p>
+      <ul class="features">
+        <li>22 列全量字段（Tx ID / 卡号 / 客户 / 类型 / 金额 / 费用 / 商户 / 渠道费 / 净收入）</li>
+        <li>多维度筛选：类型、状态、结算状态、卡号、Tx ID、客户、日期范围</li>
+        <li>费用子类型展开筛选（开卡费/月费/充值费）</li>
+        <li>三种视图切换：All / Fee Summary / Settlement View</li>
+        <li>财务核心统计：Total Volume / Fees / Refunds / Net Revenue / Pending Settlement</li>
+        <li>行级交易详情弹窗（含 Interlace Ref、渠道费、MCC）</li>
+        <li>黄色高亮异常交易行</li>
+      </ul>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span class="meta">17-Card-Transaction-List.html</span>
+        <a class="btn" href="17-Card-Transaction-List.html" target="_blank">预览 →</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="card-badge" style="background:#0F0F13;color:#E59303;border:1px solid rgba(229,147,3,.2);">🆕 账务</div>
+      <h3>✅ 交易审核快照</h3>
+      <p>按日交易数据快照汇总，财务逐日勾对确认</p>
+      <ul class="features">
+        <li>每日快照统计：总笔数 / 成功 / 失败 / 处理中</li>
+        <li>金额统计：总交易额 / 总费用 / 净收入 / 已结算 / 未结算</li>
+        <li>审核状态标记：待审核 / 已符合 / 异常</li>
+        <li>「✅ 符合」确认操作 + 弹窗确认</li>
+        <li>「⚠️ 异常」标记 + 异常原因备注</li>
+        <li>「👁 查看明细」右侧抽屉展示当日逐笔交易</li>
+        <li>多维度筛选（审核状态 / 结算状态 / 日期范围）</li>
+      </ul>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span class="meta">18-Card-Transaction-Review.html</span>
+        <a class="btn" href="18-Card-Transaction-Review.html" target="_blank">预览 →</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="card-badge" style="background:#0F0F13;color:#E59303;border:1px solid rgba(229,147,3,.2);">🆕 加密货币</div>
+      <h3>₿ 加密货币归集设置</h3>
+      <p>链上资产归集配置页：选择链与币种，设置自动归集时间、间隔参数及开关，支持手动触发归集</p>
+      <ul class="features">
+        <li>4 条链配置（Ethereum / TRON / BSC / Polygon）</li>
+        <li>每条链下独立币种配置 + 余额展示</li>
+        <li>全局归集开关 + 每链独立开关</li>
+        <li>自动归集时间与间隔设置（UTC时间）</li>
+        <li>最低归集阈值 + 最小归集币种金额（防 Gas 浪费）</li>
+        <li>手动归集弹窗（数量/目标地址/Gas设置）</li>
+        <li>Webhook 归集通知配置</li>
+        <li>最近归集记录列表</li>
+      </ul>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span class="meta">19-Crypto-Collection-Settings.html</span>
+        <a class="btn" href="19-Crypto-Collection-Settings.html" target="_blank">预览 →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="max-width:1200px;margin:40px auto 0;padding-top:24px;border-top:1px solid #E5E7EB;">
+  <h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">📝 使用说明</h3>
+  <ul style="font-size:13px;color:#6B7280;">
+    <li>所有原型均为独立 HTML 文件，双击即可在浏览器打开</li>
+    <li>使用 Tailwind CDN，需联网加载样式</li>
+    <li>原型包含可点击交互（弹窗、切换、确认），但无真实数据连接</li>
+    <li>颜色方案：#E59303（主色）、#1D2129（深色背景）、#F3F4F6（页面底色）</li>
+    <li>与现有 Beeznis 管理系统的 Ant Design 风格对齐</li>
+    <li>对应 PRD v3.0 — 更新后需同步手册</li>
+  </ul>
+</div>
+</body>
+</html>

@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Card Introduction - YASBee</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --primary: #E59303;
+            --primary-hover: #c97e02;
+            --primary-light: #fff4e0;
+            --bg: #f5f5f5;
+            --card-bg: #ffffff;
+            --text: #1a1a1a;
+            --text-secondary: #666;
+            --text-muted: #999;
+            --border: #e8e8e8;
+            --success: #52c41a;
+            --warning: #faad14;
+            --radius: 12px;
+            --shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+        /* ===== Layout ===== */
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px 80px;
+        }
+        .page-header {
+            margin-bottom: 32px;
+        }
+        .page-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .page-header p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+        /* ===== Card Detail Hero ===== */
+        .card-hero {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 32px;
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+            margin-bottom: 24px;
+        }
+        .card-visual {
+            flex-shrink: 0;
+            width: 340px;
+        }
+        .card-image-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1.586 / 1;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            border-radius: 12px;
+            padding: 24px;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+        .card-image-wrapper::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -30%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(229,147,3,0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .card-chip {
+            width: 40px;
+            height: 30px;
+            background: linear-gradient(135deg, #d4af37, #f0d68a);
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+        .card-brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .card-brand-name {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .card-brand-logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .card-number-display {
+            font-size: 16px;
+            letter-spacing: 3px;
+            font-family: 'Courier New', monospace;
+            margin: 16px 0 8px;
+            opacity: 0.9;
+        }
+        .card-holder-display {
+            font-size: 12px;
+            text-transform: uppercase;
+            opacity: 0.7;
+            margin-top: auto;
+        }
+        .card-details {
+            flex: 1;
+            min-width: 0;
+        }
+        .card-details h2 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .card-details .card-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+        .fee-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .fee-item {
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 14px 16px;
+        }
+        .fee-item .fee-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+        .fee-item .fee-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .fee-item .fee-value .currency {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        .fee-item .fee-note {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        /* ===== Supported Business ===== */
+        .business-section {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 28px 32px;
+            margin-bottom: 24px;
+        }
+        .business-section h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .business-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .business-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            background: var(--primary-light);
+            color: #8c5e00;
+            border: 1px solid #f0dba0;
+        }
+        .business-tag .icon {
+            font-size: 14px;
+        }
+        /* ===== Actions ===== */
+        .card-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+        .btn-outline {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        /* ===== Fee Tabs ===== */
+        .fee-tabs {
+            margin-top: 24px;
+        }
+        .fee-tab-nav {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 12px;
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 3px;
+        }
+        .fee-tab-btn {
+            flex: 1;
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .fee-tab-btn.active {
+            background: #fff;
+            color: var(--text);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .fee-detail-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .fee-detail-table tr {
+            border-bottom: 1px solid var(--border);
+        }
+        .fee-detail-table tr:last-child {
+            border-bottom: none;
+        }
+        .fee-detail-table td {
+            padding: 10px 0;
+            font-size: 13px;
+        }
+        .fee-detail-table td:first-child {
+            color: var(--text-secondary);
+            width: 55%;
+        }
+        .fee-detail-table td:last-child {
+            text-align: right;
+            font-weight: 600;
+        }
+        /* ===== Modal ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 40px 16px;
+        }
+        .modal-overlay.active {
+            display: block;
+        }
+        .modal {
+            max-width: 640px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .modal-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--bg);
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-close:hover {
+            background: #e0e0e0;
+        }
+        .modal-body {
+            padding: 24px;
+        }
+        .step-indicator {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        .step-dot {
+            flex: 1;
+            height: 4px;
+            border-radius: 2px;
+            background: var(--border);
+            transition: background 0.3s;
+        }
+        .step-dot.active {
+            background: var(--primary);
+        }
+        .step-dot.completed {
+            background: var(--success);
+        }
+        .form-step {
+            display: none;
+        }
+        .form-step.active {
+            display: block;
+        }
+        .form-step h4 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+        .form-row.three {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .form-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        .form-group label .required {
+            color: #f5222d;
+            margin-left: 2px;
+        }
+        .form-group input,
+        .form-group select {
+            padding: 9px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: inherit;
+            background: #fff;
+            color: var(--text);
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(229,147,3,0.1);
+        }
+        .form-group input::placeholder {
+            color: #bbb;
+        }
+        .file-upload {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .file-upload:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+        .file-upload .upload-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+        .file-upload .upload-text {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .file-upload.has-file {
+            border-style: solid;
+            border-color: var(--success);
+            background: #f6ffed;
+        }
+        .file-upload.has-file .file-name {
+            font-size: 11px;
+            color: var(--success);
+            margin-top: 4px;
+            word-break: break-all;
+        }
+        .file-upload input[type="file"] {
+            display: none;
+        }
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+        .btn-secondary {
+            background: var(--bg);
+            color: var(--text);
+        }
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        /* ===== Success ===== */
+        .success-screen {
+            text-align: center;
+            padding: 40px 20px;
+            display: none;
+        }
+        .success-screen.active {
+            display: block;
+        }
+        .success-icon {
+            width: 64px;
+            height: 64px;
+            background: #f6ffed;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 32px;
+        }
+        .success-screen h4 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+        .success-screen p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+
+    <!-- ===== Page Header ===== -->
+    <div class="page-header">
+        <h1>Card Introduction</h1>
+        <p>View card details, fees, and supported business — apply for a new card</p>
+    </div>
+
+    <!-- ===== Card Hero ===== -->
+    <div class="card-hero">
+        <div class="card-visual">
+            <div class="card-image-wrapper">
+                <div class="card-brand">
+                    <div class="card-chip"></div>
+                    <div class="card-brand-logo">YASBee</div>
+                </div>
+                <div class="card-number-display">••••  ••••  ••••  ••••</div>
+                <div class="card-holder-display">CARDHOLDER NAME</div>
+            </div>
+        </div>
+        <div class="card-details">
+            <h2>YASBee Virtual Prepaid Card</h2>
+            <div class="card-subtitle">Multi-currency prepaid card powered by Interlace · Mastercard Network</div>
+
+            <div class="fee-grid">
+                <div class="fee-item">
+                    <div class="fee-label">Card Issuance Fee</div>
+                    <div class="fee-value">Free <span class="currency"></span></div>
+                    <div class="fee-note">No charge for virtual card</div>
+                </div>
+                <div class="fee-item">
+                    <div class="fee-label">Monthly Maintenance</div>
+                    <div class="fee-value">$0.12 <span class="currency">~ $0.25</span></div>
+                    <div class="fee-note">Per active card</div>
+                </div>
+                <div class="fee-item">
+                    <div class="fee-label">Chargeback Fee</div>
+                    <div class="fee-value">$35 <span class="currency"></span></div>
+                    <div class="fee-note">Per dispute</div>
+                </div>
+            </div>
+
+            <div class="fee-tabs">
+                <div class="fee-tab-nav">
+                    <button class="fee-tab-btn active" onclick="switchFeeTab(this, 'transaction')">Transaction Fees</button>
+                    <button class="fee-tab-btn" onclick="switchFeeTab(this, 'other')">Other Fees</button>
+                </div>
+                <div id="fee-transaction" class="fee-tab-content">
+                    <table class="fee-detail-table">
+                        <tr><td>Domestic Transaction (USD)</td><td>1.5%</td></tr>
+                        <tr><td>International Transaction</td><td>2.5%</td></tr>
+                        <tr><td>ATM Withdrawal</td><td>$3.00</td></tr>
+                        <tr><td>ATM Balance Inquiry</td><td>$1.00</td></tr>
+                        <tr><td>Currency Conversion</td><td>1.0%</td></tr>
+                    </table>
+                </div>
+                <div id="fee-other" class="fee-tab-content" style="display:none">
+                    <table class="fee-detail-table">
+                        <tr><td>Card Replacement</td><td>$5.00</td></tr>
+                        <tr><td>PIN Change</td><td>Free</td></tr>
+                        <tr><td>Card Closure</td><td>Free</td></tr>
+                        <tr><td>Inactivity Fee (12+ months)</td><td>$2.00/mo</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card-actions">
+                <button class="btn btn-primary" onclick="openModal()">Apply Now</button>
+                <button class="btn btn-outline">Compare Cards</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Supported Business ===== -->
+    <div class="business-section">
+        <h3>🪪 Supported Business</h3>
+        <div class="business-tags">
+            <span class="business-tag"><span class="icon">🛒</span> E-commerce</span>
+            <span class="business-tag"><span class="icon">📢</span> Advertising</span>
+            <span class="business-tag"><span class="icon">☁️</span> SaaS Subscription</span>
+            <span class="business-tag"><span class="icon">✈️</span> Travel & Hospitality</span>
+            <span class="business-tag"><span class="icon">📦</span> Logistics</span>
+            <span class="business-tag"><span class="icon">💻</span> Digital Services</span>
+            <span class="business-tag"><span class="icon">🎮</span> Gaming</span>
+            <span class="business-tag"><span class="icon">🏪</span> Retail</span>
+            <span class="business-tag"><span class="icon">📊</span> Freelance Platforms</span>
+            <span class="business-tag"><span class="icon">🎁</span> Rewards Programs</span>
+        </div>
+    </div>
+
+    <!-- ===== KYC Application Modal ===== -->
+    <div class="modal-overlay" id="kycModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Cardholder Application</h3>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body">
+
+                <!-- Step Dots -->
+                <div class="step-indicator">
+                    <div class="step-dot active" id="dot-1"></div>
+                    <div class="step-dot" id="dot-2"></div>
+                    <div class="step-dot" id="dot-3"></div>
+                    <div class="step-dot" id="dot-4"></div>
+                </div>
+
+                <!-- Step 1: Personal Information (Consumer MoR) -->
+                <div class="form-step active" id="step-1">
+                    <h4>Step 1 — Personal Information</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>First Name <span class="required">*</span></label>
+                            <input type="text" placeholder="John" />
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name <span class="required">*</span></label>
+                            <input type="text" placeholder="Doe" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Email <span class="required">*</span></label>
+                            <input type="email" placeholder="example@email.com" />
+                        </div>
+                        <div class="form-group">
+                            <label>Date of Birth <span class="required">*</span></label>
+                            <input type="date" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Phone Country Code <span class="required">*</span></label>
+                            <select>
+                                <option value="1">+1 US</option>
+                                <option value="44">+44 UK</option>
+                                <option value="81">+81 Japan</option>
+                                <option value="852">+852 Hong Kong</option>
+                                <option value="86" selected>+86 China</option>
+                                <option value="91">+91 India</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number <span class="required">*</span></label>
+                            <input type="tel" placeholder="13800138000" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nationality <span class="required">*</span></label>
+                            <select>
+                                <option value="CN">China</option>
+                                <option value="HK">Hong Kong</option>
+                                <option value="US">United States</option>
+                                <option value="GB">United Kingdom</option>
+                                <option value="JP">Japan</option>
+                                <option value="IN">India</option>
+                                <option value="SG">Singapore</option>
+                                <option value="KR">South Korea</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Gender <span class="required">*</span></label>
+                            <select>
+                                <option value="M">Male</option>
+                                <option value="F">Female</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row full">
+                        <div class="form-group">
+                            <label>Occupation Code</label>
+                            <input type="text" placeholder="e.g. 11-1011 (Chief Executives)" />
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <div></div>
+                        <button class="btn btn-primary" onclick="nextStep(2)">Next →</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Identity Documents -->
+                <div class="form-step" id="step-2">
+                    <h4>Step 2 — Identity Documents</h4>
+                    <div class="form-row three">
+                        <div class="form-group">
+                            <label>ID Type <span class="required">*</span></label>
+                            <select>
+                                <option value="CN-RIC">China Resident ID Card (CN-RIC)</option>
+                                <option value="HK-HKID">Hong Kong ID Card (HK-HKID)</option>
+                                <option value="PASSPORT">Passport</option>
+                                <option value="DLN">Driver's License</option>
+                                <option value="Government-Issued ID Card">Government-Issued ID Card</option>
+                                <option value="EU Residency Permit">EU Residency Permit</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>SSN (US only)</label>
+                            <input type="text" placeholder="123456789" maxlength="9" />
+                        </div>
+                    </div>
+                    <div class="form-row three">
+                        <div class="form-group">
+                            <label>Issue Date</label>
+                            <input type="date" />
+                        </div>
+                        <div class="form-group">
+                            <label>Expiry Date</label>
+                            <input type="date" />
+                        </div>
+                    </div>
+                    <div class="form-row" style="grid-template-columns:1fr 1fr 1fr;">
+                        <div class="form-group">
+                            <label>ID Front <span class="required">*</span></label>
+                            <div class="file-upload" onclick="document.getElementById('idFrontInput').click()">
+                                <div class="upload-icon">📄</div>
+                                <div class="upload-text">Upload front side</div>
+                                <div class="file-name"></div>
+                                <input type="file" id="idFrontInput" accept="image/*" onchange="handleFileUpload(this, 'ID Front')">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>ID Back</label>
+                            <div class="file-upload" onclick="document.getElementById('idBackInput').click()">
+                                <div class="upload-icon">📄</div>
+                                <div class="upload-text">Upload back side</div>
+                                <div class="file-name"></div>
+                                <input type="file" id="idBackInput" accept="image/*" onchange="handleFileUpload(this, 'ID Back')">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Selfie <span class="required">*</span></label>
+                            <div class="file-upload" onclick="document.getElementById('selfieInput').click()">
+                                <div class="upload-icon">📸</div>
+                                <div class="upload-text">Upload selfie</div>
+                                <div class="file-name"></div>
+                                <input type="file" id="selfieInput" accept="image/*" onchange="handleFileUpload(this, 'Selfie')">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-outline" onclick="prevStep(1)">← Back</button>
+                        <button class="btn btn-primary" onclick="nextStep(3)">Next →</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Address -->
+                <div class="form-step" id="step-3">
+                    <h4>Step 3 — Address Information</h4>
+                    <div class="form-row full">
+                        <div class="form-group">
+                            <label>Address Line 1 <span class="required">*</span></label>
+                            <input type="text" placeholder="123 Main Street, Street address / PO Box / Company name" />
+                        </div>
+                    </div>
+                    <div class="form-row full">
+                        <div class="form-group">
+                            <label>Address Line 2</label>
+                            <input type="text" placeholder="Apt 4B, Suite / Unit / Building (optional)" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>City <span class="required">*</span></label>
+                            <input type="text" placeholder="New York" />
+                        </div>
+                        <div class="form-group">
+                            <label>State / Province <span class="required">*</span></label>
+                            <input type="text" placeholder="NY / California / ..." />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Country <span class="required">*</span></label>
+                            <select>
+                                <option value="CHN">China</option>
+                                <option value="HKG">Hong Kong</option>
+                                <option value="USA">United States</option>
+                                <option value="GBR">United Kingdom</option>
+                                <option value="JPN">Japan</option>
+                                <option value="SGP">Singapore</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Postal Code <span class="required">*</span></label>
+                            <input type="text" placeholder="10001" />
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-outline" onclick="prevStep(2)">← Back</button>
+                        <button class="btn btn-primary" onclick="nextStep(4)">Next →</button>
+                    </div>
+                </div>
+
+                <!-- Step 4: Financial & Additional -->
+                <div class="form-step" id="step-4">
+                    <h4>Step 4 — Financial & Additional Info</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Annual Salary</label>
+                            <input type="text" placeholder="e.g. 10000 USD" />
+                        </div>
+                        <div class="form-group">
+                            <label>Expected Monthly Volume</label>
+                            <input type="text" placeholder="e.g. 1000 USD" />
+                        </div>
+                    </div>
+                    <div class="form-row full">
+                        <div class="form-group">
+                            <label>Account Purpose</label>
+                            <input type="text" placeholder="e.g. Living Expense, Business Travel" />
+                        </div>
+                    </div>
+                    <div class="form-row full">
+                        <div class="form-group">
+                            <label>IP Address <span class="hint">(for risk assessment)</span></label>
+                            <input type="text" placeholder="e.g. 192.168.1.1" />
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-outline" onclick="prevStep(3)">← Back</button>
+                        <button class="btn btn-primary" onclick="submitApplication()">Submit</button>
+                    </div>
+                </div>
+
+                <!-- Success Screen -->
+                <div class="success-screen" id="successScreen">
+                    <div class="success-icon">✅</div>
+                    <h4>Application Submitted</h4>
+                    <p>Your cardholder application has been submitted for review. We'll notify you once it's approved.</p>
+                    <button class="btn btn-primary" onclick="closeModal()">Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let currentStep = 1;
+
+    function handleFileUpload(input, label) {
+        const container = input.closest('.file-upload');
+        const fileNameEl = container.querySelector('.file-name');
+        const textEl = container.querySelector('.upload-text');
+        if (input.files && input.files[0]) {
+            container.classList.add('has-file');
+            textEl.textContent = '✅ Uploaded';
+            fileNameEl.textContent = input.files[0].name;
+        } else {
+            container.classList.remove('has-file');
+            textEl.textContent = 'Upload ' + label.toLowerCase().replace('id ', 'id ');
+            fileNameEl.textContent = '';
+        }
+    }
+
+    function switchFeeTab(btn, tab) {
+        document.querySelectorAll('.fee-tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.fee-tab-content').forEach(c => c.style.display = 'none');
+        document.getElementById('fee-' + tab).style.display = 'block';
+    }
+
+    function openModal() {
+        document.getElementById('kycModal').classList.add('active');
+        currentStep = 1;
+        showStep(1);
+        document.getElementById('successScreen').classList.remove('active');
+    }
+
+    function closeModal() {
+        document.getElementById('kycModal').classList.remove('active');
+    }
+
+    function nextStep(step) {
+        currentStep = step;
+        showStep(step);
+    }
+
+    function prevStep(step) {
+        currentStep = step;
+        showStep(step);
+    }
+
+    function showStep(step) {
+        document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
+        document.getElementById('step-' + step).classList.add('active');
+
+        // Update dots
+        for (let i = 1; i <= 4; i++) {
+            const dot = document.getElementById('dot-' + i);
+            dot.classList.remove('active');
+            dot.classList.remove('completed');
+            if (i === step) dot.classList.add('active');
+            else if (i < step) dot.classList.add('completed');
+        }
+
+        // Hide form steps, show success?
+        document.querySelectorAll('.form-step').forEach(el => el.style.display = '');
+    }
+
+    function submitApplication() {
+        document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
+        document.getElementById('successScreen').classList.add('active');
+    }
+
+    // Close on overlay click
+    document.getElementById('kycModal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+</script>
+</body>
+</html>

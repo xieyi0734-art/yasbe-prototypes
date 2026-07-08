@@ -1,0 +1,585 @@
+     1|<!DOCTYPE html>
+     2|<html lang="en">
+     3|<head>
+     4|<meta charset="UTF-8">
+     5|<meta name="viewport" content="width=device-width, initial-scale=1.0">
+     6|<title>Fee Management - Beeznis Admin</title>
+     7|<style>
+     8|:root {
+     9|  --color-primary: #E59303;
+    10|  --color-sidebar-bg: #1D2129;
+    11|  --color-bg: #F0F2F5;
+    12|  --color-card-bg: #FFFFFF;
+    13|  --color-text: #1D2129;
+    14|  --color-text-secondary: #86909C;
+    15|  --color-border: #E5E8EB;
+    16|  --color-success: #52C41A;
+    17|  --color-error: #F5222D;
+    18|  --color-warning: #FAAD14;
+    19|}
+    20|* { box-sizing: border-box; margin: 0; padding: 0; }
+    21|body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: var(--color-bg); color: var(--color-text); font-size: 14px; display: flex; min-height: 100vh; }
+    22|.sidebar { width: 240px; background: var(--color-sidebar-bg); color: #fff; display: flex; flex-direction: column; flex-shrink: 0; height: 100vh; position: sticky; top: 0; overflow-y: auto; }
+    23|.sidebar-logo { padding: 20px 16px 12px; border-bottom: 1px solid rgba(255,255,255,.06); }
+    24|.sidebar-logo h2 { font-size: 16px; font-weight: 700; letter-spacing: 1px; }
+    25|.sidebar-logo span { font-size: 11px; color: var(--color-text-secondary); }
+    26|.sidebar-menu { padding: 8px 0; flex: 1; }
+    27|.menu-item { display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: rgba(255,255,255,.75); font-size: 13px; cursor: pointer; transition: all .15s; text-decoration: none; }
+    28|.menu-item:hover { background: rgba(255,255,255,.08); }
+    29|.menu-item.active { background: var(--color-primary); color: #fff; font-weight: 600; }
+    30|.menu-item .icon { font-size: 16px; width: 20px; text-align: center; }
+    31|.submenu { padding-left: 36px; }
+    32|.submenu .menu-item { font-size: 12px; padding: 8px 16px; }
+    33|.submenu .menu-item.active { background: rgba(229,147,3,.2); color: var(--color-primary); }
+    34|.sidebar-footer { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,.06); display: flex; align-items: center; gap: 10px; }
+    35|.sidebar-footer .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--color-primary); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: #fff; }
+    36|.main { flex: 1; min-width: 0; }
+    37|.header { background: #fff; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--color-border); position: sticky; top: 0; z-index: 100; }
+    38|.breadcrumb { font-size: 12px; color: var(--color-text-secondary); }
+    39|.content { padding: 24px; }
+    40|.page-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    41|.page-title h1 { font-size: 22px; font-weight: 600; }
+    42|.section-card { background: #fff; border-radius: 8px; padding: 20px 24px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+    43|.section-card h2 { font-size: 15px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    44|.btn-primary { background: var(--color-primary); color: #fff; border: none; padding: 8px 20px; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 500; transition: opacity .15s; }
+    45|.btn-primary:hover { opacity: .85; }
+    46|.btn-outline { background: #fff; color: var(--color-text); border: 1px solid var(--color-border); padding: 8px 20px; border-radius: 6px; font-size: 13px; cursor: pointer; transition: all .15s; }
+    47|.btn-outline:hover { border-color: var(--color-primary); color: var(--color-primary); }
+    48|.btn-danger { background: var(--color-error); color: #fff; border: none; padding: 8px 20px; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 500; }
+    49|.btn-sm { padding: 5px 12px; font-size: 12px; }
+    50|.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+    51|.badge-green { background: #DCFCE7; color: #166534; }
+    52|.badge-orange { background: #FFF7ED; color: #9A3412; }
+    53|.badge-red { background: #FEE2E2; color: #991B1B; }
+    54|.badge-gray { background: #F3F4F6; color: #6B7280; }
+    55|.badge-blue { background: #DBEAFE; color: #1D4ED8; }
+    56|.badge-yellow { background: #FEF3C7; color: #92400E; }
+    57|.badge-purple { background: #F3E8FF; color: #6B21A8; }
+    58|.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    59|.data-table th { background: #FAFAFA; padding: 10px 14px; text-align: left; font-weight: 600; font-size: 12px; border-bottom: 1px solid var(--color-border); white-space: nowrap; }
+    60|.data-table td { padding: 10px 14px; border-bottom: 1px solid #F0F0F0; }
+    61|.data-table tr:nth-child(even) { background: #FAFAFA; }
+    62|.data-table tr:hover { background: #F5F5F5; }
+    63|.pagination { padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--color-text-secondary); border-top: 1px solid var(--color-border); }
+    64|.page-btn { padding: 4px 10px; border: 1px solid var(--color-border); border-radius: 4px; cursor: pointer; background: #fff; font-size: 12px; }
+    65|.page-btn.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+    66|.page-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+    67|.action-link { color: var(--color-primary); cursor: pointer; background: none; border: none; font-size: 12px; padding: 2px 4px; text-decoration: none; }
+    68|.action-link:hover { text-decoration: underline; }
+    69|.tab-bar { display: flex; background: #fff; border-radius: 8px 8px 0 0; border-bottom: 2px solid var(--color-border); box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+    70|.tab-item { padding: 12px 24px; font-size: 13px; font-weight: 500; color: var(--color-text-secondary); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all .15s; }
+    71|.tab-item:hover { color: var(--color-primary); }
+    72|.tab-item.active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+    73|.tab-content { display: none; }
+    74|.tab-content.active { display: block; }
+    75|.table-card { background: #fff; border-radius: 0 0 8px 8px; box-shadow: 0 1px 3px rgba(0,0,0,.06); overflow: hidden; }
+    76|.filter-bar { padding: 12px 16px; border-bottom: 1px solid var(--color-border); display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; background: #fff; }
+    77|.filter-bar .field { display: flex; flex-direction: column; }
+    78|.filter-bar .field label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 3px; }
+    79|.filter-bar input, .filter-bar select { padding: 6px 10px; border: 1px solid var(--color-border); border-radius: 4px; font-size: 12px; outline: none; }
+    80|.filter-bar input:focus, .filter-bar select:focus { border-color: var(--color-primary); }
+    81|.summary-bar { background: #F9FAFB; padding: 12px 16px; border-bottom: 1px solid var(--color-border); font-size: 12px; display: flex; flex-wrap: wrap; gap: 16px; }
+    82|.alert { padding: 10px 14px; border-radius: 6px; font-size: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    83|.alert-warning { background: #FFFBE6; border: 1px solid #FFE58F; color: #AD8B00; }
+    84|.alert-info { background: #E6F7FF; border: 1px solid #91D5FF; color: #0050B3; }
+    85|.alert-success { background: #F6FFED; border: 1px solid #B7EB8F; color: #389E0D; }
+    86|.alert-error { background: #FFF2F0; border: 1px solid #FFCCC7; color: var(--color-error); }
+    87|.form-group { margin-bottom: 14px; }
+    88|.form-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+    89|.form-group .required::after { content: " *"; color: var(--color-error); }
+    90|.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--color-border); border-radius: 6px; font-size: 13px; outline: none; font-family: inherit; }
+    91|.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--color-primary); box-shadow: 0 0 0 2px rgba(229,147,3,.08); }
+    92|.form-row { display: flex; gap: 12px; }
+    93|.form-row .form-group { flex: 1; }
+    94|.fee-rules { display: flex; flex-direction: column; gap: 12px; }
+    95|.fee-rule-row { display: flex; align-items: center; gap: 16px; padding: 12px 16px; background: var(--color-bg); border-radius: 8px; border: 1px solid var(--color-border); flex-wrap: wrap; }
+    96|.fee-rule-row .rule-label { min-width: 160px; font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+    97|.fee-rule-row .rule-input { display: flex; align-items: center; gap: 6px; }
+    98|.fee-rule-row .rule-input input { width: 100px; padding: 6px 10px; border: 1px solid var(--color-border); border-radius: 4px; font-size: 13px; text-align: right; outline: none; }
+    99|.fee-rule-row .rule-input input:focus { border-color: var(--color-primary); }
+   100|.fee-rule-row .rule-input select { padding: 6px 10px; border: 1px solid var(--color-border); border-radius: 4px; font-size: 13px; outline: none; }
+   101|.fee-rule-row .rule-desc { font-size: 11px; color: var(--color-text-secondary); flex: 1; min-width: 120px; }
+   102|.fee-rule-row .rule-toggle { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+   103|.toggle-switch { width: 36px; height: 20px; border-radius: 10px; background: #D9D9D9; cursor: pointer; position: relative; transition: background .2s; }
+   104|.toggle-switch.on { background: var(--color-primary); }
+   105|.toggle-switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: left .2s; }
+   106|.toggle-switch.on::after { left: 18px; }
+   107|.fee-group-title { font-size: 13px; font-weight: 600; color: var(--color-primary); margin-bottom: 8px; padding-left: 4px; display: flex; align-items: center; gap: 6px; }
+   108|.fee-group-divider { border: none; border-top: 1px dashed var(--color-border); margin: 8px 0; }
+   109|.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 1000; overflow-y: auto; }
+   110|.modal-overlay.active { display: flex; align-items: center; justify-content: center; }
+   111|.modal { background: #fff; border-radius: 16px; width: 640px; max-width: 90vw; max-height: 85vh; padding: 24px; box-shadow: 0 20px 60px rgba(0,0,0,.15); margin: auto; overflow-y: auto; }
+   112|.modal-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid var(--color-border); margin-bottom: 16px; }
+   113|.modal-header h3 { font-size: 16px; font-weight: 600; }
+   114|.modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--color-text-secondary); padding: 4px; line-height: 1; }
+   115|.modal-close:hover { color: var(--color-text); }
+   116|.modal-footer { display: flex; justify-content: flex-end; gap: 8px; padding-top: 16px; border-top: 1px solid var(--color-border); margin-top: 16px; }
+   117|.drawer-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.3); z-index: 999; }
+   118|.drawer-overlay.active { display: block; }
+   119|.drawer { position: fixed; top: 0; right: -480px; width: 480px; height: 100%; background: #fff; z-index: 1000; box-shadow: -4px 0 20px rgba(0,0,0,.1); transition: right .3s ease; display: flex; flex-direction: column; }
+   120|.drawer.open { right: 0; }
+   121|.drawer-header { padding: 20px 24px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; }
+   122|.drawer-header h3 { font-size: 16px; font-weight: 600; }
+   123|.drawer-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
+   124|.drawer-body .info-row { display: flex; padding: 10px 0; border-bottom: 1px solid #F5F5F5; }
+   125|.drawer-body .info-row .label { width: 130px; color: var(--color-text-secondary); font-size: 12px; flex-shrink: 0; }
+   126|.drawer-body .info-row .value { flex: 1; font-size: 13px; font-weight: 500; }
+   127|.drawer-footer { padding: 16px 24px; border-top: 1px solid var(--color-border); display: flex; justify-content: flex-end; gap: 8px; }
+   128|.card-summary { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+   129|.summary-card { background: #fff; border-radius: 8px; padding: 16px 20px; flex: 1; min-width: 160px; box-shadow: 0 1px 3px rgba(0,0,0,.06); border-left: 3px solid var(--color-primary); }
+   130|.summary-card .num { font-size: 22px; font-weight: 700; }
+   131|.summary-card .label { font-size: 12px; color: var(--color-text-secondary); margin-top: 4px; }
+   132|.summary-card.revenue { border-left-color: var(--color-success); }
+   133|.summary-card.fees { border-left-color: var(--color-error); }
+   134|.summary-card.rebate { border-left-color: var(--color-warning); }
+   135|</style>
+   136|</head>
+<body>
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-logo"><h2>YASBE</h2><span>Admin Console</span></div>
+  <div class="sidebar-menu">
+    <a class="menu-item"><span class="icon">📊</span> Dashboard</a>
+    <a class="menu-item"><span class="icon">👤</span> Customer Management</a>
+    <a class="menu-item"><span class="icon">📂</span> KYC Management</a>
+    <a class="menu-item active"><span class="icon">🌐</span> Channel Management</a>
+    <div class="submenu">
+      <a class="menu-item"><span class="icon">📡</span> Card Service Management</a>
+      <a class="menu-item"><span class="icon">💳</span> Card Account Overview</a>
+      <a class="menu-item active"><span class="icon">📄</span> Fee Management</a>
+      <a class="menu-item"><span class="icon">📥</span> Investment management</a>
+      <a class="menu-item"><span class="icon">🔄</span> Rebate Management</a>
+    </div>
+    <a class="menu-item"><span class="icon">📈</span> Reports</a>
+    <a class="menu-item"><span class="icon">⚙️</span> Settings</a>
+  </div>
+  <div class="sidebar-footer">
+    <div class="avatar">DX</div>
+    <div class="info"><div class="name">Driven Xie</div></div>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <div class="header">
+    <div class="header-left">
+      <span class="breadcrumb">Channel Management / Card Service Management / <span>Fee Management</span></span>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-title">
+      <h1>📄 Fee Management</h1>
+      <div>
+        <button class="btn-outline btn-sm" onclick="alert('Changes saved to draft')">💾 Save Draft</button>
+        <button class="btn-primary btn-sm" onclick="alert('All fee rules published successfully')">🚀 Publish All</button>
+      </div>
+    </div>
+
+    <!-- Summary Bar -->
+    <div class="card-summary">
+      <div class="summary-card">
+        <div class="num">$32,450.00</div>
+        <div class="label">Total Fee Revenue (This Month)</div>
+      </div>
+      <div class="summary-card revenue">
+        <div class="num">$28,200.00</div>
+        <div class="label">Opening Fee Collected</div>
+      </div>
+      <div class="summary-card fees">
+        <div class="num">$3,250.00</div>
+        <div class="label">Service Fees Charged</div>
+      </div>
+      <div class="summary-card rebate">
+        <div class="num">12,450 YASBee</div>
+        <div class="label">Rebate Issued (YASBee)</div>
+      </div>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <div class="tab-item active" onclick="switchTab('feerules')">⚙️ Fee Configuration</div>
+      <div class="tab-item" onclick="switchTab('feebilling')">📋 Fee Billing Records</div>
+      <div class="tab-item" onclick="switchTab('masstemplate')">📄 Mass Configuration</div>
+    </div>
+
+    <!-- Tab: Fee Configuration -->
+    <div class="tab-content active" id="contentFeerules">
+      <div class="section-card">
+        <h2>💳 Card Opening Fees</h2>
+        <div class="fee-rules">
+          <div class="fee-rule-row">
+            <div class="rule-label">🔓 Opening Fee (Fixed)</div>
+            <div class="rule-input">
+              <span>$</span><input type="text" value="2.50">
+            </div>
+            <div class="rule-desc">Flat fee charged per card issuance</div>
+            <div class="rule-toggle">
+              <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+              <span>Enabled</span>
+            </div>
+          </div>
+          <div class="fee-rule-row">
+            <div class="rule-label">📊 Opening Fee Rate</div>
+            <div class="rule-input">
+              <input type="text" value="0.50"><span>%</span>
+            </div>
+            <div class="rule-desc">Percentage-based fee (mutually exclusive with fixed opening fee)<br><span style="color:var(--color-warning);">Note: Currently disabled — fixed fee is active</span></div>
+            <div class="rule-toggle">
+              <div class="toggle-switch" onclick="this.classList.toggle('on')"></div>
+              <span>Disabled</span>
+            </div>
+          </div>
+          <div class="fee-rule-row">
+            <div class="rule-label">🎉 First Open Discount</div>
+            <div class="rule-input">
+              <span>$</span><input type="text" value="0.00">
+            </div>
+            <div class="rule-desc">Discount for user's first card opening</div>
+            <div class="rule-toggle">
+              <div class="toggle-switch" onclick="this.classList.toggle('on')"></div>
+              <span>Disabled</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <h2>📥 Recharge Fees</h2>
+        <div class="fee-rules">
+          <div class="fee-rule-row">
+            <div class="rule-label">📊 Recharge Fee Rate</div>
+            <div class="rule-input">
+              <input type="text" value="0.50"><span>%</span>
+            </div>
+            <div class="rule-desc">Percentage of recharge amount<br><span style="color:var(--color-text-secondary);">Min: $0.10 | Max: $10.00</span></div>
+            <div class="rule-toggle">
+              <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+              <span>Enabled</span>
+            </div>
+          </div>
+          <div class="fee-rule-row">
+            <div class="rule-label">💰 Recharge Fixed Fee</div>
+            <div class="rule-input">
+              <span>$</span><input type="text" value="0.25">
+            </div>
+            <div class="rule-desc">Fixed fee per recharge transaction (mutually exclusive with rate)<br><span style="color:var(--color-warning);">Note: Currently disabled — rate-based is active</span></div>
+            <div class="rule-toggle">
+              <div class="toggle-switch" onclick="this.classList.toggle('on')"></div>
+              <span>Disabled</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <h2>🛒 Consumption Fees</h2>
+        <div class="fee-rules">
+          <div class="fee-rule-row">
+            <div class="rule-label">📊 Consumption Fee Rate</div>
+            <div class="rule-input">
+              <input type="text" value="1.00"><span>%</span>
+            </div>
+            <div class="rule-desc">Percentage of transaction amount<br><span style="color:var(--color-text-secondary);">Min: $0.10 | Max: $25.00</span></div>
+            <div class="rule-toggle">
+              <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+              <span>Enabled</span>
+            </div>
+          </div>
+          <div class="fee-rule-row">
+            <div class="rule-label">💰 Consumption Fixed Fee</div>
+            <div class="rule-input">
+              <span>$</span><input type="text" value="0.30">
+            </div>
+            <div class="rule-desc">Fixed fee per transaction (mutually exclusive with rate)<br><span style="color:var(--color-warning);">Note: Currently disabled — rate-based is active</span></div>
+            <div class="rule-toggle">
+              <div class="toggle-switch" onclick="this.classList.toggle('on')"></div>
+              <span>Disabled</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <h2>📆 Monthly / Chargeback Fees</h2>
+        <div class="fee-rules">
+          <div class="fee-rule-row">
+            <div class="rule-label">📅 Monthly Fee</div>
+            <div class="rule-input">
+              <span>$</span><input type="text" value="0.12"><span>~</span><span>$</span><input type="text" value="0.25">
+            </div>
+            <div class="rule-desc">Per card monthly fee ($0.12~$0.25/month, normal status).<br>Range applies based on card type / usage tier.</div>
+            <div class="rule-toggle">
+              <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+              <span>Enabled</span>
+            </div>
+          </div>
+          <div class="fee-rule-row">
+            <div class="rule-label">⚡ Chargeback Fee</div>
+            <div class="rule-input">
+              <span>$</span><input type="text" value="35.00">
+            </div>
+            <div class="rule-desc">Per chargeback event — handled by offline operations</div>
+            <div class="rule-toggle">
+              <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+              <span>Enabled</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <h2>🔄 Rebate Configuration</h2>
+        <div class="alert alert-info" style="margin-bottom:12px;">
+          💡 Rebate is NOT a fee. It is issued in <strong>YASBee tokens</strong> based on rebate rate — does not affect USD fee totals or net revenue calculations.
+        </div>
+        <div class="fee-rules">
+          <div class="fee-rule-row">
+            <div class="rule-label">🔁 Rebate Rate</div>
+            <div class="rule-input">
+              <input type="text" value="0.30"><span>%</span>
+            </div>
+            <div class="rule-desc">% of transaction volume returned as YASBee tokens.<br>Distributed separately from USD fee accounting.</div>
+            <div class="rule-toggle">
+              <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+              <span>Enabled</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Fee Billing Records -->
+    <div class="tab-content" id="contentFeebilling">
+      <div class="section-card" style="padding:0;">
+        <div class="filter-bar">
+          <div class="field"><label>Fee Type</label><select><option>All</option><option>Opening Fee</option><option>Recharge Fee</option><option>Consumption Fee</option><option>Monthly Fee</option><option>Chargeback Fee</option></select></div>
+          <div class="field"><label>Card Number</label><input type="text" placeholder="5274 83XX XXXX XXXX" style="width:180px;"></div>
+          <div class="field"><label>Status</label><select><option>All</option><option>Charged</option><option>Pending</option><option>Failed</option><option>Refunded</option></select></div>
+          <div class="field"><label>Date From</label><input type="text" placeholder="2026-06-01" style="width:120px;"></div>
+          <div class="field"><label>Date To</label><input type="text" placeholder="2026-06-30" style="width:120px;"></div>
+          <button class="btn-primary btn-sm">Search</button>
+          <button class="btn-outline btn-sm">Reset</button>
+        </div>
+        <div class="summary-bar">
+          <span>Total: <strong>128</strong> records</span>
+          <span class="positive">Opening Fees: +$28,200.00 (856 cards)</span>
+          <span class="negative">Service Fees: −$3,250.00</span>
+          <span class="negative">Chargeback: −$245.00 (7)</span>
+          <span class="positive">Refunded: +$180.00 (3)</span>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Fee ID</th>
+              <th>Fee Type</th>
+              <th>Card Number</th>
+              <th>Amount</th>
+              <th>Currency</th>
+              <th>Period</th>
+              <th>Status</th>
+              <th>Billed At</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>FEE-20260603-001</td>
+              <td><span class="badge badge-purple">Opening Fee</span></td>
+              <td>5274 83XX XXXX 1234</td>
+              <td style="color:var(--color-success);font-weight:600;">$2.50</td>
+              <td>USD</td>
+              <td>—</td>
+              <td><span class="badge badge-green">Charged</span></td>
+              <td>2026-06-03 14:30</td>
+              <td><button class="action-link" onclick="openDrawer('FEE-20260603-001')">Details</button></td>
+            </tr>
+            <tr>
+              <td>FEE-20260603-002</td>
+              <td><span class="badge badge-orange">Recharge Fee</span></td>
+              <td>5274 83XX XXXX 5678</td>
+              <td style="color:var(--color-success);font-weight:600;">$0.50</td>
+              <td>USD</td>
+              <td>—</td>
+              <td><span class="badge badge-green">Charged</span></td>
+              <td>2026-06-03 12:15</td>
+              <td><button class="action-link" onclick="openDrawer('FEE-20260603-002')">Details</button></td>
+            </tr>
+            <tr>
+              <td>FEE-20260603-003</td>
+              <td><span class="badge badge-blue">Consumption Fee</span></td>
+              <td>5274 83XX XXXX 9012</td>
+              <td style="color:var(--color-success);font-weight:600;">$1.00</td>
+              <td>USD</td>
+              <td>—</td>
+              <td><span class="badge badge-yellow">Pending</span></td>
+              <td>2026-06-03 10:00</td>
+              <td><button class="action-link" onclick="openDrawer('FEE-20260603-003')">Details</button></td>
+            </tr>
+            <tr>
+              <td>FEE-20260602-001</td>
+              <td><span class="badge badge-gray">Monthly Fee</span></td>
+              <td>5274 83XX XXXX 1234</td>
+              <td style="color:var(--color-success);font-weight:600;">$0.12</td>
+              <td>USD</td>
+              <td>2026-06</td>
+              <td><span class="badge badge-green">Charged</span></td>
+              <td>2026-06-02 00:00</td>
+              <td><button class="action-link" onclick="openDrawer('FEE-20260602-001')">Details</button></td>
+            </tr>
+            <tr>
+              <td>FEE-20260602-002</td>
+              <td><span class="badge badge-red">Chargeback Fee</span></td>
+              <td>5274 83XX XXXX 3456</td>
+              <td style="color:var(--color-success);font-weight:600;">$35.00</td>
+              <td>USD</td>
+              <td>—</td>
+              <td><span class="badge badge-orange">Processing</span></td>
+              <td>2026-06-02 16:00</td>
+              <td><button class="action-link" onclick="openDrawer('FEE-20260602-002')">Details</button></td>
+            </tr>
+            <tr>
+              <td>FEE-20260601-001</td>
+              <td><span class="badge badge-blue">Consumption Fee</span></td>
+              <td>5274 83XX XXXX 7890</td>
+              <td style="color:var(--color-error);font-weight:600;">$0.75</td>
+              <td>USD</td>
+              <td>—</td>
+              <td><span class="badge badge-red">Refunded</span></td>
+              <td>2026-06-01 09:00</td>
+              <td><button class="action-link" onclick="openDrawer('FEE-20260601-001')">Details</button></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="pagination">
+          <span>Showing 1-6 of 128 records</span>
+          <div class="pages">
+            <span class="page-btn active">1</span>
+            <span class="page-btn">2</span>
+            <span class="page-btn">3</span>
+            <span class="page-btn">...</span>
+            <span class="page-btn">22</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Mass Configuration -->
+    <div class="tab-content" id="contentMasstemplate">
+      <div class="section-card">
+        <h2>📄 Card Product Fee Templates</h2>
+        <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:16px;">Select a card product template to apply pre-configured fee rules to new cards</p>
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;">
+          <div style="border:2px solid var(--color-primary);border-radius:8px;padding:16px;background:#FFFBEB;cursor:pointer;">
+            <div style="font-size:16px;font-weight:600;margin-bottom:8px;">💎 Premium Card</div>
+            <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px;">
+              Opening: $2.50 fixed<br>
+              Recharge: 0.5% (min $0.10)<br>
+              Consumption: 1% (min $0.10)<br>
+              Monthly: $0.25/mo<br>
+              Rebate: 0.3%
+            </div>
+            <div class="badge badge-green" style="font-size:11px;">Active</div>
+          </div>
+          <div style="border:2px solid var(--color-border);border-radius:8px;padding:16px;cursor:pointer;">
+            <div style="font-size:16px;font-weight:600;margin-bottom:8px;">💳 Standard Card</div>
+            <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px;">
+              Opening: $1.00 fixed<br>
+              Recharge: 0.3% (min $0.10)<br>
+              Consumption: 0.8% (min $0.05)<br>
+              Monthly: $0.12/mo<br>
+              Rebate: 0.1%
+            </div>
+            <div class="badge badge-green" style="font-size:11px;">Active</div>
+          </div>
+          <div style="border:2px solid var(--color-border);border-radius:8px;padding:16px;cursor:pointer;">
+            <div style="font-size:16px;font-weight:600;margin-bottom:8px;">🎓 Student Card</div>
+            <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px;">
+              Opening: $0.50 fixed<br>
+              Recharge: 0.2% (min $0.05)<br>
+              Consumption: 0.5% (min $0.05)<br>
+              Monthly: $0.00/mo<br>
+              Rebate: 0.0%
+            </div>
+            <div class="badge badge-green" style="font-size:11px;">Active</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:20px;">
+          <h4 style="font-size:13px;font-weight:600;margin-bottom:8px;">📥 CSV Batch Import</h4>
+          <div style="border:2px dashed var(--color-border);border-radius:8px;padding:24px;text-align:center;cursor:pointer;" onclick="alert('CSV upload dialog opened')">
+            <div style="font-size:28px;margin-bottom:8px;">📁</div>
+            <div>Click to upload fee configuration CSV</div>
+            <div style="font-size:11px;color:var(--color-text-secondary);margin-top:4px;">Download template: <a href="#" style="color:var(--color-primary);">Fee Config Template.csv</a></div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;justify-content:flex-end;">
+          <button class="btn-outline" onclick="alert('Draft saved')">💾 Save as Draft</button>
+          <button class="btn-primary" onclick="alert('Fee configuration applied to all card types')">🚀 Apply to All Products</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Fee Detail Drawer -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="feeDrawer">
+  <div class="drawer-header">
+    <h3>📄 Fee Detail</h3>
+    <span style="font-size:20px;cursor:pointer;" onclick="closeDrawer()">✕</span>
+  </div>
+  <div class="drawer-body" id="drawerBody">
+    <div class="info-row"><span class="label">Fee ID</span><span class="value" id="dFeeId">FEE-20260603-001</span></div>
+    <div class="info-row"><span class="label">Fee Type</span><span class="value" id="dFeeType"><span class="badge badge-purple">Opening Fee</span></span></div>
+    <div class="info-row"><span class="label">Amount</span><span class="value" style="color:var(--color-success);font-weight:600;" id="dFeeAmount">$2.50</span></div>
+    <div class="info-row"><span class="label">Currency</span><span class="value" id="dFeeCurrency">USD</span></div>
+    <div class="info-row"><span class="label">Card Number</span><span class="value" id="dFeeCard">5274 83XX XXXX 1234</span></div>
+    <div class="info-row"><span class="label">Card Product</span><span class="value" id="dFeeProduct">Premium Card</span></div>
+    <div class="info-row"><span class="label">User ID</span><span class="value" id="dFeeUser">USR-20260601-XXXXX</span></div>
+    <div class="info-row"><span class="label">Period</span><span class="value" id="dFeePeriod">—</span></div>
+    <div class="info-row"><span class="label">Status</span><span class="value" id="dFeeStatus"><span class="badge badge-green">Charged</span></span></div>
+    <div class="info-row"><span class="label">Billed At</span><span class="value" id="dFeeTime">2026-06-03 14:30:22</span></div>
+    <div class="info-row"><span class="label">Payment Method</span><span class="value" id="dFeeMethod">Deduct from balance</span></div>
+    <div class="info-row"><span class="label">Related Txn ID</span><span class="value" id="dFeeTxn">TXN-20260603-001</span></div>
+    <div class="info-row"><span class="label">Remark</span><span class="value" id="dFeeRemark">Card issuance fee</span></div>
+  </div>
+  <div class="drawer-footer">
+    <button class="btn-outline" onclick="closeDrawer()">Close</button>
+    <button class="btn-danger btn-sm" onclick="alert('Refund initiated for this fee')">🔄 Refund</button>
+  </div>
+</div>
+
+<script>
+function switchTab(tab) {
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  const tabMap = { feerules: 'Feerules', feebilling: 'Feebilling', masstemplate: 'Masstemplate' };
+  document.getElementById('tab' + tabMap[tab]).classList.add('active');
+  document.getElementById('content' + tabMap[tab]).classList.add('active');
+}
+
+function openDrawer(id) {
+  document.getElementById('drawerOverlay').classList.add('active');
+  document.getElementById('feeDrawer').classList.add('open');
+}
+
+function closeDrawer() {
+  document.getElementById('drawerOverlay').classList.remove('active');
+  document.getElementById('feeDrawer').classList.remove('open');
+}
+
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+document.addEventListener('click', function(e) {
+  document.querySelectorAll('.modal-overlay').forEach(m => {
+    if (e.target === m) m.classList.remove('active');
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YASBE Platform · KYC/KYB Re-review Flow</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#0a0e1a; font-family:'Inter',-apple-system,sans-serif; color:#e1e7ef; min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:48px 20px; }
+.container { max-width:1200px; width:100%; }
+.header { text-align:center; margin-bottom:36px; }
+.header h1 { font-size:26px; font-weight:600; color:#f0f4ff; letter-spacing:-0.5px; }
+.header .subtitle { font-size:13px; color:#6b7a99; margin-top:6px; letter-spacing:0.3px; }
+.header .badge { display:inline-block; font-size:10px; font-weight:600; padding:3px 10px; border-radius:12px; margin-bottom:12px; background:rgba(99,102,241,0.12); color:#818cf8; border:1px solid rgba(99,102,241,0.25); }
+.dot { display:inline-block; width:9px; height:9px; background:#34d399; border-radius:50%; margin-right:10px; animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+
+.diagram-card { background:#0f1422; border:1px solid #1c2640; border-radius:18px; padding:28px; margin-bottom:20px; box-shadow:0 4px 24px rgba(0,0,0,0.3); }
+.diagram-card svg { width:100%; height:auto; display:block; }
+
+.rules-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:20px; }
+.rule-card { background:#0f1422; border:1px solid #1c2640; border-radius:14px; padding:18px; }
+.rule-header { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+.rule-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.rule-dot.emerald { background:#34d399;box-shadow:0 0 8px rgba(52,211,153,0.3); }
+.rule-dot.blue { background:#60a5fa;box-shadow:0 0 8px rgba(96,165,250,0.3); }
+.rule-dot.amber { background:#fbbf24;box-shadow:0 0 8px rgba(251,191,36,0.3); }
+.rule-dot.rose { background:#fb7185;box-shadow:0 0 8px rgba(251,113,133,0.3); }
+.rule-card h3 { font-size:13px; font-weight:600; color:#e1e7ef; }
+.rule-card ul { list-style:none; margin:0; padding:0; }
+.rule-card ul li { font-size:12px; color:#8b9ab5; padding:4px 0; line-height:1.5; padding-left:14px; position:relative; }
+.rule-card ul li::before { content:'•'; position:absolute; left:0; color:#374151; }
+
+.footer { text-align:center; margin-top:20px; font-size:11px; color:#4a5a7a; letter-spacing:0.3px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="badge">YASBE Platform · Process v1.0</div>
+    <h1><span class="dot"></span>平台 KYC/KYB 审核流程优化</h1>
+    <div class="subtitle">平台级用户认证二次审核 · 区分管理员触发与用户主动申请</div>
+  </div>
+
+  <!-- ====== 主流程图 ====== -->
+  <div class="diagram-card">
+    <svg viewBox="0 0 1140 680" xmlns="http://www.w3.org/2000/svg" style="font-family:'Inter',-apple-system,sans-serif;">
+      <defs>
+        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+          <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#131c30" stroke-width="0.5"/>
+        </pattern>
+        <marker id="arrR" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 Z" fill="#475569"/>
+        </marker>
+        <marker id="arrG" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 Z" fill="#34d399"/>
+        </marker>
+        <marker id="arrR" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 Z" fill="#fb7185"/>
+        </marker>
+        <marker id="arrC" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 Z" fill="#60a5fa"/>
+        </marker>
+        <filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      <rect width="1140" height="680" fill="url(#grid)"/>
+
+      <!-- 场景标签 -->
+      <rect x="60" y="14" width="480" height="28" rx="14" fill="rgba(251,113,133,0.08)" stroke="rgba(251,113,133,0.2)" stroke-width="1"/>
+      <text x="300" y="32" text-anchor="middle" fill="#fb7185" font-size="12" font-weight="600">场景 A：管理员发现证件过期 / 信息异常 → 需冻结</text>
+
+      <rect x="600" y="14" width="480" height="28" rx="14" fill="rgba(52,211,153,0.08)" stroke="rgba(52,211,153,0.2)" stroke-width="1"/>
+      <text x="840" y="32" text-anchor="middle" fill="#34d399" font-size="12" font-weight="600">场景 B：用户主动更新 KYC/KYB → 不需冻结</text>
+
+      <line x1="570" y1="50" x2="570" y2="660" stroke="#1c2640" stroke-width="1" stroke-dasharray="5,4"/>
+
+      <!-- ===================== 场景 A ===================== -->
+
+      <!-- A1: 已认证 -->
+      <rect x="220" y="70" width="160" height="50" rx="25" fill="rgba(52,211,153,0.08)" stroke="#34d399" stroke-width="1.5"/>
+      <text x="300" y="92" text-anchor="middle" fill="#34d399" font-size="15" font-weight="600">✅ 已认证</text>
+      <text x="300" y="108" text-anchor="middle" fill="#6b7a99" font-size="10">KYC/KYB 全部通过</text>
+
+      <line x1="300" y1="120" x2="300" y2="155" stroke="#fb7185" stroke-width="1.5" marker-end="url(#arrR)"/>
+
+      <!-- A2: 管理员发现 -->
+      <rect x="160" y="165" width="280" height="50" rx="25" fill="rgba(251,113,133,0.08)" stroke="#fb7185" stroke-width="1.5"/>
+      <text x="300" y="185" text-anchor="middle" fill="#fb7185" font-size="14" font-weight="600">🕵️ 管理员发现证件过期</text>
+      <text x="300" y="201" text-anchor="middle" fill="#6b7a99" font-size="10">证件有效期过期 / 信息存疑</text>
+
+      <line x1="300" y1="215" x2="300" y2="250" stroke="#fb7185" stroke-width="1.5" marker-end="url(#arrR)"/>
+
+      <!-- 标签：点击 Suspend -->
+      <rect x="214" y="228" width="172" height="18" rx="9" fill="rgba(251,113,133,0.12)" stroke="none"/>
+      <text x="300" y="240" text-anchor="middle" fill="#fb7185" font-size="10" font-weight="500">管理员点击「Suspend」</text>
+
+      <!-- A3: Suspend -->
+      <rect x="160" y="260" width="280" height="50" rx="25" fill="rgba(239,68,68,0.08)" stroke="#ef4444" stroke-width="1.5"/>
+      <text x="300" y="280" text-anchor="middle" fill="#ef4444" font-size="14" font-weight="600">⛔ 管理员 Suspend</text>
+      <text x="300" y="296" text-anchor="middle" fill="#6b7a99" font-size="10">用户状态 → 未认证（需重审）</text>
+
+      <line x1="300" y1="310" x2="300" y2="345" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrG)"/>
+
+      <!-- A4: 冻结 + 通知 -->
+      <rect x="160" y="355" width="280" height="50" rx="25" fill="rgba(52,211,153,0.08)" stroke="#34d399" stroke-width="1.5"/>
+      <text x="300" y="375" text-anchor="middle" fill="#34d399" font-size="14" font-weight="600">🔒 冻结平台账号</text>
+      <text x="300" y="391" text-anchor="middle" fill="#6b7a99" font-size="10">发送通知：请更新 KYC/KYB 信息</text>
+
+      <line x1="300" y1="405" x2="300" y2="440" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arrR)"/>
+
+      <!-- A5: 用户提交 -->
+      <rect x="160" y="450" width="280" height="50" rx="25" fill="rgba(251,191,36,0.08)" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="300" y="470" text-anchor="middle" fill="#fbbf24" font-size="14" font-weight="600">📝 用户提交 KYC/KYB 更新</text>
+      <text x="300" y="486" text-anchor="middle" fill="#6b7a99" font-size="10">上传新证件 / 更新单位信息</text>
+
+      <line x1="300" y1="500" x2="300" y2="535" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#arrC)"/>
+
+      <!-- A6: 审核 -->
+      <rect x="160" y="545" width="280" height="50" rx="25" fill="rgba(96,165,250,0.08)" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="300" y="565" text-anchor="middle" fill="#60a5fa" font-size="14" font-weight="600">👀 管理员审核</text>
+      <text x="300" y="581" text-anchor="middle" fill="#6b7a99" font-size="10">全量 KYC/KYB 重新验证</text>
+
+      <!-- A6 → 通过 -->
+      <line x1="300" y1="595" x2="300" y2="630" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrG)"/>
+
+      <!-- A6 → 拒绝 -->
+      <line x1="440" y1="570" x2="510" y2="605" stroke="#fb7185" stroke-width="1.5" marker-end="url(#arrR)"/>
+
+      <!-- A7: 通过 -->
+      <rect x="220" y="640" width="160" height="40" rx="20" fill="rgba(52,211,153,0.1)" stroke="#34d399" stroke-width="1.5"/>
+      <text x="300" y="662" text-anchor="middle" fill="#34d399" font-size="13" font-weight="600">✅ 通过 → 恢复认证</text>
+      <text x="300" y="676" text-anchor="middle" fill="#6b7a99" font-size="9">账号解冻</text>
+
+      <!-- A7: 拒绝 -->
+      <rect x="510" y="605" width="160" height="40" rx="20" fill="rgba(251,113,133,0.1)" stroke="#fb7185" stroke-width="1.5"/>
+      <text x="590" y="627" text-anchor="middle" fill="#fb7185" font-size="13" font-weight="600">❌ 拒绝</text>
+      <text x="590" y="641" text-anchor="middle" fill="#6b7a99" font-size="9">通知用户重新提交</text>
+
+      <!-- 驳回回环 -->
+      <path d="M 590 645 L 590 665 L 60 665 L 60 375 L 120 375" fill="none" stroke="#fb7185" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#arrR)"/>
+      <text x="320" y="661" text-anchor="middle" fill="#6b7a99" font-size="9" font-style="italic">驳回 → 重新提交</text>
+
+      <!-- ===================== 场景 B ===================== -->
+
+      <!-- B1: 已认证 -->
+      <rect x="760" y="70" width="160" height="50" rx="25" fill="rgba(52,211,153,0.08)" stroke="#34d399" stroke-width="1.5"/>
+      <text x="840" y="92" text-anchor="middle" fill="#34d399" font-size="15" font-weight="600">✅ 已认证</text>
+      <text x="840" y="108" text-anchor="middle" fill="#6b7a99" font-size="10">KYC/KYB 全部通过</text>
+
+      <line x1="840" y1="120" x2="840" y2="155" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arrR)"/>
+
+      <!-- B2: 用户申请 -->
+      <rect x="700" y="165" width="280" height="50" rx="25" fill="rgba(251,191,36,0.08)" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="840" y="185" text-anchor="middle" fill="#fbbf24" font-size="14" font-weight="600">🔄 用户自行申请更新</text>
+      <text x="840" y="201" text-anchor="middle" fill="#6b7a99" font-size="10">换公司资质 / 更新法人信息</text>
+
+      <line x1="840" y1="215" x2="840" y2="250" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arrR)"/>
+
+      <!-- 标签：不需 Suspend -->
+      <rect x="754" y="228" width="172" height="18" rx="9" fill="rgba(52,211,153,0.12)" stroke="none"/>
+      <text x="840" y="240" text-anchor="middle" fill="#34d399" font-size="10" font-weight="500">不需 Suspend，不冻结</text>
+
+      <!-- B3: 状态保持 -->
+      <rect x="700" y="260" width="280" height="50" rx="25" fill="rgba(52,211,153,0.08)" stroke="#34d399" stroke-width="1.5"/>
+      <text x="840" y="280" text-anchor="middle" fill="#34d399" font-size="14" font-weight="600">✅ 状态保持「已认证」</text>
+      <text x="840" y="296" text-anchor="middle" fill="#6b7a99" font-size="10">平台账号正常使用</text>
+
+      <line x1="840" y1="310" x2="840" y2="345" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#arrC)"/>
+
+      <!-- B4: 审核（Diff） -->
+      <rect x="700" y="355" width="280" height="50" rx="25" fill="rgba(96,165,250,0.08)" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="840" y="375" text-anchor="middle" fill="#60a5fa" font-size="14" font-weight="600">🔍 管理员审核（Diff）</text>
+      <text x="840" y="391" text-anchor="middle" fill="#6b7a99" font-size="10">仅对比变更字段</text>
+
+      <line x1="840" y1="405" x2="840" y2="440" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arrR)"/>
+
+      <!-- 菱形判断 -->
+      <polygon points="840,460 900,500 840,540 780,500" fill="rgba(251,191,36,0.08)" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="840" y="504" text-anchor="middle" fill="#fbbf24" font-size="12" font-weight="600">通过？</text>
+
+      <!-- 通过 → 信息生效 -->
+      <line x1="780" y1="500" x2="720" y2="540" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrG)"/>
+      <rect x="640" y="545" width="160" height="40" rx="20" fill="rgba(52,211,153,0.1)" stroke="#34d399" stroke-width="1.5"/>
+      <text x="720" y="563" text-anchor="middle" fill="#34d399" font-size="13" font-weight="600">✅ 通过</text>
+      <text x="720" y="579" text-anchor="middle" fill="#6b7a99" font-size="9">信息生效</text>
+
+      <!-- 拒绝 → 通知重提 -->
+      <line x1="900" y1="500" x2="960" y2="540" stroke="#fb7185" stroke-width="1.5" marker-end="url(#arrR)"/>
+      <rect x="880" y="545" width="160" height="40" rx="20" fill="rgba(251,113,133,0.1)" stroke="#fb7185" stroke-width="1.5"/>
+      <text x="960" y="563" text-anchor="middle" fill="#fb7185" font-size="13" font-weight="600">❌ 拒绝</text>
+      <text x="960" y="579" text-anchor="middle" fill="#6b7a99" font-size="9">通知用户重新提交</text>
+
+      <!-- 拒绝回环 -->
+      <path d="M 960 585 L 960 620 L 640 620 L 640 190 L 660 190" fill="none" stroke="#fb7185" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#arrR)"/>
+      <text x="800" y="616" text-anchor="middle" fill="#6b7a99" font-size="9" font-style="italic">驳回循环</text>
+
+      <!-- 全量 vs Diff 标注 -->
+      <rect x="42" y="568" width="106" height="20" rx="10" fill="rgba(251,113,133,0.1)" stroke="rgba(251,113,133,0.2)" stroke-width="1"/>
+      <text x="95" y="582" text-anchor="middle" fill="#fb7185" font-size="9" font-weight="500">全量重新验证</text>
+
+      <rect x="988" y="368" width="110" height="20" rx="10" fill="rgba(96,165,250,0.1)" stroke="rgba(96,165,250,0.2)" stroke-width="1"/>
+      <text x="1043" y="382" text-anchor="middle" fill="#60a5fa" font-size="9" font-weight="500">仅 Diff 比较</text>
+    </svg>
+  </div>
+
+  <!-- ====== 核心规则 ====== -->
+  <div class="rules-grid">
+    <div class="rule-card">
+      <div class="rule-header">
+        <div class="rule-dot emerald"></div>
+        <h3>🔑 核心语义变更</h3>
+      </div>
+      <ul>
+        <li>Admin Suspend = 置为「未认证（需重审）」</li>
+        <li>≠ 不可逆冻结 — 用户可提交更新恢复</li>
+        <li>恢复后账号自动解冻</li>
+      </ul>
+    </div>
+    <div class="rule-card">
+      <div class="rule-header">
+        <div class="rule-dot blue"></div>
+        <h3>🔍 审核范围差异</h3>
+      </div>
+      <ul>
+        <li>场景 A（管理员触发）：全量 KYC/KYB 重新验证</li>
+        <li>场景 B（用户主动）：仅 Diff 比较变更字段</li>
+        <li>减少审核工作量，加速审批</li>
+      </ul>
+    </div>
+    <div class="rule-card">
+      <div class="rule-header">
+        <div class="rule-dot amber"></div>
+        <h3>📨 通知机制</h3>
+      </div>
+      <ul>
+        <li>场景 A：Suspend → 通知「请更新认证信息」</li>
+        <li>场景 B：不需通知</li>
+        <li>审核驳回：A/B 均通知原因</li>
+        <li>审核通过：A 通知解冻；B 静默更新</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer">
+    YASBE Platform · KYC/KYB Re-review Flow · v1.0 · 2026-06-08
+  </div>
+</div>
+</body>
+</html>

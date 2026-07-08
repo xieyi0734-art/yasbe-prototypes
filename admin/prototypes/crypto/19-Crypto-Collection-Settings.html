@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>加密货币归集设置 - YASBee Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', -apple-system, sans-serif; background: #f5f6fa; color: #1a1d29; }
+.sidebar { width: 260px; background: #1D2129; color: #fff; height: 100vh; position: fixed; left: 0; top: 0; overflow-y: auto; z-index: 100; }
+.sidebar-header { padding: 20px; font-size: 20px; font-weight: 700; color: #E59303; border-bottom: 1px solid rgba(255,255,255,.1); }
+.sidebar-item { display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #9CA3AF; font-size: 14px; cursor: pointer; transition: all .15s; }
+.sidebar-item:hover { color: #fff; background: rgba(255,255,255,.05); }
+.sidebar-item.active { color: #E59303; background: rgba(229,147,3,.1); border-right: 3px solid #E59303; }
+.sidebar-label { padding: 8px 20px 4px; font-size: 11px; color: #6B7280; text-transform: uppercase; letter-spacing: 1px; }
+.sidebar-sub { padding-left: 36px; font-size: 13px; }
+.main { margin-left: 260px; padding: 32px; }
+.breadcrumb { font-size: 14px; color: #86909C; margin-bottom: 8px; }
+.breadcrumb span { color: #1D2129; font-weight: 500; }
+h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+.subtitle { font-size: 13px; color: #86909C; margin-bottom: 24px; }
+
+.card { background: #fff; border-radius: 12px; border: 1px solid #E5E7EB; overflow: hidden; margin-bottom: 20px; }
+.card-header { padding: 16px 20px; border-bottom: 1px solid #E5E7EB; display: flex; justify-content: space-between; align-items: center; }
+.card-header h2 { font-size: 16px; font-weight: 600; }
+.card-body { padding: 20px; }
+
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px; }
+.form-group input, .form-group select { width: 100%; padding: 8px 12px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 14px; outline: none; transition: border-color .2s; }
+.form-group input:focus, .form-group select:focus { border-color: #E59303; box-shadow: 0 0 0 3px rgba(229,147,3,.08); }
+.form-group .help-text { font-size: 11px; color: #9CA3AF; margin-top: 4px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+.form-row.four { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+.toggle { position: relative; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+.toggle input { display: none; }
+.toggle-slider { width: 40px; height: 22px; background: #D1D5DB; border-radius: 11px; transition: all .2s; position: relative; }
+.toggle-slider::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: all .2s; box-shadow: 0 1px 2px rgba(0,0,0,.1); }
+.toggle input:checked + .toggle-slider { background: #E59303; }
+.toggle input:checked + .toggle-slider::after { left: 20px; }
+.toggle-label { font-size: 13px; color: #374151; }
+
+.btn-primary { background: #E59303; color: #fff; border: none; border-radius: 8px; padding: 10px 24px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all .15s; }
+.btn-primary:hover { background: #d48402; }
+.btn-secondary { padding: 10px 20px; border: 1px solid #D1D5DB; border-radius: 8px; background: #fff; cursor: pointer; font-size: 14px; color: #4B5563; transition: all .15s; }
+.btn-secondary:hover { background: #F9FAFB; }
+.btn-danger { background: #DC2626; color: #fff; border: none; border-radius: 8px; padding: 10px 24px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all .15s; }
+.btn-danger:hover { background: #b91c1c; }
+.btn-sm { padding: 6px 14px; font-size: 13px; border-radius: 6px; }
+
+.badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+.badge-green { background: #DCFCE7; color: #166534; }
+.badge-gray { background: #F3F4F6; color: #6B7280; }
+.badge-blue { background: #DBEAFE; color: #1E40AF; }
+.badge-orange { background: #FFF7ED; color: #C2410C; }
+
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.stat-card { background: #fff; border-radius: 12px; border: 1px solid #E5E7EB; padding: 20px; }
+.stat-label { font-size: 13px; color: #86909C; margin-bottom: 4px; }
+.stat-value { font-size: 25px; font-weight: 700; }
+.stat-sub { font-size: 12px; color: #9CA3AF; margin-top: 4px; }
+
+.table-wrapper { background: #fff; border-radius: 12px; border: 1px solid #E5E7EB; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+thead { background: #F9FAFB; }
+th { text-align: left; padding: 12px 16px; font-size: 13px; font-weight: 500; color: #6B7280; border-bottom: 1px solid #E5E7EB; white-space: nowrap; }
+td { padding: 14px 16px; font-size: 13px; border-bottom: 1px solid #F3F4F6; vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #F9FAFB; }
+
+/* Webhook Settings */
+.webhook-group { border: 1px solid #E5E7EB; border-radius: 10px; padding: 16px; margin-bottom: 12px; }
+.webhook-group-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.webhook-group-header h4 { font-size: 14px; font-weight: 600; }
+
+/* Checkbox chip */
+.checkbox-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid #D1D5DB;
+  border-radius: 20px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  color: #374151;
+  transition: all .15s;
+  user-select: none;
+}
+.checkbox-chip:hover { border-color: #E59303; }
+.checkbox-chip input[type="checkbox"] { accent-color: #E59303; }
+.checkbox-chip:has(input:checked) {
+  background: #FFF7ED;
+  border-color: #E59303;
+  color: #C2410C;
+}
+/* Time input */
+.time-input-group { display: flex; align-items: center; gap: 8px; }
+.time-input-group input[type="time"] { padding: 8px 12px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 14px; outline: none; }
+.time-input-group input[type="time"]:focus { border-color: #E59303; box-shadow: 0 0 0 3px rgba(229,147,3,.08); }
+
+/* Modal */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 1000; overflow-y: auto; padding: 40px 16px; }
+.modal-overlay.active { display: flex; align-items: flex-start; justify-content: center; }
+.modal { background: #fff; border-radius: 16px; width: 100%; max-width: 480px; margin: auto; box-shadow: 0 20px 60px rgba(0,0,0,.12); animation: modalIn .2s ease-out; }
+@keyframes modalIn { from { opacity: 0; transform: translateY(16px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid #E5E7EB; }
+.modal-header h2 { font-size: 17px; font-weight: 600; }
+.modal-close { width: 32px; height: 32px; border-radius: 8px; border: none; background: #f3f4f6; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #6b7280; }
+.modal-close:hover { background: #e5e7eb; }
+.modal-body { padding: 24px; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 8px; padding: 16px 24px; border-top: 1px solid #E5E7EB; }
+
+/* Collection config row */
+.collection-row { display: flex; align-items: center; gap: 12px; padding: 14px 0; }
+.collection-row:not(:last-child) { border-bottom: 1px solid #F3F4F6; }
+.collection-row .info { flex: 1; }
+.collection-row .info h4 { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.collection-row .info p { font-size: 12px; color: #86909C; }
+.collection-row .actions { display: flex; align-items: center; gap: 12px; }
+.collection-row .balance { font-size: 14px; font-weight: 600; color: #1D2129; min-width: 120px; text-align: right; }
+.collection-row .balance .usd { font-size: 11px; color: #9CA3AF; font-weight: 400; }
+
+/* Status indicator */
+.status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+.status-dot.active { background: #16A34A; }
+.status-dot.inactive { background: #D1D5DB; }
+.status-dot.alert { background: #DC2626; }
+
+/* Task Card */
+.task-card {
+  background: #fff;
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  transition: box-shadow .15s;
+}
+.task-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,.04); }
+.task-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+.task-card-title { display: flex; align-items: center; gap: 8px; }
+.task-card-title h4 { font-size: 14px; font-weight: 600; }
+.task-card-actions { display: flex; align-items: center; gap: 8px; }
+.task-card-body { display: flex; gap: 24px; flex-wrap: wrap; }
+.task-card-meta { font-size: 12px; color: #6B7280; }
+.task-card-meta strong { color: #1D2129; }
+.task-card-meta-item { display: flex; align-items: center; gap: 4px; }
+
+.tab-btn {
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  background: none;
+  border: none;
+  color: #6B7280;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all .15s;
+}
+.tab-btn:hover { color: #374151; }
+.tab-btn.active {
+  color: #E59303;
+  border-bottom-color: #E59303;
+  font-weight: 600;
+}
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-header">YASBee 管理后台</div>
+  <div class="sidebar-label">主</div>
+  <div class="sidebar-item"><span>🪪</span> 客户管理 <span style="margin-left:auto;font-size:10px;">▾</span></div>
+  <div class="sidebar-item" style="padding-left:36px;font-size:13px;">📈 概览</div>
+  <div class="sidebar-item" style="padding-left:36px;font-size:13px;">✅ 审核验证</div>
+  <div class="sidebar-item" style="padding-left:36px;font-size:13px;">📋 客户列表</div>
+  <div class="sidebar-item"><span>💰</span> 资产管理</div>
+  <div class="sidebar-item"><span>💳</span> 卡片管理</div>
+  <div class="sidebar-item"><span>🌐</span> 渠道管理 <span style="margin-left:auto;font-size:10px;">▾</span></div>
+  <div class="sidebar-item" style="padding-left:36px;font-size:13px;">📡 渠道管理</div>
+  <div class="sidebar-item" style="padding-left:36px;font-size:13px;">🃏 卡务管理</div>
+  <div class="sidebar-item active" style="border-bottom:1px solid rgba(255,255,255,.05);">
+    <span>₿</span> 加密货币管理 <span style="margin-left:auto;font-size:10px;">▾</span>
+  </div>
+  <div class="sidebar-sub" style="padding-left:36px;">
+    <div class="sidebar-item active" style="font-size:13px;">归集设置</div>
+  </div>
+  <div class="sidebar-item"><span>🔗</span> 分销管理</div>
+  <div class="sidebar-item"><span>📈</span> 投资管理</div>
+  <div class="sidebar-label">系统</div>
+  <div class="sidebar-item"><span>⚙️</span> 系统管理</div>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <div class="breadcrumb">加密货币管理 / <span>归集设置</span></div>
+
+  <h1>归集设置</h1>
+  <div class="subtitle">配置区块链归集规则，支持自动归集和手动触发</div>
+
+  <!-- Stats Overview -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">归集配置总数</div>
+      <div class="stat-value">6</div>
+      <div class="stat-sub">覆盖 4 条链</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">已启用</div>
+      <div class="stat-value" style="color:#16A34A;">4</div>
+      <div class="stat-sub">自动执行中</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">今日归集金额</div>
+      <div class="stat-value">$84,520</div>
+      <div class="stat-sub">≈ 12.5 ETH + 8,400 USDT</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">待归集余额</div>
+      <div class="stat-value" style="color:#DC2626;">$32,180</div>
+      <div class="stat-sub">6 个地址低于阈值</div>
+    </div>
+  </div>
+
+  <!-- ===== Tab Container: 归集设置 / 归集记录 ===== -->
+  <div class="card" id="collectionTabCard">
+    <div class="card-header" style="padding-bottom:0;">
+      <div style="display:flex;gap:0;margin-bottom:-1px;">
+        <button class="tab-btn active" data-tab="auto" onclick="switchTab('auto')">自动归集</button>
+        <button class="tab-btn" data-tab="manual" onclick="switchTab('manual')">手动归集</button>
+        <button class="tab-btn" data-tab="history" onclick="switchTab('history')">归集记录</button>
+      </div>
+    </div>
+    <div class="card-body">
+      <!-- Tab: 自动归集 — 任务列表模式 -->
+      <div id="tab-auto" class="tab-content active">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <p style="font-size:12px;color:#86909C;" id="taskCount">共 0 个归集任务</p>
+          <button class="btn-primary" onclick="openTaskModal()">+ 新建归集任务</button>
+        </div>
+        <div id="taskListContainer">
+          <!-- 任务卡片由 JS 动态渲染 -->
+        </div>
+      </div><!-- /tab-auto -->
+
+      <!-- Tab: 手动归集 -->
+      <div id="tab-manual" class="tab-content">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>链</th>
+              <th>币种</th>
+              <th>可用余额</th>
+              <th>归集目标地址</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge" style="background:#EDF2FF;color:#4C6EF5;">Ethereum</span></td>
+              <td>USDT</td>
+              <td><strong style="color:#16A34A;">12,450.00</strong></td>
+              <td style="font-family:monospace;font-size:12px">0x8f3a...b4d2</td>
+              <td><button class="btn-primary btn-sm" onclick="triggerFromManual(this,'USDT','Ethereum')">归集</button></td>
+            </tr>
+            <tr>
+              <td><span class="badge" style="background:#EDF2FF;color:#4C6EF5;">Ethereum</span></td>
+              <td>ETH</td>
+              <td><strong style="color:#16A34A;">4.82</strong></td>
+              <td style="font-family:monospace;font-size:12px">0x8f3a...b4d2</td>
+              <td><button class="btn-primary btn-sm" onclick="triggerFromManual(this,'ETH','Ethereum')">归集</button></td>
+            </tr>
+            <tr>
+              <td><span class="badge" style="background:#FFF3E0;color:#E65100;">TRON</span></td>
+              <td>USDT</td>
+              <td><strong style="color:#16A34A;">5,230.50</strong></td>
+              <td style="font-family:monospace;font-size:12px">TYx9...3mKq</td>
+              <td><button class="btn-primary btn-sm" onclick="triggerFromManual(this,'USDT','TRON')">归集</button></td>
+            </tr>
+            <tr>
+              <td><span class="badge" style="background:#FFF3E0;color:#E65100;">TRON</span></td>
+              <td>TRX</td>
+              <td><strong style="color:#16A34A;">3,280.00</strong></td>
+              <td style="font-family:monospace;font-size:12px">TYx9...3mKq</td>
+              <td><button class="btn-primary btn-sm" onclick="triggerFromManual(this,'TRX','TRON')">归集</button></td>
+            </tr>
+            <tr>
+              <td><span class="badge" style="background:#EBF5FB;color:#1976D2;">BSC</span></td>
+              <td>BNB</td>
+              <td><strong style="color:#16A34A;">125.30</strong></td>
+              <td style="font-family:monospace;font-size:12px">0xbn8...f2a1</td>
+              <td><button class="btn-primary btn-sm" onclick="triggerFromManual(this,'BNB','BSC')">归集</button></td>
+            </tr>
+            <tr>
+              <td><span class="badge" style="background:#F3E5F5;color:#7B1FA2;">Polygon</span></td>
+              <td>MATIC</td>
+              <td><strong style="color:#16A34A;">820.00</strong></td>
+              <td style="font-family:monospace;font-size:12px">0xpo2...f8c3</td>
+              <td><button class="btn-primary btn-sm" onclick="triggerFromManual(this,'MATIC','Polygon')">归集</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Tab: 归集记录 -->
+      <div id="tab-history" class="tab-content">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>时间</th>
+              <th>类型</th>
+              <th>链</th>
+              <th>币种</th>
+              <th>数量</th>
+              <th>USD 价值</th>
+              <th>目标地址</th>
+              <th>交易哈希</th>
+              <th>状态</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-size:12px;white-space:nowrap;">2026-06-05 10:00</td>
+              <td><span class="badge badge-blue">自动</span></td>
+              <td><span class="badge" style="background:#EDF2FF;color:#4C6EF5;font-size:11px;">Ethereum</span></td>
+              <td>USDT</td>
+              <td>2,450.00</td>
+              <td>$2,450.00</td>
+              <td style="font-family:monospace;font-size:11px">0x8f3a...b4d2</td>
+              <td style="font-family:monospace;font-size:11px">0xabc...123</td>
+              <td><span class="badge badge-green">成功</span></td>
+            </tr>
+            <tr>
+              <td style="font-size:12px;white-space:nowrap;">2026-06-05 02:00</td>
+              <td><span class="badge badge-blue">自动</span></td>
+              <td><span class="badge" style="background:#FFF3E0;color:#E65100;font-size:11px;">TRON</span></td>
+              <td>USDT</td>
+              <td>1,850.00</td>
+              <td>$1,850.00</td>
+              <td style="font-family:monospace;font-size:11px">TYx9...3mKq</td>
+              <td style="font-family:monospace;font-size:11px">0xdef...456</td>
+              <td><span class="badge badge-green">成功</span></td>
+            </tr>
+            <tr>
+              <td style="font-size:12px;white-space:nowrap;">2026-06-04 22:30</td>
+              <td><span class="badge" style="background:#F3F4F6;color:#374151;font-size:11px;">手动</span></td>
+              <td><span class="badge" style="background:#EDF2FF;color:#4C6EF5;font-size:11px;">Ethereum</span></td>
+              <td>ETH</td>
+              <td>2.50</td>
+              <td>$8,420.00</td>
+              <td style="font-family:monospace;font-size:11px">0x8f3a...b4d2</td>
+              <td style="font-family:monospace;font-size:11px">0x789...012</td>
+              <td><span class="badge badge-green">成功</span></td>
+            </tr>
+            <tr>
+              <td style="font-size:12px;white-space:nowrap;">2026-06-04 14:00</td>
+              <td><span class="badge badge-blue">自动</span></td>
+              <td><span class="badge" style="background:#EBF5FB;color:#1976D2;font-size:11px;">BSC</span></td>
+              <td>BNB</td>
+              <td>50.00</td>
+              <td>$15,250.00</td>
+              <td style="font-family:monospace;font-size:11px">0xbn8...f2a1</td>
+              <td style="font-family:monospace;font-size:11px">0x345...678</td>
+              <td><span class="badge badge-green">成功</span></td>
+            </tr>
+            <tr>
+              <td style="font-size:12px;white-space:nowrap;">2026-06-04 10:00</td>
+              <td><span class="badge badge-blue">自动</span></td>
+              <td><span class="badge" style="background:#EDF2FF;color:#4C6EF5;font-size:11px;">Ethereum</span></td>
+              <td>USDT</td>
+              <td>3,500.00</td>
+              <td>$3,500.00</td>
+              <td style="font-family:monospace;font-size:11px">0x8f3a...b4d2</td>
+              <td style="font-family:monospace;font-size:11px">0x901...234</td>
+              <td><span class="badge badge-red">失败</span></td>
+            </tr>
+            <tr>
+              <td style="font-size:12px;white-space:nowrap;">2026-06-03 18:00</td>
+              <td><span class="badge" style="background:#F3F4F6;color:#374151;font-size:11px;">手动</span></td>
+              <td><span class="badge" style="background:#F3E5F5;color:#7B1FA2;font-size:11px;">Polygon</span></td>
+              <td>MATIC</td>
+              <td>500.00</td>
+              <td>$320.00</td>
+              <td style="font-family:monospace;font-size:11px">0xpo2...f8c3</td>
+              <td style="font-family:monospace;font-size:11px">0x567...890</td>
+              <td><span class="badge badge-green">成功</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== 新建/编辑任务弹窗 ===== -->
+<div class="modal-overlay" id="taskModal">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header">
+      <h2 id="taskModalTitle">新建归集任务</h2>
+      <button class="modal-close" onclick="closeModal('taskModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>币种 / 链</label>
+        <select id="taskItems" multiple style="width:100%;min-height:160px;padding:8px;border:1px solid #D1D5DB;border-radius:8px;font-size:14px;outline:none;">
+          <option value="USDT_Ethereum">USDT (Ethereum)</option>
+          <option value="USDT_TRON">USDT (TRON)</option>
+          <option value="USDT_BSC">USDT (BSC)</option>
+          <option value="ETH_Ethereum">ETH (Ethereum)</option>
+          <option value="TRX_TRON">TRX (TRON)</option>
+          <option value="BNB_BSC">BNB (BSC)</option>
+          <option value="CAKE_BSC">CAKE (BSC)</option>
+          <option value="MATIC_Polygon">MATIC (Polygon)</option>
+        </select>
+        <div class="help-text" style="margin-top:4px;">按住 Ctrl 多选，一个任务支持多个币种/链组合</div>
+      </div>
+      <div class="form-group" id="autoTaskSettings">
+        <div class="form-row">
+          <div class="form-group">
+            <label>首次执行时间</label>
+            <div class="time-input-group">
+              <input type="time" id="taskExecTime" value="10:00">
+              <span style="color:#9CA3AF;font-size:13px;">UTC</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>间隔</label>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <input type="number" id="taskInterval" value="6" min="1" max="24" style="width:80px;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:14px;outline:none;">
+              <select id="taskIntervalUnit" style="padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:14px;outline:none;">
+                <option value="hour">小时</option>
+                <option value="minute">分钟</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('taskModal')">取消</button>
+      <button class="btn-primary" id="taskModalSaveBtn" onclick="saveTask()">创建任务</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 确认删除弹窗 ===== -->
+<div class="modal-overlay" id="deleteConfirmModal">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-body" style="padding:32px 24px;text-align:center;">
+      <div style="font-size:44px;margin-bottom:12px;">🗑️</div>
+      <h2 style="font-size:18px;font-weight:700;margin-bottom:8px;">确认删除</h2>
+      <p style="font-size:13px;color:#6B7280;" id="deleteConfirmText">删除后不可恢复</p>
+    </div>
+    <div class="modal-footer" style="justify-content:center;">
+      <button class="btn-secondary" onclick="closeModal('deleteConfirmModal')">取消</button>
+      <button class="btn-danger" onclick="confirmDeleteTask()">确认删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 结果提示弹窗 ===== -->
+<div class="modal-overlay" id="resultModal">
+  <div class="modal" style="max-width:400px;text-align:center;">
+    <div class="modal-body" style="padding:40px 24px;">
+      <div id="resultIcon" style="font-size:48px;margin-bottom:16px;">✅</div>
+      <h2 id="resultTitle" style="font-size:20px;font-weight:700;margin-bottom:8px;">任务创建成功</h2>
+      <p id="resultDesc" style="font-size:13px;color:#6B7280;"></p>
+    </div>
+    <div class="modal-footer" style="justify-content:center;">
+      <button class="btn-primary" onclick="closeModal('resultModal')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Modal functions
+function switchTab(tab) {
+  // Update buttons
+  document.querySelectorAll('.tab-btn').forEach(function(btn) {
+    btn.classList.remove('active');
+  });
+  document.querySelector('.tab-btn[data-tab="' + tab + '"]').classList.add('active');
+  // Update panels
+  document.querySelectorAll('.tab-content').forEach(function(p) {
+    p.classList.remove('active');
+  });
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+// ===== 归集任务数据 =====
+let tasks = [];
+let editingTaskId = null;
+let deleteTaskId = null;
+
+// 默认示例数据
+const sampleTasks = [
+  { id: 't1', type: 'auto', items: ['USDT_Ethereum', 'USDT_TRON'], name: 'USDT (Ethereum)、USDT (TRON)', targetAddress: '0x8f3a...b4d2', execTime: '10:00', interval: 6, intervalUnit: 'hour', enabled: true },
+  { id: 't2', type: 'auto', items: ['ETH_Ethereum'], name: 'ETH (Ethereum)', targetAddress: '0x8f3a...b4d2', execTime: '10:00', interval: 6, intervalUnit: 'hour', enabled: true },
+];
+
+function initTasks() {
+  tasks = sampleTasks;
+  renderTasks();
+}
+
+function renderTasks() {
+  const container = document.getElementById('taskListContainer');
+  const activeTab = document.querySelector('.tab-nav .tab-btn.active');
+  const filterType = activeTab && activeTab.getAttribute('data-tab') === 'auto' ? 'auto' : null;
+  const filtered = filterType ? tasks.filter(function(t) { return t.type === filterType; }) : tasks;
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:48px 20px;color:#9CA3AF;"><div style="font-size:48px;margin-bottom:12px;">📭</div><p style="font-size:14px;">暂无归集任务</p><p style="font-size:12px;margin-top:4px;">点击上方「新建归集任务」添加</p></div>';
+    document.getElementById('taskCount').innerText = '共 0 个归集任务';
+    return;
+  }
+  let html = '';
+  filtered.forEach(function(t, idx) {
+    const typeLabel = t.type === 'auto' ? '<span class="badge badge-blue">自动归集</span>' : '<span class="badge badge-gray">手动归集</span>';
+    const statusHtml = t.type === 'auto'
+      ? '<label class="toggle" onclick="toggleTask(\'' + t.id + '\')"><input type="checkbox" ' + (t.enabled ? 'checked' : '') + '><span class="toggle-slider"></span></label>'
+      : '';
+    const scheduleHtml = t.type === 'auto'
+      ? '<span class="task-card-meta-item">⏰ 下次: <strong>' + getNextRunTime(t.execTime) + '</strong> · 每 ' + t.interval + (t.intervalUnit === 'hour' ? ' 小时' : ' 分钟') + '</span>'
+      : '<span class="task-card-meta-item">🔘 需要手动触发</span>';
+    // 组合显示多个币种/链
+    var itemsHtml = '';
+    if (t.items && Array.isArray(t.items)) {
+      t.items.forEach(function(item) {
+        itemsHtml += '<span class="badge badge-gray" style="margin-right:4px;margin-bottom:4px;">' + item + '</span>';
+      });
+    } else {
+      itemsHtml = '<span class="badge badge-gray">' + t.coin + ' (' + t.chain + ')</span>';
+    }
+    html += '<div class="task-card">'
+      + '<div class="task-card-header">'
+      + '<div class="task-card-title">' + typeLabel + '<h4>' + (t.name || '归集任务') + '</h4></div>'
+      + '<div class="task-card-actions">' + statusHtml
+      + '<button class="btn-secondary btn-sm" onclick="editTask(\'' + t.id + '\')" style="padding:4px 8px;font-size:13px;">✎</button>'
+      + '<button class="btn-secondary btn-sm" onclick="deleteTask(\'' + t.id + '\')" style="padding:4px 8px;font-size:13px;color:#DC2626;">🗑</button>'
+      + '</div></div>'
+      + '<div class="task-card-body">'
+      + '<span class="task-card-meta-item">📦 ' + itemsHtml + '</span>'
+      + '</div>'
+      + '<div class="task-card-body" style="margin-top:4px;">'
+      + '<span class="task-card-meta-item">📍 归集到: <strong>' + t.targetAddress + '</strong></span>'
+      + scheduleHtml
+      + '</div></div>';
+  });
+  container.innerHTML = html;
+  document.getElementById('taskCount').innerText = '共 ' + filtered.length + ' 个归集任务';
+}
+
+function openTaskModal(taskId) {
+  editingTaskId = taskId || null;
+  document.getElementById('taskModalTitle').innerText = taskId ? '编辑归集任务' : '新建归集任务';
+  document.getElementById('taskModalSaveBtn').innerText = taskId ? '保存修改' : '创建任务';
+
+  // 重置多选
+  var select = document.getElementById('taskItems');
+  for (var i = 0; i < select.options.length; i++) {
+    select.options[i].selected = false;
+  }
+
+  if (taskId) {
+    const t = tasks.find(function(x) { return x.id === taskId; });
+    if (t) {
+      document.getElementById('taskExecTime').value = t.execTime || '10:00';
+      document.getElementById('taskInterval').value = t.interval;
+      document.getElementById('taskIntervalUnit').value = t.intervalUnit || 'hour';
+      // 选中已有的 items
+      if (t.items && Array.isArray(t.items)) {
+        for (var i = 0; i < select.options.length; i++) {
+          if (t.items.indexOf(select.options[i].value) !== -1) {
+            select.options[i].selected = true;
+          }
+        }
+      }
+    }
+  } else {
+    document.getElementById('taskExecTime').value = '10:00';
+    document.getElementById('taskInterval').value = 6;
+    document.getElementById('taskIntervalUnit').value = 'hour';
+  }
+  document.getElementById('autoTaskSettings').style.display = 'block';
+  document.getElementById('taskModal').classList.add('active');
+}
+
+function getNextRunTime(execTime) {
+  if (!execTime) return execTime;
+  var now = new Date();
+  var parts = execTime.split(':');
+  var h = parseInt(parts[0]);
+  var m = parseInt(parts[1]);
+  var next = new Date(now);
+  next.setUTCHours(h, m, 0, 0);
+  if (next <= now) next.setUTCDate(next.getUTCDate() + 1);
+  var year = next.getUTCFullYear();
+  var month = String(next.getUTCMonth() + 1).padStart(2, '0');
+  var day = String(next.getUTCDate()).padStart(2, '0');
+  var hh = String(next.getUTCHours()).padStart(2, '0');
+  var mm = String(next.getUTCMinutes()).padStart(2, '0');
+  return year + '-' + month + '-' + day + ' ' + hh + ':' + mm + ' UTC';
+}
+
+function saveTask() {
+  const execTime = document.getElementById('taskExecTime').value;
+  const interval = parseInt(document.getElementById('taskInterval').value) || 1;
+  const intervalUnit = document.getElementById('taskIntervalUnit').value;
+
+  // 读取 select multiple 中选中的币种/链组合
+  var select = document.getElementById('taskItems');
+  var selectedItems = [];
+  for (var i = 0; i < select.options.length; i++) {
+    if (select.options[i].selected) {
+      selectedItems.push(select.options[i].value);
+    }
+  }
+
+  if (selectedItems.length === 0) {
+    document.getElementById('resultIcon').innerText = '⚠️';
+    document.getElementById('resultTitle').innerText = '请选择至少一个币种/链';
+    document.getElementById('resultDesc').innerText = '';
+    document.getElementById('resultModal').classList.add('active');
+    return;
+  }
+
+  var taskName = selectedItems.length <= 3
+    ? selectedItems.join('、')
+    : selectedItems.slice(0, 2).join('、') + ' 等 ' + selectedItems.length + ' 个';
+
+  if (editingTaskId) {
+    for (var i = 0; i < tasks.length; i++) {
+      if (tasks[i].id === editingTaskId) {
+        tasks[i].items = selectedItems;
+        tasks[i].name = taskName;
+        tasks[i].execTime = execTime;
+        tasks[i].interval = interval;
+        tasks[i].intervalUnit = intervalUnit;
+        tasks[i].targetAddress = targetAddress;
+        tasks[i].enabled = true;
+        break;
+      }
+    }
+    document.getElementById('resultIcon').innerText = '✅';
+    document.getElementById('resultTitle').innerText = '任务已更新';
+    document.getElementById('resultDesc').innerText = taskName + ' 归集任务已修改';
+  } else {
+    const newTask = {
+      id: 't' + Date.now(),
+      type: 'auto',
+      items: selectedItems,
+      name: taskName,
+      targetAddress: targetAddress,
+      execTime: type === 'auto' ? execTime : '',
+      interval: type === 'auto' ? interval : 1,
+      intervalUnit: type === 'auto' ? intervalUnit : 'hour',
+      enabled: true
+    };
+    tasks.push(newTask);
+    document.getElementById('resultIcon').innerText = '✅';
+    document.getElementById('resultTitle').innerText = '任务创建成功';
+    document.getElementById('resultDesc').innerText = taskName + ' 归集任务已添加';
+  }
+
+  closeModal('taskModal');
+  renderTasks();
+  document.getElementById('resultModal').classList.add('active');
+}
+
+function editTask(id) {
+  openTaskModal(id);
+}
+
+function deleteTask(id) {
+  deleteTaskId = id;
+  const t = tasks.find(function(x) { return x.id === id; });
+  document.getElementById('deleteConfirmText').innerText = t ? '确定删除 ' + (t.name || '归集任务') + ' ？' : '删除后不可恢复';
+  document.getElementById('deleteConfirmModal').classList.add('active');
+}
+
+function confirmDeleteTask() {
+  if (deleteTaskId) {
+    tasks = tasks.filter(function(t) { return t.id !== deleteTaskId; });
+    deleteTaskId = null;
+    closeModal('deleteConfirmModal');
+    renderTasks();
+    document.getElementById('resultIcon').innerText = '🗑️';
+    document.getElementById('resultTitle').innerText = '任务已删除';
+    document.getElementById('resultDesc').innerText = '';
+    document.getElementById('resultModal').classList.add('active');
+  }
+}
+
+function toggleTask(id) {
+  for (var i = 0; i < tasks.length; i++) {
+    if (tasks[i].id === id) {
+      tasks[i].enabled = !tasks[i].enabled;
+      break;
+    }
+  }
+  renderTasks();
+}
+
+function triggerManualCollect(id) {
+  const t = tasks.find(function(x) { return x.id === id; });
+  if (t) {
+    document.getElementById('resultIcon').innerText = '✅';
+    document.getElementById('resultTitle').innerText = '归集请求已提交';
+    document.getElementById('resultDesc').innerText = (t.name || '归集任务') + ' 交易已广播至 ' + t.targetAddress;
+    document.getElementById('resultModal').classList.add('active');
+  }
+}
+
+function triggerFromManual(btn, coin, chain) {
+  var row = btn.closest('tr');
+  var addresses = row.querySelectorAll('td');
+  var targetAddr = addresses[3] ? addresses[3].innerText : '';
+  document.getElementById('resultIcon').innerText = '✅';
+  document.getElementById('resultTitle').innerText = '归集请求已提交';
+  document.getElementById('resultDesc').innerText = coin + ' (' + chain + ') 全部余额归集交易已广播至 ' + targetAddr;
+  document.getElementById('resultModal').classList.add('active');
+}
+
+function showHistoryModal() {
+  document.getElementById('resultIcon').innerText = '📋';
+  document.getElementById('resultTitle').innerText = '全部归集记录';
+  document.getElementById('resultDesc').innerHTML = '近期 30 条归集记录可在此查看';
+  document.getElementById('resultModal').classList.add('active');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('active');
+}
+
+// Init on load
+initTasks();
+
+
+</script>
+
+</body>
+</html>

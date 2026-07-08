@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>卡片交易流水 - YASBee 管理端</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;color:#1D2129;background:#F3F4F6;line-height:1.5}
+.sidebar{width:260px;background:#1D2129;color:#fff;height:100vh;position:fixed;left:0;top:0;overflow-y:auto}
+.sidebar-header{padding:20px;font-size:20px;font-weight:700;color:#E59303;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-item{display:flex;align-items:center;gap:12px;padding:12px 20px;color:#9CA3AF;font-size:14px;cursor:pointer;transition:all .15s}
+.sidebar-item:hover{color:#fff;background:rgba(255,255,255,.05)}
+.sidebar-item.active{color:#E59303;background:rgba(229,147,3,.1);border-right:3px solid #E59303}
+.sidebar-label{padding:8px 20px 4px;font-size:11px;color:#6B7280;text-transform:uppercase;letter-spacing:1px}
+.main{margin-left:260px;padding:32px}
+.stat-card{background:#fff;border-radius:12px;border:1px solid #E5E7EB;padding:20px}
+.stat-value{font-size:25px;font-weight:700}
+.stat-label{font-size:13px;color:#86909C;margin-bottom:4px}
+.badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:500}
+.badge-ok{background:#DCFCE7;color:#166534}
+.badge-fail{background:#FEE2E2;color:#991B1B}
+.badge-pending{background:#FEF9C3;color:#854D0E}
+.badge-cancel{background:#F3F4F6;color:#4B5563}
+.badge-settled{background:#DBEAFE;color:#1E40AF}
+.badge-unsettled{background:#FEF9C3;color:#854D0E}
+.btn-primary{background:#E59303;color:#fff;border:none;border-radius:8px;padding:8px 20px;font-size:14px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-primary:hover{background:#d48402}
+.btn-outline{background:#fff;color:#4B5563;border:1px solid #D1D5DB;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-outline:hover{border-color:#E59303;color:#E59303}
+.btn-text{background:none;border:none;color:#E59303;font-size:13px;font-weight:500;cursor:pointer;padding:4px 8px}
+.btn-text:hover{color:#d48402}
+.filter-input{border:1px solid #D1D5DB;border-radius:8px;padding:8px 12px;font-size:14px;outline:none}
+.filter-input:focus{border-color:#E59303;box-shadow:0 0 0 2px rgba(229,147,3,.15)}
+.filter-select{border:1px solid #D1D5DB;border-radius:8px;padding:8px 12px;font-size:14px;outline:none;cursor:pointer;background:#fff}
+.filter-select:focus{border-color:#E59303;box-shadow:0 0 0 2px rgba(229,147,3,.15)}
+.table-wrap{background:#fff;border-radius:12px;border:1px solid #E5E7EB}
+.table-scroll{overflow-x:auto;border-radius:12px}
+table{width:100%;border-collapse:collapse;min-width:1300px}
+th{text-align:left;padding:10px 12px;font-size:12px;font-weight:500;color:#6B7280;border-bottom:1px solid #E5E7EB;background:#F9FAFB;white-space:nowrap}
+td{padding:10px 12px;font-size:13px;border-bottom:1px solid #F3F4F6;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#F9FAFB}
+.mono{font-family:SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
+.tag-spend{background:#EFF6FF;color:#1D4ED8}
+.tag-recharge{background:#DCFCE7;color:#166534}
+.tag-deduct{background:#FEF3C7;color:#92400E}
+.tag-refund{background:#F3E8FF;color:#6B21A8}
+.tag-fee{background:#FCE7F3;color:#9D174D}
+.tag-monthly{background:#FFF7ED;color:#C2410C}
+.highlight-row{background:#FFFBEB!important}
+
+.pagination{display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding:12px 0}
+.page-btn{padding:6px 12px;border:1px solid #D1D5DB;border-radius:6px;background:#fff;cursor:pointer;font-size:13px;color:#4B5563}
+.page-btn:hover{border-color:#E59303;color:#E59303}
+.page-btn.active{border-color:#E59303;background:#E59303;color:#fff}
+.table-header{display:flex;justify-content:space-between;align-items:center;padding:0 0 16px 0}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+<div class="sidebar-header">YASBee Admin</div>
+<div class="sidebar-label">主菜单</div>
+<div class="sidebar-item" style="color:#fff;"><span>🪪</span> 客户管理 ▾</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📈 概览</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">✅ 认证</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📋 客户列表</div>
+<div class="sidebar-item"><span>💰</span> 法币管理</div>
+<div class="sidebar-item"><span>₿</span> 加密货币</div>
+<div class="sidebar-item"><span>🔄</span> 兑换管理</div>
+<div class="sidebar-label">渠道</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📡 上游渠道</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">🃏 卡片服务</div>
+<div class="sidebar-label">卡片</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;color:#9CA3AF;">📋 卡片管理</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;color:#9CA3AF;">📝 申请记录</div>
+<div class="sidebar-item active" style="padding-left:36px;font-size:13px;color:#E59303;">📊 交易流水</div>
+<div class="sidebar-item"><span>📈</span> 投资</div>
+<div class="sidebar-item"><span>⚙️</span> 系统管理</div>
+<div class="sidebar-item"><span>📋</span> 我的任务</div>
+</div>
+
+<div class="main">
+
+<!-- Page Header -->
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+<div>
+<h1 style="font-size:24px;font-weight:700;">交易流水</h1>
+<p style="font-size:13px;color:#86909C;margin-top:4px;">平台全量卡片交易记录，用于财务对账</p>
+</div>
+</div>
+
+<!-- Stats Row -->
+<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:20px;">
+<div class="stat-card">
+<div class="stat-label">总交易数</div>
+<div class="stat-value">1,284</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">总交易额</div>
+<div class="stat-value">$284,560.00</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">总费用</div>
+<div class="stat-value">$12,380.50</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">总退款</div>
+<div class="stat-value" style="color:#DC2626;">-$2,450.00</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">净收入</div>
+<div class="stat-value" style="color:#16A34A;">$9,930.50</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">待结算</div>
+<div class="stat-value">$8,245.60</div>
+</div>
+</div>
+
+<!-- Filters -->
+<div style="background:#fff;border-radius:12px;border:1px solid #E5E7EB;padding:16px 20px;margin-bottom:20px;">
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+<select class="filter-select" style="width:150px;">
+<option>全部类型</option><option>消费</option><option>充值</option><option>扣款</option><option>退款</option><option>费用</option><option>月费</option>
+</select>
+<select class="filter-select" style="width:130px;">
+<option>全部状态</option><option>成功</option><option>失败</option><option>处理中</option><option>已取消</option>
+</select>
+<select class="filter-select" style="width:130px;">
+<option>全部结算</option><option>已结算</option><option>未结算</option>
+</select>
+<input class="filter-input" placeholder="卡号后4位" style="width:150px;">
+<input class="filter-input" placeholder="交易编号" style="width:160px;">
+<input class="filter-input" placeholder="客户邮箱" style="width:180px;">
+</div>
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px;">
+<span style="font-size:13px;color:#4B5563;font-weight:500;">日期范围：</span>
+<input class="filter-input" type="date" value="2026-05-04" style="width:150px;">
+<span style="color:#9CA3AF;">to</span>
+<input class="filter-input" type="date" value="2026-06-03" style="width:150px;">
+<button class="btn-primary" onclick="alert('Search')">🔍 搜索</button>
+<button class="btn-outline" onclick="alert('Reset')">重置</button>
+</div>
+</div>
+
+<!-- Fee Sub Filter (shown when type=Fee is selected) -->
+<div id="feeFilter" style="background:#FEF2F2;border:1px solid #FECACA;border-radius:12px;padding:12px 20px;margin-bottom:20px;display:none;">
+<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+<span style="font-size:13px;font-weight:500;color:#991B1B;">费用子类：</span>
+<select class="filter-select" style="width:140px;">
+<option>全部费用</option>
+<option>Opening Fee (开卡费)</option>
+<option>Recharge Fee (充值费)</option>
+<option>Consumption Fee (消费费)</option>
+<option>Monthly Fee (月费)</option>
+<option>Chargeback Fee</option>
+</select>
+<span style="font-size:13px;color:#4B5563;margin-left:12px;">
+<span style="font-weight:600;color:#991B1B;">$12,380.50 total</span> |
+Opening: $5,200 | Monthly: $1,880.50 | Recharge: $3,100 | Consumption: $2,200
+</span>
+</div>
+</div>
+
+<!-- Table with CSV button at top-right -->
+<div class="table-wrap">
+<div class="table-header" style="padding:16px 20px 0;">
+<h3 style="font-size:15px;font-weight:600;">交易记录</h3>
+<button class="btn-outline" onclick="alert('Export CSV')">📥 导出 CSV</button>
+</div>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>交易编号</th>
+<!-- 参考号已移除 -->
+<th>卡号</th>
+<th>卡名</th>
+<th>客户</th>
+<th>类型</th>
+<th>金额</th>
+<th>交易前</th>
+<th>交易后</th>
+<th>费用</th>
+<th>渠道费</th>
+<th>净收入</th>
+<th>币种</th>
+<th>商户</th>
+<th>MCC</th>
+<th>备注</th>
+<th>时间</th>
+<th>结算日期</th>
+<th>结算</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody id="tx-tbody"></tbody>
+</table>
+</div>
+</div>
+
+<!-- Pagination -->
+<div class="pagination">
+<div style="font-size:13px;color:#6B7280;">显示第 1–20 条，共 1,284 条</div>
+<div style="display:flex;gap:4px;">
+<button class="page-btn">‹</button>
+<button class="page-btn active">1</button>
+<button class="page-btn">2</button>
+<button class="page-btn">3</button>
+<button class="page-btn">…</button>
+<button class="page-btn">65</button>
+<button class="page-btn">›</button>
+</div>
+</div>
+
+</div><!-- .main -->
+
+<script>
+const txTypes=['消费','充值','扣款','退款','费用','月费'];
+const cards=[
+  {num:'480********4821',name:'YASBee',cust:'user@example.com',cid:'C00042'},
+  {num:'523********9012',name:'YASBee Gold',cust:'john.doe@test.com',cid:'C00078'},
+  {num:'480********3345',name:'YASBee',cust:'alice@test.com',cid:'C00123'},
+  {num:'480********6789',name:'YASBee Pro',cust:'bob@corp.com',cid:'C00156'},
+  {num:'523********1122',name:'YASBee',cust:'carol@test.com',cid:'C00201'},
+  {num:'480********5567',name:'YASBee Gold',cust:'dave@corp.com',cid:'C00234'},
+  {num:'523********8899',name:'YASBee Pro',cust:'eve@test.com',cid:'C00301'},
+  {num:'480********2234',name:'YASBee',cust:'frank@corp.com',cid:'C00345'},
+];
+const merchants=[
+  {name:'Stripe Inc.',mcc:'5734'},{name:'AWS',mcc:'5734'},{name:'Google Cloud',mcc:'5734'},
+  {name:'Netflix',mcc:'4899'},{name:'Spotify',mcc:'4899'},{name:'Apple Inc.',mcc:'5734'},
+  {name:'GitHub',mcc:'5734'},{name:'Shopify',mcc:'5734'},{name:'Uber',mcc:'4121'},{name:'Airbnb',mcc:'7011'},
+];
+const statuses=['成功','成功','成功','成功','成功','成功','失败','处理中','已取消'];
+const typeTagClass={'消费':'tag-spend','充值':'tag-recharge','扣款':'tag-deduct','退款':'tag-refund','费用':'tag-fee','月费':'tag-monthly'};
+const stBadge={'成功':'badge-ok','失败':'badge-fail','处理中':'badge-pending','已取消':'badge-cancel'};
+const settleSts=['已结算','已结算','已结算','未结算'];
+function rand(a){return a[Math.floor(Math.random()*a.length)]}
+function pad(n){return String(n).padStart(3,'0')}
+
+function generateData(n){
+  const rows=[];
+  for(let i=0;i<n;i++){
+    const card=rand(cards),merch=rand(merchants);
+    const type=rand(txTypes),status=rand(statuses);
+    const amt=Math.round(Math.random()*5000*100+50)/100;
+    const fee=type==='费用'||type==='月费'?amt:Math.round(Math.random()*50*100+10)/100;
+    const chFee=type==='费用'?0:Math.round(fee*0.7*100)/100;
+    const net=type==='费用'||type==='月费'?0:Math.round((fee-chFee)*100)/100;
+    const settle=status==='成功'&&Math.random()>0.3;
+    const t=new Date(2026,5,3-Math.floor(i/3),8+Math.floor(Math.random()*10),Math.floor(Math.random()*60));
+    rows.push({
+      id:`TX${['A','B','C','D','E','F'][Math.floor(Math.random()*6)]}${String(20260603+Math.floor(i/50)).slice(-4)}${pad(i+1)}`,
+      cardNum:card.num,cardName:card.name,
+      cust:card.cust,custId:card.cid,
+      type,amount:amt,fee,
+      before: Math.round(Math.random()*20000*100)/100,
+      after: 0, // calculated after amount sign
+      currency:'USD',merchant:merch.name,mcc:merch.mcc,
+      channelFee:chFee,netRev:net,
+      time:t.toISOString().replace('T',' ').slice(0,19),
+      settleDate:settle?'2026-06-04':'—',
+      settleStatus:settle?'已结算':'未结算',status,
+      remark:type==='消费'?`${merch.name} 订阅`:type==='费用'?'开卡费':type==='退款'?'重复扣款退款':type==='充值'?'余额充值':type==='月费'?'月维护费':'余额调整',
+      unusual:i%13===0,
+    });
+  }
+  rows.sort((a,b)=>b.time.localeCompare(a.time));
+  return rows;
+}
+  const data=generateData(100);
+  let curPage=1,pageSize=10;
+
+  function render(rows){
+    const tbody=document.getElementById('tx-tbody');
+    tbody.innerHTML='';
+    rows.forEach((r,i)=>{
+      const tr=document.createElement('tr');
+      if(r.unusual)tr.className='highlight-row';
+      const amtS=r.type==='退款'||r.type==='扣款'?`<span style="color:#DC2626;">-$${r.amount.toFixed(2)}</span>`:`$${r.amount.toFixed(2)}`;
+      const signedAmt=(r.type==='退款'||r.type==='扣款')?-r.amount:r.amount;
+      const after=r.before+signedAmt;
+      const feeS=r.fee>0?`$${r.fee.toFixed(2)}`:'—';
+      const chS=r.channelFee>0?`$${r.channelFee.toFixed(2)}`:'—';
+      const netS=r.netRev>0?`+$${r.netRev.toFixed(2)}`:'—';
+      const idx=(curPage-1)*pageSize+i+1;
+      tr.innerHTML=`<td class="mono">${idx}</td>
+<td class="mono" style="color:#1D4ED8;">${r.id}</td>
+<!-- 参考号已移除 -->
+<td class="mono">${r.cardNum}</td>
+<td>${r.cardName}</td>
+<td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;" title="${r.cust}">${r.cust}</td>
+<td><span class="tag ${typeTagClass[r.type]}">${r.type}</span></td>
+<td style="font-weight:600;">${amtS}</td>
+<td style="color:#6B7280;font-size:12px;">$${r.before.toFixed(2)}</td>
+<td style="font-weight:600;">$${after.toFixed(2)}</td>
+<td>${feeS}</td>
+<td>${chS}</td>
+<td>${netS}</td>
+<td>${r.currency}</td>
+<td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;" title="${r.merchant}">${r.type==='消费'?r.merchant:'—'}</td>
+<td class="mono" style="font-size:12px;color:#6B7280;">${r.mcc}</td>
+<td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;font-size:12px;color:#6B7280;" title="${r.remark}">${r.remark}</td>
+<td style="font-size:12px;color:#6B7280;">${r.time}</td>
+<td style="font-size:12px;">${r.settleDate}</td>
+<td><span class="badge ${r.settleStatus==='已结算'?'badge-settled':'badge-unsettled'}">${r.settleStatus}</span></td>
+<td><span class="badge ${stBadge[r.status]}">${r.status}</span></td>`;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderPage(p){
+    curPage=p;
+    const start=(p-1)*pageSize;
+    render(data.slice(start,start+pageSize));
+    renderPagination();
+  }
+
+  function renderPagination(){
+    const total=Math.ceil(data.length/pageSize);
+    let html=`<div style="font-size:13px;color:#6B7280;">显示第 ${(curPage-1)*pageSize+1}–${Math.min(curPage*pageSize,data.length)} 条，共 ${data.length} 条</div>
+<div style="display:flex;gap:4px;">`;
+    html+=`<button class="page-btn" onclick="renderPage(${curPage-1})" ${curPage===1?'disabled style="opacity:0.4;cursor:default"':''}>‹</button>`;
+    const pages=[];
+    if(total<=7){
+      for(let i=1;i<=total;i++)pages.push(i);
+    }else{
+      pages.push(1);
+      if(curPage>3)pages.push('…');
+      for(let i=Math.max(2,curPage-1);i<=Math.min(total-1,curPage+1);i++)pages.push(i);
+      if(curPage<total-2)pages.push('…');
+      pages.push(total);
+    }
+    pages.forEach(p=>{
+      if(p==='…')html+=`<span style="padding:6px 8px;color:#9CA3AF;">…</span>`;
+      else html+=`<button class="page-btn${p===curPage?' active':''}" onclick="renderPage(${p})">${p}</button>`;
+    });
+    html+=`<button class="page-btn" onclick="renderPage(${curPage+1})" ${curPage===total?'disabled style="opacity:0.4;cursor:default"':''}>›</button>`;
+    html+='</div>';
+    document.querySelector('.pagination').innerHTML=html;
+  }
+
+  renderPage(1);
+</script>
+</body>
+</html>

@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YASBe 注销账号流程</title>
+<style>
+  :root {
+    --bg: #f4f6fb;
+    --card: #ffffff;
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --danger: #dc2626;
+    --danger-light: #fef2f2;
+    --success: #16a34a;
+    --success-light: #f0fdf4;
+    --warning: #d97706;
+    --warning-light: #fffbeb;
+    --text: #111827;
+    --text-secondary: #6b7280;
+    --border: #e5e7eb;
+    --gray-200: #e5e7eb;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --radius: 16px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.08);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: var(--bg);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
+    min-height: 100vh;
+  }
+  .email-frame {
+    width: 390px;
+    min-height: 844px;
+    background: var(--bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    position: relative;
+  }
+  /* Status bar */
+  .status-bar {
+    height: 44px;
+    background: var(--card);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    z-index: 1;
+  }
+  .notch {
+    width: 120px;
+    height: 28px;
+    background: #000;
+    border-radius: 20px;
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    pointer-events: none;
+  }
+  .sb-right { display: flex; gap: 6px; }
+  /* Header */
+  .header {
+    background: var(--card);
+    padding: 12px 20px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .back-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--text);
+    padding: 4px;
+    border-radius: 8px;
+  }
+  .back-btn:hover { background: var(--bg); }
+  .header-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text);
+    flex: 1;
+    text-align: center;
+    margin-right: 32px;
+  }
+  /* Step bar */
+  .step-bar {
+    padding: 16px 24px;
+    background: var(--card);
+  }
+  .step-track {
+    display: flex;
+    align-items: center;
+  }
+  .step-dot-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .step-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--gray-200);
+    color: var(--gray-500);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .step-dot.active {
+    background: var(--primary);
+    color: #fff;
+  }
+  .step-dot.done {
+    background: var(--success);
+    color: #fff;
+  }
+  .step-label {
+    font-size: 10px;
+    color: var(--gray-500);
+    white-space: nowrap;
+  }
+  .step-label.active { color: var(--primary); font-weight: 600; }
+  .step-line {
+    flex: 1;
+    height: 2px;
+    background: var(--gray-200);
+    margin: 0 4px;
+    margin-bottom: 16px;
+  }
+  /* Screens */
+  .screen { display: none; padding: 20px; }
+  .screen.active { display: block; }
+  /* Cards */
+  .card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+  }
+  .card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  /* Progress bar */
+  .progress-track {
+    height: 8px;
+    background: var(--gray-200);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 16px 0 8px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--primary);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+  /* Check list */
+  .check-list { display: flex; flex-direction: column; gap: 8px; }
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px;
+    background: var(--bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+  .check-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--gray-200);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--gray-500);
+    flex-shrink: 0;
+  }
+  .check-icon.pass { background: var(--success); color: #fff; }
+  .check-icon.fail { background: var(--danger); color: #fff; }
+  .check-icon.active { background: var(--warning); color: #fff; }
+  .check-text { flex: 1; }
+  .check-title { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+  .check-desc { font-size: 12px; color: var(--text-secondary); }
+  .check-tag {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  .tag-orange { background: var(--warning-light); color: var(--warning); }
+  .tag-green { background: var(--success-light); color: var(--success); }
+  .tag-red { background: var(--danger-light); color: var(--danger); }
+  /* Asset cards */
+  .asset-grid { display: flex; flex-direction: column; gap: 10px; }
+  .asset-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px;
+    background: var(--bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+  .asset-left { display: flex; align-items: center; gap: 10px; }
+  .asset-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+  .asset-icon.fiat { background: #dbeafe; }
+  .asset-icon.crypto { background: #f3e8ff; }
+  .asset-icon.card { background: #fef3c7; }
+  .asset-name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .asset-balance { font-size: 12px; color: var(--text-secondary); }
+  .asset-balance span { color: var(--success); font-weight: 600; }
+  .asset-btn {
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  .asset-btn.clear { background: #dbeafe; color: var(--primary); }
+  .asset-btn.clear:hover { background: #bfdbfe; }
+  .asset-btn.disabled { background: var(--gray-200); color: var(--gray-400); cursor: not-allowed; }
+  /* Sub-page */
+  .sub-page { display: none; }
+  .sub-page.active { display: block; }
+  /* Form */
+  .form-group { margin-bottom: 14px; }
+  .form-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; display: block; }
+  .form-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--bg);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-input:focus { border-color: var(--primary); background: var(--card); }
+  .form-row { display: flex; gap: 8px; }
+  .form-row .form-input { flex: 1; }
+  /* OTP row */
+  .otp-row { display: flex; gap: 8px; align-items: center; }
+  .otp-row .form-input { flex: 1; }
+  .otp-btn {
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg);
+    font-size: 13px;
+    color: var(--primary);
+    cursor: pointer;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+  .otp-btn:disabled { color: var(--gray-400); cursor: not-allowed; }
+  /* Fee notice */
+  .fee-notice {
+    background: var(--warning-light);
+    border: 1px solid #fde68a;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--warning);
+    margin-bottom: 14px;
+  }
+  /* Checkbox */
+  .risk-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 14px;
+    background: var(--danger-light);
+    border-radius: 10px;
+    border: 1px solid #fca5a5;
+    cursor: pointer;
+    margin-top: 16px;
+  }
+  .risk-checkbox input { margin-top: 2px; accent-color: var(--danger); transform: scale(1.2); pointer-events: none; }
+  .risk-checkbox span { font-size: 13px; color: var(--danger); line-height: 1.5; }
+  /* Buttons */
+  .btn-primary {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 16px;
+  }
+  .btn-primary:disabled { background: var(--gray-200); color: var(--gray-400); cursor: not-allowed; }
+  .btn-primary:not(:disabled) { background: var(--primary); color: #fff; }
+  .btn-primary:not(:disabled):hover { background: var(--primary-dark); }
+  .btn-danger { background: var(--danger) !important; }
+  .btn-danger:not(:disabled):hover { background: #b91c1c !important; }
+  .btn-secondary {
+    background: var(--bg);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { background: var(--gray-200); }
+  /* Processing */
+  .processing-card {
+    text-align: center;
+    padding: 32px 20px;
+  }
+  .spin-ring {
+    width: 56px;
+    height: 56px;
+    border: 4px solid var(--gray-200);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .proc-status { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+  .proc-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; }
+  .proc-step-list { text-align: left; }
+  .proc-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    font-size: 13px;
+    color: var(--gray-500);
+  }
+  .proc-step.done { color: var(--success); }
+  .proc-step.active { color: var(--text); font-weight: 600; }
+  .step-check { font-size: 16px; }
+  /* Complete */
+  .complete-card {
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .complete-icon { font-size: 56px; margin-bottom: 16px; }
+  .complete-title { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .complete-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.6; }
+  .complete-list { text-align: left; background: var(--bg); border-radius: 12px; padding: 16px; margin-bottom: 24px; }
+  .complete-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text);
+    padding: 6px 0;
+  }
+  .complete-item span:first-child { font-size: 16px; }
+  .notice-box {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 12px;
+    color: var(--primary);
+    line-height: 1.6;
+  }
+  /* Sub page header */
+  .sub-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .sub-header h3 { font-size: 16px; font-weight: 600; color: var(--text); flex: 1; }
+  .sub-close {
+    background: none;
+    border: none;
+    font-size: 22px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px 8px;
+  }
+</style>
+</head>
+<body>
+<div class="email-frame">
+  <div class="status-bar">
+    <span>9:41</span>
+    <div class="notch"></div>
+    <div class="sb-right"><span>📶</span><span>🔋</span></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       SCREEN 1: 资格校验
+  ════════════════════════════════════════ -->
+  <div id="screen-check" class="screen active">
+    <div class="header">
+      <div class="header-top">
+        <button class="back-btn" onclick="goHome()">🏠</button>
+        <div class="header-title">注销账号</div>
+      </div>
+    </div>
+    <div class="step-bar">
+      <div class="step-track">
+        <div class="step-dot-wrap">
+          <div class="step-dot active">1</div>
+          <div class="step-label active">资格校验</div>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-dot-wrap">
+          <div class="step-dot">2</div>
+          <div class="step-label">清空资产</div>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-dot-wrap">
+          <div class="step-dot">3</div>
+          <div class="step-label">身份验证</div>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-dot-wrap">
+          <div class="step-dot">4</div>
+          <div class="step-label">完成</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding: 0 20px 20px;">
+      <div class="card">
+        <div class="card-title">⚠️ 注销前请确认以下事项</div>
+        <div class="check-list">
+          <div class="check-item">
+            <div class="check-icon pass">✓</div>
+            <div class="check-text">
+              <div class="check-title">无进行中的交易</div>
+              <div class="check-desc">当前无待处理充提记录</div>
+            </div>
+            <div class="check-tag tag-green">通过</div>
+          </div>
+          <div class="check-item">
+            <div class="check-icon pass">✓</div>
+            <div class="check-text">
+              <div class="check-title">法币余额已清零</div>
+              <div class="check-desc">USD / EUR / GBP 账户余额均为 0</div>
+            </div>
+            <div class="check-tag tag-green">通过</div>
+          </div>
+          <div class="check-item">
+            <div class="check-icon fail">✗</div>
+            <div class="check-text">
+              <div class="check-title">Safeheron 钱包已清空</div>
+              <div class="check-desc">当前余额：USDT 1,234.56（需先转出）</div>
+            </div>
+            <div class="check-tag tag-red">未通过</div>
+          </div>
+          <div class="check-item">
+            <div class="check-icon active">3</div>
+            <div class="check-text">
+              <div class="check-title">Interlace 卡片余额已清零</div>
+              <div class="check-desc">当前余额：USD 50.00（需先消费或转出）</div>
+            </div>
+            <div class="check-tag tag-orange">待确认</div>
+          </div>
+          <div class="check-item">
+            <div class="check-icon pass">✓</div>
+            <div class="check-text">
+              <div class="check-title">无未完成的订单</div>
+              <div class="check-desc">无进行中的 KYC 或开户申请</div>
+            </div>
+            <div class="check-tag tag-green">通过</div>
+          </div>
+          <div class="check-item">
+            <div class="check-icon pass">✓</div>
+            <div class="check-text">
+              <div class="check-title">无未结争议交易</div>
+              <div class="check-desc">所有 Visa 消费争议已处理完毕</div>
+            </div>
+            <div class="check-tag tag-green">通过</div>
+          </div>
+        </div>
+      </div>
+      <div class="notice-box">
+        ℹ️ 如有资产疑问，请联系客服处理。<br>
+        有进行中交易的账号需等待交易完成后才能注销。
+      </div>
+      <button class="btn-primary btn-danger" id="check-next-btn" onclick="goScreen('clear')">
+        前往清空资产
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       SCREEN 2: 清空资产
+  ════════════════════════════════════════ -->
+  <div id="screen-clear" class="screen">
+    <div class="header">
+      <div class="header-top">
+        <button class="back-btn" onclick="goScreen('check')">←</button>
+        <div class="header-title">清空资产</div>
+      </div>
+    </div>
+    <div class="step-bar">
+      <div class="step-track">
+        <div class="step-dot-wrap">
+          <div class="step-dot done">✓</div>
+          <div class="step-label active">资格校验</div>
+        </div>
+        <div class="step-line" style="background:var(--success)"></div>
+        <div class="step-dot-wrap">
+          <div class="step-dot active">2</div>
+          <div class="step-label active">清空资产</div>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-dot-wrap">
+          <div class="step-dot">3</div>
+          <div class="step-label">身份验证</div>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-dot-wrap">
+          <div class="step-dot">4</div>
+          <div class="step-label">完成</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding: 0 20px 20px;">
+      <div class="card">
+        <div class="card-title">💼 当前持仓资产</div>
+        <div class="asset-grid">
+          <div class="asset-card">
+            <div class="asset-left">
+              <div class="asset-icon fiat">💵</div>
+              <div>
+                <div class="asset-name">法币账户</div>
+                <div class="asset-balance">USD <span>$0.00</span> · EUR <span>€0.00</span></div>
+              </div>
+            </div>
+            <button class="asset-btn disabled">已清空</button>
+          </div>
+          <div class="asset-card">
+            <div class="asset-left">
+              <div class="asset-icon crypto">🔐</div>
+              <div>
+                <div class="asset-name">Safeheron 钱包</div>
+                <div class="asset-balance" id="crypto-balance">USDT <span>1,234.56</span> · ETH <span>0.82</span></div>
+              </div>
+            </div>
+            <button class="asset-btn clear" onclick="showSubPage('withdraw-crypto')">转出</button>
+          </div>
+          <div class="asset-card">
+            <div class="asset-left">
+              <div class="asset-icon card">💳</div>
+              <div>
+                <div class="asset-name">Interlace 预付卡</div>
+                <div class="asset-balance" id="card-balance">USD <span>$50.00</span>（余额无法转出，仅支持消费）</div>
+              </div>
+            </div>
+            <button class="asset-btn clear" onclick="showSubPage('spend-card')">消费清零</button>
+          </div>
+        </div>
+      </div>
+      <div class="notice-box">
+        ⚠️ <strong>Interlace 卡片为借记卡模式</strong>，余额无法逆向兑换为 USDT，请消费后再来注销。
+      </div>
+      <button class="btn-primary" id="clear-next-btn" onclick="goScreen('verify')">
+        下一步：身份验证
+        <span style="font-size:12px;font-weight:400;opacity:0.7">（演示模式可跳过）</span>
+      </button>
+    </div>
+
+    <!-- Sub page: 转出加密货币 -->
+    <div id="sub-withdraw-crypto" class="sub-page">
+      <div style="padding: 0 20px 20px;">
+        <div class="sub-header">
+          <button class="sub-close" onclick="hideSubPage('withdraw-crypto')">×</button>
+          <h3>转出加密货币</h3>
+        </div>
+        <div class="card">
+          <div class="form-group">
+            <label class="form-label">币种</label>
+            <select class="form-input" id="wd-coin">
+              <option value="USDT">USDT</option>
+              <option value="ETH">ETH</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">转出数量</label>
+            <input class="form-input" type="number" placeholder="请输入转出数量" id="wd-amount">
+          </div>
+          <div class="form-group">
+            <label class="form-label">目标地址</label>
+            <input class="form-input" type="text" placeholder="粘贴外部钱包地址" id="wd-address">
+          </div>
+          <div class="fee-notice">⚡ 预计 Gas 费：~$3.50（ETH 网络）</div>
+          <div class="form-group">
+            <label class="form-label">备注（可选）</label>
+            <input class="form-input" type="text" placeholder="填写交易备注">
+          </div>
+        </div>
+        <button class="btn-primary btn-secondary" onclick="hideSubPage('withdraw-crypto')">取消</button>
+        <button class="btn-primary" onclick="confirmWithdraw()">确认转出</button>
+      </div>
+    </div>
+
+    <!-- Sub page: 消费清零 -->
+    <div id="sub-spend-card" class="sub-page">
+      <div style="padding: 0 20px 20px;">
+        <div class="sub-header">
+          <button class="sub-close" onclick="hideSubPage('spend-card')">×</button>
+          <h3>消费清零卡片余额</h3>
+        </div>
+        <div class="card">
+          <p style="font-size:13px;color:var(--text-secondary);line-height:1.6;">
+            Interlace 卡片余额（USD）无法逆向兑换为 USDT，只能通过 Visa 商户消费清零。
+          </p>
+          <div style="margin-top:12px;padding:12px;background:var(--bg);border-radius:10px;">
+            <div style="font-size:13px;color:var(--text);margin-bottom:8px;">💡 建议操作</div>
+            <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;">
+              · 线上购物（Amazon、淘宝等）<br>
+              · 线下刷卡消费<br>
+              · 充值其他支持 USD 的钱包
+            </div>
+          </div>
+          <div class="notice-box" style="margin-top:12px;">
+            消费完成后刷新此页面，余额将自动更新。
+          </div>
+        </div>
+        <button class="btn-primary btn-secondary" onclick="hideSubPage('spend-card');cardCleared=true;var cb=document.getElementById('card-balance');if(cb)cb.innerHTML='USD <span>$0.00</span>（已消费清零）';checkAllCleared();">确认已消费</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       SCREEN 3: 身份验证
+  ════════════════════════════════════════ -->
+  <div id="screen-verify" class="screen">
+    <div class="header">
+      <div class="header-top">
+        <button class="back-btn" onclick="goScreen('clear')">←</button>
+        <div class="header-title">身份验证</div>
+      </div>
+    </div>
+    <div class="step-bar">
+      <div class="step-track">
+        <div class="step-dot-wrap">
+          <div class="step-dot done">✓</div>
+          <div class="step-label">资格校验</div>
+        </div>
+        <div class="step-line" style="background:var(--success)"></div>
+        <div class="step-dot-wrap">
+          <div class="step-dot done">✓</div>
+          <div class="step-label">清空资产</div>
+        </div>
+        <div class="step-line" style="background:var(--success)"></div>
+        <div class="step-dot-wrap">
+          <div class="step-dot active">3</div>
+          <div class="step-label active">身份验证</div>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-dot-wrap">
+          <div class="step-dot">4</div>
+          <div class="step-label">完成</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding: 0 20px 20px;">
+      <!-- 步骤清单 -->
+      <div class="check-list" style="margin-bottom:16px;">
+        <div class="check-item">
+          <div class="check-icon pass">✓</div>
+          <div class="check-text">
+            <div class="check-title">登录密码验证</div>
+            <div class="check-desc">xieyi0734@gmail.com</div>
+          </div>
+          <div class="check-tag tag-green">已通过</div>
+        </div>
+        <div class="check-item">
+          <div class="check-icon active">2</div>
+          <div class="check-text">
+            <div class="check-title">邮箱验证码验证</div>
+            <div class="check-desc">xieyi0734@gmail.com</div>
+          </div>
+          <div class="check-tag tag-orange">待完成</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📧 邮箱验证码</div>
+        <div class="form-group">
+          <label class="form-label">验证码已发送至 xieyi0734@gmail.com</label>
+          <div class="otp-row" style="margin-top:8px;">
+            <input class="form-input" type="text" placeholder="请输入 6 位验证码" maxlength="6" id="email-code-input">
+            <button class="otp-btn" id="email-btn" onclick="resendEmailCode()">重新发送</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="risk-checkbox" onclick="toggleRisk()">
+        <input type="checkbox" id="risk-check">
+        <span>我已充分了解注销账号的<strong>不可逆后果</strong>：所有资产将无法恢复，账号及关联数据将被永久删除。</span>
+      </div>
+
+      <button class="btn-primary btn-danger" id="verify-submit-btn" disabled onclick="submitVerify()">
+        确认注销
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       SCREEN 4: 处理进度
+  ════════════════════════════════════════ -->
+  <div id="screen-processing" class="screen">
+    <div class="header">
+      <div class="header-top">
+        <button class="back-btn" onclick="goScreen('verify')">←</button>
+        <div class="header-title">正在处理</div>
+      </div>
+    </div>
+    <div class="step-bar">
+      <div class="step-track">
+        <div class="step-dot-wrap">
+          <div class="step-dot done">✓</div>
+          <div class="step-label">资格校验</div>
+        </div>
+        <div class="step-line" style="background:var(--success)"></div>
+        <div class="step-dot-wrap">
+          <div class="step-dot done">✓</div>
+          <div class="step-label">清空资产</div>
+        </div>
+        <div class="step-line" style="background:var(--success)"></div>
+        <div class="step-dot-wrap">
+          <div class="step-dot done">✓</div>
+          <div class="step-label">身份验证</div>
+        </div>
+        <div class="step-line" style="background:var(--success)"></div>
+        <div class="step-dot-wrap">
+          <div class="step-dot active">4</div>
+          <div class="step-label active">完成</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding: 0 20px 20px;">
+      <div class="card">
+        <div class="processing-card">
+          <div class="spin-ring"></div>
+          <div class="proc-status" id="proc-status">正在提交注销请求…</div>
+          <div class="proc-desc" id="proc-desc">预计需要 3-5 个工作日完成全部处理</div>
+          <div class="progress-track">
+            <div class="progress-fill" id="proc-bar" style="width:0%"></div>
+          </div>
+          <div class="proc-step-list">
+            <div class="proc-step active" id="step-1">
+              <span class="step-check">○</span> 提交注销申请
+            </div>
+            <div class="proc-step" id="step-2">
+              <span class="step-check">○</span> 联动 Safeheron 钱包解绑
+            </div>
+            <div class="proc-step" id="step-3">
+              <span class="step-check">○</span> 联动 Interlace 卡片关闭
+            </div>
+            <div class="proc-step" id="step-4">
+              <span class="step-check">○</span> 删除 KYC 数据（合规保留期后）
+            </div>
+            <div class="proc-step" id="step-5">
+              <span class="step-check">○</span> 账号永久关闭
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="btn-primary btn-secondary" onclick="goHome()">返回首页</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       SCREEN 5: 注销完成
+  ════════════════════════════════════════ -->
+  <div id="screen-complete" class="screen">
+    <div class="header" style="border-bottom:none;">
+      <div class="header-top">
+        <div class="header-title">账号注销</div>
+      </div>
+    </div>
+
+    <div style="padding: 20px;">
+      <div class="card">
+        <div class="complete-card">
+          <div class="complete-icon">✅</div>
+          <div class="complete-title">账号已提交注销</div>
+          <div class="complete-desc">您的账号注销申请已提交，我们将陆续完成各项处理。处理完成后会发送邮件通知您。</div>
+          <div class="complete-list">
+            <div class="complete-item"><span>✓</span> 注销申请已提交</div>
+            <div class="complete-item"><span>✓</span> 身份验证已完成</div>
+            <div class="complete-item"><span>○</span> Safeheron 钱包解绑中</div>
+            <div class="complete-item"><span>○</span> Interlace 卡片关闭中</div>
+            <div class="complete-item"><span>○</span> 账号永久关闭</div>
+          </div>
+          <div class="notice-box" style="text-align:left;">
+            <strong>📩 邮件通知</strong><br>
+            所有处理结果将发送至<br>
+            <strong>xieyi0734@gmail.com</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🔒 数据保留说明</div>
+        <div style="font-size:12px;color:var(--text-secondary);line-height:1.8;">
+          · 根据监管要求，KYC 身份信息将保留 <strong>5 年</strong>后删除<br>
+          · 交易记录将保留 <strong>7 年</strong>后删除<br>
+          · 法定报告义务范围内的数据按相关法规执行
+        </div>
+      </div>
+
+      <div class="notice-box" style="margin-top:8px;">
+        <strong>📋 二次注册说明</strong><br>
+        注销完成后如需重新注册，将视为<strong>全新账户</strong>，需重新完成 KYC 认证，不继承任何旧账户数据。
+      </div>
+    </div>
+  </div>
+
+</div><!-- end email-frame -->
+
+<script>
+  let emailCountdown = 60;
+  let verifyPassed = false;
+  let cryptoCleared = false;
+  let cardCleared = false;
+
+  function goScreen(name) {
+    document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+    var target = document.getElementById('screen-' + name);
+    if (target) target.classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function showSubPage(name) {
+    var el = document.getElementById('sub-' + name);
+    if (el) el.classList.add('active');
+  }
+
+  function hideSubPage(name) {
+    var el = document.getElementById('sub-' + name);
+    if (el) el.classList.remove('active');
+  }
+
+  function toggleRisk() {
+    var cb = document.getElementById('risk-check');
+    cb.checked = !cb.checked;
+    var btn = document.getElementById('verify-submit-btn');
+    btn.disabled = !cb.checked;
+  }
+
+  function resendEmailCode() {
+    var btn = document.getElementById('email-btn');
+    btn.disabled = true;
+    var t = emailCountdown;
+    btn.textContent = t + 's';
+    var interval = setInterval(function() {
+      t--;
+      btn.textContent = t + 's';
+      if (t <= 0) {
+        clearInterval(interval);
+        btn.textContent = '重新发送';
+        btn.disabled = false;
+      }
+    }, 1000);
+    alert('验证码已发送至 xieyi0734@gmail.com');
+  }
+
+  function submitVerify() {
+    var code = document.getElementById('email-code-input').value.trim();
+    if (code.length < 6) {
+      alert('请输入 6 位验证码');
+      return;
+    }
+    verifyPassed = true;
+    runProcessing();
+    goScreen('processing');
+  }
+
+  function confirmWithdraw() {
+    alert('转出请求已提交，请到 Safeheron App 确认签名。');
+    hideSubPage('withdraw-crypto');
+    cryptoCleared = true;
+    var bal = document.getElementById('crypto-balance');
+    if (bal) bal.innerHTML = 'USDT <span>$0.00</span> · ETH <span>$0.00</span>';
+    checkAllCleared();
+  }
+
+  function checkAllCleared() {
+    if (cryptoCleared && cardCleared) {
+      document.getElementById('clear-next-btn').disabled = false;
+    }
+  }
+
+  function runProcessing() {
+    var steps = [
+      { id: 'step-1', status: '注销申请提交成功', desc: '正在联动外部系统…', bar: 20 },
+      { id: 'step-2', status: 'Safeheron 钱包解绑中', desc: '正在请求 Safeheron 解绑接口…', bar: 40 },
+      { id: 'step-3', status: 'Interlace 卡片关闭中', desc: '正在关闭 Interlace 关联卡片…', bar: 60 },
+      { id: 'step-4', status: '数据处理中', desc: '正在按合规要求处理用户数据…', bar: 80 },
+      { id: 'step-5', status: '账号已永久关闭', desc: '全部处理完成', bar: 100 }
+    ];
+
+    var i = 0;
+    var interval = setInterval(function() {
+      if (i > 0) {
+        var prev = steps[i - 1];
+        var prevEl = document.getElementById(prev.id);
+        if (prevEl) {
+          prevEl.classList.remove('active');
+          prevEl.classList.add('done');
+          var prevCheck = prevEl.querySelector('.step-check');
+          if (prevCheck) prevCheck.textContent = '✓';
+        }
+      }
+      if (i < steps.length) {
+        var s = steps[i];
+        var statusEl = document.getElementById('proc-status');
+        var descEl = document.getElementById('proc-desc');
+        var barEl = document.getElementById('proc-bar');
+        if (statusEl) statusEl.textContent = s.status;
+        if (descEl) descEl.textContent = s.desc;
+        if (barEl) barEl.style.width = s.bar + '%';
+        if (i > 0) {
+          var curEl = document.getElementById(s.id);
+          if (curEl) curEl.classList.add('active');
+        }
+        i++;
+      } else {
+        clearInterval(interval);
+        setTimeout(function() { goScreen('complete'); }, 800);
+      }
+    }, 1000);
+  }
+
+  function goHome() {
+    alert('此为演示原型，实际返回 YASBe 首页。');
+  }
+</script>
+</body>
+</html>
