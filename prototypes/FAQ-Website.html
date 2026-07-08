@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAQ — YASBee</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#E59303;
+  --gold-light:rgba(229,147,3,0.08);
+  --gold-mid:rgba(229,147,3,0.18);
+  --bg:#ffffff;
+  --text:#1a1a2e;
+  --text-muted:#4a4a5e;
+  --text-light:#8a8a9e;
+  --border:#e4e4ec;
+  --card-bg:#ffffff;
+  --nav-bg:rgba(255,255,255,0.92);
+  --radius:8px;
+  --max-w:1120px;
+  --font:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#0b0b1a;
+    --text:#e8e8f0;
+    --text-muted:#a0a0b8;
+    --text-light:#6a6a80;
+    --border:#2a2a40;
+    --card-bg:#111128;
+    --nav-bg:rgba(11,11,26,0.92);
+    --gold-light:rgba(229,147,3,0.06);
+    --gold-mid:rgba(229,147,3,0.12);
+  }
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--nav-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+nav .nav-inner{max-width:var(--max-w);margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:64px}
+nav .logo{font-size:20px;font-weight:700;letter-spacing:-0.3px;color:var(--text);text-decoration:none}
+nav .logo span{color:var(--gold)}
+nav .nav-links{display:flex;align-items:center;gap:28px}
+nav .nav-links a{text-decoration:none;font-size:14px;font-weight:500;color:var(--text-muted);transition:color .2s}
+nav .nav-links a:hover{color:var(--text)}
+nav .nav-links a.active{color:var(--text);font-weight:600}
+nav .nav-cta{padding:8px 18px;background:var(--text);color:var(--bg)!important;border-radius:var(--radius);font-size:13px;font-weight:600;transition:opacity .2s}
+nav .nav-cta:hover{opacity:0.85}
+.hero{padding-top:120px;padding-bottom:64px;text-align:center;background:var(--gold-light);border-bottom:1px solid var(--border)}
+.hero h1{font-size:44px;font-weight:700;letter-spacing:-1px;margin-bottom:12px}
+.hero p{font-size:18px;color:var(--text-muted);max-width:560px;margin:0 auto}
+.faq-section{padding:80px 24px}
+.faq-inner{max-width:var(--max-w);margin:0 auto}
+.faq-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px;flex-wrap:wrap;gap:16px}
+.faq-header h2{font-size:24px;font-weight:600}
+.category-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.category-tab{padding:6px 16px;border-radius:20px;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;background:transparent;border:1px solid var(--border);color:var(--text-muted)}
+.category-tab:hover{border-color:var(--gold);color:var(--text)}
+.category-tab.active{background:var(--gold);color:#fff;border-color:var(--gold)}
+.search-wrap{position:relative;margin-bottom:32px}
+.search-wrap svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-light)}
+.search-wrap input{width:100%;padding:12px 16px 12px 44px;border:1px solid var(--border);border-radius:var(--radius);font-size:15px;background:var(--card-bg);color:var(--text);outline:none;transition:border .2s}
+.search-wrap input:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-light)}
+.search-wrap input::placeholder{color:var(--text-light)}
+.faq-list{display:flex;flex-direction:column;gap:12px}
+.faq-item{border:1px solid var(--border);border-radius:var(--radius);background:var(--card-bg);overflow:hidden;transition:box-shadow .2s}
+.faq-item:hover{box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.faq-q{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;cursor:pointer;user-select:none;font-size:16px;font-weight:500;transition:background .2s}
+.faq-q:hover{background:var(--gold-light)}
+.faq-q .icon{width:24px;height:24px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:transform .3s;color:var(--text-light)}
+.faq-q .icon.open{transform:rotate(45deg);color:var(--gold)}
+.faq-q .q-label{color:var(--gold);font-weight:700;margin-right:4px}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.faq-a.open{max-height:800px}
+.faq-a-inner{padding:0 24px 20px;font-size:15px;line-height:1.7;color:var(--text-muted);border-top:1px solid var(--border);padding-top:16px}
+.faq-a-inner p{margin-bottom:8px}
+.faq-a-inner ul,.faq-a-inner ol{padding-left:20px;margin-bottom:8px}
+.faq-a-inner li{margin-bottom:4px}
+.empty-state{text-align:center;padding:60px 24px;color:var(--text-light)}
+.empty-state svg{width:48px;height:48px;margin-bottom:12px;color:var(--text-light)}
+.empty-state p{font-size:16px}
+footer{border-top:1px solid var(--border);padding:48px 24px;text-align:center;color:var(--text-light);font-size:14px}
+footer a{color:var(--gold);text-decoration:none}
+</style>
+</head>
+<body>
+<nav>
+<div class="nav-inner">
+<a href="#" class="logo">YAS<span>Bee</span></a>
+<div class="nav-links">
+<a href="#">Home</a><a href="#">Product</a><a href="#">News</a><a href="#">Blog</a><a class="active" href="#">FAQ</a><a href="#" class="nav-cta">Get Started</a>
+</div>
+</div>
+</nav>
+<section class="hero">
+<h1>Frequently Asked Questions</h1>
+<p>Everything you need to know about YASBee. Can't find what you're looking for? <a href="#" style="color:var(--gold);text-decoration:underline;">Contact us</a>.</p>
+</section>
+<section class="faq-section">
+<div class="faq-inner">
+<div class="faq-header">
+<h2>Common Questions</h2>
+<div class="category-tabs" id="categoryTabs">
+<button class="category-tab active" data-cat="all">All</button>
+<button class="category-tab" data-cat="General">General</button>
+<button class="category-tab" data-cat="Account">Account</button>
+<button class="category-tab" data-cat="Payments">Payments</button>
+<button class="category-tab" data-cat="Security">Security</button>
+<button class="category-tab" data-cat="Technical">Technical</button>
+</div>
+</div>
+<div class="search-wrap">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type="text" id="searchInput" placeholder="Search for answers...">
+</div>
+<div class="faq-list" id="faqList"></div>
+</div>
+</section>
+<footer>
+<div class="faq-inner">
+<p>&copy; 2026 YASBee. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+</div>
+</footer>
+<script>
+var faqs = [
+  {id:1, question:"How do I create an account?", category:"Account", answer:"<p>Creating an account on YASBee is simple and free:</p><ol><li>Click the <b>Get Started</b> button on the top right</li><li>Enter your email address and create a secure password</li><li>Verify your email via the confirmation link we send you</li><li>Complete your profile with basic information</li></ol><p>Once registered, you can immediately start exploring YASBee PayFi features.</p>", sortOrder:1},
+  {id:2, question:"What payment methods are supported?", category:"Payments", answer:"<p>YASBee supports a wide range of payment methods:</p><ul><li><b>Bank Transfers</b> — SEPA, SWIFT, and local ACH networks</li><li><b>Cards</b> — Visa, Mastercard debit and credit</li><li><b>Crypto</b> — BTC, ETH, USDT, USDC, and major stablecoins</li><li><b>Digital Wallets</b> — Apple Pay, Google Pay</li></ul><p>All transactions are processed securely and in compliance with local regulations.</p>", sortOrder:2},
+  {id:3, question:"How do I reset my password?", category:"Account", answer:"<p>To reset your password:</p><ol><li>Go to the login page and click <b>Forgot Password</b></li><li>Enter your registered email address</li><li>Check your inbox for a password reset link (valid for 1 hour)</li><li>Follow the instructions to set a new password</li></ol><p>For security reasons, you will be logged out of all sessions after changing your password.</p>", sortOrder:3},
+  {id:4, question:"Is my data secure?", category:"Security", answer:"<p>Security is our top priority. YASBee implements multiple layers of protection:</p><ul><li><b>Encryption</b> — All data is encrypted in transit (TLS 1.3) and at rest (AES-256)</li><li><b>Authentication</b> — Optional 2FA via authenticator apps or SMS</li><li><b>Compliance</b> — We adhere to GDPR, SOC 2, and PCI-DSS standards</li><li><b>Monitoring</b> — 24/7 security monitoring and automated threat detection</li></ul><p>Your personal and financial data is never shared without your explicit consent.</p>", sortOrder:4},
+  {id:5, question:"What are the transaction fees?", category:"Payments", answer:"<p>YASBee offers transparent and competitive fee structures:</p><ul><li><b>Card Payments</b> — 1.5% + $0.30 per transaction</li><li><b>Bank Transfers</b> — Free for incoming, $1.00 for outgoing SEPA</li><li><b>Crypto Transfers</b> — Network fee only (variable by blockchain)</li><li><b>Currency Conversion</b> — 0.5% above market rate</li></ul><p>There are no monthly maintenance fees or hidden charges.</p>", sortOrder:5},
+  {id:6, question:"How does YASBee PayFi work?", category:"General", answer:"<p>YASBee PayFi bridges traditional finance with decentralized technology:</p><ul><li><b>Pay</b> — Spend your crypto assets directly via card or digital wallet at any merchant</li><li><b>Fi</b> — Earn yield on your idle crypto holdings through our DeFi integration</li><li><b>Settle</b> — Real-time settlement between crypto and fiat rails</li></ul><p>All PayFi features are non-custodial where possible, giving you full control of your assets.</p>", sortOrder:6},
+  {id:7, question:"Can I use YASBee outside my country?", category:"General", answer:"<p>YASBee is available in over 50 countries across Europe, Asia, and the Americas:</p><ul><li><b>Europe</b> — Full service (licensed under EMI)</li><li><b>Asia</b> — PayFi features in select markets</li><li><b>Americas</b> — Card products available in US and Canada</li></ul><p>Check our supported countries page for the latest availability in your region.</p>", sortOrder:7},
+  {id:8, question:"How do I verify my identity?", category:"Account", answer:"<p>Identity verification (KYB/KYC) is required for certain features:</p><ol><li>Go to <b>Settings > Verification</b> in your dashboard</li><li>Upload a valid government-issued ID</li><li>Take a live selfie for facial verification</li><li>For business accounts, upload company registration documents</li></ol><p>Verification usually takes 1-24 hours.</p>", sortOrder:8},
+  {id:9, question:"What happens if a transaction fails?", category:"Payments", answer:"<p>Occasionally transactions may fail. Here is what typically happens:</p><ul><li><b>Funds are returned</b> — Any debited amount is credited back within 1-5 business days</li><li><b>You receive a notification</b> — We will alert you via email with the reason</li><li><b>Common reasons</b> — Insufficient funds, network congestion, or bank declines</li></ul><p>If you have not received your funds back within 5 business days, please contact support.</p>", sortOrder:9},
+  {id:10, question:"How do I contact customer support?", category:"General", answer:"<p>We are here to help! Reach us through any of these channels:</p><ul><li><b>Email</b> — support@yasbee.com (response within 4 hours)</li><li><b>Live Chat</b> — Available in-app Monday-Friday, 9AM-9PM UTC</li><li><b>Help Center</b> — Browse our knowledge base 24/7</li></ul><p>For urgent matters, use the in-app emergency contact option.</p>", sortOrder:10}
+];
+var currentCategory = "all";
+var searchQuery = "";
+function renderFAQs() {
+  var list = document.getElementById("faqList");
+  var tmp = [];
+  for (var i = 0; i < faqs.length; i++) {
+    var f = faqs[i];
+    if (currentCategory !== "all" && f.category !== currentCategory) continue;
+    if (searchQuery && f.question.toLowerCase().indexOf(searchQuery.toLowerCase()) === -1 && f.answer.toLowerCase().indexOf(searchQuery.toLowerCase()) === -1) continue;
+    tmp.push(f);
+  }
+  if (tmp.length === 0) {
+    list.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><circle cx="12" cy="8" r="1" fill="currentColor"/></svg><p>No results found. Try adjusting your search or category.</p></div>';
+    return;
+  }
+  var html = "";
+  for (var i = 0; i < tmp.length; i++) {
+    var f = tmp[i];
+    html += '<div class="faq-item" data-id="' + f.id + '">';
+    html += '<div class="faq-q" onclick="toggleFAQ(this)">';
+    html += '<span><span class="q-label">Q:</span>' + f.question + '</span>';
+    html += '<span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>';
+    html += '</div>';
+    html += '<div class="faq-a"><div class="faq-a-inner">' + f.answer + '</div></div>';
+    html += '</div>';
+  }
+  list.innerHTML = html;
+}
+function toggleFAQ(el) {
+  var item = el.closest(".faq-item");
+  var answer = item.querySelector(".faq-a");
+  var icon = el.querySelector(".icon");
+  var isOpen = answer.classList.contains("open");
+  var allAnswers = document.querySelectorAll(".faq-a.open");
+  for (var i = 0; i < allAnswers.length; i++) {
+    if (allAnswers[i] !== answer) {
+      allAnswers[i].classList.remove("open");
+      allAnswers[i].closest(".faq-item").querySelector(".icon").classList.remove("open");
+    }
+  }
+  if (isOpen) {
+    answer.classList.remove("open");
+    icon.classList.remove("open");
+  } else {
+    answer.classList.add("open");
+    icon.classList.add("open");
+  }
+}
+function filterFAQs() {
+  searchQuery = document.getElementById("searchInput").value;
+  renderFAQs();
+}
+document.getElementById("searchInput").addEventListener("input", filterFAQs);
+document.getElementById("categoryTabs").addEventListener("click", function(e) {
+  var tab = e.target.closest(".category-tab");
+  if (!tab) return;
+  var tabs = this.querySelectorAll(".category-tab");
+  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove("active");
+  tab.classList.add("active");
+  currentCategory = tab.getAttribute("data-cat");
+  renderFAQs();
+});
+renderFAQs();
+</script>
+</body>
+</html>

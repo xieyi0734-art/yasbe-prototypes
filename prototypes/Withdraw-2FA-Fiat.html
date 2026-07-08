@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Withdraw Fiat Review — YASBe</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,sans-serif;
+  background:#191b1f;
+  min-height:100vh;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding-top:60px;
+}
+
+/* ===== Modal ===== */
+.modal{
+  background:#1f2128;
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:12px;
+  width:520px;
+  max-width:92vw;
+  box-shadow:0 20px 60px rgba(0,0,0,0.5);
+  display:flex;
+  flex-direction:column;
+}
+.modal-header{
+  padding:24px 24px 16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.modal-header h2{
+  font-size:18px;
+  font-weight:600;
+  color:#ffffff;
+  letter-spacing:0.01em;
+}
+.modal-header .close-btn{
+  width:28px;height:28px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:6px;
+  cursor:pointer;
+  color:rgba(255,255,255,0.5);
+  font-size:18px;
+  transition:background 0.15s;
+  background:transparent;
+  border:none;
+}
+.modal-header .close-btn:hover{
+  background:rgba(255,255,255,0.08);
+}
+
+.divider{
+  height:1px;
+  background:rgba(255,255,255,0.06);
+  margin:0;
+}
+
+.modal-body{
+  padding:20px 24px;
+}
+
+/* ===== Field ===== */
+.field-group{
+  margin-bottom:16px;
+}
+.field-label{
+  display:block;
+  font-size:13px;
+  font-weight:500;
+  color:#ffffff;
+  margin-bottom:6px;
+}
+.field-label .required{
+  color:rgba(255,255,255,0.35);
+  font-weight:400;
+}
+.field-input{
+  width:100%;
+  height:44px;
+  padding:0 14px;
+  background:#2c2c2c;
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px;
+  color:#ffffff;
+  font-size:14px;
+  outline:none;
+  transition:border-color 0.15s;
+}
+.field-input:focus{
+  border-color:#FFCA00;
+}
+.field-input::placeholder{
+  color:rgba(255,255,255,0.3);
+}
+.field-input[readonly]{
+  color:rgba(255,255,255,0.6);
+  cursor:default;
+}
+
+/* ===== File Upload ===== */
+.file-upload-area{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px 14px;
+  background:#2c2c2c;
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px;
+}
+.file-info{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:rgba(255,255,255,0.7);
+  font-size:13px;
+}
+.file-actions{
+  display:flex;
+  gap:6px;
+}
+.file-action-btn{
+  width:28px;height:28px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:4px;
+  cursor:pointer;
+  background:transparent;
+  border:none;
+  color:rgba(255,255,255,0.4);
+  transition:all 0.15s;
+  font-size:13px;
+}
+.file-action-btn:hover{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7)}
+
+/* ===== Transfer Summary ===== */
+.summary-box{
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:8px;
+  padding:14px 16px;
+  margin-bottom:16px;
+}
+.summary-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:4px 0;
+  font-size:14px;
+}
+.summary-row .s-label{
+  color:rgba(255,255,255,0.45);
+}
+.summary-row .s-value{
+  color:#ffffff;
+  font-weight:500;
+}
+.summary-row.total{
+  margin-top:4px;
+  padding-top:8px;
+  border-top:1px solid rgba(255,255,255,0.06);
+}
+.summary-row.total .s-value{
+  color:#FFCA00;
+  font-weight:600;
+}
+
+/* ===== 2FA Code ===== */
+.tfa-row{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  margin-bottom:16px;
+}
+.tfa-row .field-label{
+  margin-bottom:0;
+}
+.tfa-input-wrap{
+  display:flex;
+  align-items:center;
+  gap:0;
+}
+.tfa-input-wrap input{
+  flex:1;
+  height:44px;
+  padding:0 14px;
+  background:#2c2c2c;
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px;
+  color:#ffffff;
+  font-size:14px;
+  outline:none;
+  transition:border-color 0.15s;
+  width:100%;
+}
+.tfa-input-wrap input:focus{
+  border-color:#FFCA00;
+}
+.tfa-input-wrap input::placeholder{
+  color:rgba(255,255,255,0.3);
+}
+
+/* ===== Checkbox ===== */
+.checkbox-row{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  margin-bottom:16px;
+}
+.checkbox-row input[type="checkbox"]{
+  appearance:none;
+  width:18px;
+  height:18px;
+  min-width:18px;
+  border:2px solid rgba(255,255,255,0.2);
+  border-radius:4px;
+  background:transparent;
+  cursor:pointer;
+  margin-top:2px;
+  transition:all 0.15s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.checkbox-row input[type="checkbox"]:checked{
+  background:#FFCA00;
+  border-color:#FFCA00;
+  position:relative;
+}
+.checkbox-row input[type="checkbox"]:checked::after{
+  content:'';
+  display:block;
+  width:5px;
+  height:9px;
+  border:solid #191b1f;
+  border-width:0 2px 2px 0;
+  transform:rotate(45deg);
+  margin-top:-2px;
+}
+.checkbox-row label{
+  font-size:13px;
+  color:rgba(255,255,255,0.6);
+  line-height:1.5;
+  cursor:pointer;
+}
+.checkbox-row label a{
+  color:#FFCA00;
+  text-decoration:underline;
+}
+
+/* ===== Buttons ===== */
+.btn-row{
+  display:flex;
+  gap:12px;
+  padding:16px 24px;
+  border-top:1px solid rgba(255,255,255,0.06);
+}
+.btn-row button{
+  flex:1;
+  height:44px;
+  border:none;
+  border-radius:8px;
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all 0.15s ease;
+}
+.btn-edit{
+  background:rgba(255,255,255,0.08);
+  color:rgba(255,255,255,0.7);
+}
+.btn-edit:hover{
+  background:rgba(255,255,255,0.12);
+}
+.btn-submit{
+  background:#FFCA00;
+  color:#191b1f;
+}
+.btn-submit:hover{
+  opacity:0.9;
+}
+.btn-submit:disabled{
+  opacity:0.5;
+  cursor:not-allowed;
+}
+</style>
+</head>
+<body>
+
+<div class="modal">
+  <!-- Header -->
+  <div class="modal-header">
+    <h2>Withdraw Fiat Review</h2>
+    <button class="close-btn">✕</button>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Body -->
+  <div class="modal-body">
+
+    <!-- Beneficiary Address -->
+    <div class="field-group">
+      <label class="field-label">Beneficiary Address <span class="required">*</span></label>
+      <input class="field-input" type="text" value="1" readonly>
+    </div>
+
+    <!-- Transfer Purpose -->
+    <div class="field-group">
+      <label class="field-label">Transfer Purpose <span class="required">*</span></label>
+      <input class="field-input" type="text" value="1" readonly>
+    </div>
+
+    <!-- Supporting Document -->
+    <div class="field-group">
+      <label class="field-label">Supporting Document (Mandatory)</label>
+      <div class="file-upload-area">
+        <div class="file-info">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+          <span>0ff95371-725c-452b-8f8e-8ce983cafc72.png</span>
+        </div>
+        <div class="file-actions">
+          <button class="file-action-btn" title="View">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+          <button class="file-action-btn" title="Delete">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transfer Summary -->
+    <div class="summary-box">
+      <div class="summary-row">
+        <span class="s-label">Transfer Amount</span>
+        <span class="s-value">$100.00 USD</span>
+      </div>
+      <div class="summary-row">
+        <span class="s-label">Transfer Fee</span>
+        <span class="s-value">$50.00 USD</span>
+      </div>
+      <div class="summary-row total">
+        <span class="s-label">Total Amount</span>
+        <span class="s-value">$50.00 USD</span>
+      </div>
+    </div>
+
+    <!-- 2FA Verification Code (replaces Email Verification Code) -->
+    <div class="tfa-row">
+      <label class="field-label">2FA Verification Code</label>
+      <div class="tfa-input-wrap">
+        <input type="text" placeholder="Enter your 2FA code" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
+      </div>
+    </div>
+
+    <!-- Checkbox -->
+    <div class="checkbox-row">
+      <input type="checkbox" id="agree" checked>
+      <label for="agree">I have read and agree to <a href="#">YASBe Declaration</a></label>
+    </div>
+
+  </div>
+
+  <!-- Footer Buttons -->
+  <div class="btn-row">
+    <button class="btn-edit">Edit</button>
+    <button class="btn-submit">Submit</button>
+  </div>
+</div>
+
+</body>
+</html>

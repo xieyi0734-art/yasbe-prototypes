@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Statement — YASBee</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#E59303;--gold-light:rgba(229,147,3,0.08);--gold-mid:rgba(229,147,3,0.15);--bg:#f8f9fb;--sidebar-bg:#ffffff;--text:#1a1a2e;--text-muted:#5b5b70;--text-light:#9090a8;--border:#e8e8f0;--card-bg:#ffffff;--badge-bg:#f3f4f6;--radius:10px;--font:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif}
+@media(prefers-color-scheme:dark){:root{--bg:#0a0a18;--sidebar-bg:#0f0f22;--text:#e8e8f0;--text-muted:#9090a8;--text-light:#6a6a80;--border:#1e1e32;--card-bg:#12122a;--badge-bg:#1a1a30}}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{display:flex;min-height:100vh}
+/* Sidebar */
+.sidebar{width:240px;background:var(--sidebar-bg);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-header{padding:20px 20px 16px;border-bottom:1px solid var(--border)}
+.sidebar-header .logo{font-size:20px;font-weight:700;letter-spacing:-0.3px;color:var(--text);text-decoration:none}
+.sidebar-header .logo span{color:var(--gold)}
+.sidebar-nav{padding:12px 10px;flex:1}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;font-size:14px;font-weight:500;color:var(--text-muted);cursor:pointer;transition:all .15s;text-decoration:none;margin-bottom:2px}
+.nav-item:hover{background:var(--gold-light);color:var(--text)}
+.nav-item.active{background:var(--gold-mid);color:var(--gold);font-weight:600}
+.nav-item .nav-icon{width:20px;height:20px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.sidebar-footer{padding:16px 20px;border-top:1px solid var(--border);font-size:13px;color:var(--text-light)}
+/* Main */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:60px;background:var(--card-bg);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;flex-shrink:0}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar-left h1{font-size:20px;font-weight:600}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.notif-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-muted);transition:all .15s}
+.notif-btn:hover{background:var(--gold-light);color:var(--gold)}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px}
+.content{padding:24px 28px;flex:1;overflow-y:auto}
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+.stat-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px}
+.stat-card .stat-label{font-size:13px;color:var(--text-light);margin-bottom:4px}
+.stat-card .stat-value{font-size:26px;font-weight:700;letter-spacing:-0.5px}
+.stat-card .stat-sub{font-size:12px;color:var(--text-muted);margin-top:2px}
+.stat-card .stat-value .currency{font-size:16px;font-weight:500;color:var(--text-muted)}
+/* Tabs */
+.tab-bar{display:flex;gap:0;margin-bottom:20px;border-bottom:1px solid var(--border)}
+.tab-btn{padding:12px 24px;font-size:14px;font-weight:500;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--font)}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab-btn .tab-badge{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11px;background:var(--badge-bg);color:var(--text-muted);margin-left:6px;font-weight:400}
+.tab-btn.active .tab-badge{background:var(--gold-mid);color:var(--gold)}
+/* Filters */
+.filter-bar{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.filter-group{display:flex;align-items:center;gap:6px}
+.filter-group label{font-size:13px;color:var(--text-muted);white-space:nowrap}
+.filter-input,.filter-select{padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card-bg);color:var(--text);outline:none;transition:border .15s;font-family:var(--font)}
+.filter-input:focus,.filter-select:focus{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold-light)}
+.search-wrap{position:relative;flex:1;min-width:180px}
+.search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-light)}
+.search-wrap input{width:100%;padding:8px 12px 8px 36px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card-bg);color:var(--text);outline:none;transition:border .15s}
+.search-wrap input:focus{border-color:var(--gold)}
+.spacer{flex:1}
+.btn{padding:8px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px;font-family:var(--font)}
+.btn-gold{background:var(--gold);color:#fff;border:1px solid var(--gold)}
+.btn-gold:hover{opacity:0.9}
+.btn-outline{background:transparent;color:var(--text-muted);border:1px solid var(--border)}
+.btn-outline:hover{background:var(--gold-light);border-color:var(--gold);color:var(--text)}
+/* Table */
+.table-wrap{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.table-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead{background:var(--badge-bg)}
+th{padding:11px 16px;text-align:left;font-size:11px;font-weight:600;color:var(--text-light);text-transform:uppercase;letter-spacing:0.3px;white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:12px 16px;border-bottom:1px solid var(--border);white-space:nowrap;color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--gold-light)}
+.tx-id{font-family:'SF Mono','Cascadia Code','Consolas',monospace;font-size:12px;color:#2563eb;cursor:pointer}
+.amount{font-weight:600;font-family:'SF Mono','Cascadia Code','Consolas',monospace;font-size:13px}
+.amount.positive{color:#059669}
+.amount.negative{color:#dc2626}
+.status-badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:500}
+.status-completed{background:#d1fae5;color:#047857}
+.status-pending{background:#fef3c7;color:#b45309}
+.status-failed{background:#fee2e2;color:#b91c1c}
+.status-refunded{background:#e0e7ff;color:#4338ca}
+.type-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:500}
+.type-income{background:#d1fae5;color:#047857}
+.type-expense{background:#fee2e2;color:#b91c1c}
+.type-transfer{background:#dbeafe;color:#1d4ed8}
+.crypto-addr{font-family:'SF Mono','Cascadia Code','Consolas',monospace;font-size:11px;color:var(--text-muted);max-width:100px;overflow:hidden;text-overflow:ellipsis}
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--border);font-size:13px;color:var(--text-muted)}
+.pag-btns{display:flex;gap:4px}
+.pag-btn{width:32px;height:32px;border-radius:6px;border:1px solid var(--border);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:var(--text-muted);transition:all .15s}
+.pag-btn:hover{background:var(--gold-light);border-color:var(--gold);color:var(--text)}
+.pag-btn.active{background:var(--gold);color:#fff;border-color:var(--gold)}
+.pag-btn:disabled{opacity:0.4;cursor:default}
+/* Export Modal */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:auto}
+.modal{background:var(--card-bg);border-radius:14px;width:420px;max-width:90vw;padding:0;box-shadow:0 20px 60px rgba(0,0,0,0.15)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0}
+.modal-header h3{font-size:18px;font-weight:600}
+.modal-close{width:32px;height:32px;border-radius:50%;border:none;background:var(--badge-bg);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-muted);font-size:18px}
+.modal-body{padding:20px 24px}
+.modal-body label{display:block;font-size:13px;font-weight:500;color:var(--text-muted);margin-bottom:6px}
+.modal-body .form-group{margin-bottom:16px}
+.radio-group{display:flex;gap:12px;flex-wrap:wrap}
+.radio-group label{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:400;color:var(--text);cursor:pointer;margin-bottom:0}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;padding:0 24px 20px}
+@media(max-width:768px){
+  .sidebar{display:none}
+  .stats{grid-template-columns:1fr}
+  .filter-bar{flex-direction:column;align-items:stretch}
+  .search-wrap{min-width:auto}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="sidebar">
+<div class="sidebar-header"><a href="#" class="logo">YAS<span>Bee</span></a></div>
+<div class="sidebar-nav">
+<a href="#" class="nav-item"><span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span>Dashboard</a>
+<a href="#" class="nav-item active"><span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span>Statement</a>
+<a href="#" class="nav-item"><span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></span>Cards</a>
+<a href="#" class="nav-item"><span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></span>Transfers</a>
+<a href="#" class="nav-item"><span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></span>Analytics</a>
+</div>
+<div class="sidebar-footer">&copy; 2026 YASBee</div>
+</div>
+<div class="main">
+<div class="topbar">
+<div class="topbar-left"><h1>Statement</h1></div>
+<div class="topbar-right">
+<button class="notif-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></button>
+<div class="avatar">DX</div>
+</div>
+</div>
+<div class="content">
+<div class="stats">
+<div class="stat-card"><div class="stat-label">Total Balance</div><div class="stat-value">$24,830.50 <span class="currency">USD</span></div><div class="stat-sub">+$1,240 this month</div></div>
+<div class="stat-card"><div class="stat-label">Monthly Income</div><div class="stat-value">$8,420.00</div><div class="stat-sub">+12.4% from last month</div></div>
+<div class="stat-card"><div class="stat-label">Monthly Expenses</div><div class="stat-value">$3,180.75</div><div class="stat-sub">+3.2% from last month</div></div>
+</div>
+
+<div class="tab-bar">
+<button class="tab-btn active" onclick="switchTab('fiat',this)" data-tab="fiat">Fiat <span class="tab-badge">10</span></button>
+<button class="tab-btn" onclick="switchTab('crypto',this)" data-tab="crypto">Crypto <span class="tab-badge">6</span></button>
+<button class="tab-btn" onclick="switchTab('card',this)" data-tab="card">Card Records <span class="tab-badge">10</span></button>
+<button class="tab-btn" onclick="switchTab('rewards',this)" data-tab="rewards">Rewards <span class="tab-badge">6</span></button>
+</div>
+
+<div class="filter-bar">
+<div class="filter-group"><label>From</label><input type="date" class="filter-input" value="2026-05-01"></div>
+<div class="filter-group"><label>To</label><input type="date" class="filter-input" value="2026-06-29"></div>
+<div class="filter-group"><label>Status</label><select class="filter-select"><option>All</option><option>Completed</option><option>Pending</option><option>Failed</option></select></div>
+<div class="search-wrap"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="searchInput" placeholder="Search transactions..."></div>
+<button class="btn btn-outline" onclick="openExport()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Export</button>
+</div>
+
+<div class="table-wrap">
+<div class="table-scroll">
+<table id="txTable">
+<thead><tr id="tableHeader"></tr></thead>
+<tbody id="tableBody"></tbody>
+</table>
+</div>
+<div class="pagination">
+<span>Showing 1-10 of <span id="totalCount">24</span></span>
+<div class="pag-btns">
+<button class="pag-btn" disabled>&lt;</button>
+<button class="pag-btn active">1</button>
+<button class="pag-btn">2</button>
+<button class="pag-btn">3</button>
+<button class="pag-btn">&gt;</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="modal-overlay" id="exportModal">
+<div class="modal">
+<div class="modal-header"><h3>Export Transactions</h3><button class="modal-close" onclick="closeExport()">&times;</button></div>
+<div class="modal-body">
+<div class="form-group"><label>Export Format</label><div class="radio-group"><label><input type="radio" name="format" value="csv" checked> CSV</label><label><input type="radio" name="format" value="xlsx"> XLSX</label><label><input type="radio" name="format" value="pdf"> PDF</label></div></div>
+<div class="form-group"><label>Date Range</label><div class="radio-group"><label><input type="radio" name="range" value="current" checked> Current month</label><label><input type="radio" name="range" value="last"> Last month</label><label><input type="radio" name="range" value="custom"> Custom</label></div></div>
+<div class="form-group"><label>Include</label><div class="radio-group"><label><input type="radio" name="scope" value="current" checked> Current view only</label><label><input type="radio" name="scope" value="all"> All transactions</label></div></div>
+</div>
+<div class="modal-footer"><button class="btn btn-outline" onclick="closeExport()">Cancel</button><button class="btn btn-gold" onclick="closeExport();alert('Export started — your file will download shortly.')">Export</button></div>
+</div>
+</div>
+
+<script>
+var currentTab = 'fiat';
+
+var fiatData = [
+  {id:'FIAT-01KV9P254RGZ303AHH8PCT4AA',date:'2026-06-17 18:19:51',type:'deposit',currency:'USD',amount:2000.00,fee:50.00,status:'completed'},
+  {id:'FIAT-01KV9P1D08WEZRFHCVA962E3PG',date:'2026-06-17 18:19:07',type:'deposit',currency:'USD',amount:10000.00,fee:50.00,status:'completed'},
+  {id:'FIAT-01KV9P2R4TZ303AHH8PCT4AAC',date:'2026-06-15 09:12:33',type:'withdraw',currency:'USD',amount:500.00,fee:2.50,status:'completed'},
+  {id:'FIAT-01KV9P3D08WEZRFHCVA962E3PH',date:'2026-06-14 14:30:00',type:'deposit',currency:'EUR',amount:2250.00,fee:25.00,status:'completed'},
+  {id:'FIAT-01KV9P4R4TZ303AHH8PCT4AAD',date:'2026-06-12 10:05:22',type:'withdraw',currency:'USD',amount:3200.00,fee:5.00,status:'completed'},
+  {id:'FIAT-01KV9P5D08WEZRFHCVA962E3PI',date:'2026-06-10 16:45:00',type:'deposit',currency:'USD',amount:5800.00,fee:50.00,status:'completed'},
+  {id:'FIAT-01KV9P6R4TZ303AHH8PCT4AAE',date:'2026-06-08 08:30:00',type:'withdraw',currency:'EUR',amount:29.99,fee:0.50,status:'failed'},
+  {id:'FIAT-01KV9P7D08WEZRFHCVA962E3PJ',date:'2026-06-07 11:20:00',type:'deposit',currency:'USD',amount:1500.00,fee:15.00,status:'completed'},
+  {id:'FIAT-01KV9P8R4TZ303AHH8PCT4AAF',date:'2026-06-05 23:59:00',type:'withdraw',currency:'USD',amount:12.50,fee:0.00,status:'completed'},
+  {id:'FIAT-01KV9P9D08WEZRFHCVA962E3PK',date:'2026-06-04 07:15:00',type:'deposit',currency:'EUR',amount:89.00,fee:0.00,status:'completed'}
+];
+var cryptoData = [
+  {id:'CRYP-001',date:'2026-06-28 14:30:00',type:'income',asset:'BTC',network:'Bitcoin',amount:0.085,status:'completed'},
+  {id:'CRYP-002',date:'2026-06-27 10:15:00',type:'expense',asset:'ETH',network:'Ethereum',amount:2.50,status:'completed'},
+  {id:'CRYP-003',date:'2026-06-26 22:00:00',type:'expense',asset:'USDC',network:'Ethereum',amount:5000.00,status:'completed'},
+  {id:'CRYP-004',date:'2026-06-25 08:45:00',type:'expense',asset:'BTC',network:'Bitcoin',amount:0.032,status:'pending'},
+  {id:'CRYP-005',date:'2026-06-24 16:30:00',type:'income',asset:'SOL',network:'Solana',amount:12.50,status:'completed'},
+  {id:'CRYP-006',date:'2026-06-23 12:00:00',type:'income',asset:'ETH',network:'Ethereum',amount:0.008,status:'completed'}
+];
+var cardData = [
+  {merchant:'PAYPAL *kLOVE 666666 US',cardNum:'**** **** 8479',date:'2026-07-01 06:16:04',amount:-5.35,status:'completed'},
+  {merchant:'PAYPAL *kLOVE 666666 US',cardNum:'**** **** 8479',date:'2026-07-01 06:15:55',amount:-10.35,status:'completed'},
+  {merchant:'Transaction',cardNum:'**** **** 8479',date:'2026-07-01 06:15:18',amount:98.00,status:'completed'},
+  {merchant:'Amazon.com',cardNum:'**** **** 8479',date:'2026-06-28 14:20:00',amount:-126.40,status:'completed'},
+  {merchant:'Starbucks Coffee',cardNum:'**** **** 8479',date:'2026-06-27 09:15:00',amount:-5.75,status:'completed'},
+  {merchant:'Uber Ride',cardNum:'**** **** 8901',date:'2026-06-27 18:30:00',amount:-24.50,status:'completed'},
+  {merchant:'Netflix Subscription',cardNum:'**** **** 8479',date:'2026-06-26 00:00:00',amount:-15.99,status:'completed'},
+  {merchant:'Best Buy — Headphones',cardNum:'**** **** 8901',date:'2026-06-25 16:45:00',amount:-249.99,status:'pending'},
+  {merchant:'Card Refund — Return',cardNum:'**** **** 8479',date:'2026-06-24 12:30:00',amount:79.98,status:'completed'},
+  {merchant:'Top-up from Wallet',cardNum:'**** **** 8479',date:'2026-06-22 10:00:00',amount:500.00,status:'completed'}
+];
+
+var rewardsData = [
+  {asset:'BTC',holdingQty:0.085,unitPrice:64588.24,holdingValue:5490.00,lockMonths:0,tradeDate:'2026-06-28'},
+  {asset:'ETH',holdingQty:2.50,unitPrice:3460.00,holdingValue:8650.00,lockMonths:0,tradeDate:'2026-06-27'},
+  {asset:'USDC',holdingQty:5000.00,unitPrice:1.00,holdingValue:5000.00,lockMonths:0,tradeDate:'2026-06-26'},
+  {asset:'SOL',holdingQty:12.50,unitPrice:150.00,holdingValue:1875.00,lockMonths:3,tradeDate:'2026-06-24'},
+  {asset:'GSK',holdingQty:100.00,unitPrice:3.00,holdingValue:300.00,lockMonths:6,tradeDate:'2026-06-20'},
+  {asset:'ETH',holdingQty:0.008,unitPrice:3460.00,holdingValue:27.68,lockMonths:0,tradeDate:'2026-06-23'}
+];
+
+function formatMoney(n,c){return n.toLocaleString('en-US',{minimumFractionDigits:c||2,maximumFractionDigits:c||2})}
+
+function switchTab(tab,btn){
+  var btns = document.querySelectorAll('.tab-btn');
+  for(var i=0;i<btns.length;i++) btns[i].classList.remove('active');
+  btn.classList.add('active');
+  currentTab = tab;
+  renderTable();
+}
+
+function renderTable(){
+  var data;
+  var cols;
+  if(currentTab === 'fiat'){
+    data = fiatData;
+    cols = [
+      {key:'id',label:'ID'},
+      {key:'type',label:'Type'},
+      {key:'currency',label:'Currency'},
+      {key:'amount',label:'Amount'},
+      {key:'fee',label:'Fee'},
+      {key:'status',label:'Status'},
+      {key:'date',label:'Date'}
+    ];
+  } else if(currentTab === 'crypto'){
+    data = cryptoData;
+    cols = [
+      {key:'id',label:'ID'},
+      {key:'type',label:'Type'},
+      {key:'asset',label:'Asset'},
+      {key:'network',label:'Network'},
+      {key:'amount',label:'Amount'},
+      {key:'status',label:'Status'},
+      {key:'date',label:'Date'}
+    ];
+  } else if(currentTab === 'card'){
+    data = cardData;
+    cols = [
+      {key:'merchant',label:'Merchant'},
+      {key:'cardNum',label:'Card No.'},
+      {key:'date',label:'Date'},
+      {key:'amount',label:'Amount'},
+      {key:'status',label:'Status'}
+    ];
+  } else {
+    data = rewardsData;
+    cols = [
+      {key:'asset',label:'Asset'},
+      {key:'holdingQty',label:'Holding Qty'},
+      {key:'unitPrice',label:'Unit Price'},
+      {key:'holdingValue',label:'Holding Value'},
+      {key:'lockMonths',label:'Lock (Months)'},
+      {key:'tradeDate',label:'Trade Date'}
+    ];
+  }
+
+  var headerHtml = '';
+  for(var i=0;i<cols.length;i++) headerHtml += '<th>' + cols[i].label + '</th>';
+  document.getElementById('tableHeader').innerHTML = headerHtml;
+
+  var bodyHtml = '';
+  for(var i=0;i<data.length;i++){
+    var r = data[i];
+    bodyHtml += '<tr>';
+    for(var j=0;j<cols.length;j++){
+      var k = cols[j].key;
+      var val = r[k];
+      if(k === 'id'){
+        val = '<span class="tx-id">' + val + '</span>';
+      } else if(k === 'amount'){
+        var isNeg = val < 0;
+        var amtSign = isNeg ? '' : '+';
+        var amtClass = isNeg ? 'negative' : 'positive';
+        if(currentTab === 'crypto' || currentTab === 'card'){
+          val = '<span class="amount ' + amtClass + '">' + amtSign + '$' + formatMoney(Math.abs(val)) + '</span>';
+        } else {
+          val = '<span class="amount ' + amtClass + '">' + amtSign + '$' + formatMoney(Math.abs(val)) + '</span>';
+        }
+      } else if(k === 'fee'){
+        val = '$' + formatMoney(val);
+      } else if(k === 'type'){
+        var t = val;
+        if(t === 'deposit') t = 'Deposit';
+        else if(t === 'withdraw') t = 'Withdraw';
+        else if(t === 'income') t = 'Income';
+        else if(t === 'expense') t = 'Expense';
+        val = '<span class="type-badge type-' + (val==='deposit'||val==='income'?'income':'expense') + '">' + t + '</span>';
+      } else if(k === 'status'){
+        val = '<span class="status-badge status-' + val + '">' + val.charAt(0).toUpperCase() + val.slice(1) + '</span>';
+      } else if(k === 'amount' || k === 'unitPrice' || k === 'holdingValue'){
+        val = '$' + formatMoney(val);
+      } else if(k === 'holdingQty'){
+        val = formatMoney(val, val < 1 ? 4 : 2);
+      } else if(k === 'lockMonths'){
+        val = val > 0 ? val + ' months' : '-';
+      }
+      bodyHtml += '<td>' + (val||'') + '</td>';
+    }
+    bodyHtml += '</tr>';
+  }
+  document.getElementById('tableBody').innerHTML = bodyHtml;
+  document.getElementById('totalCount').textContent = data.length;
+}
+
+function viewDetail(id){
+  alert('Transaction: ' + id + '\nFull details would open in a side panel or detail page.');
+}
+
+function openExport(){
+  document.getElementById('exportModal').classList.add('open');
+}
+function closeExport(){
+  document.getElementById('exportModal').classList.remove('open');
+}
+
+renderTable();
+</script>
+</body>
+</html>

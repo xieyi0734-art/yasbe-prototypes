@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAQ Management - YASBe Admin</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+body{background:#f0f2f5;display:flex;min-height:100vh;color:#333}
+.sidebar{width:240px;background:#1a1a2e;color:#fff;display:flex;flex-direction:column;flex-shrink:0}
+.sidebar-logo{padding:20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-logo svg{width:32px;height:32px}
+.sidebar-logo h1{font-size:18px;font-weight:600;display:flex;align-items:center;gap:6px}
+.sidebar-logo h1 small{font-size:11px;color:#e59303;font-weight:500}
+.sidebar-nav{padding:8px 0;flex:1;overflow-y:auto}
+.sidebar-section{padding:12px 20px 4px;font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;color:rgba(255,255,255,.65);text-decoration:none;font-size:14px;transition:all .2s;cursor:pointer;border-left:3px solid transparent}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,.05)}
+.nav-item.active{color:#fff;background:rgba(229,147,3,.12);border-left-color:#e59303}
+.nav-item svg{width:18px;height:18px;flex-shrink:0}
+.sidebar-footer{padding:12px 20px;border-top:1px solid rgba(255,255,255,.1)}
+.sidebar-footer .nav-item{color:rgba(255,255,255,.5);font-size:13px}
+.main{flex:1;display:flex;flex-direction:column}
+.topbar{height:56px;background:#fff;display:flex;align-items:center;justify-content:flex-end;padding:0 24px;border-bottom:1px solid #e8e8e8;gap:16px}
+.topbar .user-info{display:flex;align-items:center;gap:8px;cursor:pointer}
+.topbar .avatar{width:32px;height:32px;border-radius:50%;background:#e59303;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.content{padding:24px;flex:1;overflow-y:auto}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.page-header h2{font-size:22px;font-weight:600}
+.page-header .header-actions{display:flex;gap:8px}
+.card{background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.08);overflow:hidden}
+.card-header{padding:16px 20px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between}
+.card-header h3{font-size:15px;font-weight:600}
+.card-body{padding:20px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;border:1px solid transparent;transition:all .2s;text-decoration:none}
+.btn-primary{background:#e59303;color:#fff;border-color:#e59303}
+.btn-primary:hover{background:#d48602}
+.btn-default{background:#fff;border-color:#d9d9d9;color:#333}
+.btn-default:hover{border-color:#e59303;color:#e59303}
+.btn-danger{background:#fff;border-color:#ff4d4f;color:#ff4d4f}
+.btn-danger:hover{background:#fff2f0}
+.btn-sm{padding:4px 10px;font-size:12px}
+.table-wrapper{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{padding:10px 14px;text-align:left;font-size:13px;font-weight:600;color:#666;border-bottom:2px solid #f0f0f0;white-space:nowrap;background:#fafafa}
+td{padding:10px 14px;font-size:14px;border-bottom:1px solid #f0f0f0}
+tr:hover{background:#fafafa}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:500}
+.badge-published{background:#f6ffed;color:#52c41a;border:1px solid #b7eb8f}
+.badge-draft{background:#fff7e6;color:#d48806;border:1px solid #ffd591}
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:1000;justify-content:center;align-items:center}
+.modal-overlay.active{display:flex}
+.modal{background:#fff;border-radius:8px;width:720px;max-width:90vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 4px 20px rgba(0,0,0,.15)}
+.modal.wide{width:900px}
+.modal-header{padding:16px 24px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between}
+.modal-header h3{font-size:16px;font-weight:600}
+.modal-close{cursor:pointer;font-size:20px;color:#999;background:none;border:none;line-height:1}
+.modal-body{padding:24px;overflow-y:auto;flex:1}
+.modal-footer{padding:12px 24px;border-top:1px solid #f0f0f0;display:flex;justify-content:flex-end;gap:8px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:14px;font-weight:500;margin-bottom:6px;color:#333}
+.form-group label .required{color:#ff4d4f;margin-left:2px}
+.form-input,.form-select{width:100%;padding:7px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;outline:none;transition:border .2s}
+.form-input:focus,.form-select:focus{border-color:#e59303;box-shadow:0 0 0 2px rgba(229,147,3,.15)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.editor-content{min-height:150px;max-height:300px;padding:12px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;line-height:1.7;outline:none;overflow-y:auto}
+.editor-content:focus{border-color:#e59303;box-shadow:0 0 0 2px rgba(229,147,3,.15)}
+.editor-content ol,.editor-content ul{padding-left:20px;margin-bottom:8px}
+.editor-content p{margin-bottom:8px}
+.editor-toolbar{display:flex;gap:2px;padding:6px 8px;border:1px solid #d9d9d9;border-bottom:none;border-radius:6px 6px 0 0;background:#fafafa;flex-wrap:wrap}
+.editor-toolbar button{padding:4px 8px;border:1px solid transparent;background:transparent;cursor:pointer;border-radius:4px;font-size:14px;color:#555}
+.editor-toolbar button:hover{background:#e8e8e8;border-color:#d9d9d9}
+.editor-toolbar .separator{width:1px;background:#d9d9d9;margin:0 4px}
+.faq-layout{display:flex;min-height:520px}
+.faq-sidebar{width:260px;border-right:1px solid #f0f0f0;flex-shrink:0}
+.faq-main{flex:1;padding:16px 20px}
+.category-tree{padding:8px 0}
+.tree-item{display:flex;align-items:center;gap:8px;padding:8px 16px;cursor:pointer;transition:all .1s;border-left:3px solid transparent;font-size:13px}
+.tree-item:hover{background:#fafafa}
+.tree-item.active{background:rgba(229,147,3,.08);border-left-color:#e59303;color:#e59303;font-weight:600}
+.tree-item .tree-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.tree-item .tree-label{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tree-item .tree-count{font-size:11px;color:#999;background:#f0f0f0;padding:1px 7px;border-radius:10px;min-width:20px;text-align:center}
+.tree-item .tree-act{display:none;gap:2px}
+.tree-item:hover .tree-act{display:flex}
+.tree-sub{padding-left:16px}
+.tree-header{padding:8px 16px;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:1px;font-weight:600}
+.filter-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.filter-status{display:flex;gap:8px}
+.filter-btn{padding:4px 14px;border:1px solid #d9d9d9;border-radius:4px;background:#fff;cursor:pointer;font-size:13px;color:#666}
+.filter-btn.active{background:#e59303;color:#fff;border-color:#e59303}
+.search-input{display:flex;align-items:center;border:1px solid #d9d9d9;border-radius:6px;padding:0 12px;background:#fff;width:240px}
+.search-input input{border:none;outline:none;padding:6px 0;font-size:14px;width:100%}
+.search-input svg{margin-right:8px;flex-shrink:0}
+.faq-list{display:flex;flex-direction:column;gap:0}
+.fl-item{padding:12px 14px;border:1px solid #f0f0f0;border-radius:6px;margin-bottom:8px;transition:all .1s}
+.fl-item:hover{box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.fl-q{font-size:14px;font-weight:500;color:#333;margin-bottom:4px;display:flex;gap:6px}
+.fl-q:before{content:"Q:";color:#e59303;font-weight:700}
+.fl-meta{display:flex;align-items:center;gap:8px;font-size:12px;color:#999}
+.fl-act{display:flex;gap:4px;margin-top:6px}
+.fl-a{font-size:13px;line-height:1.6;color:#555;margin-top:6px;padding:8px 10px;background:#fafafa;border-radius:4px;display:none}
+.fl-a.open{display:block}
+.pagination{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid #f0f0f0}
+.pagination button{padding:4px 12px;border:1px solid #d9d9d9;border-radius:4px;background:#fff;cursor:pointer;font-size:13px}
+.pagination button:disabled{color:#ccc;cursor:not-allowed}
+.pagination button.active{background:#e59303;color:#fff;border-color:#e59303}
+.pagination span{font-size:13px;color:#666}
+.float-preview{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:2000;justify-content:center;align-items:center}
+.float-preview.active{display:flex}
+.fp-wrap{background:#fff;border-radius:8px;width:820px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 4px 20px rgba(0,0,0,.15)}
+.fp-body{padding:32px;overflow-y:auto;flex:1}
+.fp-cat{color:#e59303;font-size:13px;font-weight:600;margin-bottom:12px;text-transform:uppercase;letter-spacing:1px}
+.fp-title{font-size:24px;font-weight:700;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid #f0f0f0}
+.fp-q{padding:16px 0;border-bottom:1px solid #f0f0f0}
+.fp-q:last-child{border-bottom:none}
+.fp-qt{font-size:16px;font-weight:600;color:#333;margin-bottom:8px}
+.fp-qt:before{content:"Q: ";color:#e59303;font-weight:700}
+.fp-at{font-size:14px;line-height:1.8;color:#555}
+.fp-at p{margin-bottom:10px}
+.fp-at a{color:#e59303;text-decoration:underline}
+.fp-nav{display:flex;justify-content:space-between;margin-top:20px;padding-top:16px;border-top:1px solid #f0f0f0}
+.fp-nav a{color:#e59303;text-decoration:none;font-size:14px}
+.fp-nav a:hover{text-decoration:underline}
+.fp-nav .na{color:#ccc;cursor:not-allowed}
+.toast{position:fixed;top:20px;right:20px;z-index:3000;padding:12px 20px;border-radius:6px;font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,.15);display:none;max-width:360px}
+.toast.show{display:block;animation:slideIn .3s ease}
+.toast-success{background:#f6ffed;color:#389e0d;border:1px solid #b7eb8f}
+.toast-error{background:#fff2f0;color:#cf1322;border:1px solid #ffa39e}
+@keyframes slideIn{from{opacity:0;transform:translateX(50px)}to{opacity:1;transform:translateX(0)}}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+<div class="sidebar-logo">
+<svg viewBox="0 0 24 24" fill="none" stroke="#e59303" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+<h1>YASBe <small>admin</small></h1>
+</div>
+<nav class="sidebar-nav">
+<div class="sidebar-section">Main</div>
+<a class="nav-item" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</a>
+<div class="sidebar-section">Content</div>
+<a class="nav-item" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v2H4z"/><path d="M4 10h16v2H4z"/><path d="M4 16h12v2H4z"/></svg>News</a>
+<a class="nav-item" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v16"/><path d="M4 12h16"/></svg>Blog</a>
+<a class="nav-item active" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><circle cx="12" cy="8" r="1" fill="currentColor"/></svg>FAQ</a>
+</nav>
+<div class="sidebar-footer">
+<a class="nav-item" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log out</a>
+</div>
+</div>
+
+<div class="main">
+<div class="topbar">
+<div class="user-info">
+<div class="avatar">YX</div>
+<span>Driven yi xie</span>
+</div>
+</div>
+<div class="content">
+<div class="page-header">
+<h2>FAQ Management</h2>
+<div class="header-actions">
+<button class="btn btn-primary" onclick="openCatModal()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> + Add Category</button>
+<button class="btn btn-primary" onclick="openAddModal()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> + Add FAQ</button>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header"><h3>Category &amp; FAQ Tree</h3></div>
+<div class="card-body" style="padding:0">
+<div class="faq-layout">
+<div class="faq-sidebar">
+<div class="category-tree">
+<div class="tree-header">CATEGORIES</div>
+<div class="tree-item active" onclick="selCat('','all')" id="tree-all"><div class="tree-icon">📂</div><div class="tree-label">All Categories</div><div class="tree-count" id="cnt-all">0</div></div>
+<div id="catTree"></div>
+</div>
+</div>
+<div class="faq-main">
+<div class="filter-bar">
+<div class="filter-status">
+<button class="filter-btn active" data-st="all" onclick="filterByStatus('all')">All</button>
+<button class="filter-btn" data-st="published" onclick="filterByStatus('published')">Published</button>
+<button class="filter-btn" data-st="draft" onclick="filterByStatus('draft')">Unlisted</button>
+</div>
+<div class="search-input">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type="text" placeholder="Search by question..." id="searchInp" oninput="renderList()">
+</div>
+</div>
+<div id="faqListContainer"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Category Modal -->
+<div class="modal-overlay" id="catModal"><div class="modal" style="width:520px">
+<div class="modal-header"><h3 id="catModalTitle">Add Category</h3><button class="modal-close" onclick="closeModal('catModal')">&times;</button></div>
+<div class="modal-body">
+<div class="form-group"><label>Category Name <span class="required">*</span></label><input class="form-input" id="catNameInp" placeholder="e.g. Account, Deposit, Withdrawal"></div>
+<div class="form-row">
+<div class="form-group"><label>Parent Category</label><select class="form-select" id="catParentInp"><option value="">&mdash; Top Level &mdash;</option></select></div>
+<div class="form-group"><label>Sort Order</label><input class="form-input" id="catSortInp" type="number" value="0" min="0"></div>
+</div>
+</div>
+<div class="modal-footer">
+<button class="btn btn-default" onclick="closeModal('catModal')">Cancel</button>
+<button class="btn btn-primary" onclick="saveCategory()">Save</button>
+</div>
+</div></div>
+
+<!-- FAQ Edit Modal -->
+<div class="modal-overlay" id="faqModal"><div class="modal wide">
+<div class="modal-header"><h3 id="faqModalTitle">Edit FAQ</h3><button class="modal-close" onclick="closeModal('faqModal')">&times;</button></div>
+<div class="modal-body">
+<div class="form-row">
+<div class="form-group"><label>Question <span class="required">*</span></label><input class="form-input" id="faqQInp" placeholder="Enter the question..."></div>
+<div class="form-group"><label>Category <span class="required">*</span></label><select class="form-select" id="faqCatInp"><option value="">&mdash; Select &mdash;</option></select></div>
+</div>
+<div class="form-group"><label>Answer <span class="required">*</span></label>
+<div class="editor-toolbar" id="editorToolbar">
+<button onclick="execFmt('bold')" title="Bold"><b>B</b></button>
+<button onclick="execFmt('italic')" title="Italic"><i>I</i></button>
+<button onclick="execFmt('underline')" title="Underline"><u>U</u></button>
+<span class="separator"></span>
+<button onclick="insertLink()" title="Insert Link">&#128279;</button>
+<button onclick="execFmt('insertUnorderedList')" title="Bullet List">&bull; List</button>
+<button onclick="execFmt('insertOrderedList')" title="Numbered List">1. List</button>
+</div>
+<div id="faqAInp" class="editor-content" contenteditable="true"><p>Provide a detailed answer...</p></div>
+</div>
+<div class="form-group"><label>Status</label><select class="form-select" id="faqStatusInp"><option value="published">Published</option><option value="draft">Unlisted</option></select></div>
+</div>
+<div class="modal-footer">
+<button class="btn btn-default" onclick="closeModal('faqModal')">Cancel</button>
+<button class="btn btn-primary" onclick="saveFaq()">Save</button>
+</div>
+</div></div>
+
+<!-- C-end Preview Modal -->
+<div class="float-preview" id="previewModal"><div class="fp-wrap">
+<div class="modal-header"><h3>Preview (C-end)</h3><button class="modal-close" onclick="closePreview()">&times;</button></div>
+<div class="fp-body">
+<div class="fp-cat" id="previewCat">Category</div>
+<div class="fp-title" id="previewTitle">FAQ &mdash; Account Issues</div>
+<div id="previewList"></div>
+<div class="fp-nav" id="previewNav"></div>
+</div>
+</div></div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============ DATA ============
+let cats = [
+{id:'c1',name:'Account',parent:'',sort:0},
+{id:'c2',name:'Deposit',parent:'',sort:1},
+{id:'c3',name:'Withdrawal',parent:'',sort:2},
+{id:'c4',name:'KYC & Verification',parent:'',sort:3},
+{id:'c5',name:'Login & Security',parent:'c1',sort:0},
+{id:'c6',name:'Email & Settings',parent:'c1',sort:1},
+{id:'c7',name:'Bank Transfer',parent:'c3',sort:0},
+{id:'c8',name:'Crypto Transfer',parent:'c3',sort:1}
+];
+
+let faqs = [
+{id:'f1',q:'How do I create an account?',catId:'c1',status:'published',a:'<p>Click <b>Sign Up</b> on the homepage. Enter your email, create a password, and verify your email address. You can then start using YASBe immediately for crypto services.</p>',sort:0},
+{id:'f2',q:'Can I delete my account?',catId:'c1',status:'published',a:'<p>Yes. Go to <b>Settings &gt; Account &gt; Delete Account</b>. Note that this action is irreversible &mdash; all your data will be permanently removed within 30 days.</p>',sort:1},
+{id:'f3',q:'How long does verification take?',catId:'c4',status:'published',a:'<p>Standard verification takes <b>1-2 business days</b>. In some cases it may take longer if additional documents are required. You will receive an email notification when verification is complete.</p>',sort:0},
+{id:'f4',q:'What documents are needed for KYC?',catId:'c4',status:'published',a:'<p>You need a valid government-issued ID (passport, driver license) and proof of address (utility bill, bank statement dated within 3 months).</p>',sort:1},
+{id:'f5',q:'How do I deposit funds?',catId:'c2',status:'published',a:'<p>Navigate to <b>Wallet &gt; Deposit</b>. Choose your preferred method &mdash; bank transfer or crypto. Follow the on-screen instructions to complete the deposit.</p>',sort:0},
+{id:'f6',q:'What are the deposit fees?',catId:'c2',status:'draft',a:'<p>Bank transfers: free for amounts over $100 (otherwise $2). Crypto deposits: network fees apply. Check our <a href="#">fee schedule</a> for details.</p>',sort:1},
+{id:'f7',q:'How long does a withdrawal take?',catId:'c3',status:'published',a:'<p>Bank withdrawals: 1-3 business days. Crypto withdrawals: processed within 2 hours, depending on network confirmation times.</p>',sort:0},
+{id:'f8',q:'What are the withdrawal limits?',catId:'c3',status:'draft',a:'<p>Daily limit: $10,000. Weekly limit: $50,000. Monthly limit: $200,000. Limits reset at midnight UTC. Contact support for higher limits.</p>',sort:1}
+];
+
+// ============ RENDER ============
+let curCat = '';
+let curStatus = 'all';
+let curSearch = '';
+
+function updateCounts() {
+  const c = {};
+  faqs.forEach(f => { if (f.status==='published') { c[f.catId]=(c[f.catId]||0)+1; c._all=(c._all||0)+1; } });
+  cats.forEach(cat => { const el = document.getElementById('cnt-'+cat.id); if(el) el.textContent = c[cat.id]||0; });
+  document.getElementById('cnt-all').textContent = c._all||0;
+}
+
+function renderTree() {
+  const top = cats.filter(c=>!c.parent).sort((a,b)=>a.sort-b.sort);
+  let html = '';
+  top.forEach(cat => {
+    const subs = cats.filter(c=>c.parent===cat.id).sort((a,b)=>a.sort-b.sort);
+    const sc = subs.length ? subs.map(s =>
+      '<div class="tree-item" onclick="selCat('+"'"+s.id+"'"+')" id="tree-'+s.id+'">'+
+      '<div class="tree-icon">&#128196;</div>'+
+      '<div class="tree-label">'+s.name+'</div>'+
+      '<div class="tree-count" id="cnt-'+s.id+'">0</div>'+
+      '<div class="tree-act">'+
+      '<button class="btn btn-xs btn-default" onclick="event.stopPropagation();editCat('+"'"+s.id+"'"+')">&#9998;</button>'+
+      '<button class="btn btn-xs btn-danger" onclick="event.stopPropagation();delCat('+"'"+s.id+"'"+')">&#128465;</button>'+
+      '</div></div>'
+    ).join('') : '';
+    html += '<div class="tree-item" onclick="selCat('+"'"+cat.id+"'"+')" id="tree-'+cat.id+'">'+
+      '<div class="tree-icon">'+(subs.length?'&#128193;':'&#128194;')+'</div>'+
+      '<div class="tree-label">'+cat.name+'</div>'+
+      '<div class="tree-count" id="cnt-'+cat.id+'">0</div>'+
+      '<div class="tree-act">'+
+      '<button class="btn btn-xs btn-default" onclick="event.stopPropagation();editCat('+"'"+cat.id+"'"+')">&#9998;</button>'+
+      '<button class="btn btn-xs btn-danger" onclick="event.stopPropagation();delCat('+"'"+cat.id+"'"+')">&#128465;</button>'+
+      '</div></div>';
+    if (sc) html += '<div class="tree-sub">'+sc+'</div>';
+  });
+  document.getElementById('catTree').innerHTML = html;
+  updateCounts();
+}
+
+function selCat(catId) {
+  curCat = catId;
+  document.querySelectorAll('.tree-item').forEach(el=>el.classList.remove('active'));
+  const el = document.getElementById('tree-'+(catId||'all'));
+  if (el) el.classList.add('active');
+  renderList();
+}
+
+function filterByStatus(st) {
+  curStatus = st;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector('.filter-btn[data-st="'+st+'"]').classList.add('active');
+  renderList();
+}
+
+function renderList() {
+  curSearch = document.getElementById('searchInp').value.toLowerCase();
+  let filtered = [...faqs];
+  if (curCat) filtered = filtered.filter(f=>f.catId===curCat);
+  if (curStatus==='published') filtered = filtered.filter(f=>f.status==='published');
+  else if (curStatus==='draft') filtered = filtered.filter(f=>f.status==='draft');
+  if (curSearch) filtered = filtered.filter(f=>f.q.toLowerCase().includes(curSearch));
+  filtered.sort((a,b)=>a.sort-b.sort);
+
+  if (!filtered.length) {
+    document.getElementById('faqListContainer').innerHTML = '<div style="text-align:center;padding:40px;color:#999">No FAQs found</div>';
+    return;
+  }
+
+  let html = '<div class="faq-list">';
+  filtered.forEach(f => {
+    const cat = cats.find(c=>c.id===f.catId);
+    html += '<div class="fl-item" id="fl-'+f.id+'">'+
+      '<div class="fl-q">'+f.q+'</div>'+
+      '<div class="fl-meta">'+
+      '<span>&#128193; '+(cat?cat.name:'Uncategorized')+'</span>'+
+      '<span>&#128279; '+(f.status==='published'?'<span class="badge badge-published">Published</span>':'<span class="badge badge-draft">Unlisted</span>')+'</span>'+
+      '</div>'+
+      '<div class="fl-a" id="fa-'+f.id+'">'+f.a+'</div>'+
+      '<div class="fl-act">'+
+      '<button class="btn btn-xs btn-default" onclick="togAns('+"'"+f.id+"'"+')">&#128214; Expand</button>'+
+      '<button class="btn btn-xs btn-default" onclick="openEditModal('+"'"+f.id+"'"+')">&#9998; Edit</button>'+
+      '<button class="btn btn-xs btn-default" onclick="previewItem('+"'"+f.id+"'"+')">&#128065; Preview</button>'+
+      '<button class="btn btn-xs btn-danger" onclick="delFaq('+"'"+f.id+"'"+')">&#128465;</button>'+
+      '</div></div>';
+  });
+  html += '</div>';
+  html += '<div class="pagination"><span>Showing '+filtered.length+' of '+faqs.length+' items</span></div>';
+  document.getElementById('faqListContainer').innerHTML = html;
+}
+
+let expandedId = null;
+function togAns(id) {
+  const el = document.getElementById('fa-'+id);
+  if (!el) return;
+  if (expandedId===id) { el.classList.remove('open'); expandedId=null; return; }
+  document.querySelectorAll('.fl-a.open').forEach(e=>e.classList.remove('open'));
+  el.classList.add('open');
+  expandedId = id;
+}
+
+// ============ CAT MODAL ============
+function openCatModal(editId) {
+  document.getElementById('catModalTitle').textContent = editId ? 'Edit Category' : 'Add Category';
+  document.getElementById('catNameInp').value = '';
+  document.getElementById('catSortInp').value = '0';
+  const sel = document.getElementById('catParentInp');
+  sel.innerHTML = '<option value="">&mdash; Top Level &mdash;</option>';
+  cats.forEach(c => { const o = document.createElement('option'); o.value=c.id; o.textContent=c.name; sel.appendChild(o); });
+  document.getElementById('catModal').dataset.editId = editId||'';
+  document.getElementById('catModal').classList.add('active');
+  document.getElementById('catNameInp').focus();
+}
+
+function editCat(id) {
+  const cat = cats.find(c=>c.id===id);
+  if (!cat) return;
+  openCatModal(id);
+  document.getElementById('catNameInp').value = cat.name;
+  document.getElementById('catSortInp').value = cat.sort;
+  if (cat.parent) document.getElementById('catParentInp').value = cat.parent;
+}
+
+function saveCategory() {
+  const name = document.getElementById('catNameInp').value.trim();
+  if (!name) { showToast('Category name is required','error'); return; }
+  const sort = parseInt(document.getElementById('catSortInp').value)||0;
+  const parent = document.getElementById('catParentInp').value;
+  const editId = document.getElementById('catModal').dataset.editId;
+  if (editId) {
+    const cat = cats.find(c=>c.id===editId);
+    if (cat) { cat.name=name; cat.sort=sort; cat.parent=parent; }
+    showToast('Category updated','success');
+  } else {
+    cats.push({id:'c'+Date.now(),name,sort,parent});
+    showToast('Category added','success');
+  }
+  closeModal('catModal');
+  renderTree();
+}
+
+function delCat(id) {
+  if (!confirm('Delete this category? FAQs in this category will become uncategorized.')) return;
+  const hasSub = cats.some(c=>c.parent===id);
+  if (hasSub && !confirm('This category has sub-categories. Delete anyway?')) return;
+  faqs.filter(f=>f.catId===id).forEach(f=>f.catId='');
+  cats = cats.filter(c=>c.id!==id);
+  cats = cats.filter(c=>c.parent!==id);
+  renderTree();
+  renderList();
+  showToast('Category deleted','success');
+}
+
+// ============ FAQ MODAL ============
+function openAddModal() {
+  document.getElementById('faqModalTitle').textContent = 'Add FAQ';
+  document.getElementById('faqQInp').value = '';
+  document.getElementById('faqAInp').innerHTML = '<p>Provide a detailed answer...</p>';
+  document.getElementById('faqStatusInp').value = 'published';
+  const sel = document.getElementById('faqCatInp');
+  sel.innerHTML = '<option value="">&mdash; Select &mdash;</option>';
+  cats.forEach(c => { const o = document.createElement('option'); o.value=c.id; o.textContent=c.name; sel.appendChild(o); });
+  if (curCat) sel.value = curCat;
+  document.getElementById('faqModal').dataset.editId = '';
+  document.getElementById('faqModal').classList.add('active');
+}
+
+function openEditModal(id) {
+  const f = faqs.find(x=>x.id===id);
+  if (!f) return;
+  document.getElementById('faqModalTitle').textContent = 'Edit FAQ';
+  document.getElementById('faqQInp').value = f.q;
+  document.getElementById('faqAInp').innerHTML = f.a;
+  document.getElementById('faqStatusInp').value = f.status;
+  const sel = document.getElementById('faqCatInp');
+  sel.innerHTML = '<option value="">&mdash; Select &mdash;</option>';
+  cats.forEach(c => { const o = document.createElement('option'); o.value=c.id; o.textContent=c.name; sel.appendChild(o); });
+  sel.value = f.catId;
+  document.getElementById('faqModal').dataset.editId = id;
+  document.getElementById('faqModal').classList.add('active');
+}
+
+function saveFaq() {
+  const q = document.getElementById('faqQInp').value.trim();
+  if (!q) { showToast('Question is required','error'); return; }
+  const a = document.getElementById('faqAInp').innerHTML.trim();
+  if (!a || a==='<p>Provide a detailed answer...</p>') { showToast('Answer is required','error'); return; }
+  const catId = document.getElementById('faqCatInp').value;
+  const status = document.getElementById('faqStatusInp').value;
+  const editId = document.getElementById('faqModal').dataset.editId;
+  if (editId) {
+    const f = faqs.find(x=>x.id===editId);
+    if (f) { f.q=q; f.a=a; f.catId=catId; f.status=status; }
+    showToast('FAQ updated','success');
+  } else {
+    const maxSort = faqs.filter(f=>f.catId===catId).reduce((m,f)=>Math.max(m,f.sort),-1);
+    faqs.push({id:'f'+Date.now(),q,catId,status,a,sort:maxSort+1});
+    showToast('FAQ added','success');
+  }
+  closeModal('faqModal');
+  renderTree();
+  renderList();
+}
+
+function delFaq(id) {
+  if (!confirm('Delete this FAQ?')) return;
+  faqs = faqs.filter(f=>f.id!==id);
+  renderTree();
+  renderList();
+  showToast('FAQ deleted','success');
+}
+
+// ============ EDITOR ============
+function execFmt(cmd) {
+  document.getElementById('faqAInp').focus();
+  document.execCommand(cmd, false, null);
+}
+
+function insertLink() {
+  const sel = window.getSelection();
+  if (!sel.rangeCount || !sel.toString().trim()) {
+    showToast('Select some text first to create a link','error');
+    return;
+  }
+  const url = prompt('Enter URL:','https://');
+  if (!url) return;
+  document.getElementById('faqAInp').focus();
+  document.execCommand('createLink', false, url);
+}
+
+// ============ PREVIEW ============
+let previewPos = 0;
+let previewList = [];
+
+function previewItem(id) {
+  const idx = faqs.findIndex(f=>f.id===id);
+  if (idx===-1) return;
+  let cat = cats.find(c=>c.id===faqs[idx].catId);
+  previewList = faqs.filter(f=>f.catId===faqs[idx].catId && f.status==='published').sort((a,b)=>a.sort-b.sort);
+  if (!previewList.length) previewList = faqs.filter(f=>f.status==='published').sort((a,b)=>a.sort-b.sort);
+  previewPos = previewList.findIndex(f=>f.id===id);
+  if (previewPos===-1) previewPos=0;
+  renderPreview();
+  document.getElementById('previewModal').classList.add('active');
+}
+
+function renderPreview() {
+  const item = previewList[previewPos];
+  if (!item) return;
+  const cat = cats.find(c=>c.id===item.catId);
+  document.getElementById('previewCat').textContent = (cat?cat.name:'FAQ').toUpperCase();
+  document.getElementById('previewTitle').textContent = item.q;
+  document.getElementById('previewList').innerHTML = '<div class="fp-q"><div class="fp-qt">'+item.q+'</div><div class="fp-at">'+item.a+'</div></div>';
+  const nav = document.getElementById('previewNav');
+  const prev = previewPos>0 ? '<a href="#" onclick="previewNav(-1)">&larr; Previous: '+previewList[previewPos-1].q+'</a>' : '<span class="na">&larr; Previous</span>';
+  const next = previewPos<previewList.length-1 ? '<a href="#" onclick="previewNav(1)">Next: '+previewList[previewPos+1].q+' &rarr;</a>' : '<span class="na">Next &rarr;</span>';
+  nav.innerHTML = prev + next;
+}
+
+function previewNav(dir) {
+  previewPos = Math.max(0, Math.min(previewList.length-1, previewPos+dir));
+  renderPreview();
+}
+
+function closePreview() {
+  document.getElementById('previewModal').classList.remove('active');
+}
+
+// ============ UTILS ============
+function closeModal(id) {
+  document.getElementById(id).classList.remove('active');
+}
+
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast toast-'+type+' show';
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ============ INIT ============
+renderTree();
+renderList();
+</script>
+</body>
+</html>

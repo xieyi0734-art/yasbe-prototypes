@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>News Management - YASBe Admin</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+body{background:#f0f2f5;display:flex;min-height:100vh;color:#333}
+.sidebar{width:240px;background:#1a1a2e;color:#fff;display:flex;flex-direction:column;flex-shrink:0}
+.sidebar-logo{padding:20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-logo svg{width:32px;height:32px}
+.sidebar-logo h1{font-size:18px;font-weight:600;display:flex;align-items:center;gap:6px}
+.sidebar-logo h1 small{font-size:11px;color:#e59303;font-weight:500}
+.sidebar-nav{padding:8px 0;flex:1;overflow-y:auto}
+.sidebar-section{padding:12px 20px 4px;font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;color:rgba(255,255,255,.65);text-decoration:none;font-size:14px;transition:all .2s;cursor:pointer;border-left:3px solid transparent}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,.05)}
+.nav-item.active{color:#fff;background:rgba(229,147,3,.12);border-left-color:#e59303}
+.nav-item svg{width:18px;height:18px;flex-shrink:0}
+.sidebar-footer{padding:12px 20px;border-top:1px solid rgba(255,255,255,.1)}
+.sidebar-footer .nav-item{color:rgba(255,255,255,.5);font-size:13px}
+.main{flex:1;display:flex;flex-direction:column}
+.topbar{height:56px;background:#fff;display:flex;align-items:center;justify-content:flex-end;padding:0 24px;border-bottom:1px solid #e8e8e8;gap:16px}
+.topbar .user-info{display:flex;align-items:center;gap:8px;cursor:pointer}
+.topbar .avatar{width:32px;height:32px;border-radius:50%;background:#e59303;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.content{padding:24px;flex:1;overflow-y:auto}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.page-header h2{font-size:22px;font-weight:600}
+.page-header .header-actions{display:flex;gap:8px}
+.card{background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.08);overflow:hidden}
+.card-header{padding:16px 20px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between}
+.card-header h3{font-size:15px;font-weight:600}
+.card-body{padding:20px}
+.filter-bar{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.search-input{display:flex;align-items:center;border:1px solid #d9d9d9;border-radius:6px;padding:0 12px;background:#fff;width:280px}
+.search-input input{border:none;outline:none;padding:7px 0;font-size:14px;width:100%}
+.search-input svg{margin-right:8px;flex-shrink:0}
+.filter-select{padding:7px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;background:#fff;cursor:pointer;min-width:140px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;border:1px solid transparent;transition:all .2s;text-decoration:none}
+.btn-primary{background:#e59303;color:#fff;border-color:#e59303}
+.btn-primary:hover{background:#d48602}
+.btn-primary:disabled{background:#d9d9d9;border-color:#d9d9d9;color:#999;cursor:not-allowed}
+.btn-default{background:#fff;border-color:#d9d9d9;color:#333}
+.btn-default:hover{border-color:#e59303;color:#e59303}
+.btn-default:disabled{background:#f5f5f5;border-color:#d9d9d9;color:#ccc;cursor:not-allowed}
+.btn-danger{background:#fff;border-color:#ff4d4f;color:#ff4d4f}
+.btn-danger:hover{background:#fff2f0}
+.btn-danger:disabled{background:#f5f5f5;border-color:#d9d9d9;color:#ccc;cursor:not-allowed}
+.btn-sm{padding:4px 10px;font-size:12px}
+.table-wrapper{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{padding:12px 16px;text-align:left;font-size:13px;font-weight:600;color:#666;border-bottom:2px solid #f0f0f0;white-space:nowrap;background:#fafafa}
+tbody td{padding:12px 16px;font-size:14px;border-bottom:1px solid #f0f0f0}
+tbody tr:hover{background:#fafafa}
+.toggle{position:relative;display:inline-block;width:36px;height:20px}
+.toggle input{opacity:0;width:0;height:0}
+.toggle .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#ccc;transition:.3s;border-radius:20px}
+.toggle .slider:before{position:absolute;content:"";height:14px;width:14px;left:3px;bottom:3px;background:#fff;transition:.3s;border-radius:50%}
+.toggle input:checked+.slider{background:#e59303}
+.toggle input:checked+.slider:before{transform:translateX(16px)}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:500}
+.badge-published{background:#f6ffed;color:#52c41a;border:1px solid #b7eb8f}
+.badge-draft{background:#fff7e6;color:#d48806;border:1px solid #ffd591}
+.pagination{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid #f0f0f0}
+.pagination button{padding:4px 12px;border:1px solid #d9d9d9;border-radius:4px;background:#fff;cursor:pointer;font-size:13px}
+.pagination button:disabled{color:#ccc;cursor:not-allowed}
+.pagination button.active{background:#e59303;color:#fff;border-color:#e59303}
+.pagination span{font-size:13px;color:#666}
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:1000;justify-content:center;align-items:center}
+.modal-overlay.active{display:flex}
+.modal{background:#fff;border-radius:8px;width:720px;max-width:90vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 4px 20px rgba(0,0,0,.15)}
+.modal-header{padding:16px 24px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between}
+.modal-header h3{font-size:16px;font-weight:600}
+.modal-close{cursor:pointer;font-size:20px;color:#999;background:none;border:none;line-height:1}
+.modal-body{padding:24px;overflow-y:auto;flex:1}
+.modal-footer{padding:12px 24px;border-top:1px solid #f0f0f0;display:flex;justify-content:flex-end;gap:8px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:14px;font-weight:500;margin-bottom:6px;color:#333}
+.form-group label .required{color:#ff4d4f;margin-left:2px}
+.form-input,.form-select{width:100%;padding:7px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;outline:none;transition:border .2s}
+.form-input:focus,.form-select:focus{border-color:#e59303;box-shadow:0 0 0 2px rgba(229,147,3,.15)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.cover-upload{display:flex;gap:16px;align-items:flex-start}
+.cover-upload .preview-box{width:200px;height:120px;border:2px dashed #d9d9d9;border-radius:6px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fafafa;flex-shrink:0}
+.cover-upload .preview-box img{width:100%;height:100%;object-fit:cover}
+.cover-upload .upload-area{flex:1}
+.cover-upload .upload-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border:1px solid #d9d9d9;border-radius:6px;background:#fff;cursor:pointer;font-size:14px}
+.cover-upload .upload-btn:hover{border-color:#e59303;color:#e59303}
+.cover-upload input[type="file"]{display:none}
+.cover-upload .file-name{font-size:12px;color:#999;margin-top:4px}
+.editor-toolbar{display:flex;gap:2px;padding:6px 8px;border:1px solid #d9d9d9;border-bottom:none;border-radius:6px 6px 0 0;background:#fafafa;flex-wrap:wrap}
+.editor-toolbar button{padding:4px 8px;border:1px solid transparent;background:transparent;cursor:pointer;border-radius:4px;font-size:14px;color:#555;display:flex;align-items:center;gap:4px}
+.editor-toolbar button:hover{background:#e8e8e8;border-color:#d9d9d9}
+.editor-toolbar .separator{width:1px;background:#d9d9d9;margin:0 4px}
+.editor-content{min-height:300px;max-height:500px;padding:12px;border:1px solid #d9d9d9;border-radius:0 0 6px 6px;font-size:14px;line-height:1.7;outline:none;overflow-y:auto}
+.editor-content:focus{border-color:#e59303;box-shadow:0 0 0 2px rgba(229,147,3,.15)}
+.editor-content img{max-width:100%;border-radius:4px;margin:8px 0}
+.editor-content p{margin-bottom:8px}
+.preview-modal .modal{width:820px}
+.preview-content{padding:0}
+.preview-content .preview-header{padding:24px 24px 0;text-align:center}
+.preview-content .preview-header h2{font-size:24px;font-weight:700;margin-bottom:12px}
+.preview-content .preview-meta{display:flex;align-items:center;justify-content:center;gap:12px;font-size:13px;color:#999;margin-bottom:16px}
+.preview-content .preview-meta .preview-badge{background:#fff7e6;color:#d48806;padding:2px 10px;border-radius:4px;font-size:12px}
+.preview-content .preview-cover{margin:0 24px;border-radius:8px;overflow:hidden}
+.preview-content .preview-cover img{width:100%;height:auto;display:block}
+.preview-content .preview-body{padding:24px;font-size:15px;line-height:1.8}
+.preview-content .preview-body p{margin-bottom:12px}
+.toast{position:fixed;top:20px;right:20px;z-index:2000;padding:12px 20px;border-radius:6px;font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,.15);display:none;max-width:360px}
+.toast.show{display:block;animation:slideIn .3s ease}
+.toast-success{background:#f6ffed;color:#389e0d;border:1px solid #b7eb8f}
+.toast-error{background:#fff2f0;color:#cf1322;border:1px solid #ffa39e}
+@keyframes slideIn{from{opacity:0;transform:translateX(50px)}to{opacity:1;transform:translateX(0)}}
+</style>
+</head>
+<body>
+<div class="sidebar">
+<div class="sidebar-logo">
+<svg viewBox="0 0 24 24" fill="none" stroke="#e59303" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+<h1>YASBe <small>admin</small></h1>
+</div>
+<nav class="sidebar-nav">
+<div class="sidebar-section">Main</div>
+<a class="nav-item" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</a>
+<div class="sidebar-section">Content</div>
+<a class="nav-item active" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v2H4z"/><path d="M4 10h16v2H4z"/><path d="M4 16h12v2H4z"/></svg>News</a>
+<a class="nav-item" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v16"/><path d="M4 12h16"/></svg>Blog</a>
+<a class="nav-item" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><circle cx="12" cy="8" r="1" fill="currentColor"/></svg>FAQ</a>
+</nav>
+<div class="sidebar-footer">
+<a class="nav-item" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log out</a>
+</div>
+</div>
+<div class="main">
+<div class="topbar">
+<div class="user-info">
+<div class="avatar">YX</div>
+<span>Driven yi xie</span>
+</div>
+</div>
+<div class="content">
+<div class="page-header">
+<h2>News Management</h2>
+<div class="header-actions">
+<button class="btn btn-primary" onclick="openModal('create')">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
++ Add News
+</button>
+</div>
+</div>
+<div class="card">
+<div class="card-header"><h3>News List</h3></div>
+<div class="card-body">
+<div class="filter-bar">
+<div class="search-input">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type="text" placeholder="Search by title..." id="searchInput" oninput="filterNews()">
+</div>
+<select class="filter-select" id="statusFilter" onchange="filterNews()">
+<option value="">All Status</option>
+<option value="published">Published</option>
+<option value="draft">Unlisted</option>
+</select>
+</div>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr>
+<th>Title</th>
+<th>Author</th>
+<th>Status</th>
+<th>Published At</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody id="newsTableBody"></tbody>
+</table>
+</div>
+<div class="pagination" id="pagination"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="modal-overlay" id="createModal">
+<div class="modal">
+<div class="modal-header">
+<h3 id="createModalTitle">Add News</h3>
+<button class="modal-close" onclick="closeModal('create')">&times;</button>
+</div>
+<div class="modal-body">
+<div class="form-group">
+<label>Title <span class="required">*</span></label>
+<input class="form-input" id="editTitle" placeholder="Enter news title" maxlength="200">
+</div>
+<div class="form-row">
+<div class="form-group">
+<label>Category <span class="required">*</span></label>
+<select class="form-select" id="editCategory">
+<option value="Company News">Company News</option>
+<option value="Product Updates">Product Updates</option>
+<option value="Industry Insights">Industry Insights</option>
+<option value="Press Release">Press Release</option>
+</select>
+</div>
+<div class="form-group">
+<label>Author <span class="required">*</span></label>
+<input class="form-input" id="editAuthor" placeholder="Enter author name" maxlength="100">
+</div>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label>Status</label>
+<select class="form-select" id="editStatus">
+<option value="draft">Unlisted</option>
+<option value="published">Published</option>
+</select>
+</div>
+<div class="form-group"><!-- empty for spacing --></div>
+</div>
+<div class="form-group">
+<label>Cover Image</label>
+<div class="cover-upload">
+<div class="preview-box" id="coverPreview"><img src="https://via.placeholder.com/200x120/1a1a2e/e59303?text=No+Cover" alt="Cover"></div>
+<div class="upload-area">
+<label class="upload-btn">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+Upload Image
+<input type="file" accept="image/*" onchange="handleCoverUpload(event)">
+</label>
+<p class="file-name" id="coverFileName">Supported: JPG, PNG, WebP. Max 2MB.</p>
+</div>
+</div>
+</div>
+<div class="form-group">
+<label>Content <span class="required">*</span></label>
+<div class="editor-toolbar">
+<button onclick="execFormat('bold')" title="Bold"><b>B</b></button>
+<button onclick="execFormat('italic')" title="Italic"><i>I</i></button>
+<button onclick="execFormat('underline')" title="Underline"><u>U</u></button>
+<span class="separator"></span>
+<button onclick="execFormat('insertUnorderedList')" title="Bullet List">&#8226;</button>
+<button onclick="execFormat('insertOrderedList')" title="Numbered List">#</button>
+<span class="separator"></span>
+<button onclick="execFormat('formatBlock', 'h2')" title="Heading">H</button>
+<button onclick="execFormat('formatBlock', 'p')" title="Paragraph">P</button>
+<span class="separator"></span>
+<button onclick="execFormat('insertImage')" title="Image"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button>
+</div>
+<div class="editor-content" id="editContent" contenteditable="true"><p>Enter your news content here...</p></div>
+</div>
+</div>
+<div class="modal-footer">
+<button class="btn btn-default" onclick="closeModal('create')">Cancel</button>
+<button class="btn btn-primary" onclick="saveNews()">Save</button>
+</div>
+</div>
+</div>
+<div class="modal-overlay preview-modal" id="previewModal">
+<div class="modal">
+<div class="modal-header">
+<h3>Preview</h3>
+<button class="modal-close" onclick="closeModal('preview')">&times;</button>
+</div>
+<div class="modal-body preview-content" id="previewContent">
+<div class="preview-header">
+<h2 id="previewTitle">News Title</h2>
+<div class="preview-meta">
+<span id="previewAuthor">By Admin</span>
+<span>|</span>
+<span id="previewDate">2026-06-26</span>
+<span class="preview-badge" id="previewBadge">Company News</span>
+</div>
+</div>
+<div class="preview-cover" id="previewCoverContainer">
+<img id="previewCoverImg" src="https://via.placeholder.com/800x400/1a1a2e/e59303?text=No+Cover" alt="Cover">
+</div>
+<div class="preview-body" id="previewBody"></div>
+</div>
+<div class="modal-footer">
+<button class="btn btn-default" onclick="closeModal('preview')">Close</button>
+</div>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+let newsData = [
+{id:1,title:'YASBe Launches New Payment Solution',author:'Driven Xie',category:'Company News',status:'published',cover:'',content:'<p>We are excited to announce the launch of our new payment solution...</p>',createdAt:'2026-06-20',updatedAt:'2026-06-26'},
+{id:2,title:'Platform Upgrade: Enhanced Security Features',author:'Sarah Chen',category:'Product Updates',status:'published',cover:'',content:'<p>Our latest platform upgrade brings enhanced security features...</p>',createdAt:'2026-06-18',updatedAt:'2026-06-25'},
+{id:3,title:'Upcoming Maintenance Notice',author:'Driven Xie',category:'Company News',status:'draft',cover:'',content:'<p>Please be advised that scheduled maintenance will occur...</p>',createdAt:'2026-06-22',updatedAt:'2026-06-22'},
+{id:4,title:'Q2 Market Analysis Report',author:'Mike Wang',category:'Industry Insights',status:'draft',cover:'',content:'<p>Our Q2 analysis reveals key trends in the market...</p>',createdAt:'2026-06-15',updatedAt:'2026-06-15'},
+];
+let currentPage = 1;
+const pageSize = 10;
+let editingId = null;
+function renderTable(){
+const search = document.getElementById('searchInput').value.toLowerCase();
+const statusFilter = document.getElementById('statusFilter').value;
+let filtered = newsData.filter(n => {
+const matchTitle = n.title.toLowerCase().includes(search);
+const matchStatus = !statusFilter || n.status === statusFilter;
+return matchTitle && matchStatus;
+});
+const total = filtered.length;
+const totalPages = Math.ceil(total / pageSize) || 1;
+if(currentPage > totalPages) currentPage = totalPages;
+const start = (currentPage - 1) * pageSize;
+const paged = filtered.slice(start, start + pageSize);
+const tbody = document.getElementById('newsTableBody');
+if(paged.length === 0){
+tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#999">No news found</td></tr>';
+} else {
+tbody.innerHTML = paged.map(n => {
+const isListed = n.status === 'published';
+return `<tr>
+<td style="font-weight:500">${n.title}</td>
+<td>${n.author || '-'}</td>
+<td><span class="badge ${isListed ? 'badge-published' : 'badge-draft'}">${isListed ? 'Published' : 'Unlisted'}</span></td>
+<td>${n.createdAt}</td>
+<td style="white-space:nowrap">
+<label class="toggle" title="${isListed ? 'Click to unlist' : 'Click to publish'}">
+<input type="checkbox" ${isListed ? 'checked' : ''} onchange="toggleStatus(${n.id}, this.checked)">
+<span class="slider"></span>
+</label>
+<button class="btn btn-sm btn-default" ${isListed ? 'disabled' : ''} onclick="${isListed ? '' : "openEdit("+n.id+")"}">Edit</button>
+<button class="btn btn-sm btn-danger" ${isListed ? 'disabled' : ''} onclick="${isListed ? '' : "deleteNews("+n.id+")"}">Delete</button>
+<button class="btn btn-sm btn-default" onclick="openPreview(${n.id})">Preview</button>
+</td>
+</tr>`;
+}).join('');
+}
+renderPagination(totalPages);
+}
+function renderPagination(totalPages){
+const el = document.getElementById('pagination');
+if(totalPages <= 1){el.innerHTML='';return}
+let html = '<button '+(currentPage<=1?'disabled':'')+' onclick="goPage('+(currentPage-1)+')">Prev</button>';
+for(let i=1;i<=totalPages;i++){
+html += '<button class="'+(i===currentPage?'active':'')+'" onclick="goPage('+i+')">'+i+'</button>';
+}
+html += '<button '+(currentPage>=totalPages?'disabled':'')+' onclick="goPage('+(currentPage+1)+')">Next</button>';
+html += '<span>Page '+currentPage+'/'+totalPages+'</span>';
+el.innerHTML = html;
+}
+function goPage(p){currentPage=p;renderTable()}
+function filterNews(){currentPage=1;renderTable()}
+function toggleStatus(id, checked){
+const news = newsData.find(n => n.id === id);
+if(!news) return;
+news.status = checked ? 'published' : 'draft';
+news.updatedAt = new Date().toISOString().split('T')[0];
+renderTable();
+showToast(checked ? 'News published successfully' : 'News unlisted successfully', 'success');
+}
+function openModal(type){
+document.getElementById(type+'Modal').classList.add('active');
+if(type === 'create' && editingId === null){
+document.getElementById('createModalTitle').textContent = 'Add News';
+document.getElementById('editTitle').value = '';
+document.getElementById('editAuthor').value = '';
+document.getElementById('editCategory').value = 'Company News';
+document.getElementById('editStatus').value = 'draft';
+document.getElementById('coverFileName').textContent = 'Supported: JPG, PNG, WebP. Max 2MB.';
+document.getElementById('coverPreview').querySelector('img').src = 'https://via.placeholder.com/200x120/1a1a2e/e59303?text=No+Cover';
+document.getElementById('editContent').innerHTML = '<p>Enter your news content here...</p>';
+}
+}
+function closeModal(type){
+document.getElementById(type+'Modal').classList.remove('active');
+if(type === 'create'){editingId=null;document.getElementById('createModalTitle').textContent='Add News'}
+}
+function openEdit(id){
+const news = newsData.find(n => n.id === id);
+if(!news) return;
+editingId = id;
+document.getElementById('createModalTitle').textContent = 'Edit News';
+document.getElementById('editTitle').value = news.title;
+document.getElementById('editAuthor').value = news.author || '';
+document.getElementById('editCategory').value = news.category;
+document.getElementById('editStatus').value = news.status;
+document.getElementById('editContent').innerHTML = news.content || '<p></p>';
+if(news.cover){
+document.getElementById('coverPreview').querySelector('img').src = news.cover;
+document.getElementById('coverFileName').textContent = news.cover.split('/').pop() || 'Custom image';
+}
+openModal('create');
+}
+function saveNews(){
+const title = document.getElementById('editTitle').value.trim();
+const author = document.getElementById('editAuthor').value.trim();
+const category = document.getElementById('editCategory').value;
+const status = document.getElementById('editStatus').value;
+const content = document.getElementById('editContent').innerHTML;
+if(!title){showToast('Please enter a title','error');return}
+if(!author){showToast('Please enter an author','error');return}
+const clean = content.replace(/<br>$/,'').trim();
+if(!clean || clean === '<p></p>' || clean === '<p><br></p>'){
+showToast('Please enter content','error');return
+}
+const cover = document.getElementById('coverPreview').querySelector('img').src;
+const now = new Date().toISOString().split('T')[0];
+if(editingId){
+const idx = newsData.findIndex(n => n.id === editingId);
+if(idx >= 0){
+newsData[idx] = {...newsData[idx], title, author, category, status, content:clean, cover:cover!=='https://via.placeholder.com/200x120/1a1a2e/e59303?text=No+Cover'?cover:'', updatedAt:now};
+}
+showToast('News updated successfully','success');
+} else {
+const id = Math.max(...newsData.map(n=>n.id),0)+1;
+newsData.push({id,title,author,category,status,cover:cover!=='https://via.placeholder.com/200x120/1a1a2e/e59303?text=No+Cover'?cover:'',content:clean,createdAt:now,updatedAt:now});
+showToast('News created successfully','success');
+}
+closeModal('create');
+renderTable();
+}
+function deleteNews(id){
+if(!confirm('Are you sure you want to delete this news item?')) return;
+newsData = newsData.filter(n => n.id !== id);
+renderTable();
+showToast('News deleted successfully','success');
+}
+function openPreview(id){
+const news = newsData.find(n => n.id === id);
+if(!news) return;
+document.getElementById('previewTitle').textContent = news.title;
+document.getElementById('previewAuthor').textContent = 'By ' + (news.author || 'Admin');
+document.getElementById('previewDate').textContent = news.createdAt;
+document.getElementById('previewBadge').textContent = news.category;
+if(news.cover){
+document.getElementById('previewCoverImg').src = news.cover;
+document.getElementById('previewCoverContainer').style.display = 'block';
+} else {
+document.getElementById('previewCoverImg').src = 'https://via.placeholder.com/800x400/1a1a2e/e59303?text=No+Cover';
+document.getElementById('previewCoverContainer').style.display = 'block';
+}
+document.getElementById('previewBody').innerHTML = news.content || '<p>No content</p>';
+openModal('preview');
+}
+function execFormat(cmd, val){
+if(cmd === 'insertImage'){
+const url = prompt('Enter image URL:');
+if(url) document.execCommand('insertImage', false, url);
+return;
+}
+document.execCommand(cmd, false, val || null);
+document.getElementById('editContent').focus();
+}
+function handleCoverUpload(event){
+const file = event.target.files[0];
+if(!file) return;
+document.getElementById('coverFileName').textContent = file.name;
+const reader = new FileReader();
+reader.onload = function(e){
+document.getElementById('coverPreview').querySelector('img').src = e.target.result;
+};
+reader.readAsDataURL(file);
+}
+function showToast(msg, type){
+const el = document.getElementById('toast');
+el.textContent = msg;
+el.className = 'toast toast-'+type+' show';
+setTimeout(()=>el.classList.remove('show'),3000);
+}
+renderTable();
+</script>
+</body>
+</html>

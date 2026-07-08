@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Risk Rule Management - Beeznis Admin</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+body{background:#f0f2f5;padding:24px;color:#333}
+
+.content{max-width:1240px;margin:0 auto}
+.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.page-header h2{font-size:22px;font-weight:700;color:#333}
+
+.card{background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:20px;overflow:visible}
+.card-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid #e8e8e8;flex-wrap:wrap;gap:10px}
+.card-header h3{font-size:16px;font-weight:600;color:#333}
+.card-body{padding:0}
+
+.tab-bar{display:flex;gap:4px;background:#f0f0f0;border-radius:6px;padding:3px}
+.tab-btn{padding:6px 18px;border:none;background:transparent;border-radius:4px;font-size:14px;cursor:pointer;color:#666;transition:all .2s}
+.tab-btn.active{background:#fff;color:#E59303;font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.tab-btn:hover:not(.active){color:#333}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{background:#fafafa;font-size:13px;font-weight:600;color:#666;padding:12px 14px;text-align:left;white-space:nowrap;border-bottom:1px solid #e8e8e8}
+td{padding:10px 14px;border-bottom:1px solid #f0f0f0;font-size:14px;vertical-align:middle}
+tr:hover td{background:#faf8f4}
+
+.badge{display:inline-block;padding:2px 10px;border-radius:10px;font-size:12px;font-weight:500}
+.badge-risk{background:#fff1f0;color:#cf1322}
+.badge-action{background:#e6f7ff;color:#1890ff}
+.badge-published,.badge-active{background:#f6ffed;color:#52c41a}
+.badge-draft,.badge-inactive{background:#f5f5f5;color:#999}
+
+.btn{padding:6px 16px;border-radius:4px;border:1px solid #d9d9d9;cursor:pointer;font-size:14px;transition:all .2s;display:inline-flex;align-items:center;gap:4px}
+.btn-primary{background:#E59303;color:#fff;border-color:#E59303}
+.btn-primary:hover{background:#d48703}
+.btn-default{background:#fff;color:#333;border-color:#d9d9d9}
+.btn-default:hover{border-color:#E59303;color:#E59303}
+.btn-xs{padding:3px 6px;font-size:12px}
+.btn-danger{color:#ff4d4f;border-color:#ff4d4f;background:#fff}
+.btn-danger:hover{background:#ff4d4f;color:#fff}
+.btn-group{display:flex;gap:8px}
+
+.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:1000;display:none;justify-content:center;align-items:center}
+.modal-overlay.active{display:flex}
+.modal{background:#fff;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,.15);width:90%;max-height:80vh;overflow-y:auto}
+.modal-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid #e8e8e8}
+.modal-header h3{font-size:16px;font-weight:600}
+.modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:#999;padding:0;line-height:1}
+.modal-close:hover{color:#333}
+.modal-body{padding:20px}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;padding:12px 20px;border-top:1px solid #e8e8e8}
+
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:13px;font-weight:500;color:#555;margin-bottom:5px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-input{width:100%;padding:8px 12px;border:1px solid #d9d9d9;border-radius:4px;font-size:14px;outline:none;transition:border .2s}
+.form-input:focus{border-color:#E59303;box-shadow:0 0 0 2px rgba(229,147,3,.15)}
+.form-select{width:100%;padding:8px 12px;border:1px solid #d9d9d9;border-radius:4px;font-size:14px;outline:none;background:#fff;cursor:pointer}
+.form-select:focus{border-color:#E59303}
+.required{color:#ff4d4f}
+
+.switch-sm{position:relative;display:inline-block;width:36px;height:20px;cursor:pointer}
+.switch-sm input{opacity:0;width:0;height:0}
+.slider-sm{position:absolute;top:0;left:0;right:0;bottom:0;background:#ccc;border-radius:20px;transition:.3s}
+.slider-sm:before{position:absolute;content:'';height:14px;width:14px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
+.switch-sm input:checked+.slider-sm{background:#52c41a}
+.switch-sm input:checked+.slider-sm:before{transform:translateX(16px)}
+
+.switch-lg{position:relative;display:inline-block;width:44px;height:24px;cursor:pointer}
+.switch-lg input{opacity:0;width:0;height:0}
+.slider-lg{position:absolute;top:0;left:0;right:0;bottom:0;background:#ccc;border-radius:24px;transition:.3s}
+.slider-lg:before{position:absolute;content:'';height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
+.switch-lg input:checked+.slider-lg{background:#52c41a}
+.switch-lg input:checked+.slider-lg:before{transform:translateX(20px)}
+
+.threshold-cell{display:flex;align-items:baseline;gap:4px}
+.threshold-val{font-size:16px;font-weight:700;color:#E59303}
+.threshold-unit{font-size:12px;color:#999}
+
+.toast{position:fixed;top:20px;right:20px;padding:12px 24px;border-radius:6px;font-size:14px;z-index:9999;transform:translateX(120%);transition:transform .3s;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.toast.show{transform:translateX(0)}
+.toast-success{background:#f6ffed;color:#52c41a;border:1px solid #b7eb8f}
+.toast-error{background:#fff2f0;color:#ff4d4f;border:1px solid #ffccc7}
+</style>
+</head>
+<body>
+<div class="content">
+<div class="page-header">
+<h2>Risk Rule Management</h2>
+</div>
+
+<div class="card">
+<div class="card-header">
+<h3>Rule Configurations</h3>
+<div class="tab-bar">
+<button class="tab-btn active" data-tab="custom" onclick="switchTab('custom')">Custom Rules</button>
+<button class="tab-btn" data-tab="system" onclick="switchTab('system')">System Rules</button>
+</div>
+</div>
+<div class="card-body" style="padding:0">
+
+<!-- Custom Rules Table -->
+<div id="tab-custom" class="tab-content active">
+<div class="tbl-wrap">
+<table>
+<thead>
+<tr>
+<th style="width:60px">No.</th>
+<th style="width:120px">Risk Type</th>
+<th style="width:140px">Rule Name</th>
+<th>Description / Trigger Condition</th>
+<th style="width:100px">Action</th>
+<th style="width:80px">Status</th>
+<th style="width:80px">Created At</th>
+<th style="width:70px">Actions</th>
+</tr>
+</thead>
+<tbody id="customTbody"></tbody>
+</table>
+</div>
+</div>
+
+<!-- System Rules Table -->
+<div id="tab-system" class="tab-content">
+<div class="tbl-wrap">
+<table>
+<thead>
+<tr>
+<th style="width:60px">No.</th>
+<th style="width:140px">Rule Name</th>
+<th>Description</th>
+<th style="width:120px">Threshold / Config</th>
+<th style="width:80px">Status</th>
+<th style="width:70px">Actions</th>
+</tr>
+</thead>
+<tbody id="systemTbody"></tbody>
+</table>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
+<!-- System Rule Edit Modal -->
+<div class="modal-overlay" id="sysModal"><div class="modal" style="width:560px">
+<div class="modal-header"><h3 id="sysModalTitle">Edit System Rule</h3><button class="modal-close" onclick="closeModal('sysModal')">&times;</button></div>
+<div class="modal-body">
+<div class="form-group"><label>Rule Name</label><input class="form-input" id="sysNameInp" readonly style="background:#f5f5f5"></div>
+<div class="form-group"><label>Description</label><textarea class="form-input" id="sysDescInp" rows="3" readonly style="background:#f5f5f5"></textarea></div>
+<div class="form-group" id="sysThresholdGroup">
+<label id="sysThresholdLabel">Threshold <span class="required">*</span></label>
+<input class="form-input" id="sysThresholdInp" type="number" min="0">
+</div>
+<div class="form-group">
+<label>Status</label>
+<label class="switch-lg">
+<input type="checkbox" id="sysStatusInp">
+<span class="slider-lg"></span>
+</label>
+</div>
+</div>
+<div class="modal-footer">
+<button class="btn btn-default" onclick="closeModal('sysModal')">Cancel</button>
+<button class="btn btn-primary" onclick="saveSysRule()">Save</button>
+</div>
+</div></div>
+
+<!-- Custom Rule Add/Edit Modal -->
+<div class="modal-overlay" id="customModal"><div class="modal" style="width:640px">
+<div class="modal-header"><h3 id="customModalTitle">Add Custom Rule</h3><button class="modal-close" onclick="closeModal('customModal')">&times;</button></div>
+<div class="modal-body">
+<div class="form-group"><label>Rule Name <span class="required">*</span></label><input class="form-input" id="customNameInp" placeholder="e.g. High-Frequency Transaction Alert"></div>
+<div class="form-row">
+<div class="form-group"><label>Risk Type <span class="required">*</span></label>
+<select class="form-select" id="customRiskInp">
+<option value="Fraud">Fraud</option>
+<option value="Chargeback">Chargeback</option>
+<option value="Suspicious Activity">Suspicious Activity</option>
+<option value="KYC">KYC</option>
+<option value="Transaction">Transaction</option>
+</select></div>
+<div class="form-group"><label>Action <span class="required">*</span></label>
+<select class="form-select" id="customActionInp">
+<option value="Freeze">Freeze Account</option>
+<option value="Flag">Flag for Review</option>
+<option value="Block Transaction">Block Transaction</option>
+<option value="Notify">Send Notification</option>
+<option value="Freeze + Notify">Freeze + Notify</option>
+</select></div>
+</div>
+<div class="form-group"><label>Trigger Condition / Description <span class="required">*</span></label>
+<textarea class="form-input" id="customDescInp" rows="3" placeholder="e.g. More than 5 transactions within 1 minute"></textarea>
+</div>
+<div class="form-group"><label>Status</label>
+<label class="switch-lg">
+<input type="checkbox" id="customStatusInp" checked>
+<span class="slider-lg"></span>
+</label>
+</div>
+</div>
+<div class="modal-footer">
+<button class="btn btn-default" onclick="closeModal('customModal')">Cancel</button>
+<button class="btn btn-primary" onclick="saveCustomRule()">Save</button>
+</div>
+</div></div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+let customRules = [
+{id:'cr1', name:'3D Secure Failure Alert', riskType:'Fraud', desc:'Card transaction fails 3D Secure more than 3 times in 24h', action:'Flag', status:true, createdAt:'2026-06-15'},
+{id:'cr2', name:'Rapid Transaction Detection', riskType:'Transaction', desc:'5+ transactions within 60 seconds', action:'Block Transaction', status:true, createdAt:'2026-06-10'},
+{id:'cr3', name:'New Device Login + Withdrawal', riskType:'Suspicious Activity', desc:'Withdrawal attempt from unrecognized device within 1 hour of login', action:'Freeze + Notify', status:false, createdAt:'2026-05-28'},
+{id:'cr4', name:'High-Risk Country Transaction', riskType:'Fraud', desc:'Transaction originating from high-risk jurisdiction', action:'Block Transaction', status:true, createdAt:'2026-05-20'}
+];
+
+let systemRules = [
+{id:'sr1', name:'Excessive Chargeback Freeze', desc:'When chargeback count exceeds the threshold within a billing cycle, automatically freeze account and send email notification', threshold:3, hasThreshold:true, thresholdLabel:'Max Chargeback Count', thresholdUnit:'times / cycle', status:true},
+{id:'sr2', name:'Inactive Account Auto-Freeze', desc:'Monthly check: if previous month had zero deposit AND zero spending, automatically freeze account', threshold:0, hasThreshold:false, status:true}
+];
+
+function renderCustomRules() {
+const tbody = document.getElementById('customTbody');
+if (!customRules.length) {
+tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:#999">No custom rules configured.</td></tr>';
+return;
+}
+let html = '';
+customRules.forEach((r,i) => {
+html += '<tr>'+
+'<td>'+(i+1)+'</td>'+
+'<td><span class="badge badge-risk">'+r.riskType+'</span></td>'+
+'<td>'+r.name+'</td>'+
+'<td style="font-size:13px;color:#666">'+r.desc+'</td>'+
+'<td><span class="badge badge-action">'+r.action+'</span></td>'+
+'<td>'+(r.status?'<span class="badge badge-published">Active</span>':'<span class="badge badge-draft">Inactive</span>')+'</td>'+
+'<td style="font-size:13px;color:#999">'+r.createdAt+'</td>'+
+'<td>'+
+'<button class="btn btn-xs btn-default" onclick="editCustomRule(\''+r.id+'\')">\u270e</button>'+
+'<button class="btn btn-xs btn-danger" onclick="delCustomRule(\''+r.id+'\')" style="margin-left:4px">\uD83D\uDDD1</button>'+
+'</td></tr>';
+});
+tbody.innerHTML = html;
+}
+
+function renderSystemRules() {
+const tbody = document.getElementById('systemTbody');
+let html = '';
+systemRules.forEach((r,i) => {
+const thresholdHtml = r.hasThreshold
+? '<div class="threshold-cell"><span class="threshold-val" id="th-'+r.id+'">'+r.threshold+'</span><span class="threshold-unit">'+r.thresholdUnit+'</span></div>'
+: '<span style="font-size:13px;color:#999">N/A</span>';
+html += '<tr>'+
+'<td>'+(i+1)+'</td>'+
+'<td style="font-weight:600">'+r.name+'</td>'+
+'<td style="font-size:13px;color:#666;max-width:360px">'+r.desc+'</td>'+
+'<td>'+thresholdHtml+'</td>'+
+'<td><label class="switch-sm"><input type="checkbox" '+(r.status?'checked':'')+' onchange="toggleSysRule(\''+r.id+'\')"><span class="slider-sm"></span></label></td>'+
+'<td><button class="btn btn-xs btn-default" onclick="editSysRule(\''+r.id+'\')">\u270e Edit</button></td>'+
+'</tr>';
+});
+tbody.innerHTML = html;
+}
+
+function switchTab(tab) {
+document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+document.querySelector('.tab-btn[data-tab="'+tab+'"]').classList.add('active');
+document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+document.getElementById('tab-'+tab).classList.add('active');
+if (tab==='system') renderSystemRules();
+if (tab==='custom') renderCustomRules();
+}
+
+function editSysRule(id) {
+const r = systemRules.find(x=>x.id===id);
+if (!r) return;
+document.getElementById('sysModalTitle').textContent = 'Edit: '+r.name;
+document.getElementById('sysNameInp').value = r.name;
+document.getElementById('sysDescInp').value = r.desc;
+const tg = document.getElementById('sysThresholdGroup');
+const tl = document.getElementById('sysThresholdLabel');
+if (r.hasThreshold) {
+tg.style.display = 'block';
+tl.innerHTML = r.thresholdLabel+' <span class="required">*</span>';
+document.getElementById('sysThresholdInp').value = r.threshold;
+document.getElementById('sysThresholdInp').disabled = false;
+} else {
+tg.style.display = 'none';
+}
+document.getElementById('sysStatusInp').checked = r.status;
+document.getElementById('sysModal').dataset.editId = id;
+document.getElementById('sysModal').classList.add('active');
+}
+
+function saveSysRule() {
+const id = document.getElementById('sysModal').dataset.editId;
+const r = systemRules.find(x=>x.id===id);
+if (!r) return;
+if (r.hasThreshold) {
+const val = parseInt(document.getElementById('sysThresholdInp').value);
+if (isNaN(val) || val < 0) { showToast('Please enter a valid threshold','error'); return; }
+r.threshold = val;
+}
+r.status = document.getElementById('sysStatusInp').checked;
+closeModal('sysModal');
+renderSystemRules();
+showToast('System rule updated','success');
+}
+
+function toggleSysRule(id) {
+const r = systemRules.find(x=>x.id===id);
+if (!r) return;
+r.status = !r.status;
+renderSystemRules();
+showToast(r.name+' '+(r.status?'activated':'deactivated'),'success');
+}
+
+function openCustomModal() {
+document.getElementById('customModalTitle').textContent = 'Add Custom Rule';
+document.getElementById('customNameInp').value = '';
+document.getElementById('customRiskInp').value = 'Fraud';
+document.getElementById('customActionInp').value = 'Flag';
+document.getElementById('customDescInp').value = '';
+document.getElementById('customStatusInp').checked = true;
+document.getElementById('customModal').dataset.editId = '';
+document.getElementById('customModal').classList.add('active');
+}
+
+function editCustomRule(id) {
+const r = customRules.find(x=>x.id===id);
+if (!r) return;
+document.getElementById('customModalTitle').textContent = 'Edit Custom Rule';
+document.getElementById('customNameInp').value = r.name;
+document.getElementById('customRiskInp').value = r.riskType;
+document.getElementById('customActionInp').value = r.action;
+document.getElementById('customDescInp').value = r.desc;
+document.getElementById('customStatusInp').checked = r.status;
+document.getElementById('customModal').dataset.editId = id;
+document.getElementById('customModal').classList.add('active');
+}
+
+function saveCustomRule() {
+const name = document.getElementById('customNameInp').value.trim();
+if (!name) { showToast('Rule name is required','error'); return; }
+const riskType = document.getElementById('customRiskInp').value;
+const action = document.getElementById('customActionInp').value;
+const desc = document.getElementById('customDescInp').value.trim();
+if (!desc) { showToast('Description is required','error'); return; }
+const status = document.getElementById('customStatusInp').checked;
+const editId = document.getElementById('customModal').dataset.editId;
+if (editId) {
+const r = customRules.find(x=>x.id===editId);
+if (r) { r.name=name; r.riskType=riskType; r.action=action; r.desc=desc; r.status=status; }
+showToast('Rule updated','success');
+} else {
+customRules.push({id:'cr'+Date.now(), name, riskType, action, desc, status, createdAt:new Date().toISOString().slice(0,10)});
+showToast('Rule added','success');
+}
+closeModal('customModal');
+renderCustomRules();
+}
+
+function delCustomRule(id) {
+if (!confirm('Delete this custom rule?')) return;
+customRules = customRules.filter(r=>r.id!==id);
+renderCustomRules();
+showToast('Rule deleted','success');
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+function showToast(msg, type) {
+const t = document.getElementById('toast');
+t.textContent = msg;
+t.className = 'toast toast-'+type+' show';
+setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+renderCustomRules();
+</script>
+</body>
+</html>
