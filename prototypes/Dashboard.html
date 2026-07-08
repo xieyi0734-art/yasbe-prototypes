@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard - Beeznis Admin Prototype</title>
+<style>
+  :root {
+    --color-primary: #E59303;
+    --color-sidebar-bg: #1D2129;
+    --color-bg: #F0F2F5;
+    --color-card-bg: #FFFFFF;
+    --color-text: #1D2129;
+    --color-text-secondary: #86909C;
+    --color-border: #E5E8EB;
+    --color-success: #52C41A;
+    --color-error: #F5222D;
+    --color-warning: #FAAD14;
+    --color-info: #1890FF;
+    --radius: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-size: 14px;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 240px;
+    background: var(--color-sidebar-bg);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  .sidebar-logo {
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+  }
+  .sidebar-logo img { width: 32px; height: 32px; border-radius: 6px; }
+  .sidebar-logo span { font-size: 16px; font-weight: 700; color: #fff; }
+  .sidebar-logo small { font-size: 11px; color: #86909C; margin-left: 2px; }
+  .sidebar-nav { flex: 1; padding: 12px 0; }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 24px;
+    color: #86909C;
+    text-decoration: none;
+    font-size: 14px;
+    transition: all .15s;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+  }
+  .nav-item:hover { background: rgba(255,255,255,.06); color: #fff; }
+  .nav-item.active {
+    background: rgba(229,147,3,.15);
+    color: var(--color-primary);
+    border-left-color: var(--color-primary);
+    font-weight: 600;
+  }
+  .nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
+  .nav-section-title {
+    padding: 16px 24px 8px;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #5A5F6B;
+    letter-spacing: 1px;
+  }
+  .sidebar-footer {
+    padding: 16px 24px;
+    border-top: 1px solid rgba(255,255,255,.06);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .sidebar-footer .avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: #E59303; display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #fff;
+  }
+  .sidebar-footer .info { flex: 1; }
+  .sidebar-footer .name { font-size: 13px; color: #fff; }
+  .sidebar-footer .email { font-size: 11px; color: #86909C; }
+
+  /* Main */
+  .main { flex: 1; min-width: 0; }
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 24px; background: #fff; border-bottom: 1px solid var(--color-border);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header h2 { font-size: 18px; font-weight: 600; }
+  .header-right { display: flex; align-items: center; gap: 16px; }
+  .header-right .time-filter { display: flex; gap: 4px; }
+  .header-right .time-filter button {
+    padding: 6px 14px; border: 1px solid var(--color-border); background: #fff;
+    border-radius: 6px; font-size: 13px; cursor: pointer; color: var(--color-text-secondary);
+    transition: all .15s;
+  }
+  .header-right .time-filter button:hover { border-color: var(--color-primary); color: var(--color-primary); }
+  .header-right .time-filter button.active {
+    background: var(--color-primary); color: #fff; border-color: var(--color-primary);
+  }
+
+  .content { padding: 24px; }
+
+  /* KPI Cards Row */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .kpi-card {
+    background: var(--color-card-bg);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+  .kpi-card .kpi-label {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .kpi-card .kpi-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--color-text);
+    line-height: 1.2;
+  }
+  .kpi-card .kpi-trend {
+    font-size: 12px;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .kpi-card .kpi-trend.up { color: var(--color-success); }
+  .kpi-card .kpi-trend.down { color: var(--color-error); }
+  .kpi-card .kpi-sub { font-size: 12px; color: var(--color-text-secondary); margin-top: 4px; }
+
+  /* Charts Section */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .chart-card {
+    background: var(--color-card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 20px;
+  }
+  .chart-card .chart-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .chart-card .chart-title select {
+    padding: 4px 8px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    background: #fff;
+  }
+
+  /* Bar chart mock */
+  .bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 180px; padding: 10px 0; }
+  .bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .bar { width: 70%; border-radius: 4px 4px 0 0; min-height: 4px; transition: height .3s; }
+  .bar.primary { background: var(--color-primary); }
+  .bar.info { background: var(--color-info); }
+  .bar.success { background: var(--color-success); }
+  .bar-label { font-size: 10px; color: var(--color-text-secondary); margin-top: 4px; }
+
+  /* Donut chart mock */
+  .donut-container { display: flex; align-items: center; justify-content: center; gap: 24px; height: 220px; }
+  .donut { width: 140px; height: 140px; border-radius: 50%; position: relative; }
+  .donut-center {
+    position: absolute; top: 15px; left: 15px; width: 110px; height: 110px;
+    border-radius: 50%; background: #fff;
+    display: flex; align-items: center; justify-content: center; flex-direction: column;
+  }
+  .donut-center .num { font-size: 22px; font-weight: 700; }
+  .donut-center .label { font-size: 11px; color: var(--color-text-secondary); }
+  .legend { display: flex; flex-direction: column; gap: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  /* Module stats row */
+  .module-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .module-card {
+    background: var(--color-card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 20px;
+  }
+  .module-card .mod-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .module-card .mod-icon { font-size: 22px; }
+  .module-card .mod-name { font-size: 14px; font-weight: 600; }
+  .module-card .mod-stat { margin-bottom: 10px; }
+  .module-card .mod-stat .label { font-size: 11px; color: var(--color-text-secondary); }
+  .module-card .mod-stat .value { font-size: 18px; font-weight: 700; }
+  .module-card .mod-stat .value small { font-size: 12px; font-weight: 400; color: var(--color-text-secondary); }
+
+  /* Bottom grid: customer + risk */
+  .bottom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .table-card {
+    background: var(--color-card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 20px;
+  }
+  .table-card .tc-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .table-card .tc-title a { font-size: 12px; color: var(--color-primary); text-decoration: none; font-weight: 400; }
+  .minitable { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .minitable th {
+    text-align: left;
+    padding: 8px 12px;
+    background: #FAFAFA;
+    color: var(--color-text-secondary);
+    font-size: 11px;
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--color-border);
+  }
+  .minitable td { padding: 10px 12px; border-bottom: 1px solid #F0F0F0; }
+  .minitable tr:hover td { background: #FAFAFA; }
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .badge.green { background: #DCFCE7; color: #166534; }
+  .badge.yellow { background: #FEF3C7; color: #92400E; }
+  .badge.red { background: #FEE2E2; color: #991B1B; }
+  .badge.blue { background: #DBEAFE; color: #1D4ED8; }
+  .badge.gray { background: #F3F4F6; color: #6B7280; }
+
+  .badge-lg {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .badge-lg.green { background: #DCFCE7; color: #166534; }
+  .badge-lg.yellow { background: #FEF3C7; color: #92400E; }
+  .badge-lg.red { background: #FEE2E2; color: #991B1B; }
+
+  @media (max-width: 1200px) {
+    .kpi-row { grid-template-columns: repeat(3, 1fr); }
+    .charts-grid { grid-template-columns: 1fr; }
+    .module-row { grid-template-columns: repeat(2, 1fr); }
+    .bottom-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 768px) {
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .module-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div style="width:32px;height:32px;background:var(--color-primary);border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;">Y</div>
+    <span>YASBe</span>
+    <small>admin</small>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-item active"><span class="icon">📊</span> Dashboard</div>
+    <div class="nav-section-title">Management</div>
+    <div class="nav-item"><span class="icon">👥</span> Customer Management</div>
+    <div class="nav-item"><span class="icon">💱</span> Fiat Management</div>
+    <div class="nav-item"><span class="icon">₿</span> Crypto Management</div>
+    <div class="nav-item"><span class="icon">🔄</span> Exchange Management</div>
+    <div class="nav-item"><span class="icon">💳</span> Card Management</div>
+    <div class="nav-item"><span class="icon">📈</span> Investment Management</div>
+    <div class="nav-section-title">Content</div>
+    <div class="nav-item"><span class="icon">📰</span> Content Management</div>
+    <div class="nav-section-title">System</div>
+    <div class="nav-item"><span class="icon">⚙️</span> Admin Management</div>
+    <div class="nav-item"><span class="icon">📋</span> My Tasks</div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="avatar">YX</div>
+    <div class="info">
+      <div class="name">Driven Xie</div>
+      <div class="email">xieyi0734@gmail.com</div>
+    </div>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <div class="header">
+    <h2>📊&nbsp; Dashboard</h2>
+    <div class="header-right">
+      <div class="time-filter" id="timeFilter">
+        <button class="active">All</button>
+        <button>Today</button>
+        <button>Week</button>
+        <button>Month</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- KPI Row 1 - Core Metrics -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">💰 Total Transaction Volume</div>
+        <div class="kpi-value">$847,502</div>
+        <div class="kpi-trend up">▲ 12.3% vs last period</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">👤 Active Customers</div>
+        <div class="kpi-value">1,284</div>
+        <div class="kpi-trend up">▲ 8.7% vs last period</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">🆕 New Registrations</div>
+        <div class="kpi-value">86</div>
+        <div class="kpi-trend up">▲ 5.2% vs last period</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">⏳ Pending Withdrawals</div>
+        <div class="kpi-value">23</div>
+        <div class="kpi-trend down">▼ 3 pending</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">📊 Total Revenue (Fees)</div>
+        <div class="kpi-value">$12,847</div>
+        <div class="kpi-trend up">▲ 15.1% vs last period</div>
+      </div>
+    </div>
+
+    <!-- KPI Row 2 - Onboarding (existing system metrics) -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">📋 Total Cases</div>
+        <div class="kpi-value">37</div>
+        <div class="kpi-sub">All time</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">🔄 In Progress</div>
+        <div class="kpi-value">2</div>
+        <div class="kpi-trend up" style="color:var(--color-warning)">▲ 5.4% from all time</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">✅ Approved</div>
+        <div class="kpi-value">33</div>
+        <div class="kpi-sub">89.2% from all time</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">🔄 Re-submission</div>
+        <div class="kpi-value">0</div>
+        <div class="kpi-sub">0% from all time</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">⚠️ Suspended</div>
+        <div class="kpi-value">1</div>
+        <div class="kpi-trend down">▼ 2.7% from all time</div>
+      </div>
+    </div>
+
+    <!-- Charts: Transaction Trend + Onboarding Distribution -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">
+          <span>📈 Daily Transaction Trend</span>
+          <select><option>Last 7 Days</option><option>Last 30 Days</option></select>
+        </div>
+        <div class="bar-chart">
+          <div class="bar-group">
+            <div class="bar primary" style="height:65%"></div>
+            <div class="bar-label">Mon</div>
+          </div>
+          <div class="bar-group">
+            <div class="bar primary" style="height:45%"></div>
+            <div class="bar-label">Tue</div>
+          </div>
+          <div class="bar-group">
+            <div class="bar primary" style="height:80%"></div>
+            <div class="bar-label">Wed</div>
+          </div>
+          <div class="bar-group">
+            <div class="bar primary" style="height:55%"></div>
+            <div class="bar-label">Thu</div>
+          </div>
+          <div class="bar-group">
+            <div class="bar primary" style="height:90%"></div>
+            <div class="bar-label">Fri</div>
+          </div>
+          <div class="bar-group">
+            <div class="bar primary" style="height:70%"></div>
+            <div class="bar-label">Sat</div>
+          </div>
+          <div class="bar-group">
+            <div class="bar primary" style="height:40%"></div>
+            <div class="bar-label">Sun</div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">
+          <span>🧩 Onboarding Status Distribution</span>
+        </div>
+        <div class="donut-container">
+          <div class="donut" style="background: conic-gradient(#52C41A 0deg 89.2deg, #FAAD14 89.2deg 94.6deg, #F5222D 94.6deg 97.3deg, #E5E8EB 97.3deg 360deg);">
+            <div class="donut-center">
+              <div class="num">37</div>
+              <div class="label">Total</div>
+            </div>
+          </div>
+          <div class="legend">
+            <div class="legend-item"><span class="legend-dot" style="background:#52C41A"></span> Approved (33)</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#FAAD14"></span> In Progress (2)</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#F5222D"></span> Suspended (1)</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#E5E8EB"></span> Re-submission (0)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Module Revenue Breakdown -->
+    <div class="module-row">
+      <div class="module-card">
+        <div class="mod-header">
+          <span class="mod-icon">💳</span>
+          <span class="mod-name">Card</span>
+        </div>
+        <div class="mod-stat">
+          <div class="label">Active Cards</div>
+          <div class="value">2,456</div>
+        </div>
+        <div class="mod-stat">
+          <div class="label">Transaction Volume</div>
+          <div class="value">$342,180 <small>+8.2%</small></div>
+        </div>
+        <div class="mod-stat">
+          <div class="label">Revenue</div>
+          <div class="value">$5,240 <small>+12.1%</small></div>
+        </div>
+      </div>
+      <div class="module-card">
+        <div class="mod-header">
+          <span class="mod-icon">💱</span>
+          <span class="mod-name">Fiat</span>
+        </div>
+        <div class="mod-stat">
+          <div class="label">Deposit Volume</div>
+          <div class="value">$285,400 <small>+6.5%</small></div>
+        </div>
+        <div class="mod-stat">
+          <div class="label">Withdrawal Volume</div>
+          <div class="value">$98,250 <small>+3.8%</small></div>
+        </div>
+        <div class="mod-stat">
+          <div class="label">Revenue</div>
+          <div class="value">$3,810 <small>+7.3%</small></div>
+        </div>
+      </div>
+      <div class="module-card">
+        <div class="mod-header">
+          <span class="mod-icon">₿</span>
+          <span class="mod-name">Crypto</span>
+        </div>
+        <div class="mod-stat">
+          <div class="label">Deposit Volume</div>
+          <div class="value">$174,600 <small>+15.4%</small></div>
+        </div>
+        <div class="mod-stat">
+          <div class="label">Withdrawal Volume</div>
+          <div class="value">$52,300 <small>+11.2%</small></div>
+        </div>
+        <div class="mod-stat">
+          <div class="label">Revenue</div>
+          <div class="value">$2,120 <small>+14.7%</small></div>
+        </div>
+      </div>
+      <div class="module-card">
+        <div class="mod-header">
+          <span class="mod-icon">🔄</span>
+          <span class="mod-name">Exchange</span>
+        </div>
+        <div class="mod-stat">
+          <div class="label">Swap Volume</div>
+          <div class="value">$45,472 <small>+22.3%</small></div>
+        </div>
+        <div class="mod-stat">
+          <div class="label">Total Swaps</div>
+          <div class="value">318 <small>+18.6%</small></div>
+        </div>
+        <div class="mod-stat">
+          <div class="label">Revenue</div>
+          <div class="value">$1,677 <small>+24.1%</small></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Grid: Recent Customers + KYB Overview -->
+    <div class="bottom-grid">
+      <div class="table-card">
+        <div class="tc-title">
+          <span>👤 Recent Registrations</span>
+          <a href="#">View All →</a>
+        </div>
+        <table class="minitable">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>John Smith</td>
+              <td style="font-size:12px;">john@example.com</td>
+              <td>2026-07-07</td>
+              <td><span class="badge green">Active</span></td>
+            </tr>
+            <tr>
+              <td>Sarah Lee</td>
+              <td style="font-size:12px;">sarah@example.com</td>
+              <td>2026-07-07</td>
+              <td><span class="badge yellow">Pending KYB</span></td>
+            </tr>
+            <tr>
+              <td>Mike Chen</td>
+              <td style="font-size:12px;">mike@example.com</td>
+              <td>2026-07-06</td>
+              <td><span class="badge green">Active</span></td>
+            </tr>
+            <tr>
+              <td>Anna Wong</td>
+              <td style="font-size:12px;">anna@example.com</td>
+              <td>2026-07-06</td>
+              <td><span class="badge red">Suspended</span></td>
+            </tr>
+            <tr>
+              <td>David Park</td>
+              <td style="font-size:12px;">david@example.com</td>
+              <td>2026-07-05</td>
+              <td><span class="badge green">Active</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-card">
+        <div class="tc-title">
+          <span>⚠️ Pending KYB Reviews</span>
+          <a href="#">View All →</a>
+        </div>
+        <table class="minitable">
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>Submitted</th>
+              <th>Type</th>
+              <th>Priority</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>TechFlow Ltd</td>
+              <td>2026-07-07</td>
+              <td>Card KYB</td>
+              <td><span class="badge red">High</span></td>
+            </tr>
+            <tr>
+              <td>GlobalPay Inc</td>
+              <td>2026-07-07</td>
+              <td>Bank KYB</td>
+              <td><span class="badge red">High</span></td>
+            </tr>
+            <tr>
+              <td>Nexus Trading</td>
+              <td>2026-07-06</td>
+              <td>Card KYB</td>
+              <td><span class="badge yellow">Medium</span></td>
+            </tr>
+            <tr>
+              <td>Bright Future Co</td>
+              <td>2026-07-05</td>
+              <td>Bank KYB</td>
+              <td><span class="badge yellow">Medium</span></td>
+            </tr>
+            <tr>
+              <td>Skyline Ventures</td>
+              <td>2026-07-04</td>
+              <td>Card KYB</td>
+              <td><span class="badge gray">Low</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Time filter switching
+  document.querySelectorAll('#timeFilter button').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('#timeFilter button').forEach(function(b) { b.classList.remove('active'); });
+      this.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
