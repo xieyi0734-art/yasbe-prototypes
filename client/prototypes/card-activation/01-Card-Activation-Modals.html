@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Card Activation — Modals | YASBe</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,sans-serif;
+  background:#191b1f;
+  color:#ffffff;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  padding:24px;
+}
+
+/* ===== Demo Bar ===== */
+.demo-bar{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:32px;
+  padding:16px 20px;
+  background:#1f2128;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.06);
+}
+.demo-bar button{
+  padding:10px 20px;
+  border:none;
+  border-radius:8px;
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all 0.15s;
+  font-family:inherit;
+}
+.demo-bar button:hover{opacity:0.85}
+.btn-gold{background:#FFCA00;color:#000}
+.btn-outline{background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.7)}
+.btn-outline:hover{background:rgba(255,255,255,0.05)}
+.demo-note{font-size:12px;color:rgba(255,255,255,0.35);margin-left:auto;align-self:center}
+
+/* ===== Overlay ===== */
+.overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.6);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
+  backdrop-filter:blur(2px);
+}
+.overlay.show{display:flex}
+
+/* ===== Modal Base ===== */
+.modal{
+  background:#1b1d22;
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:12px;
+  width:480px;
+  max-width:92vw;
+  box-shadow:0 20px 60px rgba(0,0,0,0.5);
+}
+.modal-header{
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  padding:24px 24px 16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.modal-header h2{
+  font-size:20px;
+  font-weight:700;
+  color:#fff;
+}
+.modal-close{
+  background:none;border:none;cursor:pointer;
+  color:rgba(255,255,255,0.3);font-size:20px;padding:4px;
+  transition:color 0.15s;line-height:1;
+}
+.modal-close:hover{color:#fff}
+.modal-body{
+  padding:20px 24px;
+}
+.modal-footer{
+  border-top:1px solid rgba(255,255,255,0.08);
+  padding:16px 24px;
+  display:flex;
+  gap:10px;
+}
+.modal-footer button{
+  flex:1;
+  height:48px;
+  border:none;
+  border-radius:8px;
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all 0.15s;
+  font-family:inherit;
+}
+.btn-cancel{
+  background:transparent;
+  border:1.5px solid rgba(255,255,255,0.12);
+  color:rgba(255,255,255,0.6);
+}
+.btn-cancel:hover{
+  border-color:rgba(255,255,255,0.25);
+  color:#fff;
+}
+.btn-primary{
+  background:linear-gradient(92.29deg,#FFCA00 0%,#FE5707 100%);
+  border:1px solid #FFDC8C;
+  color:#ffffff;
+}
+.btn-primary:hover{opacity:0.9}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed}
+
+/* ===== Warning Box ===== */
+.warning-box{
+  display:flex;
+  gap:12px;
+  padding:14px 16px;
+  background:rgba(251,191,36,0.08);
+  border:1px solid rgba(251,191,36,0.2);
+  border-radius:10px;
+  margin-bottom:16px;
+}
+.warning-icon{
+  flex-shrink:0;
+  width:24px;height:24px;
+  background:rgba(251,191,36,0.15);
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+  color:#fbbf24;
+  font-weight:700;
+}
+.warning-text{
+  font-size:13px;
+  color:rgba(255,255,255,0.65);
+  line-height:1.5;
+}
+.warning-text strong{color:#fbbf24;font-weight:600}
+
+/* ===== Checkbox ===== */
+.check-group{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  padding:12px 0;
+  cursor:pointer;
+}
+.check-group input[type="checkbox"]{
+  width:18px;height:18px;
+  margin-top:2px;
+  accent-color:#FFCA00;
+  cursor:pointer;
+  flex-shrink:0;
+}
+.check-group label{
+  font-size:13px;
+  color:rgba(255,255,255,0.55);
+  line-height:1.5;
+  cursor:pointer;
+}
+
+/* ===== Loading State ===== */
+.loading-spinner{
+  display:inline-block;
+  width:20px;height:20px;
+  border:2.5px solid rgba(255,255,255,0.2);
+  border-top-color:#fff;
+  border-radius:50%;
+  animation:spin 0.7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ===== Status Alert ===== */
+.status-alert{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  padding:24px 0 8px;
+}
+.status-icon{
+  width:56px;height:56px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:28px;
+  margin-bottom:16px;
+}
+.status-icon.success{background:rgba(52,168,83,0.12);color:#34a853}
+.status-icon.fail{background:rgba(239,68,68,0.12);color:#ef4444}
+.status-icon.loading{border:3px solid rgba(255,202,0,0.2);border-top-color:#FFCA00;animation:spin 0.8s linear infinite;font-size:0}
+.status-title{
+  font-size:18px;
+  font-weight:700;
+  color:#fff;
+  margin-bottom:6px;
+}
+.status-sub{
+  font-size:13px;
+  color:rgba(255,255,255,0.5);
+  line-height:1.5;
+}
+
+/* ===== PIN Input ===== */
+.pin-section{
+  margin-bottom:20px;
+}
+.pin-section-label{
+  font-size:14px;
+  font-weight:600;
+  color:#fff;
+  margin-bottom:12px;
+}
+.pin-grid{
+  display:flex;
+  gap:8px;
+  justify-content:center;
+  margin-bottom:4px;
+}
+.pin-box{
+  width:52px;height:54px;
+  background:#23262e;
+  border:1.5px solid rgba(255,255,255,0.08);
+  border-radius:8px;
+  color:#fff;
+  font-size:24px;
+  font-weight:600;
+  text-align:center;
+  outline:none;
+  transition:border 0.15s,box-shadow 0.15s;
+}
+.pin-box:focus{
+  border-color:#FFCA00;
+  box-shadow:0 0 0 3px rgba(255,202,0,0.12);
+}
+.pin-box.filled{
+  border-color:rgba(255,202,0,0.3);
+}
+.pin-rule{
+  font-size:11px;
+  color:rgba(255,255,255,0.3);
+  text-align:center;
+  margin-top:10px;
+  line-height:1.4;
+}
+
+/* ===== Divider ===== */
+.divider{
+  height:1px;
+  background:rgba(255,255,255,0.08);
+  margin:20px 0;
+}
+
+/* ===== Toast ===== */
+.toast-wrap{
+  position:fixed;
+  top:24px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:2000;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  pointer-events:none;
+}
+.toast{
+  pointer-events:auto;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:14px 20px;
+  border-radius:10px;
+  background:#1b1d22;
+  border:1px solid rgba(255,255,255,0.1);
+  box-shadow:0 8px 30px rgba(0,0,0,0.4);
+  font-size:14px;
+  color:#fff;
+  font-weight:500;
+  animation:slideDown 0.3s ease;
+  min-width:280px;
+}
+.toast.success{border-color:rgba(52,168,83,0.3)}
+.toast.success .toast-icon{color:#34a853}
+.toast.error{border-color:rgba(239,68,68,0.3)}
+.toast.error .toast-icon{color:#ef4444}
+.toast-icon{font-size:18px;flex-shrink:0}
+@keyframes slideDown{
+  from{opacity:0;transform:translateY(-16px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* ===== Sub-label ===== */
+.sub-label{
+  font-size:12px;
+  color:rgba(255,255,255,0.4);
+  margin-top:4px;
+}
+</style>
+</head>
+<body>
+
+<!-- ===== Demo Bar ===== -->
+<div class="demo-bar">
+  <button class="btn-gold" onclick="event.stopPropagation();showModal('activateConfirm')">① 激活确认</button>
+  <button class="btn-outline" onclick="event.stopPropagation();showModal('activateLoading')">② 激活中 (Loading)</button>
+  <button class="btn-outline" onclick="event.stopPropagation();showModal('activateSuccess')">③ 激活成功</button>
+  <button class="btn-outline" onclick="event.stopPropagation();showModal('activateFail')">④ 激活失败</button>
+  <button class="btn-gold" onclick="event.stopPropagation();showModal('setPin')">⑤ 设置PIN码</button>
+  <button class="btn-outline" onclick="event.stopPropagation();showModal('pinSuccess')">⑥ PIN设置成功</button>
+  <button class="btn-outline" onclick="event.stopPropagation();showModal('activatePending')">⑦ 异步激活中</button>
+  <span class="demo-note">点击按钮预览各弹窗 →</span>
+</div>
+
+<!-- ================================================================ -->
+<!-- 1. 激活确认弹窗 -->
+<!-- ================================================================ -->
+<div class="overlay" id="modal-activateConfirm">
+<div class="modal">
+  <div class="modal-header">
+    <h2>Activate Card</h2>
+    <button class="modal-close" onclick="closeModal('activateConfirm')">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="warning-box">
+      <div class="warning-icon">!</div>
+      <div class="warning-text">
+        Please confirm that the cardholder has <strong>physically received</strong> the card before proceeding with activation.<br><br>
+        Do not activate if the card has not been received.
+      </div>
+    </div>
+    <div class="check-group">
+      <input type="checkbox" id="chkActivate" onchange="document.getElementById('btnActivateConfirm').disabled=!this.checked">
+      <label for="chkActivate">I confirm the cardholder has received the physical card and is ready to activate</label>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-cancel" onclick="closeModal('activateConfirm')">Cancel</button>
+    <button class="btn-primary" id="btnActivateConfirm" disabled onclick="closeModal('activateConfirm');showModal('activateLoading')">Confirm Activation</button>
+  </div>
+</div>
+</div>
+
+<!-- ================================================================ -->
+<!-- 2. 激活中 (同步 Loading) -->
+<!-- ================================================================ -->
+<div class="overlay" id="modal-activateLoading">
+<div class="modal" style="width:400px">
+  <div class="modal-body" style="padding:40px 24px">
+    <div class="status-alert">
+      <div class="status-icon loading"></div>
+      <div class="status-title">Activating Card</div>
+      <div class="status-sub">Please wait while we activate your card…</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ================================================================ -->
+<!-- 3. 激活成功 → 自动跳转 PIN 设置 -->
+<!-- ================================================================ -->
+<div class="overlay" id="modal-activateSuccess">
+<div class="modal">
+  <div class="modal-header">
+    <h2>Card Activated</h2>
+    <button class="modal-close" onclick="closeModal('activateSuccess')">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="status-alert">
+      <div class="status-icon success">✓</div>
+      <div class="status-title">Activation Successful</div>
+      <div class="status-sub">Your physical card has been activated.<br>Set a PIN to start using your card.</div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-cancel" onclick="closeModal('activateSuccess')">Skip</button>
+    <button class="btn-primary" onclick="closeModal('activateSuccess');showModal('setPin')">Set PIN Now</button>
+  </div>
+</div>
+</div>
+
+<!-- ================================================================ -->
+<!-- 4. 激活失败 -->
+<!-- ================================================================ -->
+<div class="overlay" id="modal-activateFail">
+<div class="modal" style="width:420px">
+  <div class="modal-header">
+    <h2>Activation Failed</h2>
+    <button class="modal-close" onclick="closeModal('activateFail')">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="status-alert">
+      <div class="status-icon fail">✕</div>
+      <div class="status-title">Something Went Wrong</div>
+      <div class="status-sub">Card activation failed. Please contact support or try again later.</div>
+    </div>
+    <div style="margin-top:12px;padding:12px 14px;background:rgba(239,68,68,0.06);border-radius:8px;font-size:12px;color:rgba(255,255,255,0.4);text-align:center">
+      Error Code: CARD_ACTIVATE_ERR · Ref: #ACT-20260713-0842
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-cancel" onclick="closeModal('activateFail')">Dismiss</button>
+    <button class="btn-primary" onclick="closeModal('activateFail');showToast('Request submitted. Support will contact you.','success')">Contact Support</button>
+  </div>
+</div>
+</div>
+
+<!-- ================================================================ -->
+<!-- 5. 设置PIN码弹窗 -->
+<!-- ================================================================ -->
+<div class="overlay" id="modal-setPin">
+<div class="modal">
+  <div class="modal-header">
+    <h2>Set PIN</h2>
+    <button class="modal-close" onclick="closeModal('setPin')">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="pin-section">
+      <div class="pin-section-label">Enter 6-digit PIN</div>
+      <div class="pin-grid" id="pinInput1">
+        <input class="pin-box" type="password" maxlength="1" inputmode="numeric" oninput="pinMove(this,event,'pinInput1','pinInput2')" onkeydown="pinBack(this,event)">
+        <input class="pin-box" type="password" maxlength="1" inputmode="numeric" oninput="pinMove(this,event,'pinInput1','pinInput2')" onkeydown="pinBack(this,event)">
+        <input class="pin-box" type="password" maxlength="1" inputmode="numeric" oninput="pinMove(this,event,'pinInput1','pinInput2')" onkeydown="pinBack(this,event)">
+        <input class="pin-box" type="password" maxlength="1" inputmode="numeric" oninput="pinMove(this,event,'pinInput1','pinInput2')" onkeydown="pinBack(this,event)">
+        <input class="pin-box" type="password" maxlength="1" inputmode="numeric" oninput="pinMove(this,event,'pinInput1','pinInput2')" onkeydown="pinBack(this,event)">
+        <input class="pin-box" type="password" maxlength="1" inputmode="numeric" oninput="pinMove(this,event,'pinInput1','pinInput2')" onkeydown="pinBack(this,event)">
+      </div>
+    </div>
+    <div class="pin-section">
+      <div class="pin-section-label">Confirm PIN</div>
+      <div class="pin-grid" id="pinInput2">
+        <input class="pin-box" type="password" maxlength="1" inputmode="numeric" oninput="pinMove(this,event,'pinInput2','pinInput2')" onkeydown="pinBack(this,event)">
+        <input class="pin-box" type="password" maxlength="1" inputmode="numeric" oninput="pinMove(this,event,'pinInput2','pinInput2')" onkeydown="pinBack(this,event)">
+        <input class="pin-box" type="password" maxlength="1" inputmode="numeric" oninput="pinMove(this,event,'pinInput2','pinInput2')" onkeydown="pinBack(this,event)">
+        <input class="pin-box" type="password" maxlength="1" inputmode="numeric" oninput="pinMove(this,event,'pinInput2','pinInput2')" onkeydown="pinBack(this,event)">
+        <input class="pin-box" type="password" maxlength="1" inputmode="numeric" oninput="pinMove(this,event,'pinInput2','pinInput2')" onkeydown="pinBack(this,event)">
+        <input class="pin-box" type="password" maxlength="1" inputmode="numeric" oninput="pinMove(this,event,'pinInput2','pinInput2')" onkeydown="pinBack(this,event)">
+      </div>
+    </div>
+    <div class="pin-rule">
+      Must be 6 digits · No 3+ consecutive identical digits (e.g. 111) ·<br>
+      No 3+ consecutive ascending/descending digits (e.g. 123 / 321)
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-cancel" onclick="closeModal('setPin')">Cancel</button>
+    <button class="btn-primary" id="btnSetPin" disabled onclick="closeModal('setPin');showModal('pinSuccess')">Set PIN</button>
+  </div>
+</div>
+</div>
+
+<!-- ================================================================ -->
+<!-- 6. PIN设置成功弹窗 -->
+<!-- ================================================================ -->
+<div class="overlay" id="modal-pinSuccess">
+<div class="modal" style="width:400px">
+  <div class="modal-header">
+    <h2>PIN Set</h2>
+    <button class="modal-close" onclick="closeModal('pinSuccess')">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="status-alert">
+      <div class="status-icon success">✓</div>
+      <div class="status-title">PIN Set Successfully</div>
+      <div class="status-sub">Your physical card PIN has been set.<br>You can now use your card for transactions.</div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-primary" onclick="closeModal('pinSuccess');showToast('PIN updated successfully','success')">Done</button>
+  </div>
+</div>
+</div>
+
+<!-- ================================================================ -->
+<!-- 7. 异步激活中 -->
+<!-- ================================================================ -->
+<div class="overlay" id="modal-activatePending">
+<div class="modal" style="width:420px">
+  <div class="modal-header">
+    <h2>Activation in Progress</h2>
+    <button class="modal-close" onclick="closeModal('activatePending')">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="status-alert">
+      <div class="status-icon loading"></div>
+      <div class="status-title">Activation Submitted</div>
+      <div class="status-sub">Your card activation request has been submitted.<br>The result will be sent to your registered email.</div>
+    </div>
+    <div style="margin-top:16px;padding:14px;background:rgba(255,202,0,0.06);border-radius:10px;border:1px solid rgba(255,202,0,0.12)">
+      <div style="font-size:13px;font-weight:600;color:#FFCA00;margin-bottom:4px">📧 Email Notification</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.45);line-height:1.5">
+        You will receive an email at x***@example.com once the activation is complete.<br>
+        Please allow up to 24 hours for processing.
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-cancel" onclick="closeModal('activatePending')">Got it</button>
+  </div>
+</div>
+</div>
+
+<!-- ===== Toast Container ===== -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+// ===== Modal Show/Hide =====
+function showModal(id){
+  document.getElementById('modal-'+id).classList.add('show');
+  document.body.style.overflow='hidden';
+  // Reset checkbox for activate confirm
+  if(id==='activateConfirm'){
+    document.getElementById('chkActivate').checked=false;
+    document.getElementById('btnActivateConfirm').disabled=true;
+  }
+  // Reset PIN fields
+  if(id==='setPin'){
+    document.querySelectorAll('#pinInput1 .pin-box, #pinInput2 .pin-box').forEach(i=>{i.value='';i.classList.remove('filled')});
+    document.getElementById('btnSetPin').disabled=true;
+    document.querySelector('#pinInput1 .pin-box').focus();
+  }
+}
+function closeModal(id){
+  document.getElementById('modal-'+id).classList.remove('show');
+  document.body.style.overflow='auto';
+}
+
+// ===== Checkbox toggle =====
+function toggleCheck(e,el){
+  // Prevent double-toggle when clicking label or checkbox
+  if(e.target.tagName==='INPUT' || e.target.tagName==='LABEL') return;
+  const cb=el.querySelector('input[type="checkbox"]');
+  cb.checked=!cb.checked;
+  document.getElementById('btnActivateConfirm').disabled=!cb.checked;
+}
+
+// ===== PIN Input Logic =====
+function pinMove(el,e,groupId,nextGroupId){
+  el.value=el.value.replace(/\D/g,'');
+  if(el.value) el.classList.add('filled');else el.classList.remove('filled');
+  if(el.value.length===1){
+    const next=el.nextElementSibling;
+    if(next && next.tagName==='INPUT') next.focus();
+  }
+  // Check if both groups are complete
+  checkPinComplete(groupId,nextGroupId);
+}
+function pinBack(el,e){
+  if(e.key==='Backspace' && el.value===''){
+    const prev=el.previousElementSibling;
+    if(prev && prev.tagName==='INPUT'){prev.focus();prev.value='';prev.classList.remove('filled')}
+  }
+}
+function checkPinComplete(groupId,nextGroupId){
+  const g1=document.querySelectorAll('#'+groupId+' .pin-box');
+  const g2=document.querySelectorAll('#'+nextGroupId+' .pin-box');
+  const v1=Array.from(g1).map(i=>i.value).join('');
+  const v2=Array.from(g2).map(i=>i.value).join('');
+  // Determine which is second group
+  const allPin2=document.querySelectorAll('#pinInput2 .pin-box');
+  const v2Full=Array.from(allPin2).map(i=>i.value).join('');
+  // Enable button only if both 6-digit inputs complete
+  const g1Full=Array.from(document.querySelectorAll('#pinInput1 .pin-box')).map(i=>i.value).join('');
+  const g2Full=Array.from(document.querySelectorAll('#pinInput2 .pin-box')).map(i=>i.value).join('');
+  document.getElementById('btnSetPin').disabled=!(g1Full.length===6 && g2Full.length===6);
+}
+
+// ===== Toast =====
+function showToast(msg,type='success'){
+  const wrap=document.getElementById('toastWrap');
+  const t=document.createElement('div');
+  t.className='toast '+type;
+  const icon=type==='success'?'✓':'✕';
+  t.innerHTML='<span class="toast-icon">'+icon+'</span>'+msg;
+  wrap.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transform='translateY(-8px)';t.style.transition='all 0.25s';setTimeout(()=>t.remove(),300)},3000);
+}
+
+// ===== Close on overlay click =====
+document.querySelectorAll('.overlay').forEach(o=>{
+  o.addEventListener('click',function(e){
+    if(e.target===this) this.classList.remove('show');
+  });
+});
+</script>
+</body>
+</html>

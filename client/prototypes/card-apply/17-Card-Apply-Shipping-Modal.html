@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>实体卡申请 — 收件信息 | YASBee</title>
+<style>
+:root {
+  --bg: #0f0f1a;
+  --modal-bg: #1a1a2e;
+  --modal-border: rgba(255,255,255,0.06);
+  --text: #f0f0f5;
+  --text-muted: #8e9ab4;
+  --text-dim: #5a6680;
+  --green: #22c55e;
+  --green-dark: #16a34a;
+  --green-glow: rgba(34,197,94,0.15);
+  --border: rgba(255,255,255,0.06);
+  --input-bg: rgba(255,255,255,0.04);
+  --input-border: rgba(255,255,255,0.08);
+  --input-focus: rgba(34,197,94,0.4);
+  --radius: 12px;
+  --radius-lg: 16px;
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.5);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* ===== Demo Button ===== */
+.demo-btn{
+  padding:12px 32px;
+  background:linear-gradient(135deg,#16a34a,#22c55e);
+  color:#fff;border:none;border-radius:8px;
+  font-size:14px;font-weight:700;
+  cursor:pointer;transition:all 0.2s;
+  box-shadow:0 2px 12px var(--green-glow);
+  font-family:inherit;
+}
+.demo-btn:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(34,197,94,0.35)}
+
+/* ===== Overlay ===== */
+.overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.65);
+  backdrop-filter:blur(2px);
+  display:none;
+  align-items:center;justify-content:center;
+  z-index:1000;
+  animation:fadeIn 0.2s ease;
+}
+.overlay.show{display:flex}
+
+/* ===== Modal ===== */
+.modal{
+  background:var(--modal-bg);
+  border-radius:var(--radius-lg);
+  border:1px solid var(--modal-border);
+  width:520px;
+  max-width:calc(100vw - 48px);
+  max-height:90vh;
+  overflow-y:auto;
+  box-shadow:var(--shadow-lg);
+  animation:slideUp 0.25s ease;
+}
+.modal-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 24px 0;
+}
+.modal-header h2{
+  font-size:18px;font-weight:700;
+  display:flex;align-items:center;gap:8px;
+}
+.btn-close{
+  width:32px;height:32px;border-radius:50%;
+  background:rgba(255,255,255,0.04);border:1px solid var(--border);
+  color:var(--text-muted);font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;
+}
+.btn-close:hover{background:rgba(255,255,255,0.1);color:var(--text)}
+.modal-body{padding:20px 24px 24px}
+.modal-footer{
+  padding:16px 24px;border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(255,255,255,0.015);
+  border-radius:0 0 var(--radius-lg) var(--radius-lg);
+}
+
+/* ===== Form ===== */
+.form-section{
+  background:rgba(255,255,255,0.03);
+  border-radius:10px;
+  padding:16px;
+  margin-bottom:16px;
+}
+.form-section:last-child{margin-bottom:0}
+.form-section-title{
+  font-size:12px;font-weight:600;text-transform:uppercase;
+  letter-spacing:0.5px;color:var(--text-dim);
+  margin-bottom:12px;
+}
+.form-row{
+  display:flex;gap:12px;margin-bottom:12px;
+}
+.form-row:last-child{margin-bottom:0}
+.form-group{
+  flex:1;min-width:0;
+}
+.form-group.full{width:100%}
+.form-group label{
+  display:block;font-size:12px;font-weight:600;
+  color:var(--text-muted);margin-bottom:4px;
+}
+.form-group label .required{color:var(--green);margin-left:2px}
+.form-group input,.form-group select{
+  width:100%;padding:10px 12px;
+  background:var(--input-bg);border:1px solid var(--input-border);
+  border-radius:8px;color:var(--text);font-size:13px;
+  font-family:inherit;outline:none;transition:all 0.2s;
+}
+.form-group input:focus,.form-group select:focus{
+  border-color:var(--input-focus);
+  box-shadow:0 0 0 3px var(--green-glow);
+}
+.form-group input::placeholder{color:var(--text-dim)}
+.form-group select{appearance:none;cursor:pointer}
+
+/* ===== Phone Group ===== */
+.phone-group{display:flex;gap:8px}
+.phone-group .code-select{width:100px;flex-shrink:0}
+.phone-group .phone-input{flex:1}
+
+/* ===== Buttons ===== */
+.btn-primary{
+  padding:10px 28px;border:none;border-radius:8px;
+  background:linear-gradient(135deg,#16a34a,#22c55e);
+  color:#fff;font-size:14px;font-weight:700;
+  cursor:pointer;transition:all 0.2s;
+  box-shadow:0 2px 12px var(--green-glow);
+}
+.btn-primary:hover{
+  transform:translateY(-2px);
+  box-shadow:0 4px 20px rgba(34,197,94,0.35);
+}
+.btn-primary:disabled{
+  opacity:0.35;cursor:not-allowed;transform:none;box-shadow:none;
+}
+.btn-secondary{
+  padding:10px 20px;border:1px solid var(--border);border-radius:8px;
+  background:transparent;color:var(--text-muted);font-size:13px;font-weight:600;
+  cursor:pointer;transition:all 0.15s;font-family:inherit;
+}
+.btn-secondary:hover{background:rgba(255,255,255,0.05);color:var(--text)}
+.footer-left{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-dim)}
+.footer-left .icon{font-size:14px}
+
+/* ===== Animations ===== */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== Responsive ===== */
+@media(max-width:560px){
+  .form-row{flex-direction:column;gap:10px}
+  .phone-group{flex-direction:column}
+  .phone-group .code-select{width:100%}
+  .modal{max-width:calc(100vw - 24px)}
+  .modal-body{padding:16px}
+  .modal-footer{flex-direction:column;gap:10px}
+}
+</style>
+</head>
+<body>
+
+<button class="demo-btn" onclick="showModal('shippingModal')">📦 实体卡 · 填写收件信息</button>
+
+<!-- ===== Shipping Info Modal ===== -->
+<div class="overlay" id="shippingModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>📮 填写收件信息</h2>
+      <button class="btn-close" onclick="closeModal('shippingModal')">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Recipient Info -->
+      <div class="form-section">
+        <div class="form-section-title">收件人信息</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>名 <span class="required">*</span></label>
+            <input type="text" id="firstName" placeholder="John" oninput="checkForm()">
+          </div>
+          <div class="form-group">
+            <label>姓 <span class="required">*</span></label>
+            <input type="text" id="lastName" placeholder="Doe" oninput="checkForm()">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group phone-group">
+            <div class="form-group code-select">
+              <label>区号 <span class="required">*</span></label>
+              <select id="phoneCode" onchange="checkForm()">
+                <option value="+1">🇺🇸 +1</option>
+                <option value="+44">🇬🇧 +44</option>
+                <option value="+86" selected>🇨🇳 +86</option>
+                <option value="+852">🇭🇰 +852</option>
+                <option value="+81">🇯🇵 +81</option>
+                <option value="+65">🇸🇬 +65</option>
+                <option value="+82">🇰🇷 +82</option>
+                <option value="+91">🇮🇳 +91</option>
+                <option value="+971">🇦🇪 +971</option>
+                <option value="+61">🇦🇺 +61</option>
+              </select>
+            </div>
+            <div class="form-group phone-input">
+              <label>手机号 <span class="required">*</span></label>
+              <input type="tel" id="phoneNumber" placeholder="13800138000" oninput="checkForm()">
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group full">
+            <label>邮箱 <span class="required">*</span></label>
+            <input type="email" id="email" placeholder="user@example.com" oninput="checkForm()">
+          </div>
+        </div>
+      </div>
+
+      <!-- Shipping Address -->
+      <div class="form-section">
+        <div class="form-section-title">收件地址</div>
+        <div class="form-row">
+          <div class="form-group full">
+            <label>地址行 1 <span class="required">*</span></label>
+            <input type="text" id="addressLine1" placeholder="Street address / PO Box" oninput="checkForm()">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>城市 <span class="required">*</span></label>
+            <input type="text" id="city" placeholder="New York" oninput="checkForm()">
+          </div>
+          <div class="form-group">
+            <label>州/省 <span class="required">*</span></label>
+            <input type="text" id="state" placeholder="NY" oninput="checkForm()">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>邮编 <span class="required">*</span></label>
+            <input type="text" id="postalCode" placeholder="10001" oninput="checkForm()">
+          </div>
+          <div class="form-group">
+            <label>国家 <span class="required">*</span></label>
+            <select id="country" onchange="checkForm()">
+              <option value="">Select</option>
+              <option value="US">🇺🇸 United States</option>
+              <option value="GB">🇬🇧 United Kingdom</option>
+              <option value="CN">🇨🇳 China</option>
+              <option value="HK">🇭🇰 Hong Kong</option>
+              <option value="JP">🇯🇵 Japan</option>
+              <option value="SG">🇸🇬 Singapore</option>
+              <option value="KR">🇰🇷 South Korea</option>
+              <option value="IN">🇮🇳 India</option>
+              <option value="AE">🇦🇪 UAE</option>
+              <option value="AU">🇦🇺 Australia</option>
+              <option value="BR">🇧🇷 Brazil</option>
+              <option value="MX">🇲🇽 Mexico</option>
+              <option value="DE">🇩🇪 Germany</option>
+              <option value="FR">🇫🇷 France</option>
+              <option value="CA">🇨🇦 Canada</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <div class="footer-left">
+        <span class="icon">📋</span>
+        <span>信息需与收件人证件一致</span>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-secondary" onclick="closeModal('shippingModal')">取消</button>
+        <button class="btn-primary" id="submitBtn" disabled onclick="alert('提交申请')">提交申请</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showModal(id){
+  document.getElementById(id).classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id){
+  document.getElementById(id).classList.remove('show');
+  document.body.style.overflow = '';
+}
+document.querySelectorAll('.overlay').forEach(el => {
+  el.addEventListener('click', function(e){
+    if(e.target === this) closeModal(this.id);
+  });
+});
+function checkForm(){
+  const fields = ['firstName','lastName','phoneNumber','email','addressLine1','city','state','postalCode','country'];
+  const allFilled = fields.every(id => {
+    const el = document.getElementById(id);
+    return el && el.value.trim().length > 0;
+  });
+  document.getElementById('submitBtn').disabled = !allFilled;
+}
+</script>
+
+</body>
+</html>
