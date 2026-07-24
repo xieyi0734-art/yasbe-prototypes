@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YASBe 实体卡开卡完整流程</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0B0E14;
+    font-family: 'Inter', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+  .container { max-width: 1200px; width: 100%; }
+  .title { color: #E8ECF0; font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .subtitle { color: #7B8CA8; font-size: 13px; margin-bottom: 28px; }
+  svg { width: 100%; height: auto; display: block; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="title">📋 实体卡开卡完整业务流程</div>
+  <div class="subtitle">管理端配置 → 客户端申请 → 开卡记录 → 待激活 → 激活 & PIN 设置</div>
+  <svg viewBox="0 0 1150 1100" xmlns="http://www.w3.org/2000/svg">
+
+    <defs>
+      <marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(255,255,255,.15)"/>
+      </marker>
+      <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#22C55E"/>
+      </marker>
+      <marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#EF4444"/>
+      </marker>
+      <marker id="arrow-gold" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#E59303"/>
+      </marker>
+      <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+        <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="rgba(0,0,0,.4)"/>
+      </filter>
+      <filter id="shadow-glow">
+        <feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="rgba(34,197,94,0.15)"/>
+      </filter>
+    </defs>
+
+    <!-- ===== 图例 ===== -->
+    <g transform="translate(30, 25)">
+      <rect x="0" y="0" width="1090" height="34" rx="8" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+      <circle cx="18" cy="17" r="5" fill="#22C55E"/><text x="28" y="21" fill="#7B8CA8" font-size="11">同步路径</text>
+      <circle cx="130" cy="17" r="5" fill="#E59303"/><text x="140" y="21" fill="#7B8CA8" font-size="11">异步路径</text>
+      <circle cx="250" cy="17" r="5" fill="#EF4444"/><text x="260" y="21" fill="#7B8CA8" font-size="11">失败路径</text>
+      <circle cx="380" cy="17" r="5" fill="#3B82F6"/><text x="390" y="21" fill="#7B8CA8" font-size="11">管理端操作</text>
+      <circle cx="530" cy="17" r="5" fill="#E8ECF0"/><text x="540" y="21" fill="#7B8CA8" font-size="11">用户端操作</text>
+      <circle cx="680" cy="17" r="5" fill="#8B5CF6"/><text x="690" y="21" fill="#7B8CA8" font-size="11">Interlace 系统</text>
+      <circle cx="830" cy="17" r="5" fill="#E59303"/><text x="840" y="21" fill="#E59303" font-size="11">跨区域流转</text>
+    </g>
+
+    <!-- ================================================================ -->
+    <!-- 区域 1：管理端 - 卡片服务管理 -->
+    <!-- ================================================================ -->
+    <rect x="30" y="69" width="1090" height="135" rx="12" fill="rgba(59,130,246,.04)" stroke="rgba(59,130,246,.12)" stroke-width="1.5"/>
+    <text x="48" y="91" fill="#3B82F6" font-size="11" font-weight="600" letter-spacing=".5">🏢 管理端 · 卡片服务管理</text>
+
+    <rect x="60" y="108" width="140" height="40" rx="20" fill="#1a2030" stroke="rgba(255,255,255,.12)" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="130" y="133" fill="#E8ECF0" font-size="13" font-weight="500" text-anchor="middle">📂 卡片服务管理</text>
+
+    <path d="M 200,128 L 250,128" stroke="rgba(255,255,255,.15)" stroke-width="1.5" fill="none" marker-end="url(#arrow-gray)"/>
+
+    <rect x="255" y="103" width="160" height="50" rx="8" fill="#131820" stroke="rgba(59,130,246,.3)" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="335" y="123" fill="#3B82F6" font-size="13" font-weight="600" text-anchor="middle">➕ 新增实体卡选项</text>
+    <text x="335" y="141" fill="#7B8CA8" font-size="11" text-anchor="middle">配置 BIN / 费用 / 限额</text>
+
+    <path d="M 415,128 L 465,128" stroke="rgba(255,255,255,.15)" stroke-width="1.5" fill="none" marker-end="url(#arrow-gray)"/>
+
+    <rect x="470" y="103" width="150" height="50" rx="8" fill="#131820" stroke="rgba(255,255,255,.12)" stroke-width="1" filter="url(#shadow)"/>
+    <text x="545" y="126" fill="#E8ECF0" font-size="13" font-weight="500" text-anchor="middle">BIN 方案配置</text>
+    <text x="545" y="141" fill="#7B8CA8" font-size="11" text-anchor="middle">IQ / BZ BIN</text>
+
+    <path d="M 620,128 L 670,128" stroke="rgba(255,255,255,.15)" stroke-width="1.5" fill="none" marker-end="url(#arrow-gray)"/>
+
+    <rect x="675" y="108" width="140" height="40" rx="20" fill="#1a2030" stroke="#22C55E" stroke-width="1.5" filter="url(#shadow-glow)"/>
+    <text x="745" y="133" fill="#22C55E" font-size="13" font-weight="600" text-anchor="middle">✅ 发布至客户端</text>
+
+    <path d="M 745,148 L 745,168 L 525,168 L 525,198" stroke="#E59303" stroke-width="2" stroke-dasharray="6,4" fill="none" marker-end="url(#arrow-gold)"/>
+    <rect x="680" y="160" width="60" height="20" rx="10" fill="rgba(229,147,3,.15)"/>
+    <text x="710" y="174" fill="#E59303" font-size="10" font-weight="600" text-anchor="middle">下放 C 端</text>
+
+    <!-- ================================================================ -->
+    <!-- 区域 2：客户端 - 开卡申请流程 -->
+    <!-- ================================================================ -->
+    <rect x="30" y="214" width="1090" height="170" rx="12" fill="rgba(255,255,255,.02)" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
+    <text x="48" y="236" fill="#E8ECF0" font-size="11" font-weight="600" letter-spacing=".5">💳 用户端 · 开卡申请流程</text>
+
+    <rect x="60" y="254" width="140" height="50" rx="8" fill="#131820" stroke="rgba(255,255,255,.12)" stroke-width="1" filter="url(#shadow)"/>
+    <text x="130" y="277" fill="#E8ECF0" font-size="13" font-weight="500" text-anchor="middle">🏷️ 选择卡片类型</text>
+    <text x="130" y="292" fill="#7B8CA8" font-size="11" text-anchor="middle">虚拟卡 / 实体卡</text>
+
+    <g transform="translate(265, 279)">
+      <rect x="-55" y="-35" width="110" height="70" rx="6" fill="#131820" stroke="rgba(255,255,255,.2)" stroke-width="1.5" transform="rotate(45)"/>
+      <text x="0" y="-6" fill="#E8ECF0" font-size="12" font-weight="500" text-anchor="middle">是否实体卡？</text>
+      <text x="0" y="8" fill="#7B8CA8" font-size="10" text-anchor="middle">(用户选择)</text>
+    </g>
+
+    <path d="M 265,314 L 265,355 L 900,355 L 900,318" stroke="rgba(255,255,255,.15)" stroke-width="1.5" fill="none" marker-end="url(#arrow-gray)"/>
+    <text x="272" y="345" fill="#7B8CA8" font-size="10" font-weight="600">N（虚拟卡，直接开卡）</text>
+
+    <path d="M 320,279 L 400,279" stroke="#22C55E" stroke-width="2" fill="none" marker-end="url(#arrow-green)"/>
+    <text x="348" y="271" fill="#22C55E" font-size="10" font-weight="600">Y（实体卡）</text>
+
+    <rect x="405" y="254" width="200" height="55" rx="8" fill="#131820" stroke="#3B82F6" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="505" y="275" fill="#3B82F6" font-size="13" font-weight="600" text-anchor="middle">📮 填写收件信息</text>
+    <text x="505" y="290" fill="#7B8CA8" font-size="10" text-anchor="middle">姓 / 名 / 电话 / 邮箱</text>
+    <text x="505" y="302" fill="#7B8CA8" font-size="10" text-anchor="middle">地址 / 城市 / 州 / 邮编 / 国家</text>
+
+    <rect x="410" y="317" width="190" height="26" rx="6" fill="rgba(59,130,246,.06)" stroke="rgba(59,130,246,.12)" stroke-width="1" stroke-dasharray="4,3"/>
+    <text x="505" y="334" fill="#60A5FA" font-size="9" text-anchor="middle" font-style="italic">字段对接 PhysicalCardBulkShip API</text>
+
+    <path d="M 605,281 L 670,281" stroke="rgba(255,255,255,.15)" stroke-width="1.5" fill="none" marker-end="url(#arrow-gray)"/>
+
+    <rect x="675" y="254" width="160" height="50" rx="8" fill="#131820" stroke="#8B5CF6" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="755" y="274" fill="#A78BFA" font-size="12" font-weight="600" text-anchor="middle">🔄 Create Physical Card</text>
+    <text x="755" y="291" fill="#7B8CA8" font-size="11" text-anchor="middle">CardMode="PHYSICAL"</text>
+
+    <path d="M 835,279 L 880,279" stroke="rgba(255,255,255,.15)" stroke-width="1.5" fill="none" marker-end="url(#arrow-gray)"/>
+
+    <rect x="885" y="254" width="180" height="50" rx="8" fill="#131820" stroke="#8B5CF6" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="975" y="274" fill="#A78BFA" font-size="12" font-weight="600" text-anchor="middle">📦 Physical Card Bulk Ship</text>
+    <text x="975" y="291" fill="#7B8CA8" font-size="11" text-anchor="middle">批量运输信息提交</text>
+
+    <!-- 跨区域箭头 -->
+    <path d="M 975,304 L 975,330 L 525,330 L 525,425" stroke="#E59303" stroke-width="2" stroke-dasharray="6,4" fill="none" marker-end="url(#arrow-gold)"/>
+
+    <!-- ================================================================ -->
+    <!-- 区域 3：开卡记录页（独立） -->
+    <!-- ================================================================ -->
+    <rect x="30" y="399" width="1090" height="185" rx="12" fill="rgba(34,197,94,.03)" stroke="rgba(34,197,94,.1)" stroke-width="1"/>
+    <text x="48" y="421" fill="#22C55E" font-size="11" font-weight="600" letter-spacing=".5">📋 区域 3 · 开卡记录页（独立页面）</text>
+
+    <rect x="60" y="438" width="200" height="50" rx="8" fill="#131820" stroke="rgba(255,255,255,.12)" stroke-width="1" filter="url(#shadow)"/>
+    <text x="160" y="461" fill="#E8ECF0" font-size="13" font-weight="500" text-anchor="middle">📋 开卡记录页</text>
+    <text x="160" y="476" fill="#7B8CA8" font-size="11" text-anchor="middle">所有开卡记录统一展示</text>
+
+    <path d="M 260,463 L 310,463" stroke="rgba(255,255,255,.15)" stroke-width="1.5" fill="none" marker-end="url(#arrow-gray)"/>
+
+    <rect x="315" y="438" width="190" height="50" rx="8" fill="#131820" stroke="rgba(255,255,255,.12)" stroke-width="1" filter="url(#shadow)"/>
+    <text x="410" y="459" fill="#E8ECF0" font-size="12" font-weight="500" text-anchor="middle">🖥️ 虚拟卡记录</text>
+    <text x="410" y="475" fill="#7B8CA8" font-size="11" text-anchor="middle">基本信息 + 卡片状态</text>
+
+    <path d="M 505,463 L 555,463" stroke="rgba(255,255,255,.15)" stroke-width="1.5" fill="none" marker-end="url(#arrow-gray)"/>
+
+    <rect x="560" y="438" width="200" height="50" rx="8" fill="#131820" stroke="#E59303" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="660" y="459" fill="#E59303" font-size="12" font-weight="600" text-anchor="middle">📦 实体卡记录</text>
+    <text x="660" y="475" fill="#7B8CA8" font-size="11" text-anchor="middle">基本信息 + 快递信息</text>
+
+    <path d="M 760,463 L 805,463" stroke="rgba(255,255,255,.15)" stroke-width="1.5" fill="none" marker-end="url(#arrow-gray)"/>
+
+    <rect x="810" y="438" width="275" height="50" rx="8" fill="rgba(34,197,94,.06)" stroke="#22C55E" stroke-width="1" stroke-dasharray="4,3"/>
+    <text x="947" y="459" fill="#22C55E" font-size="12" font-weight="500" text-anchor="middle">📮 回显快递信息</text>
+    <text x="947" y="475" fill="#7B8CA8" font-size="10" text-anchor="middle">快递公司 / 物流单号 / 物流状态</text>
+
+    <!-- 卡片状态流转 -->
+    <text x="60" y="530" fill="#7B8CA8" font-size="11" font-weight="500">卡片状态流转：</text>
+
+    <rect x="60" y="543" width="95" height="26" rx="13" fill="rgba(75,85,99,.15)"/>
+    <text x="107" y="560" fill="#9CA3AF" font-size="11" font-weight="600" text-anchor="middle">⏳ 待激活</text>
+
+    <path d="M 155,556 L 185,556" stroke="#E59303" stroke-width="1.5" fill="none" marker-end="url(#arrow-gold)"/>
+
+    <rect x="190" y="543" width="95" height="26" rx="13" fill="rgba(34,197,94,.12)"/>
+    <text x="237" y="560" fill="#22C55E" font-size="11" font-weight="600" text-anchor="middle">✅ 激活成功</text>
+
+    <path d="M 285,556 L 315,556" stroke="rgba(255,255,255,.15)" stroke-width="1.5" fill="none" marker-end="url(#arrow-gray)"/>
+
+    <rect x="320" y="543" width="105" height="26" rx="13" fill="rgba(59,130,246,.12)"/>
+    <text x="372" y="560" fill="#60A5FA" font-size="11" font-weight="600" text-anchor="middle">🔐 PIN 已设置</text>
+
+    <path d="M 425,556 L 455,556" stroke="rgba(255,255,255,.15)" stroke-width="1.5" fill="none" marker-end="url(#arrow-gray)"/>
+
+    <rect x="460" y="543" width="95" height="26" rx="13" fill="rgba(34,197,94,.12)"/>
+    <text x="507" y="560" fill="#22C55E" font-size="11" font-weight="600" text-anchor="middle">🟢 使用中</text>
+
+    <!-- 入口：待激活 → 区域4 -->
+    <path d="M 107,569 L 107,595 L 555,595 L 555,639" stroke="#E59303" stroke-width="1.5" stroke-dasharray="5,3" fill="none" marker-end="url(#arrow-gold)"/>
+
+    <!-- ================================================================ -->
+    <!-- 区域 4：实体卡激活流程 -->
+    <!-- ================================================================ -->
+    <rect x="30" y="644" width="1090" height="425" rx="12" fill="rgba(239,68,68,.03)" stroke="rgba(239,68,68,.1)" stroke-width="1"/>
+    <text x="48" y="666" fill="#EF4444" font-size="11" font-weight="600" letter-spacing=".5">🔓 区域 4 · 实体卡激活及 PIN 设置</text>
+
+    <!-- ===== 公共入口（居中偏上） ===== -->
+    <rect x="430" y="685" width="180" height="50" rx="8" fill="#131820" stroke="rgba(229,147,3,.4)" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="520" y="705" fill="#E59303" font-size="13" font-weight="600" text-anchor="middle">⏳ 待激活卡片</text>
+    <text x="520" y="722" fill="#7B8CA8" font-size="11" text-anchor="middle">状态: Pending</text>
+
+    <path d="M 520,735 L 520,760" stroke="rgba(255,255,255,.15)" stroke-width="1.5" fill="none" marker-end="url(#arrow-gray)"/>
+
+    <rect x="430" y="765" width="180" height="55" rx="8" fill="#131820" stroke="#22C55E" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="520" y="786" fill="#22C55E" font-size="13" font-weight="600" text-anchor="middle">🔘 点击「去激活」</text>
+    <text x="520" y="803" fill="#7B8CA8" font-size="10" text-anchor="middle">⚠️ 提示：请收到卡片后再激活</text>
+
+    <path d="M 520,820 L 520,840" stroke="rgba(255,255,255,.15)" stroke-width="1.5" fill="none" marker-end="url(#arrow-gray)"/>
+
+    <!-- 分流标注 -->
+    <text x="520" y="862" fill="#7B8CA8" font-size="12" font-weight="600" text-anchor="middle">选择激活方式 ↓</text>
+
+    <!-- ========== 同步路径（左列，X=150~480） ========== -->
+    <!-- 同步路径线 -->
+    <path d="M 520,870 L 315,870 L 315,895" stroke="#22C55E" stroke-width="2" fill="none" marker-end="url(#arrow-green)"/>
+
+    <!-- 同步区域标题 -->
+    <rect x="60" y="898" width="140" height="28" rx="14" fill="rgba(34,197,94,.12)"/>
+    <text x="130" y="916" fill="#22C55E" font-size="12" font-weight="600" text-anchor="middle">🟢 同步激活</text>
+
+    <rect x="60" y="940" width="240" height="55" rx="8" fill="#131820" stroke="#3B82F6" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="180" y="960" fill="#60A5FA" font-size="12" font-weight="600" text-anchor="middle">🔄 激活中... (Loading)</text>
+    <text x="180" y="977" fill="#7B8CA8" font-size="11" text-anchor="middle">同步请求等待 Interlace 返回</text>
+
+    <path d="M 300,967 L 340,967" stroke="rgba(255,255,255,.15)" stroke-width="1.5" fill="none" marker-end="url(#arrow-gray)"/>
+
+    <rect x="345" y="940" width="180" height="55" rx="8" fill="#131820" stroke="#8B5CF6" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="435" y="960" fill="#A78BFA" font-size="12" font-weight="600" text-anchor="middle">🔗 Activate Physical Card</text>
+    <text x="435" y="977" fill="#7B8CA8" font-size="11" text-anchor="middle">同步 API 调用</text>
+
+    <path d="M 435,995 L 435,1015" stroke="rgba(255,255,255,.15)" stroke-width="1.5" fill="none" marker-end="url(#arrow-gray)"/>
+
+    <!-- 同步结果分支 -->
+    <g transform="translate(435, 1040)">
+      <rect x="-50" y="-28" width="100" height="56" rx="5" fill="#131820" stroke="rgba(255,255,255,.2)" stroke-width="1.5" transform="rotate(45)"/>
+      <text x="0" y="-2" fill="#E8ECF0" font-size="11" font-weight="500" text-anchor="middle">激活成功？</text>
+    </g>
+
+    <!-- 同步成功 → PIN -->
+    <path d="M 485,1040 L 520,1040 L 520,1065 L 300,1065 L 300,1090" stroke="#22C55E" stroke-width="2" fill="none" marker-end="url(#arrow-green)"/>
+    <text x="522" y="1060" fill="#22C55E" font-size="10" font-weight="600">成功</text>
+
+    <!-- 同步失败 -->
+    <path d="M 435,1068 L 435,1095 L 240,1095" stroke="#EF4444" stroke-width="1.5" fill="none" marker-end="url(#arrow-red)"/>
+    <text x="350" y="1092" fill="#EF4444" font-size="10" font-weight="600">失败</text>
+
+    <rect x="60" y="1095" width="360" height="36" rx="8" fill="rgba(239,68,68,.08)" stroke="#EF4444" stroke-width="1"/>
+    <text x="240" y="1118" fill="#EF4444" font-size="12" font-weight="600" text-anchor="middle">⚠️ 激活失败，请联系管理员</text>
+
+
+    <!-- ========== 异步路径（右列，X=670~1060） ========== -->
+    <!-- 异步路径线 -->
+    <path d="M 520,870 L 730,870 L 730,895" stroke="#E59303" stroke-width="2" fill="none" marker-end="url(#arrow-gold)"/>
+
+    <!-- 异步区域标题 -->
+    <rect x="940" y="898" width="140" height="28" rx="14" fill="rgba(229,147,3,.12)"/>
+    <text x="1010" y="916" fill="#E59303" font-size="12" font-weight="600" text-anchor="middle">🟡 异步激活</text>
+
+    <rect x="680" y="940" width="260" height="55" rx="8" fill="#131820" stroke="#E59303" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="810" y="960" fill="#E59303" font-size="12" font-weight="600" text-anchor="middle">📧 激活已提交 - 异步处理中</text>
+    <text x="810" y="977" fill="#7B8CA8" font-size="11" text-anchor="middle">显示「激活中」状态，邮件通知结果</text>
+
+    <path d="M 810,995 L 810,1015" stroke="rgba(255,255,255,.15)" stroke-width="1.5" fill="none" marker-end="url(#arrow-gray)"/>
+
+    <!-- 异步等待 -->
+    <rect x="700" y="1020" width="220" height="44" rx="8" fill="#131820" stroke="rgba(255,255,255,.12)" stroke-width="1" filter="url(#shadow)"/>
+    <text x="810" y="1040" fill="#E8ECF0" font-size="12" font-weight="500" text-anchor="middle">⏳ 等待邮件通知</text>
+    <text x="810" y="1055" fill="#7B8CA8" font-size="10" text-anchor="middle">用户收到邮件查看结果</text>
+
+    <path d="M 810,1064 L 810,1085" stroke="rgba(255,255,255,.15)" stroke-width="1.5" fill="none" marker-end="url(#arrow-gray)"/>
+
+    <!-- 异步结果分支 -->
+    <g transform="translate(810, 1108)">
+      <rect x="-50" y="-28" width="100" height="56" rx="5" fill="#131820" stroke="rgba(255,255,255,.2)" stroke-width="1.5" transform="rotate(45)"/>
+      <text x="0" y="-2" fill="#E8ECF0" font-size="11" font-weight="500" text-anchor="middle">激活结果</text>
+    </g>
+
+    <!-- 异步成功 -->
+    <path d="M 860,1108 L 900,1108 L 900,1120 L 520,1120 L 520,1135 L 300,1135" stroke="#22C55E" stroke-width="2" stroke-dasharray="5,3" fill="none" marker-end="url(#arrow-green)"/>
+    <text x="902" y="1125" fill="#22C55E" font-size="10" font-weight="600">成功 → 显示「设置 PIN 码」按钮</text>
+
+    <!-- 异步失败 -->
+    <path d="M 810,1136 L 810,1150 L 420,1150" stroke="#EF4444" stroke-width="1.5" stroke-dasharray="5,3" fill="none" marker-end="url(#arrow-red)"/>
+    <text x="620" y="1155" fill="#EF4444" font-size="10" font-weight="600">失败</text>
+
+
+    <!-- ========== PIN 设置（底部汇聚，居中偏左，因为失败也在左列） ========== -->
+    <rect x="180" y="1090" width="240" height="50" rx="8" fill="#131820" stroke="#3B82F6" stroke-width="2" filter="url(#shadow)"/>
+    <text x="300" y="1110" fill="#60A5FA" font-size="13" font-weight="600" text-anchor="middle">🔐 设置 PIN 码弹窗</text>
+    <text x="300" y="1127" fill="#7B8CA8" font-size="11" text-anchor="middle">UpdatePhysicalCardPIN API 调用</text>
+
+    <path d="M 420,1115 L 460,1115" stroke="rgba(255,255,255,.15)" stroke-width="1.5" fill="none" marker-end="url(#arrow-gray)"/>
+
+    <rect x="465" y="1095" width="160" height="40" rx="20" fill="#1a2030" stroke="#22C55E" stroke-width="1.5" filter="url(#shadow-glow)"/>
+    <text x="545" y="1120" fill="#22C55E" font-size="13" font-weight="600" text-anchor="middle">✅ PIN 设置成功</text>
+
+  </svg>
+</div>
+</body>
+</html>

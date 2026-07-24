@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In — CYRO</title>
+<style>
+/* === Reset & Base === */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --gold: #E59303;
+  --gold-light: rgba(229,147,3,0.08);
+  --gold-mid: rgba(229,147,3,0.18);
+  --bg: #ffffff;
+  --text: #1a1a2e;
+  --text-muted: #4a4a5e;
+  --text-light: #8a8a9e;
+  --border: #e4e4ec;
+  --card-bg: #ffffff;
+  --radius: 10px;
+  --max-w: 440px;
+  --font: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b0b1a;
+    --text: #e8e8f0;
+    --text-muted: #a0a0b8;
+    --text-light: #6a6a80;
+    --border: #2a2a40;
+    --card-bg: #111128;
+    --gold-light: rgba(229,147,3,0.06);
+    --gold-mid: rgba(229,147,3,0.12);
+  }
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* === Simple Nav === */
+.auth-nav {
+  padding: 20px 24px;
+  max-width: 1120px;
+  margin: 0 auto;
+  width: 100%;
+}
+.auth-nav a {
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  gap: 0;
+  position: relative;
+}
+.auth-nav .logo-main {
+  font-size: 20px; font-weight: 700;
+  letter-spacing: 1.2px;
+  color: var(--text);
+}
+.auth-nav .logo-main .c-gold { color: var(--gold); }
+.auth-nav .logo-main .y-gold { color: var(--gold); }
+.auth-nav .logo-tagline {
+  display: block;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-light);
+  position: absolute;
+  bottom: -13px;
+  left: 0;
+  white-space: nowrap;
+}
+
+/* === Auth Card === */
+.auth-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px 80px;
+}
+.auth-card {
+  width: 100%;
+  max-width: var(--max-w);
+}
+.auth-card h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+.auth-card .auth-sub {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  margin-bottom: 32px;
+}
+
+/* === Form === */
+.form-group {
+  margin-bottom: 18px;
+}
+.form-group label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.form-group input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--card-bg);
+  color: var(--text);
+  font-size: 0.95rem;
+  font-family: var(--font);
+  transition: border-color 0.2s;
+  outline: none;
+}
+.form-group input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-light);
+}
+.form-group input::placeholder {
+  color: var(--text-light);
+}
+.form-group .input-error {
+  border-color: #ef4444;
+}
+.form-error {
+  font-size: 0.78rem;
+  color: #ef4444;
+  margin-top: 4px;
+  display: none;
+}
+.form-error.show {
+  display: block;
+}
+
+/* === Password toggle === */
+.pw-row {
+  position: relative;
+}
+.pw-toggle {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-light);
+  font-size: 0.85rem;
+  padding: 4px;
+}
+
+/* === Submit Button === */
+.btn-submit {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 8px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+  font-family: var(--font);
+}
+.btn-submit:hover { opacity: 0.88; transform: translateY(-1px); }
+.btn-submit:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+/* === Divider === */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 24px 0;
+  color: var(--text-light);
+  font-size: 0.8rem;
+}
+.divider::before, .divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* === Google Button === */
+.btn-google {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--card-bg);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  font-family: var(--font);
+  text-decoration: none;
+}
+.btn-google:hover {
+  border-color: var(--text);
+  background: var(--gold-light);
+}
+.btn-google .google-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: #4285F4;
+}
+
+/* === Footer link === */
+.auth-footer {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+.auth-footer a {
+  color: var(--gold);
+  text-decoration: none;
+  font-weight: 600;
+}
+.auth-footer a:hover { text-decoration: underline; }
+
+/* === Alert === */
+.alert {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-bottom: 20px;
+  display: none;
+}
+.alert.show { display: block; }
+.alert-error {
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.2);
+  color: #ef4444;
+}
+.alert-success {
+  background: rgba(16,185,129,0.08);
+  border: 1px solid rgba(16,185,129,0.2);
+  color: #10B981;
+}
+
+/* === Responsive === */
+@media (max-width: 480px) {
+  .auth-wrapper { padding: 20px 16px 60px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Simple Nav -->
+<nav class="auth-nav">
+  <a href="index.html">
+    <span class="logo-main"><span class="c-gold">C</span><span class="y-gold">Y</span>RO</span>
+    <span class="logo-tagline">Back to home</span>
+  </a>
+</nav>
+
+<!-- Auth Card -->
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <h1>Welcome back</h1>
+    <p class="auth-sub">Sign in to your CYRO account to manage your tokens and payments.</p>
+
+    <div class="alert alert-error" id="alertBox"></div>
+
+    <form id="signinForm" novalidate>
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <input type="email" id="email" placeholder="you@example.com" required autocomplete="email">
+        <div class="form-error" id="emailError">Please enter a valid email address.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="pw-row">
+          <input type="password" id="password" placeholder="Enter your password" required autocomplete="current-password">
+          <button type="button" class="pw-toggle" id="pwToggle" aria-label="Toggle password visibility">Show</button>
+        </div>
+        <div class="form-error" id="pwError">Password is required.</div>
+      </div>
+
+      <button type="submit" class="btn-submit" id="submitBtn">Sign In</button>
+    </form>
+
+    <div class="divider">or continue with</div>
+
+    <button class="btn-google" id="googleSigninBtn">
+      <span class="google-icon">G</span>
+      Continue with Google
+    </button>
+
+    <div class="auth-footer">
+      Don't have an account? <a href="signup.html">Get Started</a>
+    </div>
+  </div>
+</div>
+
+<script>
+// === Google Sign-In (simulated) ===
+document.getElementById('googleSigninBtn')?.addEventListener('click', function(e) {
+  e.preventDefault();
+  simulateGoogleAuth('signin');
+});
+
+function simulateGoogleAuth(mode) {
+  const btn = mode === 'signin'
+    ? document.getElementById('googleSigninBtn')
+    : document.getElementById('googleSignupBtn');
+  const originalText = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span style="opacity:0.5">Connecting...</span>';
+
+  setTimeout(() => {
+    // Simulate Google auth — pick a dummy email
+    const domains = ['gmail.com', 'googlemail.com'];
+    const user = {
+      email: `user.${Math.random().toString(36).substring(2, 6)}@${domains[Math.floor(Math.random() * domains.length)]}`,
+      authMethod: 'google'
+    };
+    localStorage.setItem('cyro_user', JSON.stringify(user));
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+    window.location.href = 'index.html';
+  }, 1200);
+}
+
+// === Form validation & submission ===
+const form = document.getElementById('signinForm');
+const emailInput = document.getElementById('email');
+const pwInput = document.getElementById('password');
+const emailError = document.getElementById('emailError');
+const pwError = document.getElementById('pwError');
+const alertBox = document.getElementById('alertBox');
+const submitBtn = document.getElementById('submitBtn');
+
+// Real-time email validation
+emailInput.addEventListener('blur', () => {
+  if (emailInput.value && !isValidEmail(emailInput.value)) {
+    emailInput.classList.add('input-error');
+    emailError.classList.add('show');
+  } else {
+    emailInput.classList.remove('input-error');
+    emailError.classList.remove('show');
+  }
+});
+emailInput.addEventListener('input', () => {
+  if (emailInput.classList.contains('input-error')) {
+    emailInput.classList.remove('input-error');
+    emailError.classList.remove('show');
+  }
+});
+
+// Password visibility toggle
+document.getElementById('pwToggle')?.addEventListener('click', function() {
+  const isPassword = pwInput.type === 'password';
+  pwInput.type = isPassword ? 'text' : 'password';
+  this.textContent = isPassword ? 'Hide' : 'Show';
+});
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+form.addEventListener('submit', function(e) {
+  e.preventDefault();
+  let valid = true;
+
+  // Validate email
+  if (!emailInput.value.trim()) {
+    emailInput.classList.add('input-error');
+    emailError.textContent = 'Email is required.';
+    emailError.classList.add('show');
+    valid = false;
+  } else if (!isValidEmail(emailInput.value.trim())) {
+    emailInput.classList.add('input-error');
+    emailError.textContent = 'Please enter a valid email address.';
+    emailError.classList.add('show');
+    valid = false;
+  } else {
+    emailInput.classList.remove('input-error');
+    emailError.classList.remove('show');
+  }
+
+  // Validate password
+  if (!pwInput.value) {
+    pwInput.classList.add('input-error');
+    pwError.textContent = 'Password is required.';
+    pwError.classList.add('show');
+    valid = false;
+  } else {
+    pwInput.classList.remove('input-error');
+    pwError.classList.remove('show');
+  }
+
+  if (!valid) return;
+
+  // Simulate sign-in
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Signing in...';
+  alertBox.classList.remove('show', 'alert-error', 'alert-success');
+
+  setTimeout(() => {
+    const user = { email: emailInput.value.trim(), authMethod: 'email' };
+    localStorage.setItem('cyro_user', JSON.stringify(user));
+    window.location.href = 'index.html';
+  }, 1000);
+});
+</script>
+
+</body>
+</html>

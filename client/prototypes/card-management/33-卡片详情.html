@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YASBe - 卡片详情</title>
+<style>
+:root {
+  --sidebar-bg: #1a1a2e;
+  --sidebar-text: #8e9ab4;
+  --sidebar-hover: #2a2a4e;
+  --header-bg: #1a2536;
+  --bg: #f0f2f5;
+  --card-bg: #ffffff;
+  --text: #1a1a1a;
+  --text-muted: #888;
+  --accent: #E59303;
+  --accent-hover: #d08400;
+  --primary: #4f46e5;
+  --primary-light: #eef2ff;
+  --success: #16a34a;
+  --success-light: #f0fdf4;
+  --danger: #dc2626;
+  --danger-light: #fef2f2;
+  --warning: #d97706;
+  --warning-light: #fffbeb;
+  --border: #e5e7eb;
+  --shadow: 0 1px 3px rgba(0,0,0,.08);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,.14);
+  --radius: 10px;
+  --radius-lg: 14px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
+
+.app { display: flex; min-height: 100vh; }
+.sidebar { width: 220px; flex-shrink: 0; background: var(--sidebar-bg); min-height: 100vh; display: flex; flex-direction: column; position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; }
+.sidebar-logo { padding: 20px 16px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,.06); }
+.logo-icon { width: 32px; height: 32px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; color: #fff; }
+.logo-text { font-size: 17px; font-weight: 700; color: #fff; letter-spacing: .5px; }
+.sidebar-nav { flex: 1; padding: 12px 8px; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; color: var(--sidebar-text); font-size: 13.5px; cursor: pointer; transition: all .15s; }
+.nav-item:hover { background: var(--sidebar-hover); color: #fff; }
+.nav-item.active { background: rgba(255,255,255,.1); color: #fff9c4; font-weight: 600; }
+.nav-item .icon { font-size: 16px; }
+.nav-sub { padding-left: 12px; }
+.nav-sub .nav-item { font-size: 12.5px; padding: 7px 12px; }
+.sidebar-footer { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,.06); display: flex; align-items: center; gap: 10px; }
+.avatar { width: 34px; height: 34px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.user-info { overflow: hidden; }
+.user-info .name { font-size: 13px; color: #fff; font-weight: 500; }
+
+.main { margin-left: 220px; flex: 1; min-height: 100vh; display: flex; flex-direction: column; }
+.top-header { background: var(--header-bg); padding: 0 28px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 90; }
+.top-header h1 { font-size: 18px; font-weight: 700; color: #fff; }
+.header-right { display: flex; align-items: center; gap: 12px; }
+.header-right .avatar-btn { width: 32px; height: 32px; background: var(--accent); border-radius: 50%; border: none; color: #fff; font-size: 12px; font-weight: 700; cursor: pointer; }
+
+.content { padding: 24px 28px 40px; }
+
+.breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+.breadcrumb a { color: var(--text-muted); text-decoration: none; }
+.breadcrumb a:hover { color: var(--accent); }
+.breadcrumb span { color: var(--text); font-weight: 500; }
+
+/* Card Info Panel */
+.card-info-panel { background: var(--card-bg); border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px; display: flex; gap: 32px; align-items: flex-start; }
+.card-visual { width: 320px; flex-shrink: 0; }
+.card-face { background: linear-gradient(135deg, #1e3a5f, #3a6ea5); border-radius: var(--radius); padding: 24px; color: #fff; min-height: 180px; display: flex; flex-direction: column; }
+.card-face .brand-row { display: flex; justify-content: space-between; align-items: flex-start; }
+.card-face .brand { font-size: 14px; font-weight: 800; letter-spacing: 1px; }
+.card-face .status-tag { font-size: 10px; font-weight: 600; background: rgba(255,255,255,.2); padding: 3px 8px; border-radius: 4px; }
+.card-face .card-number-display { font-size: 18px; letter-spacing: 3px; font-family: "Courier New", monospace; margin-top: 24px; }
+.card-face .card-holder { font-size: 12px; opacity: .8; margin-top: 16px; }
+.card-face .card-expiry { font-size: 11px; opacity: .6; margin-top: 4px; }
+.card-details { flex: 1; }
+.card-details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.detail-field {}
+.detail-field .label { font-size: 11.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+.detail-field .value { font-size: 15px; font-weight: 600; }
+.detail-field .value .currency { font-size: 12px; font-weight: 400; color: var(--text-muted); }
+.card-actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+
+/* Status badge */
+.status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.status-normal { background: var(--success-light); color: var(--success); }
+.status-frozen { background: #f0f4ff; color: var(--primary); }
+.status-canceled { background: var(--danger-light); color: var(--danger); }
+.status-pending-activation { background: var(--warning-light); color: var(--warning); }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 18px; border-radius: 8px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s; white-space: nowrap; }
+.btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.15); }
+.btn:active { transform: translateY(0); }
+.btn:disabled { opacity: .5; cursor: not-allowed; transform: none !important; }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-accent { background: var(--accent); color: #fff; }
+.btn-accent:hover { background: var(--accent-hover); }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: #4338ca; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover { background: #b91c1c; }
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+.btn-outline-danger { background: transparent; border: 1px solid var(--border); color: var(--danger); }
+.btn-outline-danger:hover { border-color: var(--danger); background: var(--danger-light); }
+.btn-ghost { background: #f5f5f5; color: var(--text); }
+.btn-ghost:hover { background: #e5e7eb; }
+
+/* Tabs */
+.tabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 16px; }
+.tab-btn { padding: 10px 20px; border: none; background: none; font-size: 13.5px; font-weight: 500; color: var(--text-muted); cursor: pointer; position: relative; transition: all .15s; }
+.tab-btn.active { color: var(--accent); font-weight: 600; }
+.tab-btn.active::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 2px; background: var(--accent); }
+.tab-btn:hover:not(.active) { color: var(--text); }
+
+/* Transaction Table */
+.table-wrap { background: var(--card-bg); border-radius: var(--radius-lg); box-shadow: var(--shadow); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+thead th { text-align: left; padding: 12px 16px; font-size: 11.5px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; background: #fafafa; border-bottom: 1px solid var(--border); white-space: nowrap; }
+tbody td { padding: 11px 16px; font-size: 13px; border-bottom: 1px solid #f5f5f5; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: #fafbfd; }
+.tx-type { font-size: 12px; }
+.tx-type.credit { color: var(--success); font-weight: 600; }
+.tx-type.debit { color: var(--danger); font-weight: 600; }
+.tx-type.fee { color: var(--warning); font-weight: 600; }
+
+.pagination { display: flex; align-items: center; justify-content: flex-end; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--border); }
+.pagination .page-btn { width: 28px; height: 28px; border: 1px solid var(--border); border-radius: 6px; background: var(--card-bg); font-size: 12px; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.pagination .page-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.pagination .page-btn:disabled { opacity: .3; cursor: not-allowed; }
+.pagination .page-info { font-size: 12px; color: var(--text-muted); margin-right: 8px; }
+
+/* Filter toolbar */
+.filter-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.filter-bar select, .filter-bar input { padding: 7px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; outline: none; background: var(--card-bg); }
+.filter-bar select:focus, .filter-bar input:focus { border-color: var(--accent); }
+.filter-bar .btn-icon { padding: 7px 14px; border: 1px solid var(--border); border-radius: 6px; background: var(--card-bg); font-size: 13px; color: var(--text); cursor: pointer; }
+.filter-bar .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">Y</div>
+      <span class="logo-text">YASBe</span>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-item"><span class="icon">📊</span> Dashboard</div>
+      <div class="nav-item"><span class="icon">👥</span> Customer Management</div>
+      <div class="nav-item"><span class="icon">💵</span> Fiat Management</div>
+      <div class="nav-item"><span class="icon">₿</span> Crypto Management</div>
+      <div class="nav-item"><span class="icon">🔄</span> Exchange Management</div>
+      <div class="nav-item active" style="margin-top:4px;"><span class="icon">💳</span> Card Management</div>
+      <div class="nav-sub">
+        <div class="nav-item"><span class="icon">🔗</span> Upstream Management</div>
+        <div class="nav-item"><span class="icon">⚙️</span> Card Service Management</div>
+        <div class="nav-item"><span class="icon">📋</span> Card List Management</div>
+        <div class="nav-item"><span class="icon">📈</span> Transaction Snapshot</div>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="avatar">YX</div>
+      <div class="user-info">
+        <div class="name">Driven Xie</div>
+        <div style="font-size:11px;color:var(--sidebar-text);">Admin</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="top-header">
+      <div>
+        <h1>Card Detail</h1>
+      </div>
+      <div class="header-right">
+        <div class="avatar-btn">YX</div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="breadcrumb">
+        <a href="#">Card List Management</a>
+        <span>›</span>
+        <span>Card Detail</span>
+      </div>
+
+      <!-- Card Info Panel -->
+      <div class="card-info-panel">
+        <div class="card-visual">
+          <div class="card-face">
+            <div class="brand-row">
+              <span class="brand">VISA</span>
+              <span class="status-tag">● Active</span>
+            </div>
+            <div class="card-number-display">**** **** **** 5755</div>
+            <div class="card-holder">John Doe</div>
+            <div class="card-expiry">Expires: 06/28</div>
+          </div>
+        </div>
+        <div class="card-details">
+          <div class="card-details-grid">
+            <div class="detail-field">
+              <div class="label">Balance</div>
+              <div class="value">$98.00 <span class="currency">USD</span></div>
+            </div>
+            <div class="detail-field">
+              <div class="label">Available Balance</div>
+              <div class="value">$98.00 <span class="currency">USD</span></div>
+            </div>
+            <div class="detail-field">
+              <div class="label">Card Status</div>
+              <div class="value"><span class="status-badge status-normal">● Normal</span></div>
+            </div>
+            <div class="detail-field">
+              <div class="label">Cardholder</div>
+              <div class="value">john.doe@company.com</div>
+            </div>
+            <div class="detail-field">
+              <div class="label">Created At</div>
+              <div class="value">2026-03-15 14:23:10</div>
+            </div>
+            <div class="detail-field">
+              <div class="label">Activated At</div>
+              <div class="value">2026-03-16 09:15:42</div>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-primary btn-sm">Activate</button>
+            <button class="btn btn-outline btn-sm">Freeze</button>
+            <button class="btn btn-outline btn-sm">View Bills</button>
+            <button class="btn btn-outline-danger btn-sm">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab-btn active">Transactions</button>
+        <button class="tab-btn">Bills</button>
+        <button class="tab-btn">Card Info</button>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <select>
+          <option>All Types</option>
+          <option>Payment</option>
+          <option>Refund</option>
+          <option>Fee</option>
+          <option>Top-up</option>
+        </select>
+        <select>
+          <option>All Statuses</option>
+          <option>Completed</option>
+          <option>Pending</option>
+          <option>Failed</option>
+        </select>
+        <input type="text" placeholder="Search TX ID..." />
+        <button class="btn-icon">🔍 Search</button>
+        <button class="btn-icon">↻ Reset</button>
+      </div>
+
+      <!-- Transaction Table -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Transaction ID</th>
+              <th>Time</th>
+              <th>Type</th>
+              <th>Amount</th>
+              <th>Balance After</th>
+              <th>Merchant</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-family:monospace;font-size:12px;">TXN-20260316-001</td>
+              <td>2026-03-16 10:30:22</td>
+              <td><span class="tx-type debit">Payment</span></td>
+              <td>-$42.00</td>
+              <td>$56.00</td>
+              <td>Amazon.com</td>
+              <td><span class="status-badge status-normal">● Completed</span></td>
+            </tr>
+            <tr>
+              <td style="font-family:monospace;font-size:12px;">TXN-20260315-023</td>
+              <td>2026-03-15 16:45:10</td>
+              <td><span class="tx-type debit">Payment</span></td>
+              <td>-$12.00</td>
+              <td>$98.00</td>
+              <td>Netflix.com</td>
+              <td><span class="status-badge status-normal">● Completed</span></td>
+            </tr>
+            <tr>
+              <td style="font-family:monospace;font-size:12px;">TXN-20260315-012</td>
+              <td>2026-03-15 09:15:42</td>
+              <td><span class="tx-type credit">Top-up</span></td>
+              <td>+$110.00</td>
+              <td>$110.00</td>
+              <td>Bank Transfer</td>
+              <td><span class="status-badge status-normal">● Completed</span></td>
+            </tr>
+            <tr>
+              <td style="font-family:monospace;font-size:12px;">TXN-20260314-005</td>
+              <td>2026-03-14 08:00:00</td>
+              <td><span class="tx-type fee">Issuance Fee</span></td>
+              <td>-$2.50</td>
+              <td>$0.00</td>
+              <td>YASBe Fee</td>
+              <td><span class="status-badge status-normal">● Completed</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="pagination">
+          <span class="page-info">Showing 1 to 4 of 4 records</span>
+          <button class="page-btn" disabled>‹</button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn" disabled>›</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

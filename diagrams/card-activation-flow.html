@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Card Activation Flow - Region 4</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0d1117;
+    color: #e6edf3;
+    font-family: 'Segoe UI', -apple-system, sans-serif;
+    padding: 40px;
+    display: flex; justify-content: center;
+  }
+  .container {
+    max-width: 1200px;
+    width: 100%;
+  }
+
+  .title {
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+    color: #f0f6fc;
+    margin-bottom: 8px;
+  }
+  .subtitle {
+    text-align: center;
+    font-size: 12px;
+    color: #848d97;
+    margin-bottom: 30px;
+  }
+
+  .layout {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  /* ---- Columns ---- */
+  .col {
+    flex: 1;
+    max-width: 380px;
+  }
+  .col-left { max-width: 420px; }
+  .col-right { max-width: 420px; }
+
+  .col-title {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    padding: 8px;
+    border-radius: 8px;
+  }
+  .col-title.green { background: #0a2e1a; color: #3fb950; border: 1px solid #1a4a2a; }
+  .col-title.gold  { background: #2e2200; color: #d29922; border: 1px solid #4a3600; }
+
+  /* ---- Flow Node ---- */
+  .node {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 0;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .node + .node { margin-top: 0; }
+
+  .node.system { border-left: 3px solid #58a6ff; }
+  .node.user   { border-left: 3px solid #a371f7; }
+  .node.decision { border: 2px solid #d29922; }
+  .node.success { border: 1px solid #3fb950; background: #0d2818; }
+  .node.fail    { border: 1px solid #da3633; background: #260b0b; }
+
+  .node .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #848d97;
+    margin-bottom: 4px;
+  }
+
+  /* ---- Arrow between nodes ---- */
+  .arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    color: #484f58;
+    font-size: 18px;
+    font-weight: 300;
+  }
+  .arrow.small { height: 22px; font-size: 14px; }
+  .arrow-label {
+    position: relative;
+    display: inline-block;
+    text-align: center;
+  }
+  .arrow-label span {
+    font-size: 10px;
+    color: #848d97;
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    background: #0d1117;
+    padding: 0 6px;
+  }
+
+  /* ---- Connector lines ---- */
+  .connector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 28px;
+    color: #484f58;
+  }
+  .connector .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #484f58;
+    display: inline-block;
+  }
+
+  /* ---- Merge / Split area ---- */
+  .split-arrows {
+    display: flex;
+    justify-content: space-around;
+    height: 36px;
+    margin: 4px 0;
+  }
+  .split-arrows .a {
+    color: #484f58;
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1.2;
+  }
+  .split-arrows .a .lbl {
+    font-size: 9px;
+    color: #848d97;
+  }
+
+  .merge-box {
+    background: #0d1117;
+    border: 1px dashed #30363d;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    margin-top: 16px;
+  }
+  .merge-box .m-title {
+    font-size: 11px;
+    color: #848d97;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+  .merge-box .nodes-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+  }
+  .merge-box .merge-node {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 12px;
+    flex: 1;
+  }
+
+  .bottom-merge {
+    margin-top: 24px;
+    text-align: center;
+  }
+  .bottom-merge .converge {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .bottom-merge .converge .line {
+    width: 2px;
+    height: 18px;
+    background: #484f58;
+  }
+  .bottom-merge .converge .fork {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 0;
+  }
+  .bottom-merge .converge .fork .hl {
+    width: 140px;
+    height: 2px;
+    background: #484f58;
+  }
+  .bottom-merge .converge .fork .hl + .hl { width: 140px; }
+  .bottom-merge .converge .drop {
+    width: 2px;
+    height: 14px;
+    background: #484f58;
+  }
+  .bottom-merge .final-node {
+    background: #0d2818;
+    border: 1px solid #3fb950;
+    border-radius: 8px;
+    padding: 14px 20px;
+    display: inline-block;
+    margin-top: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #3fb950;
+  }
+
+  /* ---- Bridge between columns ---- */
+  .bridge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    height: 20px;
+    margin: 4px 0;
+  }
+  .bridge .hl {
+    width: 30px;
+    height: 2px;
+    background: #484f58;
+  }
+  .bridge .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #484f58;
+  }
+
+  .fail-arrow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: center;
+    color: #da3633;
+    font-size: 12px;
+  }
+
+  .mt-0 { margin-top: 0; }
+
+  /* ---- Top split ---- */
+  .top-entry {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .entry-box {
+    display: inline-block;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 14px 20px;
+    font-weight: 500;
+  }
+  .entry-divider {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    height: 30px;
+    margin: 4px 0;
+  }
+  .entry-divider .vline {
+    width: 2px;
+    height: 18px;
+    background: #484f58;
+  }
+  .entry-divider .fork {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+  .entry-divider .fork .hl {
+    width: 50%;
+    height: 2px;
+    background: #484f58;
+  }
+  .entry-divider .ends {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+  }
+  .entry-divider .ends .d {
+    width: 2px;
+    height: 10px;
+    background: #484f58;
+  }
+
+  .btn {
+    background: #21262d;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 8px 16px;
+    color: #c9d1d9;
+    font-size: 12px;
+    display: inline-block;
+    cursor: default;
+  }
+  .btn-primary {
+    background: #238636;
+    border-color: #2ea043;
+    color: #fff;
+  }
+
+  .status-pill {
+    display: inline-block;
+    border-radius: 12px;
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .pill-green { background: #0a2e1a; color: #3fb950; border: 1px solid #1a4a2a; }
+  .pill-yellow { background: #2e2200; color: #d29922; border: 1px solid #4a3600; }
+  .pill-red { background: #260b0b; color: #da3633; border: 1px solid #4a1a1a; }
+  .pill-blue { background: #0a1e33; color: #58a6ff; border: 1px solid #1a3a55; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="title">区域 ④ · 实体卡激活流程（同步 + 异步）</div>
+  <div class="subtitle">基于 Interlace API · Physical Card Activation Flow</div>
+
+  <!-- ===== TOP ENTRY ===== -->
+  <div class="top-entry">
+    <div class="entry-box">
+      待激活卡片<br>
+      <span style="font-size:11px;color:#848d97;display:block;margin-top:4px;">卡片已发货/已签收，状态待激活</span>
+    </div>
+    <div class="entry-divider">
+      <div class="fork"><div class="hl"></div></div>
+    </div>
+    <div class="entry-divider">
+      <div class="ends"><div class="d"></div><div class="d"></div></div>
+    </div>
+  </div>
+
+  <!-- ===== TWO COLUMNS ===== -->
+  <div class="layout">
+
+    <!-- ===== LEFT: SYNC ===== -->
+    <div class="col col-left">
+      <div class="col-title green">⬅ 同步激活（用户在线等待）</div>
+
+      <!-- Step 1 -->
+      <div class="node user" style="text-align:center;">
+        <div class="label">用户操作</div>
+        <strong>点击「去激活」→ 弹出确认</strong><br>
+        <span style="font-size:11px;color:#848d97;">确认是否立即激活此卡片</span>
+      </div>
+      <div class="arrow">↓</div>
+
+      <!-- Step 2 -->
+      <div class="node" style="text-align:center;border-color:#58a6ff;">
+        <div class="label">用户确认</div>
+        <strong>确认激活弹窗</strong><br>
+        <span style="font-size:11px;color:#848d97;">「立即激活」/「取消」</span>
+      </div>
+      <div class="arrow">↓</div>
+
+      <!-- Step 3: Loading -->
+      <div class="node" style="text-align:center;background:#0a1e33;border-color:#58a6ff;">
+        <div class="label">激活中</div>
+        <div style="margin:6px 0;">
+          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#58a6ff;margin:0 2px;animation:pulse 1.2s infinite;"></span>
+          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#58a6ff;margin:0 2px;animation:pulse 1.2s infinite 0.3s;"></span>
+          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#58a6ff;margin:0 2px;animation:pulse 1.2s infinite 0.6s;"></span>
+        </div>
+        <div style="font-size:12px;color:#58a6ff;">正在激活卡片...</div>
+      </div>
+      <div class="arrow">↓</div>
+
+      <!-- Step 4: API Call -->
+      <div class="node system" style="text-align:center;">
+        <div class="label">SYSTEM: Interlace API</div>
+        <strong>POST /physical_card/activate</strong><br>
+        <span style="font-size:11px;color:#848d97;">请求同步激活</span>
+      </div>
+      <div class="arrow">↓</div>
+
+      <!-- Step 5: Decision -->
+      <div class="node decision" style="text-align:center;">
+        <div class="label">API 返回结果</div>
+        <strong>✓ 成功</strong>
+        <span style="color:#848d97;"> / </span>
+        <strong style="color:#da3633;">✗ 失败</strong>
+      </div>
+
+      <div class="split-arrows">
+        <div class="a">
+          <span>↓</span>
+          <span class="lbl" style="color:#3fb950;">成功</span>
+        </div>
+        <div class="a" style="color:#da3633;">
+          <span>↓</span>
+          <span class="lbl" style="color:#da3633;">失败</span>
+        </div>
+      </div>
+
+      <!-- Step 6: Two outcomes -->
+      <div style="display:flex;gap:8px;">
+        <div class="node success" style="flex:1;text-align:center;">
+          <strong>激活成功</strong><br>
+          <span style="font-size:11px;color:#3fb950;">卡片状态 → Active</span>
+        </div>
+        <div class="node fail" style="flex:1;text-align:center;">
+          <strong>激活失败</strong><br>
+          <span style="font-size:11px;color:#da3633;">显示错误原因</span>
+        </div>
+      </div>
+
+      <div class="bridge">
+        <div class="hl"></div>
+        <div class="dot"></div>
+        <div class="hl"></div>
+      </div>
+
+      <!-- Step 7: PIN -->
+      <div class="node" style="text-align:center;border-color:#a371f7;">
+        <div class="label">用户设置 PIN</div>
+        <div><span class="status-pill pill-green">激活成功</span> → <strong>跳转 PIN 设置页面</strong></div>
+      </div>
+      <div class="arrow">↓</div>
+
+      <!-- Step 8: PIN Set -->
+      <div class="node success" style="text-align:center;">
+        <strong>PIN 设置成功</strong><br>
+        <span style="font-size:11px;color:#3fb950;">卡片激活完成，可正常使用</span>
+      </div>
+
+      <!-- Fail path -->
+      <div class="fail-arrow">
+        <span>✗ ←</span>
+        <span style="color:#848d97;font-size:11px;">失败时提示：请联系客服或重新激活</span>
+      </div>
+      <div class="node fail" style="text-align:center;margin-top:0;">
+        <strong>联系客服</strong><br>
+        <span style="font-size:11px;color:#da3633;">显示客服联系方式 / 重试按钮</span>
+      </div>
+    </div>
+
+    <!-- ===== RIGHT: ASYNC ===== -->
+    <div class="col col-right">
+      <div class="col-title gold">➡ 异步激活（用户提交后离线等待）</div>
+
+      <!-- Step 1 -->
+      <div class="node user" style="text-align:center;">
+        <div class="label">用户操作</div>
+        <strong>点击「去激活」→ 弹出确认</strong><br>
+        <span style="font-size:11px;color:#848d97;">确认提交异步激活请求</span>
+      </div>
+      <div class="arrow">↓</div>
+
+      <!-- Step 2 -->
+      <div class="node" style="text-align:center;border-color:#58a6ff;">
+        <div class="label">用户确认</div>
+        <strong>确认激活弹窗</strong><br>
+        <span style="font-size:11px;color:#848d97;">「提交激活申请」/「取消」</span>
+      </div>
+      <div class="arrow">↓</div>
+
+      <!-- Step 3: Submitted -->
+      <div class="node" style="text-align:center;background:#2e2200;border-color:#d29922;">
+        <div class="label">激活请求已提交</div>
+        <strong>📨 激活申请已提交</strong><br>
+        <span style="font-size:11px;color:#d29922;">系统将处理您的请求</span>
+      </div>
+      <div class="arrow">
+        <div class="arrow-label">
+          <span>等待中...</span>
+          ↓
+        </div>
+      </div>
+
+      <!-- Step 4: Pending -->
+      <div class="node" style="text-align:center;border-color:#d29922;">
+        <div class="label">等待处理</div>
+        <div style="margin:4px 0;">
+          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#d29922;margin:0 2px;animation:pulse 1.2s infinite;"></span>
+          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#d29922;margin:0 2px;animation:pulse 1.2s infinite 0.3s;"></span>
+          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#d29922;margin:0 2px;animation:pulse 1.2s infinite 0.6s;"></span>
+        </div>
+        <div style="font-size:11px;color:#848d97;">📧 等待邮件通知</div>
+      </div>
+      <div class="arrow">↓</div>
+
+      <!-- Step 5: Notification -->
+      <div class="node system" style="text-align:center;">
+        <div class="label">系统通知</div>
+        <strong>📧 邮件通知用户</strong><br>
+        <span style="font-size:11px;color:#848d97;">激活结果将通过邮件发送</span>
+      </div>
+      <div class="arrow">↓</div>
+
+      <!-- Step 6: Decision -->
+      <div class="node decision" style="text-align:center;">
+        <div class="label">激活结果</div>
+        <strong>✓ 成功</strong>
+        <span style="color:#848d97;"> / </span>
+        <strong style="color:#da3633;">✗ 失败</strong>
+      </div>
+
+      <div class="split-arrows">
+        <div class="a">
+          <span>↓</span>
+          <span class="lbl" style="color:#3fb950;">成功</span>
+        </div>
+        <div class="a" style="color:#da3633;">
+          <span>↓</span>
+          <span class="lbl" style="color:#da3633;">失败</span>
+        </div>
+      </div>
+
+      <!-- Step 7: Outcome -->
+      <div style="display:flex;gap:8px;">
+        <div class="node success" style="flex:1;text-align:center;">
+          <strong>激活成功</strong><br>
+          <span style="font-size:11px;color:#3fb950;">邮件中提示：设置 PIN</span>
+        </div>
+        <div class="node fail" style="flex:1;text-align:center;">
+          <strong>激活失败</strong><br>
+          <span style="font-size:11px;color:#da3633;">邮件中提示错误原因</span>
+        </div>
+      </div>
+
+      <div class="bridge">
+        <div class="hl"></div>
+        <div class="dot"></div>
+        <div class="hl"></div>
+      </div>
+
+      <!-- Step 8: PIN -->
+      <div class="node" style="text-align:center;border-color:#a371f7;">
+        <div class="label">用户设置 PIN</div>
+        <div>从邮件进入 → <strong>设置 PIN 码</strong></div>
+      </div>
+      <div class="arrow">↓</div>
+
+      <!-- Step 9: PIN Done -->
+      <div class="node success" style="text-align:center;">
+        <strong>PIN 设置成功</strong><br>
+        <span style="font-size:11px;color:#3fb950;">卡片激活完成，可正常使用</span>
+      </div>
+
+      <!-- Fail path -->
+      <div class="fail-arrow">
+        <span>✗ ←</span>
+        <span style="color:#848d97;font-size:11px;">失败时提示：重新申请激活或联系客服</span>
+      </div>
+      <div class="node fail" style="text-align:center;margin-top:0;">
+        <strong>重新申请 / 联系客服</strong><br>
+        <span style="font-size:11px;color:#da3633;">显示客服联系方式</span>
+      </div>
+    </div>
+
+  </div><!-- end layout -->
+
+  <!-- ===== BOTTOM MERGE ===== -->
+  <div class="bottom-merge">
+    <div class="converge">
+      <div class="fork">
+        <div class="hl"></div>
+        <div class="hl"></div>
+      </div>
+      <div class="drop"></div>
+    </div>
+    <div class="final-node">✦ 卡片激活 + PIN 设置完成 · 可正常使用 ✦</div>
+  </div>
+
+</div>
+
+<style>
+  @keyframes pulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+</style>
+</body>
+</html>

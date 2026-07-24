@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>白标业务 MVP 流程图 - Card White Label</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: #0F0F13;
+    color: #EAEAEA;
+    padding: 40px;
+  }
+  .container { max-width: 1400px; margin: 0 auto; }
+
+  .page-title {
+    font-size: 28px; font-weight: 700;
+    color: #FFCA00; margin-bottom: 4px;
+  }
+  .page-sub {
+    font-size: 14px; color: #8888A0; margin-bottom: 40px;
+  }
+
+  .section {
+    margin-bottom: 48px;
+  }
+  .section-title {
+    font-size: 18px; font-weight: 600; color: #EAEAEA;
+    margin-bottom: 20px; padding-bottom: 10px;
+    border-bottom: 1px solid #2A2A3A;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-title .tag {
+    font-size: 11px; background: rgba(255,202,0,.15); color: #FFCA00;
+    padding: 2px 10px; border-radius: 10px; font-weight: 500;
+  }
+
+  /* ===== Swimlane ===== */
+  .swimlane-wrap {
+    background: #14141C;
+    border: 1px solid #2A2A3A;
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .lane {
+    display: flex;
+    min-height: 88px;
+    border-bottom: 1px solid #1E1E2D;
+    position: relative;
+  }
+  .lane:last-child { border-bottom: none; }
+
+  .lane-label {
+    width: 120px;
+    min-width: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 8px;
+    border-right: 1px solid #1E1E2D;
+    text-align: center;
+    background: #111118;
+  }
+  .lane-label .role {
+    font-size: 13px; font-weight: 600;
+  }
+  .lane-label .sub {
+    font-size: 10px; color: #55556E; margin-top: 2px;
+  }
+
+  /* Lane colors */
+  .lane-label.l1 .role { color: #60A5FA; }  /* 平台 */
+  .lane-label.l2 .role { color: #52C41A; }  /* 白标客户 */
+  .lane-label.l3 .role { color: #FFCA00; }  /* C端用户 */
+  .lane-label.l4 .role { color: #FF4D4F; }  /* 发卡方 */
+
+  .lane-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 20px;
+    overflow-x: auto;
+    min-height: 88px;
+  }
+
+  /* ===== Flow Node ===== */
+  .flow-node {
+    background: #1A1A23;
+    border: 1px solid #2A2A3A;
+    border-radius: 10px;
+    padding: 10px 16px;
+    text-align: center;
+    min-width: 120px;
+    flex-shrink: 0;
+    position: relative;
+    cursor: default;
+    transition: all .2s;
+  }
+  .flow-node:hover {
+    border-color: rgba(255,202,0,.25);
+    box-shadow: 0 0 15px rgba(0,0,0,.3);
+  }
+
+  .flow-node .fn-icon { font-size: 20px; margin-bottom: 2px; }
+  .flow-node .fn-label { font-size: 11px; color: #8888A0; letter-spacing: 0.3px; }
+  .flow-node .fn-value { font-size: 14px; font-weight: 600; color: #EAEAEA; margin-top: 2px; }
+  .flow-node .fn-sub { font-size: 10px; color: #55556E; margin-top: 1px; }
+
+  .flow-node.l1 { border-color: rgba(96,165,250,.25); }
+  .flow-node.l1 .fn-value { color: #60A5FA; }
+  .flow-node.l2 { border-color: rgba(82,196,26,.25); }
+  .flow-node.l2 .fn-value { color: #52C41A; }
+  .flow-node.l3 { border-color: rgba(255,202,0,.25); }
+  .flow-node.l3 .fn-value { color: #FFCA00; }
+  .flow-node.l4 { border-color: rgba(255,77,79,.25); }
+  .flow-node.l4 .fn-value { color: #FF4D4F; }
+
+  .flow-node.start {
+    border-width: 2px; min-width: 90px;
+    border-color: rgba(82,196,26,.4);
+    background: rgba(82,196,26,.05);
+  }
+  .flow-node.end {
+    border-width: 2px; min-width: 90px;
+    border-color: rgba(255,202,0,.4);
+    background: rgba(255,202,0,.05);
+  }
+  .flow-node.decision {
+    border-style: dashed; border-radius: 6px;
+    min-width: 130px;
+  }
+  .flow-node.decision .fn-value { font-size: 12px; }
+  .flow-node.money {
+    border-color: rgba(250,173,20,.4);
+    background: rgba(250,173,20,.05);
+  }
+  .flow-node.money .fn-value { color: #FAAD14; }
+
+  .flow-arrow {
+    font-size: 18px; color: #3A3A4F;
+    flex-shrink: 0; user-select: none;
+  }
+  .flow-arrow.labeled {
+    display: flex; flex-direction: column; align-items: center;
+    font-size: 9px; color: #55556E; line-height: 1.4;
+  }
+  .flow-arrow.labeled .arr { font-size: 14px; color: #3A3A4F; }
+
+  /* ===== Fee model card ===== */
+  .model-box {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 24px;
+  }
+  .model-card {
+    flex: 1;
+    min-width: 240px;
+    background: #1A1A23;
+    border: 1px solid #2A2A3A;
+    border-radius: 12px;
+    padding: 20px;
+    transition: all .2s;
+  }
+  .model-card:hover {
+    border-color: rgba(255,202,0,.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,.3);
+  }
+  .model-card .mc-title {
+    font-size: 14px; font-weight: 600; color: #EAEAEA;
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .model-card .mc-title .emoji { font-size: 20px; }
+  .model-card .mc-desc {
+    font-size: 12px; color: #8888A0; line-height: 1.6;
+  }
+  .model-card .mc-formula {
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: #111118;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    font-family: monospace;
+    color: #FFCA00;
+  }
+  .model-card .mc-formula .hl { color: #52C41A; }
+  .model-card .mc-formula .hl2 { color: #60A5FA; }
+  .model-card .mc-formula .hl3 { color: #FAAD14; }
+
+  /* ===== Legend ===== */
+  .legend-bar {
+    display: flex; gap: 24px; margin: 16px 0;
+    font-size: 12px; color: #8888A0; flex-wrap: wrap;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+
+  /* ===== Step flow ===== */
+  .step-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    background: #14141C;
+    border: 1px solid #2A2A3A;
+    border-radius: 14px;
+    padding: 8px 0;
+  }
+  .step-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 14px 20px;
+    border-bottom: 1px solid #1E1E2D;
+    transition: background .15s;
+  }
+  .step-item:hover { background: #1A1A23; }
+  .step-item:last-child { border-bottom: none; }
+  .step-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(255,202,0,.12); color: #FFCA00;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600; flex-shrink: 0;
+  }
+  .step-item .step-info { flex: 1; }
+  .step-item .step-title {
+    font-size: 14px; font-weight: 600; color: #EAEAEA;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .step-item .step-title .ste {
+    font-size: 11px; font-weight: 400; color: #55556E;
+  }
+  .step-item .step-desc {
+    font-size: 12px; color: #8888A0; line-height: 1.5;
+    margin-top: 2px;
+  }
+
+  @media (max-width: 768px) {
+    body { padding: 20px; }
+    .lane-label { width: 70px; min-width: 70px; }
+    .lane-label .role { font-size: 11px; }
+    .flow-node { min-width: 90px; padding: 8px 12px; }
+    .flow-node .fn-value { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="page-title">白标业务 MVP 流程图</div>
+<div class="page-sub">核心模式：平台收单 → 客户返佣 · 已含开卡费+充值手续费</div>
+
+<!-- ===== Lane / Phase Legend ===== -->
+<div class="legend-bar" style="margin-bottom:32px;">
+  <div class="legend-item"><span style="color:#60A5FA;">●</span> 我方平台 (YOU)</div>
+  <div class="legend-item"><span style="color:#52C41A;">●</span> 白标客户（你的客户）</div>
+  <div class="legend-item"><span style="color:#FFCA00;">●</span> C端用户（客户的终端用户）</div>
+  <div class="legend-item"><span style="color:#FF4D4F;">●</span> 发卡方 (Visa/Mastercard)</div>
+  <div class="legend-item"><span style="color:#FAAD14;">●</span> 资金流向</div>
+</div>
+
+<!-- ===== Phase 1: 开户 ===== -->
+<div class="section">
+  <div class="section-title">Phase 1 · 客户开户与费率设定 <span class="tag">Onboarding</span></div>
+  <div class="swimlane-wrap">
+
+    <div class="lane">
+      <div class="lane-label l2"><div class="role">白标客户</div><div class="sub">你的客户</div></div>
+      <div class="lane-content">
+        <div class="flow-node start" style="min-width:100px;">
+          <div class="fn-icon">🤝</div>
+          <div class="fn-label">提交入驻申请</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node l2">
+          <div class="fn-icon">📝</div>
+          <div class="fn-label">提供企业信息</div>
+          <div class="fn-value">公司资质</div>
+        </div>
+        <div class="flow-arrow labeled">
+          <div class="arr">↓</div>
+          <div>提交</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lane">
+      <div class="lane-label l1"><div class="role">我方平台</div><div class="sub">YOU</div></div>
+      <div class="lane-content">
+        <div class="flow-node l1">
+          <div class="fn-icon">✅</div>
+          <div class="fn-label">审核入驻</div>
+          <div class="fn-value">KYB审核</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node l1" style="min-width:160px;">
+          <div class="fn-icon">🏷️</div>
+          <div class="fn-label">设定客户费率</div>
+          <div class="fn-value">开卡费 + 充值费率</div>
+          <div class="fn-sub">如：开卡 $3.00 / 充值 2.0%</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node l1 money" style="min-width:140px;">
+          <div class="fn-icon">📊</div>
+          <div class="fn-label">设定返佣比例</div>
+          <div class="fn-value">返佣 %</div>
+          <div class="fn-sub">如：Spread × 70% 返还</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node l1">
+          <div class="fn-icon">🔑</div>
+          <div class="fn-label">开通白标门户</div>
+          <div class="fn-value">客户管理后台</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== Phase 2: C端用户开卡 ===== -->
+<div class="section">
+  <div class="section-title">Phase 2 · C端用户开卡流程 <span class="tag">Card Issuance</span></div>
+  <div class="swimlane-wrap">
+
+    <div class="lane">
+      <div class="lane-label l3"><div class="role">C端用户</div><div class="sub">End User</div></div>
+      <div class="lane-content">
+        <div class="flow-node start" style="min-width:100px;">
+          <div class="fn-icon">📱</div>
+          <div class="fn-label">进入开卡入口</div>
+          <div class="fn-sub">客户App/网页</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node l3">
+          <div class="fn-icon">👤</div>
+          <div class="fn-label">提交开卡资料</div>
+          <div class="fn-value">姓名 / 证件 / 地址</div>
+          <div class="fn-sub">开卡所需KYC</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node l3">
+          <div class="fn-icon">💳</div>
+          <div class="fn-label">支付开卡费</div>
+          <div class="fn-value">如 $3.00</div>
+          <div class="fn-sub">用户承担</div>
+        </div>
+        <div class="flow-arrow labeled">
+          <div class="arr">↓</div>
+          <div>提审</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lane">
+      <div class="lane-label l2"><div class="role">白标客户</div><div class="sub">客户系统</div></div>
+      <div class="lane-content">
+        <div class="flow-node l2">
+          <div class="fn-icon">📬</div>
+          <div class="fn-label">接收开卡请求</div>
+          <div class="fn-value">通过API</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node l2">
+          <div class="fn-icon">📤</div>
+          <div class="fn-label">转发到我方平台</div>
+          <div class="fn-value">调用平台API</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node l2">
+          <div class="fn-icon">📊</div>
+          <div class="fn-label">记录C端用户</div>
+          <div class="fn-value">下持卡人</div>
+        </div>
+        <div class="flow-arrow labeled">
+          <div class="arr">↓</div>
+          <div>API</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lane">
+      <div class="lane-label l1"><div class="role">我方平台</div><div class="sub">YOU</div></div>
+      <div class="lane-content">
+        <div class="flow-node l1">
+          <div class="fn-icon">📋</div>
+          <div class="fn-label">校验额度</div>
+          <div class="fn-value">客户余额充足？</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node l1">
+          <div class="fn-icon">🔗</div>
+          <div class="fn-label">调用发卡方API</div>
+          <div class="fn-value">创建持卡人+开卡</div>
+        </div>
+        <div class="flow-arrow labeled">
+          <div class="arr">→</div>
+          <div>发卡</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lane">
+      <div class="lane-label l4"><div class="role">发卡方</div><div class="sub">Provider</div></div>
+      <div class="lane-content">
+        <div class="flow-node l4">
+          <div class="fn-icon">🏦</div>
+          <div class="fn-label">生成卡片</div>
+          <div class="fn-value">卡号 / CVV / 有效期</div>
+        </div>
+        <div class="flow-arrow labeled">
+          <div class="arr">→</div>
+          <div>成功</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lane">
+      <div class="lane-label l3"><div class="role">C端用户</div><div class="sub">End User</div></div>
+      <div class="lane-content">
+        <div class="flow-node l3 end">
+          <div class="fn-icon">✅</div>
+          <div class="fn-label">收到卡片</div>
+          <div class="fn-value">可充值 + 可使用</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== Phase 3: 充值交易 ===== -->
+<div class="section">
+  <div class="section-title">Phase 3 · 充值 & 交易 <span class="tag">Funding & Spend</span></div>
+  <div class="swimlane-wrap">
+
+    <div class="lane">
+      <div class="lane-label l3"><div class="role">C端用户</div><div class="sub">End User</div></div>
+      <div class="lane-content">
+        <div class="flow-node l3">
+          <div class="fn-icon">💰</div>
+          <div class="fn-label">充值到卡片</div>
+          <div class="fn-value">如 $100</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node l3">
+          <div class="fn-icon">🛒</div>
+          <div class="fn-label">消费 / 提现</div>
+          <div class="fn-value">使用卡片支付</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node l3">
+          <div class="fn-icon">💸</div>
+          <div class="fn-label">被扣手续费</div>
+          <div class="fn-value">充值费 2.0%</div>
+          <div class="fn-sub">如 $2.00</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lane">
+      <div class="lane-label l1"><div class="role">我方平台</div><div class="sub">YOU</div></div>
+      <div class="lane-content">
+        <div class="flow-node l1">
+          <div class="fn-icon">📥</div>
+          <div class="fn-label">收取充值款</div>
+          <div class="fn-value">充值金额入账</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node l1 money" style="min-width:170px;">
+          <div class="fn-icon">🧮</div>
+          <div class="fn-label">扣除平台成本</div>
+          <div class="fn-value">CP + Interchange</div>
+          <div class="fn-sub">支付给发卡方</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node l1 money" style="min-width:170px;">
+          <div class="fn-icon">📈</div>
+          <div class="fn-label">计算Spread</div>
+          <div class="fn-value">Sell − Cost</div>
+          <div class="fn-sub">开卡费差 + 充值费差</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lane">
+      <div class="lane-label l4"><div class="role">发卡方</div><div class="sub">Provider</div></div>
+      <div class="lane-content">
+        <div class="flow-node l4">
+          <div class="fn-icon">⚙️</div>
+          <div class="fn-label">处理充值+交易</div>
+          <div class="fn-value">结算到卡</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node l4">
+          <div class="fn-icon">💰</div>
+          <div class="fn-label">收取成本费用</div>
+          <div class="fn-value">Interchange + Network</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== Phase 4: 返佣 ===== -->
+<div class="section">
+  <div class="section-title">Phase 4 · 定期返佣结算 <span class="tag">Rebate Settlement</span></div>
+  <div class="swimlane-wrap">
+
+    <div class="lane">
+      <div class="lane-label l1"><div class="role">我方平台</div><div class="sub">YOU</div></div>
+      <div class="lane-content">
+        <div class="flow-node l1">
+          <div class="fn-icon">🔒</div>
+          <div class="fn-label">锁定结算周期</div>
+          <div class="fn-value">月 / 周</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node l1">
+          <div class="fn-icon">🧾</div>
+          <div class="fn-label">汇总费用明细</div>
+          <div class="fn-value">总开卡费 + 总手续费</div>
+          <div class="fn-sub">C端支付总和</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node l1 money" style="min-width:170px;">
+          <div class="fn-icon">📊</div>
+          <div class="fn-label">计算返佣金额</div>
+          <div class="fn-value">总Spread × 返佣%</div>
+          <div class="fn-sub">开卡Spread + 充值Spread</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node l1">
+          <div class="fn-icon">📄</div>
+          <div class="fn-label">生成结算报告</div>
+          <div class="fn-value">明细 + 汇总</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node l1">
+          <div class="fn-icon">📬</div>
+          <div class="fn-label">发送结算单</div>
+          <div class="fn-value">通知客户确认</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lane">
+      <div class="lane-label l2"><div class="role">白标客户</div><div class="sub">客户系统</div></div>
+      <div class="lane-content">
+        <div class="flow-node l2">
+          <div class="fn-icon">👁️</div>
+          <div class="fn-label">查收结算通知</div>
+          <div class="fn-value">确认/异议</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node l2 decision" style="min-width:140px;">
+          <div class="fn-icon">👍</div>
+          <div class="fn-value">确认结算单</div>
+        </div>
+        <div class="flow-arrow labeled">
+          <div class="arr">→</div>
+          <div>确认</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lane">
+      <div class="lane-label l1"><div class="role">我方平台</div><div class="sub">YOU</div></div>
+      <div class="lane-content">
+        <div class="flow-node l1 money" style="min-width:150px;">
+          <div class="fn-icon">💸</div>
+          <div class="fn-label">划拨返佣</div>
+          <div class="fn-value">支付返佣金额</div>
+          <div class="fn-sub">从预存/直接转账</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node l1 end" style="min-width:110px;">
+          <div class="fn-icon">✅</div>
+          <div class="fn-label">结算完成</div>
+          <div class="fn-value">周期关闭</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lane">
+      <div class="lane-label l2"><div class="role">白标客户</div><div class="sub">客户系统</div></div>
+      <div class="lane-content">
+        <div class="flow-node l2 end" style="min-width:120px;">
+          <div class="fn-icon">💰</div>
+          <div class="fn-label">收到返佣</div>
+          <div class="fn-value">收益入账</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== 计费模型 ===== -->
+<div class="section">
+  <div class="section-title">计费与返佣模型 <span class="tag">Fee Model</span></div>
+
+  <div class="model-box">
+
+    <div class="model-card">
+      <div class="mc-title"><span class="emoji">📦</span> 1. 开卡费模型</div>
+      <div class="mc-desc">
+        C端用户支付开卡费 → 我方平台扣除发卡方成本 → 差额（Spread）按比例返佣给客户。
+      </div>
+      <div class="mc-formula">
+        返佣 = (C端开卡费 − 发卡方成本) × 返佣比例
+      </div>
+      <div class="mc-desc" style="margin-top:8px; font-size:11px;">
+        例：C端付 $5.00，平台成本 $2.00，Spread $3.00，返佣70% → <b style="color:#52C41A;">客户得 $2.10</b>
+      </div>
+    </div>
+
+    <div class="model-card">
+      <div class="mc-title"><span class="emoji">💧</span> 2. 充值手续费模型</div>
+      <div class="mc-desc">
+        C端用户充值被扣手续费 → 平台扣除处理成本 → 差额返佣给客户。
+      </div>
+      <div class="mc-formula">
+        返佣 = (C端手续费 − 平台成本) × 返佣比例
+      </div>
+      <div class="mc-desc" style="margin-top:8px; font-size:11px;">
+        例：充值 $100，C端扣2.0% ($2.00)，平台成本 1.0%，Spread $1.00，返佣70% → <b style="color:#52C41A;">客户得 $0.70</b>
+      </div>
+    </div>
+
+    <div class="model-card">
+      <div class="mc-title"><span class="emoji">📊</span> 3. 客户整体收益</div>
+      <div class="mc-desc">
+        客户的总收入 = 开卡费返佣 + 充值手续费返佣。客户只需要引流入驻，开卡和充值由C端用户自主完成。
+      </div>
+      <div class="mc-formula" style="background: rgba(255,202,0,.06);">
+        <span class="hl">总返佣</span> = Spread<sub>开卡</sub> × 比例 + Spread<sub>充值</sub> × 比例
+      </div>
+      <div class="mc-desc" style="margin-top:8px; font-size:11px;">
+        <b style="color:#FFCA00;">价值主张</b>：客户零成本接入，分享交易利润，无需处理发卡逻辑
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== 全流程步骤 ===== -->
+<div class="section">
+  <div class="section-title">全流程分步总结 <span class="tag">Step by Step</span></div>
+  <div class="step-timeline">
+
+    <div class="step-item">
+      <div class="step-num">1</div>
+      <div class="step-info">
+        <div class="step-title">客户开户 <span class="ste">→ 入驻 + 签合同</span></div>
+        <div class="step-desc">客户提交资质，平台审核通过并为其开设白标账户。设定基础费率：开卡费 $X，充值费率 Y%，返佣比例 Z%。</div>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-num">2</div>
+      <div class="step-info">
+        <div class="step-title">客户预存资金 <span class="ste">→ 充入开卡额度</span></div>
+        <div class="step-desc">客户预存一笔资金到平台作为开卡额度。用户开卡时从客户预存中扣除，用户充值后补充回来。</div>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-num">3</div>
+      <div class="step-info">
+        <div class="step-title">C端用户开卡 <span class="ste">→ 提交资料 + 支付开卡费</span></div>
+        <div class="step-desc">C端用户在客户平台提交KYC资料并支付开卡费 → 客户通过API提交到我方平台 → 平台调用发卡方生成卡片。</div>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-num">4</div>
+      <div class="step-info">
+        <div class="step-title">C端用户充值 & 消费 <span class="ste">→ 手续费产生</span></div>
+        <div class="step-desc">C端用户充值资金到卡片，被扣充值手续费（如2.0%）。消费时产生交易费用。平台处理交易并支付发卡方成本。</div>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-num">5</div>
+      <div class="step-info">
+        <div class="step-title">定期结算返佣 <span class="ste">→ 平台统计 + 对账 + 划拨</span></div>
+        <div class="step-desc">按周期（月/周），平台汇总该客户名下所有C端用户产生的开卡费+手续费。计算 Spread = 用户付费 − 平台成本，按返佣比例返还客户。</div>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-num">6</div>
+      <div class="step-info">
+        <div class="step-title">客户查收收益 <span class="ste">→ 结算完成</span></div>
+        <div class="step-desc">客户查收结算报告和返佣金额，确认无误后结算完成。客户收益 = 开卡费返佣 + 充值手续费返佣。</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div style="text-align:center;padding:20px 0 10px;color:#55556E;font-size:12px;">
+  白标业务 MVP · 多收开卡费 + 充值手续费返佣模式 · v1.0
+</div>
+
+</div>
+</body>
+</html>

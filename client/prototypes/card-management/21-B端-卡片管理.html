@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YASBee - 卡片管理</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f0f2f5; color: #1a1a1a; font-size: 14px; }
+
+/* Layout */
+.app { display: flex; min-height: 100vh; }
+.sidebar { width: 220px; flex-shrink: 0; background: #1a1a2e; min-height: 100vh; display: flex; flex-direction: column; position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; }
+.sidebar-logo { padding: 20px 16px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,.06); }
+.logo-icon { width: 32px; height: 32px; background: #f59f00; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; color: #fff; }
+.logo-text { font-size: 17px; font-weight: 700; color: #fff; letter-spacing: .5px; }
+.sidebar-nav { flex: 1; padding: 12px 8px; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; color: #8e9ab4; font-size: 13.5px; cursor: default; transition: all .15s; }
+.nav-item:hover { background: #2a2a4e; color: #fff; }
+.nav-item.active { background: rgba(255,255,255,.1); color: #fff9c4; font-weight: 600; }
+.nav-item .icon { font-size: 16px; width: 22px; text-align: center; }
+.sidebar-footer { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,.06); display: flex; align-items: center; gap: 10px; }
+.avatar { width: 34px; height: 34px; background: #f59f00; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.user-info { overflow: hidden; }
+.user-info .name { font-size: 13px; color: #fff; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-info .role { font-size: 11px; color: #8e9ab4; }
+
+/* Main */
+.main { margin-left: 220px; flex: 1; min-height: 100vh; display: flex; flex-direction: column; }
+.top-header { background: #1a2536; padding: 0 28px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 90; }
+.top-header h1 { font-size: 18px; font-weight: 700; color: #fff; }
+.top-header-right { display: flex; align-items: center; gap: 14px; }
+.notif { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,.1); display: flex; align-items: center; justify-content: center; font-size: 16px; position: relative; cursor: default; }
+.notif .dot { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; background: #dc2626; border-radius: 50%; }
+.avatar-btn { width: 32px; height: 32px; background: #f59f00; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 700; cursor: default; }
+
+/* Banner */
+.banner { background: linear-gradient(135deg, #1a2536 0%, #2d4a6e 100%); margin: 24px 28px 0; border-radius: 12px; padding: 28px 32px; display: flex; align-items: center; justify-content: space-between; }
+.banner .label { font-size: 12px; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.banner .amount { font-size: 36px; font-weight: 800; color: #fff; letter-spacing: -1px; }
+.banner .hint { font-size: 12px; color: rgba(255,255,255,.4); margin-top: 4px; }
+.banner-right { display: flex; align-items: center; gap: 10px; }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 18px; border-radius: 8px; border: none; font-size: 13px; font-weight: 600; cursor: default; transition: all .15s; white-space: nowrap; }
+.btn-accent { background: #f59f00; color: #fff; }
+.btn-accent:hover { background: #e08d00; }
+.btn-outline { background: transparent; border: 1px solid rgba(255,255,255,.3); color: rgba(255,255,255,.85); }
+.btn-outline:hover { background: rgba(255,255,255,.1); }
+.btn-dark { background: rgba(255,255,255,.12); color: rgba(255,255,255,.85); border: 1px solid rgba(255,255,255,.15); }
+.btn-dark:hover { background: rgba(255,255,255,.2); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-danger { background: #dc2626; color: #fff; }
+.btn-secondary { background: #f5f6f8; color: #5a5f7a; }
+.btn-secondary:hover { background: #eef0f4; }
+.btn-success { background: #16a34a; color: #fff; }
+
+/* Content */
+.content { padding: 20px 28px; flex: 1; }
+
+/* Stats Bar */
+.stats-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+.stat-card { background: #fff; border-radius: 10px; padding: 18px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+.stat-card .stat-label { font-size: 12px; color: #888; margin-bottom: 4px; }
+.stat-card .stat-value { font-size: 22px; font-weight: 700; color: #1a1a2e; }
+.stat-card .stat-sub { font-size: 12px; color: #aaa; margin-top: 2px; }
+
+/* Search & Filter Bar */
+.filter-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.search-input { flex: 1; max-width: 300px; padding: 8px 14px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 13px; outline: none; background: #fff; }
+.search-input:focus { border-color: #f59f00; }
+.filter-select { padding: 8px 14px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 13px; background: #fff; color: #1a1a1a; outline: none; min-width: 140px; }
+
+/* Table */
+.table-wrap { background: #fff; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.06); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+thead { background: #f8f9fc; }
+th { padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: .3px; border-bottom: 1px solid #eef0f4; }
+td { padding: 14px 16px; font-size: 13px; border-bottom: 1px solid #f5f6f8; vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover { background: #fafbfc; }
+
+/* Status Badges */
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+.badge.active { background: #f0fdf4; color: #16a34a; }
+.badge.frozen { background: #fffbeb; color: #d97706; }
+.badge.inactive { background: #f3f4f6; color: #6b7280; }
+.badge.closed { background: #fef2f2; color: #dc2626; }
+.badge.issued { background: #eef2ff; color: #4f46e5; }
+.badge.pending { background: #fef9c3; color: #a16207; }
+
+/* Action Buttons in Table */
+.action-btn { display: inline-flex; align-items: center; gap: 4px; padding: 5px 10px; border-radius: 6px; border: none; font-size: 12px; cursor: default; transition: all .12s; }
+.action-btn:hover { opacity: .85; }
+.action-btn.freeze { background: #fffbeb; color: #d97706; }
+.action-btn.unfreeze { background: #f0fdf4; color: #16a34a; }
+.action-btn.close { background: #fef2f2; color: #dc2626; }
+.action-btn.charge { background: #eef2ff; color: #4f46e5; }
+.action-btn.limit { background: #f3f4f6; color: #374151; }
+.action-btn.view { background: #f0f0f0; color: #5a5f7a; }
+.action-group { display: flex; gap: 4px; }
+
+/* Pagination */
+.pagination { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-top: 1px solid #eef0f4; font-size: 12px; color: #6b7280; }
+.pagination .page-btns { display: flex; gap: 4px; }
+.pagination .page-btn { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 6px; border: 1px solid #e5e7eb; background: #fff; font-size: 12px; cursor: default; color: #374151; }
+.pagination .page-btn.active { background: #f59f00; color: #fff; border-color: #f59f00; }
+.pagination .page-btn:hover:not(.active) { background: #f5f6f8; }
+
+/* Card Type Tag */
+.card-type { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+.card-type.virtual { background: #eef2ff; color: #4f46e5; }
+.card-type.physical { background: #fef9c3; color: #a16207; }
+
+/* Employee Info */
+.employee-info { display: flex; align-items: center; gap: 8px; }
+.employee-avatar { width: 28px; height: 28px; border-radius: 50%; background: #e5e7eb; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: #6b7280; }
+
+/* Column width helpers */
+.col-card { min-width: 120px; }
+.col-employee { min-width: 140px; }
+.col-balance { min-width: 90px; }
+.col-status { min-width: 80px; }
+.col-actions { min-width: 200px; }
+
+/* Tooltip */
+.tooltip-trigger { position: relative; cursor: default; }
+.tooltip-trigger:hover .tooltip-box { opacity: 1; visibility: visible; }
+.tooltip-box { position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: #1a1a2e; color: #fff; font-size: 11px; padding: 6px 10px; border-radius: 6px; white-space: nowrap; opacity: 0; visibility: hidden; transition: all .15s; z-index: 200; pointer-events: none; }
+.tooltip-box::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: #1a1a2e; }
+
+/* Responsive */
+@media (max-width: 1200px) { .stats-bar { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 900px) { .sidebar { width: 60px; } .sidebar-logo .logo-text, .nav-item span:not(.icon), .user-info { display: none; } .main { margin-left: 60px; } }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">Y</div>
+    <span class="logo-text">YASBee</span>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-item"><span class="icon">📊</span><span>仪表盘</span></div>
+    <div class="nav-item"><span class="icon">🏦</span><span>银行账户</span></div>
+    <div class="nav-item"><span class="icon">₿</span><span>加密货币钱包</span></div>
+    <div class="nav-item active"><span class="icon">💳</span><span>卡片</span></div>
+    <div class="nav-item"><span class="icon">🔄</span><span>兑换</span></div>
+    <div class="nav-item"><span class="icon">👥</span><span>员工管理</span></div>
+    <div class="nav-item"><span class="icon">📈</span><span>报表</span></div>
+    <div class="nav-item"><span class="icon">⚙️</span><span>设置</span></div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="avatar">DX</div>
+    <div class="user-info">
+      <div class="name">Driven Xie</div>
+      <div class="role">企业账户</div>
+    </div>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Top Header -->
+  <div class="top-header">
+    <h1>卡片管理</h1>
+    <div class="top-header-right">
+      <div class="notif">🔔<div class="dot"></div></div>
+      <div class="avatar-btn">DX</div>
+    </div>
+  </div>
+
+  <!-- Balance Banner -->
+  <div class="banner">
+    <div>
+      <div class="label">卡片总余额</div>
+      <div class="amount">$18,234.50</div>
+      <div class="hint">共 12 张卡片 · 6 张使用中</div>
+    </div>
+    <div class="banner-right">
+      <div class="btn btn-outline btn-sm">📋 批量操作</div>
+      <div class="btn btn-accent">➕ 申请新卡</div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- Stats -->
+    <div class="stats-bar">
+      <div class="stat-card">
+        <div class="stat-label">全部卡片</div>
+        <div class="stat-value">12</div>
+        <div class="stat-sub">总发卡数</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">使用中</div>
+        <div class="stat-value">6</div>
+        <div class="stat-sub" style="color:#16a34a">● 正常</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">已冻结</div>
+        <div class="stat-value">2</div>
+        <div class="stat-sub" style="color:#d97706">● 待处理</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">本月消费</div>
+        <div class="stat-value">$6,845</div>
+        <div class="stat-sub">较上月 +12%</div>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <input class="search-input" placeholder="搜索卡号、持卡人姓名..." value="">
+      <select class="filter-select">
+        <option>全部状态</option>
+        <option>使用中</option>
+        <option>已冻结</option>
+        <option>未激活</option>
+        <option>已关闭</option>
+      </select>
+      <select class="filter-select">
+        <option>全部类型</option>
+        <option>虚拟卡</option>
+        <option>实体卡</option>
+      </select>
+      <select class="filter-select">
+        <option>全部员工</option>
+        <option>张三</option>
+        <option>李四</option>
+        <option>王五</option>
+      </select>
+      <div class="btn btn-secondary btn-sm">🔍 搜索</div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:30px"><input type="checkbox"></th>
+            <th class="col-card">卡片信息</th>
+            <th class="col-employee">持卡人</th>
+            <th class="col-balance">余额</th>
+            <th>类型</th>
+            <th class="col-status">状态</th>
+            <th>最后交易</th>
+            <th class="col-actions">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Row 1: Active Virtual Card -->
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>
+              <div style="font-weight:500;font-family:'Courier New',monospace;font-size:13px;letter-spacing:1px">•••• 4821</div>
+              <div style="font-size:11px;color:#888;margin-top:2px">企业标准卡 · BB-BIN</div>
+            </td>
+            <td>
+              <div class="employee-info">
+                <div class="employee-avatar">张</div>
+                <div>
+                  <div style="font-weight:500">张三</div>
+                  <div style="font-size:11px;color:#888">zhang@company.com</div>
+                </div>
+              </div>
+            </td>
+            <td><span style="font-weight:600">$12,458.60</span></td>
+            <td><span class="card-type virtual">虚拟卡</span></td>
+            <td><span class="badge active">● 使用中</span></td>
+            <td><span style="font-size:12px;color:#888">2026-07-14</span></td>
+            <td>
+              <div class="action-group">
+                <div class="action-btn view">查看</div>
+                <div class="action-btn freeze">冻结</div>
+                <div class="action-btn charge">充值</div>
+                <div class="action-btn limit">限额</div>
+              </div>
+            </td>
+          </tr>
+          <!-- Row 2: Active Virtual Card -->
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>
+              <div style="font-weight:500;font-family:'Courier New',monospace;font-size:13px;letter-spacing:1px">•••• 6732</div>
+              <div style="font-size:11px;color:#888;margin-top:2px">企业卡 · BB-BIN</div>
+            </td>
+            <td>
+              <div class="employee-info">
+                <div class="employee-avatar">李</div>
+                <div>
+                  <div style="font-weight:500">李四</div>
+                  <div style="font-size:11px;color:#888">li@company.com</div>
+                </div>
+              </div>
+            </td>
+            <td><span style="font-weight:600">$5,425.90</span></td>
+            <td><span class="card-type virtual">虚拟卡</span></td>
+            <td><span class="badge active">● 使用中</span></td>
+            <td><span style="font-size:12px;color:#888">2026-07-13</span></td>
+            <td>
+              <div class="action-group">
+                <div class="action-btn view">查看</div>
+                <div class="action-btn freeze">冻结</div>
+                <div class="action-btn charge">充值</div>
+                <div class="action-btn limit">限额</div>
+              </div>
+            </td>
+          </tr>
+          <!-- Row 3: Frozen Card -->
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>
+              <div style="font-weight:500;font-family:'Courier New',monospace;font-size:13px;letter-spacing:1px">•••• 1094</div>
+              <div style="font-size:11px;color:#888;margin-top:2px">副卡 · BZ-BIN</div>
+            </td>
+            <td>
+              <div class="employee-info">
+                <div class="employee-avatar">王</div>
+                <div>
+                  <div style="font-weight:500">王五</div>
+                  <div style="font-size:11px;color:#888">wang@company.com</div>
+                </div>
+              </div>
+            </td>
+            <td><span style="font-weight:600">$350.00</span></td>
+            <td><span class="card-type virtual">虚拟卡</span></td>
+            <td><span class="badge frozen">● 已冻结</span></td>
+            <td><span style="font-size:12px;color:#888">2026-07-10</span></td>
+            <td>
+              <div class="action-group">
+                <div class="action-btn view">查看</div>
+                <div class="action-btn unfreeze">解冻</div>
+                <div class="action-btn charge">充值</div>
+                <div class="action-btn limit">限额</div>
+              </div>
+            </td>
+          </tr>
+          <!-- Row 4: Issued / Not Activated Physical Card -->
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>
+              <div style="font-weight:500;font-family:'Courier New',monospace;font-size:13px;letter-spacing:1px">•••• 3302</div>
+              <div style="font-size:11px;color:#888;margin-top:2px">企业实体卡 · HK Visa</div>
+            </td>
+            <td>
+              <div class="employee-info">
+                <div class="employee-avatar">赵</div>
+                <div>
+                  <div style="font-weight:500">赵六</div>
+                  <div style="font-size:11px;color:#888">zhao@company.com</div>
+                </div>
+              </div>
+            </td>
+            <td><span style="font-weight:600;color:#888">$0.00</span></td>
+            <td><span class="card-type physical">实体卡</span></td>
+            <td><span class="badge issued">● 已发卡</span></td>
+            <td><span style="font-size:12px;color:#888">—</span></td>
+            <td>
+              <div class="action-group">
+                <div class="action-btn view">查看</div>
+                <div class="action-btn charge">充值</div>
+                <div class="action-btn limit">限额</div>
+              </div>
+            </td>
+          </tr>
+          <!-- Row 5: Closed Card -->
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>
+              <div style="font-weight:500;font-family:'Courier New',monospace;font-size:13px;letter-spacing:1px">•••• 5519</div>
+              <div style="font-size:11px;color:#888;margin-top:2px">测试卡 · BB-BIN</div>
+            </td>
+            <td>
+              <div class="employee-info">
+                <div class="employee-avatar">测</div>
+                <div>
+                  <div style="font-weight:500">测试员工</div>
+                  <div style="font-size:11px;color:#888">test@company.com</div>
+                </div>
+              </div>
+            </td>
+            <td><span style="font-weight:600;color:#888">$0.00</span></td>
+            <td><span class="card-type virtual">虚拟卡</span></td>
+            <td><span class="badge closed">● 已关闭</span></td>
+            <td><span style="font-size:12px;color:#888">2026-06-28</span></td>
+            <td>
+              <div class="action-group">
+                <div class="action-btn view">查看</div>
+              </div>
+            </td>
+          </tr>
+          <!-- Row 6: Pending Activation Physical Card -->
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>
+              <div style="font-weight:500;font-family:'Courier New',monospace;font-size:13px;letter-spacing:1px">•••• 7764</div>
+              <div style="font-size:11px;color:#888;margin-top:2px">实体卡 · HK Visa</div>
+            </td>
+            <td>
+              <div class="employee-info">
+                <div class="employee-avatar">孙</div>
+                <div>
+                  <div style="font-weight:500">孙七</div>
+                  <div style="font-size:11px;color:#888">sun@company.com</div>
+                </div>
+              </div>
+            </td>
+            <td><span style="font-weight:600;color:#888">$0.00</span></td>
+            <td><span class="card-type physical">实体卡</span></td>
+            <td><span class="badge pending">● 待激活</span></td>
+            <td><span style="font-size:12px;color:#888">—</span></td>
+            <td>
+              <div class="action-group">
+                <div class="action-btn view">查看</div>
+                <div class="action-btn charge">充值</div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <!-- Pagination -->
+      <div class="pagination">
+        <span>显示 1-6 条，共 12 条</span>
+        <div class="page-btns">
+          <div class="page-btn">‹</div>
+          <div class="page-btn active">1</div>
+          <div class="page-btn">2</div>
+          <div class="page-btn">›</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+<script>
+// Mock interactions for prototype feel
+document.querySelectorAll('.action-btn').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    const text = this.textContent.trim();
+    if (text === '冻结') {
+      this.className = 'action-btn unfreeze';
+      this.textContent = '解冻';
+      // Update the status badge
+      const row = this.closest('tr');
+      const badge = row.querySelector('.badge');
+      if (badge) { badge.className = 'badge frozen'; badge.innerHTML = '● 已冻结'; }
+    } else if (text === '解冻') {
+      this.className = 'action-btn freeze';
+      this.textContent = '冻结';
+      const row = this.closest('tr');
+      const badge = row.querySelector('.badge');
+      if (badge) { badge.className = 'badge active'; badge.innerHTML = '● 使用中'; }
+    }
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fee Center Architecture - Card White Label Platform</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: #0F0F13;
+    color: #EAEAEA;
+    padding: 40px;
+  }
+
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .page-title {
+    font-size: 28px; font-weight: 700;
+    color: #FFCA00; margin-bottom: 6px;
+  }
+  .page-sub {
+    font-size: 14px; color: #8888A0; margin-bottom: 40px;
+  }
+
+  /* Section */
+  .section {
+    margin-bottom: 48px;
+  }
+  .section-title {
+    font-size: 18px; font-weight: 600; color: #EAEAEA;
+    margin-bottom: 20px; padding-bottom: 10px;
+    border-bottom: 1px solid #2A2A3A;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-title .tag {
+    font-size: 11px; background: rgba(255,202,0,.15); color: #FFCA00;
+    padding: 2px 10px; border-radius: 10px; font-weight: 500;
+  }
+
+  /* ===== Flowchart Engine ===== */
+  .fc {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Layer row */
+  .fc-layer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    padding: 16px 0;
+    width: 100%;
+  }
+
+  /* Layer block */
+  .fc-block {
+    background: #1A1A23;
+    border: 1px solid #2A2A3A;
+    border-radius: 12px;
+    padding: 16px 24px;
+    text-align: center;
+    min-width: 160px;
+    position: relative;
+    transition: all .2s;
+  }
+  .fc-block:hover {
+    border-color: #FFCA00;
+    box-shadow: 0 0 20px rgba(255,202,0,.08);
+  }
+  .fc-block .label {
+    font-size: 12px; color: #8888A0; letter-spacing: 0.5px;
+    text-transform: uppercase; margin-bottom: 4px;
+  }
+  .fc-block .value {
+    font-size: 16px; font-weight: 600; color: #EAEAEA;
+  }
+  .fc-block .sub {
+    font-size: 11px; color: #55556E; margin-top: 2px;
+  }
+
+  /* Layer connectors (vertical lines) */
+  .fc-connector {
+    width: 2px; height: 28px;
+    background: linear-gradient(to bottom, #2A2A3A, #3A3A4F);
+    margin: 0 auto;
+  }
+
+  /* Arrow between blocks in a layer */
+  .fc-arrow {
+    font-size: 20px; color: #3A3A4F;
+    user-select: none;
+  }
+
+  /* Side label on layer */
+  .fc-side {
+    position: absolute;
+    left: -120px;
+    font-size: 12px; color: #55556E;
+    text-align: right;
+    width: 100px;
+    line-height: 1.4;
+  }
+
+  /* ===== Special blocks ===== */
+  .fc-block.provider { border-color: rgba(255,77,79,.3); }
+  .fc-block.provider .value { color: #FF4D4F; }
+  .fc-block.cost { border-color: rgba(250,173,20,.3); }
+  .fc-block.cost .value { color: #FAAD14; }
+  .fc-block.sell { border-color: rgba(255,202,0,.3); }
+  .fc-block.sell .value { color: #FFCA00; }
+  .fc-block.platform { border-color: rgba(24,144,255,.3); }
+  .fc-block.platform .value { color: #60A5FA; }
+  .fc-block.partner { border-color: rgba(82,196,26,.3); }
+  .fc-block.partner .value { color: #52C41A; }
+  .fc-block.user { border-color: rgba(255,202,0,.4); }
+  .fc-block.user .value { color: #FFCA00; }
+
+  .fc-block.highlight {
+    border-width: 2px;
+    box-shadow: 0 0 30px rgba(255,202,0,.1);
+  }
+
+  /* ===== Module Grid ===== */
+  .module-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .module-card {
+    background: #1A1A23;
+    border: 1px solid #2A2A3A;
+    border-radius: 12px;
+    padding: 20px;
+    transition: all .2s;
+  }
+  .module-card:hover {
+    border-color: rgba(255,202,0,.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,.3);
+  }
+  .module-card .m-icon {
+    font-size: 28px; margin-bottom: 10px;
+  }
+  .module-card .m-title {
+    font-size: 14px; font-weight: 600; color: #EAEAEA;
+    margin-bottom: 8px;
+  }
+  .module-card .m-desc {
+    font-size: 12px; color: #8888A0; line-height: 1.5;
+  }
+  .module-card .m-items {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #2A2A3A;
+  }
+  .module-card .m-items .item {
+    font-size: 11px; color: #55556E;
+    padding: 3px 0;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .module-card .m-items .item .dot {
+    width: 4px; height: 4px; border-radius: 50%; flex-shrink: 0;
+  }
+  .module-card .m-items .item .dot.gold { background: #FFCA00; }
+  .module-card .m-items .item .dot.green { background: #52C41A; }
+  .module-card .m-items .item .dot.blue { background: #60A5FA; }
+  .module-card .m-items .item .dot.red { background: #FF4D4F; }
+  .module-card .m-items .item .dot.orange { background: #FAAD14; }
+
+  /* ===== Fee Flow ===== */
+  .flow-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 10px 0;
+    flex-wrap: wrap;
+  }
+  .flow-node {
+    background: #1A1A23;
+    border: 1px solid #2A2A3A;
+    border-radius: 10px;
+    padding: 12px 18px;
+    text-align: center;
+    min-width: 120px;
+  }
+  .flow-node .fn-label { font-size: 12px; color: #55556E; }
+  .flow-node .fn-value { font-size: 15px; font-weight: 600; color: #EAEAEA; margin-top: 2px; }
+  .flow-node .fn-value.gold { color: #FFCA00; }
+  .flow-node .fn-value.green { color: #52C41A; }
+  .flow-node .fn-value.red { color: #FF4D4F; }
+  .flow-node .fn-value.orange { color: #FAAD14; }
+  .flow-node .fn-value.blue { color: #60A5FA; }
+
+  .flow-arrow {
+    font-size: 22px; color: #3A3A4F;
+    user-select: none;
+  }
+
+  /* ===== Fee Type Table ===== */
+  .fee-table-wrap {
+    overflow-x: auto;
+  }
+  .fee-table {
+    width: 100%; min-width: 800px;
+    border-collapse: separate; border-spacing: 0;
+    font-size: 13px;
+  }
+  .fee-table thead th {
+    background: #1E1E2D;
+    color: #8888A0;
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    padding: 12px 16px; text-align: left;
+    border-bottom: 1px solid #2A2A3A;
+    white-space: nowrap;
+  }
+  .fee-table thead th:first-child { border-radius: 8px 0 0 0; }
+  .fee-table thead th:last-child { border-radius: 0 8px 0 0; }
+  .fee-table tbody tr {
+    background: #1A1A23;
+    transition: background .15s;
+  }
+  .fee-table tbody tr:nth-child(even) { background: #1E1E2D; }
+  .fee-table tbody tr:hover { background: #23232F; }
+  .fee-table tbody td {
+    padding: 10px 16px;
+    border-bottom: 1px solid #2A2A3A;
+    color: #D0D0E0;
+  }
+  .fee-table .badge {
+    display: inline-block;
+    padding: 2px 10px; border-radius: 4px;
+    font-size: 11px; font-weight: 500;
+  }
+  .badge.user { background: rgba(255,202,0,.12); color: #FFCA00; }
+  .badge.partner { background: rgba(82,196,26,.12); color: #52C41A; }
+  .badge.platform { background: rgba(96,165,250,.12); color: #60A5FA; }
+
+  .legend {
+    display: flex; gap: 24px; margin-top: 16px;
+    font-size: 12px; color: #8888A0;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+
+  /* ===== Settlement Flow ===== */
+  .settle-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 20px 0;
+  }
+  .settle-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid #1E1E2D;
+  }
+  .settle-step:last-child { border-bottom: none; }
+  .settle-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(255,202,0,.12); color: #FFCA00;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600; flex-shrink: 0;
+  }
+  .settle-step.done .settle-num { background: rgba(82,196,26,.12); color: #52C41A; }
+  .settle-info { flex: 1; }
+  .settle-info .step-title {
+    font-size: 14px; font-weight: 600; color: #EAEAEA; margin-bottom: 2px;
+  }
+  .settle-info .step-desc {
+    font-size: 12px; color: #55556E; line-height: 1.5;
+  }
+
+  @media (max-width: 768px) {
+    body { padding: 20px; }
+    .module-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Title -->
+  <div class="page-title">Fee Center Architecture</div>
+  <div class="page-sub">Card White Label Platform · 三层计费架构 · Fee Management System</div>
+
+  <!-- ===== 1. Three-Tier Pricing ===== -->
+  <div class="section">
+    <div class="section-title">1. 三层计费模型 <span class="tag">Core</span></div>
+    <div class="fc">
+
+      <!-- Layer 3: Provider -->
+      <div class="fc-layer" style="position:relative;">
+        <div class="fc-side">成本层<br><span style="color:#FF4D4F;">Cost Price</span></div>
+        <div class="fc-block provider">
+          <div class="label">Provider</div>
+          <div class="value">Visa / Mastercard</div>
+          <div class="sub">Card Processor</div>
+        </div>
+        <div class="fc-arrow">←</div>
+        <div class="fc-block provider">
+          <div class="label">Provider</div>
+          <div class="value">发卡行 / 处理商</div>
+          <div class="sub">Interchange + Processor Fee + Network Fee</div>
+        </div>
+        <div class="fc-arrow">→</div>
+        <div class="fc-block" style="border-color:rgba(255,77,79,.3);min-width:200px;">
+          <div class="label">费用构成</div>
+          <div class="value" style="font-size:13px;color:#FF4D4F;">Interchange + Processor + Network + Assessment</div>
+        </div>
+      </div>
+
+      <div class="fc-connector"></div>
+
+      <!-- Layer 2: Platform -->
+      <div class="fc-layer" style="position:relative;">
+        <div class="fc-side">利润层<br><span style="color:#FAAD14;">Spread = Sell - Cost</span></div>
+        <div class="fc-block platform">
+          <div class="label">Platform</div>
+          <div class="value">Fee Center</div>
+          <div class="sub">Card White Label Platform</div>
+        </div>
+        <div class="fc-arrow">←</div>
+        <div class="fc-block platform highlight" style="min-width:240px;">
+          <div class="label">利润计算</div>
+          <div class="value" style="font-size:15px;">Sell Price − Cost Price = 平台利润</div>
+          <div class="sub">Margin% = Profit ÷ Sell Price</div>
+        </div>
+        <div class="fc-arrow">→</div>
+        <div class="fc-block" style="border-color:rgba(255,202,0,.3);min-width:200px;">
+          <div class="label">收入来源</div>
+          <div class="value" style="font-size:13px;color:#FFCA00;">Issuance + Transaction + FX + Monthly</div>
+        </div>
+      </div>
+
+      <div class="fc-connector"></div>
+
+      <!-- Layer 1: Partner -->
+      <div class="fc-layer" style="position:relative;">
+        <div class="fc-side">售价层<br><span style="color:#52C41A;">Sell Price</span></div>
+        <div class="fc-block partner">
+          <div class="label">Partner</div>
+          <div class="value">白标客户</div>
+          <div class="sub">交易平台 / 钱包 / 电商</div>
+        </div>
+        <div class="fc-arrow">←</div>
+        <div class="fc-block partner" style="min-width:220px;">
+          <div class="label">Partner 定价</div>
+          <div class="value" style="font-size:13px;color:#52C41A;">平台模板 → Override → 完全定制</div>
+          <div class="sub">可叠加 Markup</div>
+        </div>
+        <div class="fc-arrow">→</div>
+        <div class="fc-block partner" style="min-width:200px;">
+          <div class="label">向平台付</div>
+          <div class="value" style="font-size:13px;color:#52C41A;">Sell Price</div>
+          <div class="sub">按月结算</div>
+        </div>
+      </div>
+
+      <div class="fc-connector"></div>
+
+      <!-- Layer 0: End User -->
+      <div class="fc-layer" style="position:relative;">
+        <div class="fc-side">实际付费方</div>
+        <div class="fc-block user highlight" style="min-width:220px;">
+          <div class="label">End User</div>
+          <div class="value">持卡人（实际付费方）</div>
+          <div class="sub">最终承担 · 3种承担模式</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== 2. Fee Center Module Architecture ===== -->
+  <div class="section">
+    <div class="section-title">2. Fee Center 模块架构 <span class="tag">Modules</span></div>
+    <div class="module-grid">
+
+      <div class="module-card">
+        <div class="m-icon">📋</div>
+        <div class="m-title">Fee Plan Engine</div>
+        <div class="m-desc">定价方案管理引擎，管理 Fee Plan 的创建、版本、审批、生效。</div>
+        <div class="m-items">
+          <div class="item"><span class="dot gold"></span> Fee Plan Template</div>
+          <div class="item"><span class="dot gold"></span> Fee Rule Chain</div>
+          <div class="item"><span class="dot gold"></span> Priority Matching</div>
+          <div class="item"><span class="dot blue"></span> Version + Approval</div>
+        </div>
+      </div>
+
+      <div class="module-card">
+        <div class="m-icon">💰</div>
+        <div class="m-title">Cost Price Manager</div>
+        <div class="m-desc">管理 Provider 端成本（Interchange/Processor/Network）。</div>
+        <div class="m-items">
+          <div class="item"><span class="dot red"></span> Provider Fee Template</div>
+          <div class="item"><span class="dot red"></span> Interchange Table</div>
+          <div class="item"><span class="dot red"></span> Processor Fee Schedule</div>
+          <div class="item"><span class="dot orange"></span> Network Fee Table</div>
+        </div>
+      </div>
+
+      <div class="module-card">
+        <div class="m-icon">🏷️</div>
+        <div class="m-title">Sell Price Manager</div>
+        <div class="m-desc">管理 Partner 端售价，支持模板 + Override + 完全定制。</div>
+        <div class="m-items">
+          <div class="item"><span class="dot gold"></span> Partner Fee Config</div>
+          <div class="item"><span class="dot gold"></span> Markup Override</div>
+          <div class="item"><span class="dot gold"></span> Discount Engine</div>
+          <div class="item"><span class="dot green"></span> Bulk Config</div>
+        </div>
+      </div>
+
+      <div class="module-card">
+        <div class="m-icon">⚖️</div>
+        <div class="m-title">Burden Model Engine</div>
+        <div class="m-desc">费用承担模型 — End User / Partner / Platform 三方分担。</div>
+        <div class="m-items">
+          <div class="item"><span class="dot blue"></span> User Burden</div>
+          <div class="item"><span class="dot green"></span> Partner Burden</div>
+          <div class="item"><span class="dot gold"></span> Platform Burden</div>
+          <div class="item"><span class="dot orange"></span> Promotion Config</div>
+        </div>
+      </div>
+
+      <div class="module-card">
+        <div class="m-icon">🧮</div>
+        <div class="m-title">Fee Calculator</div>
+        <div class="m-desc">实时费用计算引擎，按规则匹配 + 费率计算 + 承担分配。</div>
+        <div class="m-items">
+          <div class="item"><span class="dot gold"></span> Real-time Calculation</div>
+          <div class="item"><span class="dot gold"></span> Batch Settlement Calc</div>
+          <div class="item"><span class="dot blue"></span> Fee Preview / Simulation</div>
+          <div class="item"><span class="dot green"></span> Multi-currency FX Calc</div>
+        </div>
+      </div>
+
+      <div class="module-card">
+        <div class="m-icon">📊</div>
+        <div class="m-title">Fee Ledger & Settlement</div>
+        <div class="m-desc">费用流水记账 + 结算生成 + 对账 + 报告导出。</div>
+        <div class="m-items">
+          <div class="item"><span class="dot blue"></span> Fee Transaction Ledger</div>
+          <div class="item"><span class="dot green"></span> Settlement Summary</div>
+          <div class="item"><span class="dot gold"></span> Reconciliation</div>
+          <div class="item"><span class="dot orange"></span> Report Export (CSV/Excel)</div>
+        </div>
+      </div>
+
+      <div class="module-card">
+        <div class="m-icon">🛡️</div>
+        <div class="m-title">Risk & Compliance</div>
+        <div class="m-desc">费用风控规则 — 异常检测 / Chargeback / 争议处理。</div>
+        <div class="m-items">
+          <div class="item"><span class="dot red"></span> Chargeback Fee</div>
+          <div class="item"><span class="dot red"></span> Dispute Handling</div>
+          <div class="item"><span class="dot orange"></span> Anomaly Detection</div>
+        </div>
+      </div>
+
+      <div class="module-card">
+        <div class="m-icon">📈</div>
+        <div class="m-title">Reports & Analytics</div>
+        <div class="m-desc">平台收入分析 / Partner 费用报告 / 成本分析。</div>
+        <div class="m-items">
+          <div class="item"><span class="dot gold"></span> Revenue Dashboard</div>
+          <div class="item"><span class="dot green"></span> Partner Fee Report</div>
+          <div class="item"><span class="dot blue"></span> Cost Analysis</div>
+          <div class="item"><span class="dot orange"></span> Margin Analytics</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== 3. Fee Flow ===== -->
+  <div class="section">
+    <div class="section-title">3. 费用计算流程 <span class="tag">Flow</span></div>
+    <div class="flow-row">
+      <div class="flow-node">
+        <div class="fn-label">交易发生</div>
+        <div class="fn-value" style="font-size:13px;color:#8888A0;">Amount $100</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">
+        <div class="fn-label">匹配 Fee Plan</div>
+        <div class="fn-value gold">Sell Plan</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">
+        <div class="fn-label">匹配 Fee Rule</div>
+        <div class="fn-value gold">按条件 + 优先级</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">
+        <div class="fn-label">计算</div>
+        <div class="fn-value" style="color:#60A5FA;">2.0% + $0.20</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">
+        <div class="fn-label">承担分配</div>
+        <div class="fn-value green">End User</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">
+        <div class="fn-label">写入流水</div>
+        <div class="fn-value" style="color:#FFCA00;">Fee Ledger</div>
+      </div>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item"><span style="color:#FFCA00;">●</span> Sell Price</div>
+      <div class="legend-item"><span style="color:#FF4D4F;">●</span> Cost Price</div>
+      <div class="legend-item"><span style="color:#52C41A;">●</span> Partner Fee</div>
+      <div class="legend-item"><span style="color:#60A5FA;">●</span> Calculation</div>
+    </div>
+  </div>
+
+  <!-- ===== 4. Fee Type Table ===== -->
+  <div class="section">
+    <div class="section-title">4. 费用类型明细 <span class="tag">Fee Types</span></div>
+    <div class="fee-table-wrap">
+      <table class="fee-table">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Fee Type</th>
+            <th>场景</th>
+            <th>计算方法</th>
+            <th>Cost（Provider）</th>
+            <th>Sell（Platform）</th>
+            <th>Default Burden</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>ISSUANCE</td>
+            <td>Virtual Card</td>
+            <td>虚拟卡开卡</td>
+            <td>Flat</td>
+            <td>$1.50</td>
+            <td>$2.50</td>
+            <td><span class="badge partner">Partner</span></td>
+          </tr>
+          <tr>
+            <td>ISSUANCE</td>
+            <td>Physical Card</td>
+            <td>实体卡开卡</td>
+            <td>Flat</td>
+            <td>$3.00</td>
+            <td>$5.00</td>
+            <td><span class="badge partner">Partner</span></td>
+          </tr>
+          <tr>
+            <td>FUNDING</td>
+            <td>Deposit</td>
+            <td>充值预存资金</td>
+            <td>Percentage</td>
+            <td>0.5%</td>
+            <td>1.0%</td>
+            <td><span class="badge partner">Partner</span></td>
+          </tr>
+          <tr>
+            <td>FUNDING</td>
+            <td>Withdrawal</td>
+            <td>提现预存资金</td>
+            <td>Flat</td>
+            <td>$1.00</td>
+            <td>$2.00</td>
+            <td><span class="badge partner">Partner</span></td>
+          </tr>
+          <tr>
+            <td>TRANSACTION</td>
+            <td>Purchase (Domestic)</td>
+            <td>境内消费</td>
+            <td>Hybrid</td>
+            <td>1.5% + $0.10</td>
+            <td>2.0% + $0.20</td>
+            <td><span class="badge user">User</span></td>
+          </tr>
+          <tr>
+            <td>TRANSACTION</td>
+            <td>Purchase (Cross-Border)</td>
+            <td>跨境消费</td>
+            <td>Hybrid</td>
+            <td>2.0% + $0.15</td>
+            <td>2.5% + $0.30</td>
+            <td><span class="badge user">User</span></td>
+          </tr>
+          <tr>
+            <td>TRANSACTION</td>
+            <td>Refund</td>
+            <td>退款处理</td>
+            <td>Flat</td>
+            <td>$0.10</td>
+            <td>$0.50</td>
+            <td><span class="badge user">User</span></td>
+          </tr>
+          <tr>
+            <td>TRANSACTION</td>
+            <td>Chargeback</td>
+            <td>退单处理</td>
+            <td>Flat</td>
+            <td>$10.00</td>
+            <td>$15.00</td>
+            <td><span class="badge partner">Partner</span></td>
+          </tr>
+          <tr>
+            <td>TRANSACTION</td>
+            <td>ATM Withdrawal</td>
+            <td>ATM提现</td>
+            <td>Hybrid</td>
+            <td>$1.50 + 0.5%</td>
+            <td>$2.00 + 1.0%</td>
+            <td><span class="badge user">User</span></td>
+          </tr>
+          <tr>
+            <td>FX</td>
+            <td>FX Markup</td>
+            <td>跨境换汇</td>
+            <td>Percentage</td>
+            <td>1.0%</td>
+            <td>2.0%</td>
+            <td><span class="badge user">User</span></td>
+          </tr>
+          <tr>
+            <td>MAINTENANCE</td>
+            <td>Monthly Active Card</td>
+            <td>月活卡费</td>
+            <td>Flat</td>
+            <td>$0.20</td>
+            <td>$0.50</td>
+            <td><span class="badge partner">Partner</span></td>
+          </tr>
+          <tr>
+            <td>OTHER</td>
+            <td>Pin Change</td>
+            <td>PIN修改</td>
+            <td>Flat</td>
+            <td>$0.15</td>
+            <td>$0.50</td>
+            <td><span class="badge user">User</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== 5. Settlement Flow ===== -->
+  <div class="section">
+    <div class="section-title">5. 结算流程 <span class="tag">Settlement</span></div>
+    <div class="settle-flow">
+      <div class="settle-step done">
+        <div class="settle-num">1</div>
+        <div class="settle-info">
+          <div class="step-title">锁定结算周期</div>
+          <div class="step-desc">获取未结算的 Fee Transaction，标记为 settling 防止重复结算</div>
+        </div>
+      </div>
+      <div class="settle-step done">
+        <div class="settle-num">2</div>
+        <div class="settle-info">
+          <div class="step-title">计算 Partner 净额</div>
+          <div class="step-desc">按 Partner 聚合 — 交易净额 + 费用汇总 + Chargeback 扣款 + 退款调整 = 净结算金额</div>
+        </div>
+      </div>
+      <div class="settle-step">
+        <div class="settle-num">3</div>
+        <div class="settle-info">
+          <div class="step-title">生成结算报告</div>
+          <div class="step-desc">Settlement Summary + Fee Detail Breakdown + Cost Breakdown → CSV / Excel 导出</div>
+        </div>
+      </div>
+      <div class="settle-step">
+        <div class="settle-num">4</div>
+        <div class="settle-info">
+          <div class="step-title">平台内部对账</div>
+          <div class="step-desc">核对 Provider 账单 vs 平台流水 → 标记差异 → 手动调整</div>
+        </div>
+      </div>
+      <div class="settle-step">
+        <div class="settle-num">5</div>
+        <div class="settle-info">
+          <div class="step-title">结算确认 & 资金划拨</div>
+          <div class="step-desc">Partner 确认 → Platform 审批 → 资金划拨（冲抵预存） → 会计凭证</div>
+        </div>
+      </div>
+      <div class="settle-step">
+        <div class="settle-num">6</div>
+        <div class="settle-info">
+          <div class="step-title">完成 & 通知</div>
+          <div class="step-desc">Fee Transaction 标记 settled → Settlement 标记 completed → Webhook 通知 Partner</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 6. Burden Model ===== -->
+  <div class="section">
+    <div class="section-title">6. 费用承担模型 <span class="tag">Burden Model</span></div>
+    <div class="flow-row">
+      <div class="flow-node" style="min-width:180px;">
+        <div class="fn-label">A. End User 承担（默认）</div>
+        <div class="fn-value" style="font-size:13px;color:#8888A0;">User Fee → Partner Pass Through</div>
+      </div>
+      <div class="flow-arrow">|</div>
+      <div class="flow-node" style="min-width:180px;">
+        <div class="fn-label">B. Partner 承担（促销）</div>
+        <div class="fn-value" style="font-size:13px;color:#8888A0;">User 0 Fee → Partner Pays</div>
+      </div>
+      <div class="flow-arrow">|</div>
+      <div class="flow-node" style="min-width:180px;">
+        <div class="fn-label">C. 平台补贴（推广期）</div>
+        <div class="fn-value" style="font-size:13px;color:#8888A0;">User 0 Fee → Partner 0 Fee → Platform Subsidizes</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;padding:30px 0 10px;color:#55556E;font-size:12px;">
+    Card White Label Platform · Fee Management System · v1.0
+  </div>
+
+</div>
+</body>
+</html>

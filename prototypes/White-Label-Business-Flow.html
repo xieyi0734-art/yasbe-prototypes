@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>白标客户业务流程图 - Card White Label Platform</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: #0F0F13;
+    color: #EAEAEA;
+    padding: 40px;
+  }
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .page-title {
+    font-size: 28px; font-weight: 700;
+    color: #FFCA00; margin-bottom: 4px;
+  }
+  .page-sub {
+    font-size: 14px; color: #8888A0; margin-bottom: 40px;
+  }
+
+  /* ===== Section ===== */
+  .section {
+    margin-bottom: 48px;
+  }
+  .section-title {
+    font-size: 18px; font-weight: 600; color: #EAEAEA;
+    margin-bottom: 20px; padding-bottom: 10px;
+    border-bottom: 1px solid #2A2A3A;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-title .tag {
+    font-size: 11px; background: rgba(255,202,0,.15); color: #FFCA00;
+    padding: 2px 10px; border-radius: 10px; font-weight: 500;
+  }
+
+  /* ===== Swimlane ===== */
+  .swimlane {
+    background: #14141C;
+    border: 1px solid #2A2A3A;
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .lane {
+    display: flex;
+    min-height: 80px;
+    border-bottom: 1px solid #1E1E2D;
+    position: relative;
+  }
+  .lane:last-child { border-bottom: none; }
+
+  .lane-label {
+    width: 120px;
+    min-width: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 8px;
+    border-right: 1px solid #1E1E2D;
+    text-align: center;
+    background: #111118;
+  }
+  .lane-label .role {
+    font-size: 13px; font-weight: 600; color: #EAEAEA;
+  }
+  .lane-label .sub {
+    font-size: 10px; color: #55556E; margin-top: 2px;
+  }
+  .lane-label.partner .role { color: #52C41A; }
+  .lane-label.platform .role { color: #60A5FA; }
+  .lane-label.provider .role { color: #FF4D4F; }
+  .lane-label.user .role { color: #FFCA00; }
+
+  .lane-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 20px;
+    overflow-x: auto;
+    min-height: 80px;
+  }
+
+  /* ===== Flow Node ===== */
+  .flow-node {
+    background: #1A1A23;
+    border: 1px solid #2A2A3A;
+    border-radius: 10px;
+    padding: 12px 16px;
+    text-align: center;
+    min-width: 130px;
+    flex-shrink: 0;
+    position: relative;
+    cursor: default;
+    transition: all .2s;
+  }
+  .flow-node:hover {
+    border-color: rgba(255,202,0,.25);
+    box-shadow: 0 0 15px rgba(0,0,0,.3);
+  }
+
+  .flow-node .fn-icon {
+    font-size: 22px; margin-bottom: 4px;
+  }
+  .flow-node .fn-label {
+    font-size: 11px; color: #8888A0; letter-spacing: 0.3px;
+  }
+  .flow-node .fn-value {
+    font-size: 14px; font-weight: 600; color: #EAEAEA; margin-top: 2px;
+  }
+  .flow-node .fn-sub {
+    font-size: 10px; color: #55556E; margin-top: 1px;
+  }
+
+  /* Node colors */
+  .flow-node.green { border-color: rgba(82,196,26,.25); }
+  .flow-node.green .fn-value { color: #52C41A; }
+  .flow-node.blue { border-color: rgba(96,165,250,.25); }
+  .flow-node.blue .fn-value { color: #60A5FA; }
+  .flow-node.red { border-color: rgba(255,77,79,.25); }
+  .flow-node.red .fn-value { color: #FF4D4F; }
+  .flow-node.gold { border-color: rgba(255,202,0,.25); }
+  .flow-node.gold .fn-value { color: #FFCA00; }
+  .flow-node.orange { border-color: rgba(250,173,20,.25); }
+  .flow-node.orange .fn-value { color: #FAAD14; }
+
+  .flow-node.decision {
+    border-radius: 6px;
+    transform: rotate(0deg);
+    border-style: dashed;
+    min-width: 140px;
+  }
+  .flow-node.decision .fn-value { font-size: 12px; }
+  .flow-node.start {
+    border-width: 2px;
+    border-color: rgba(82,196,26,.4);
+    background: rgba(82,196,26,.05);
+    min-width: 100px;
+  }
+  .flow-node.end {
+    border-width: 2px;
+    border-color: rgba(255,202,0,.4);
+    background: rgba(255,202,0,.05);
+    min-width: 100px;
+  }
+
+  /* Arrow */
+  .flow-arrow {
+    font-size: 18px; color: #3A3A4F;
+    flex-shrink: 0;
+    user-select: none;
+  }
+  .flow-arrow.labeled {
+    display: flex; flex-direction: column; align-items: center;
+    font-size: 9px; color: #55556E; letter-spacing: 0.3px;
+    line-height: 1.4;
+  }
+  .flow-arrow.labeled .arrow { font-size: 14px; color: #3A3A4F; }
+
+  /* Cross-lane connector */
+  .cross-connector {
+    position: absolute;
+    left: 120px; right: 0;
+    height: 2px;
+    background: linear-gradient(to right, #2A2A3A, transparent);
+    opacity: 0.3;
+  }
+
+  /* ===== Phase markers ===== */
+  .phase-marker {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px;
+    margin-bottom: 12px;
+    font-size: 12px;
+    color: #8888A0;
+  }
+  .phase-marker .bar {
+    flex: 1; height: 1px;
+    background: linear-gradient(to right, #2A2A3A, transparent);
+  }
+
+  /* ===== Legend ===== */
+  .legend-bar {
+    display: flex; gap: 24px; margin-top: 16px;
+    font-size: 12px; color: #8888A0;
+    flex-wrap: wrap;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+
+  /* ===== Collapsible detail ===== */
+  .detail-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 24px;
+    padding: 20px;
+    background: #111118;
+    border: 1px solid #1E1E2D;
+    border-radius: 12px;
+  }
+  .detail-card {
+    flex: 1;
+    min-width: 200px;
+    background: #1A1A23;
+    border: 1px solid #2A2A3A;
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .detail-card .dc-title {
+    font-size: 13px; font-weight: 600; color: #EAEAEA;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #2A2A3A;
+  }
+  .detail-card .dc-item {
+    font-size: 12px; color: #8888A0;
+    padding: 4px 0;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .detail-card .dc-item .dot {
+    width: 4px; height: 4px; border-radius: 50%; flex-shrink: 0;
+  }
+  .dot.gold { background: #FFCA00; }
+  .dot.green { background: #52C41A; }
+  .dot.blue { background: #60A5FA; }
+  .dot.red { background: #FF4D4F; }
+  .dot.orange { background: #FAAD14; }
+
+  @media (max-width: 768px) {
+    body { padding: 20px; }
+    .lane-label { width: 80px; min-width: 80px; font-size: 11px; }
+    .flow-node { min-width: 100px; padding: 10px 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="page-title">白标客户业务流程图</div>
+<div class="page-sub">Card White Label Platform · Partner 全生命周期业务流</div>
+
+<!-- ===== Phase 1: 入驻 ===== -->
+<div class="section">
+  <div class="section-title">Phase 1 · 入驻与KYB认证 <span class="tag">Onboarding</span></div>
+  <div class="swimlane">
+
+    <!-- Lane: Partner -->
+    <div class="lane">
+      <div class="lane-label partner"><div class="role">白标客户</div><div class="sub">Partner</div></div>
+      <div class="lane-content">
+        <div class="flow-node start">
+          <div class="fn-icon">📝</div>
+          <div class="fn-label">发起入驻</div>
+          <div class="fn-value">提交申请</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">
+          <div class="fn-icon">🏢</div>
+          <div class="fn-label">填写企业信息</div>
+          <div class="fn-value">基础 + 地址</div>
+          <div class="fn-sub">注册邮箱 / 公司名 / 法人 / 注册地址</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">
+          <div class="fn-icon">📄</div>
+          <div class="fn-label">上传KYC文件</div>
+          <div class="fn-value">KYB文件</div>
+          <div class="fn-sub">营业执照 / 法人证件 / 章程</div>
+        </div>
+        <div class="flow-arrow labeled">
+          <div class="arrow">↓</div>
+          <div>提交</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lane: Platform -->
+    <div class="lane">
+      <div class="lane-label platform"><div class="role">平台</div><div class="sub">Platform</div></div>
+      <div class="lane-content">
+        <div class="flow-node blue">
+          <div class="fn-icon">📬</div>
+          <div class="fn-label">接收入驻申请</div>
+          <div class="fn-value">初审材料完整性</div>
+          <div class="fn-sub">自动校验文件格式</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node blue">
+          <div class="fn-icon">🔍</div>
+          <div class="fn-label">审核KYB</div>
+          <div class="fn-value">人工+机器审核</div>
+          <div class="fn-sub">1-3工作日</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node decision blue" style="min-width:160px;">
+          <div class="fn-icon">⚖️</div>
+          <div class="fn-label">审核结果</div>
+          <div class="fn-value">通过 / 驳回</div>
+        </div>
+        <div class="flow-arrow labeled">
+          <div class="arrow">→</div>
+          <div>通过</div>
+        </div>
+        <div class="flow-node green">
+          <div class="fn-icon">✅</div>
+          <div class="fn-label">签署合约</div>
+          <div class="fn-value">电子签章</div>
+          <div class="fn-sub">Fee Plan / SLA / 协议</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Detail collapse -->
+  <div class="detail-row">
+    <div class="detail-card">
+      <div class="dc-title">KYB 审核材料</div>
+      <div class="dc-item"><span class="dot green"></span> Business License</div>
+      <div class="dc-item"><span class="dot green"></span> 法人身份证明</div>
+      <div class="dc-item"><span class="dot green"></span> 公司章程</div>
+      <div class="dc-item"><span class="dot green"></span> 地址证明</div>
+      <div class="dc-item"><span class="dot orange"></span> 股东结构（如有）</div>
+    </div>
+    <div class="detail-card">
+      <div class="dc-title">合约核心条款</div>
+      <div class="dc-item"><span class="dot gold"></span> Fee Plan 定价模板</div>
+      <div class="dc-item"><span class="dot gold"></span> 结算周期（T+1 / T+7）</div>
+      <div class="dc-item"><span class="dot gold"></span> 最低预存资金要求</div>
+      <div class="dc-item"><span class="dot gold"></span> 开卡/交易限额</div>
+    </div>
+    <div class="detail-card">
+      <div class="dc-title">审核不通过原因</div>
+      <div class="dc-item"><span class="dot red"></span> 文件不完整或不清晰</div>
+      <div class="dc-item"><span class="dot red"></span> 企业信息不一致</div>
+      <div class="dc-item"><span class="dot red"></span> 涉高风险行业</div>
+      <div class="dc-item"><span class="dot red"></span> 股东/高管有不良记录</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Phase 2: 配置 ===== -->
+<div class="section">
+  <div class="section-title">Phase 2 · 产品与费率配置 <span class="tag">Configuration</span></div>
+  <div class="swimlane">
+
+    <div class="lane">
+      <div class="lane-label partner"><div class="role">白标客户</div><div class="sub">Partner</div></div>
+      <div class="lane-content">
+        <div class="flow-node green">
+          <div class="fn-icon">🃏</div>
+          <div class="fn-label">选择卡产品</div>
+          <div class="fn-value">虚拟卡 / 实体卡</div>
+          <div class="fn-sub">Visa Consumer / Business</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node green">
+          <div class="fn-icon">🎨</div>
+          <div class="fn-label">卡面定制</div>
+          <div class="fn-value">Logo / Card Design</div>
+          <div class="fn-sub">品牌色 / 卡面图案</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node green">
+          <div class="fn-icon">💰</div>
+          <div class="fn-label">费率Override</div>
+          <div class="fn-value">Markup / Discount</div>
+          <div class="fn-sub">在模板基础上调整</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node green">
+          <div class="fn-icon">🔗</div>
+          <div class="fn-label">技术对接</div>
+          <div class="fn-value">API集成</div>
+          <div class="fn-sub">Webhook / 白标门户</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lane">
+      <div class="lane-label platform"><div class="role">平台</div><div class="sub">Platform</div></div>
+      <div class="lane-content">
+        <div class="flow-node blue">
+          <div class="fn-icon">📋</div>
+          <div class="fn-label">创建Partner配置</div>
+          <div class="fn-value">Fee Plan + 卡产品</div>
+          <div class="fn-sub">分配费率模板</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node blue">
+          <div class="fn-icon">🔑</div>
+          <div class="fn-label">发放API Key</div>
+          <div class="fn-value">Prod / Sandbox</div>
+          <div class="fn-sub">权限范围配置</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node blue">
+          <div class="fn-icon">🧪</div>
+          <div class="fn-label">Sandbox测试</div>
+          <div class="fn-value">联调环境</div>
+          <div class="fn-sub">模拟交易测试</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node gold">
+          <div class="fn-icon">🚀</div>
+          <div class="fn-label">上线就绪</div>
+          <div class="fn-value">Production Ready</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== Phase 3: 预存资金 ===== -->
+<div class="section">
+  <div class="section-title">Phase 3 · 资金预存 <span class="tag">Funding</span></div>
+  <div class="swimlane">
+
+    <div class="lane">
+      <div class="lane-label partner"><div class="role">白标客户</div><div class="sub">Partner</div></div>
+      <div class="lane-content">
+        <div class="flow-node green">
+          <div class="fn-icon">💳</div>
+          <div class="fn-label">充值预存资金</div>
+          <div class="fn-value">Bank Transfer / Crypto</div>
+        </div>
+        <div class="flow-arrow labeled">
+          <div class="arrow">→</div>
+          <div>转帐</div>
+        </div>
+        <div class="flow-node green">
+          <div class="fn-icon">📊</div>
+          <div class="fn-label">查看余额</div>
+          <div class="fn-value">Partner Dashboard</div>
+          <div class="fn-sub">可用余额 / 冻结金额</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lane">
+      <div class="lane-label platform"><div class="role">平台</div><div class="sub">Platform</div></div>
+      <div class="lane-content">
+        <div class="flow-node blue">
+          <div class="fn-icon">💵</div>
+          <div class="fn-label">确认到账</div>
+          <div class="fn-value">入账处理</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node blue">
+          <div class="fn-icon">📈</div>
+          <div class="fn-label">更新可用余额</div>
+          <div class="fn-value">预存账户</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node gold">
+          <div class="fn-icon">✅</div>
+          <div class="fn-label">资金可用</div>
+          <div class="fn-value">可开卡+可交易</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== Phase 4: 发卡 ===== -->
+<div class="section">
+  <div class="section-title">Phase 4 · 发卡管理 <span class="tag">Card Issuance</span></div>
+  <div class="swimlane">
+
+    <div class="lane">
+      <div class="lane-label partner"><div class="role">白标客户</div><div class="sub">Partner</div></div>
+      <div class="lane-content">
+        <div class="flow-node green">
+          <div class="fn-icon">👤</div>
+          <div class="fn-label">创建持卡人</div>
+          <div class="fn-value">姓名 / 邮箱 / 电话</div>
+          <div class="fn-sub">≥1人，≤20张/人</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node green">
+          <div class="fn-icon">🃏</div>
+          <div class="fn-label">批量开卡</div>
+          <div class="fn-value">选择数量 & 数量</div>
+          <div class="fn-sub">单次≤100张</div>
+        </div>
+        <div class="flow-arrow labeled">
+          <div class="arrow">→</div>
+          <div>提交</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lane">
+      <div class="lane-label platform"><div class="role">平台</div><div class="sub">Platform</div></div>
+      <div class="lane-content">
+        <div class="flow-node blue">
+          <div class="fn-icon">🔄</div>
+          <div class="fn-label">校验额度</div>
+          <div class="fn-value">持卡人 ≤20张</div>
+          <div class="fn-sub">余额足够</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node blue">
+          <div class="fn-icon">🔗</div>
+          <div class="fn-label">调用发卡方API</div>
+          <div class="fn-value">Visa Processor</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node blue">
+          <div class="fn-icon">📝</div>
+          <div class="fn-label">记录开卡费用</div>
+          <div class="fn-value">Fee Ledger记账</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lane">
+      <div class="lane-label provider"><div class="role">发卡方</div><div class="sub">Provider</div></div>
+      <div class="lane-content">
+        <div class="flow-node red">
+          <div class="fn-icon">🏦</div>
+          <div class="fn-label">发卡处理</div>
+          <div class="fn-value">生成卡号 / CVV</div>
+        </div>
+        <div class="flow-arrow labeled">
+          <div class="arrow">→</div>
+          <div>成功</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lane">
+      <div class="lane-label user"><div class="role">持卡人</div><div class="sub">End User</div></div>
+      <div class="lane-content">
+        <div class="flow-node gold">
+          <div class="fn-icon">📱</div>
+          <div class="fn-label">激活卡片</div>
+          <div class="fn-value">姓名 / 邮箱 / 首充</div>
+          <div class="fn-sub">激活后才能使用</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node gold end" style="min-width:120px;">
+          <div class="fn-icon">✅</div>
+          <div class="fn-label">卡片可用</div>
+          <div class="fn-value">可消费 / 可提现</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== Phase 5: 交易 ===== -->
+<div class="section">
+  <div class="section-title">Phase 5 · 交易与费用处理 <span class="tag">Transaction & Fee</span></div>
+  <div class="swimlane">
+
+    <div class="lane">
+      <div class="lane-label user"><div class="role">持卡人</div><div class="sub">End User</div></div>
+      <div class="lane-content">
+        <div class="flow-node gold">
+          <div class="fn-icon">🛒</div>
+          <div class="fn-label">消费 / ATM / 退款</div>
+          <div class="fn-value">支付行为</div>
+        </div>
+        <div class="flow-arrow labeled">
+          <div class="arrow">↓</div>
+          <div>交易产生</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lane">
+      <div class="lane-label provider"><div class="role">发卡方</div><div class="sub">Provider</div></div>
+      <div class="lane-content">
+        <div class="flow-node red">
+          <div class="fn-icon">⚡</div>
+          <div class="fn-label">授权 & 清算</div>
+          <div class="fn-value">Auth + Clearing</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node red">
+          <div class="fn-icon">💰</div>
+          <div class="fn-label">产生成本</div>
+          <div class="fn-value">Interchange + Processor + Network</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lane">
+      <div class="lane-label platform"><div class="role">平台</div><div class="sub">Platform</div></div>
+      <div class="lane-content">
+        <div class="flow-node blue">
+          <div class="fn-icon">📋</div>
+          <div class="fn-label">匹配Fee Rule</div>
+          <div class="fn-value">按优先级匹配</div>
+          <div class="fn-sub">Partner × 卡产品 × 交易类型</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node blue">
+          <div class="fn-icon">🧮</div>
+          <div class="fn-label">计算费用</div>
+          <div class="fn-value">Cost + Sell + Spread</div>
+          <div class="fn-sub">实时计算</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node blue">
+          <div class="fn-icon">⚖️</div>
+          <div class="fn-label">承担分配</div>
+          <div class="fn-value">User / Partner / Platform</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node blue">
+          <div class="fn-icon">📊</div>
+          <div class="fn-label">写入Fee Ledger</div>
+          <div class="fn-value">交易流水 + 费用账</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== Phase 6: 结算 ===== -->
+<div class="section">
+  <div class="section-title">Phase 6 · 结算与对账 <span class="tag">Settlement</span></div>
+  <div class="swimlane">
+
+    <div class="lane">
+      <div class="lane-label platform"><div class="role">平台</div><div class="sub">Platform</div></div>
+      <div class="lane-content">
+        <div class="flow-node blue">
+          <div class="fn-icon">🔒</div>
+          <div class="fn-label">锁定结算周期</div>
+          <div class="fn-value">T+1 / T+7</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node blue">
+          <div class="fn-icon">🧮</div>
+          <div class="fn-label">计算Partner净额</div>
+          <div class="fn-value">交易净额 + 费用 - Chargeback</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node blue">
+          <div class="fn-icon">📄</div>
+          <div class="fn-label">生成结算报告</div>
+          <div class="fn-value">CSV / Excel导出</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node blue">
+          <div class="fn-icon">🔍</div>
+          <div class="fn-label">平台对账</div>
+          <div class="fn-value">Provider账单 vs 流水</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node blue">
+          <div class="fn-icon">📬</div>
+          <div class="fn-label">通知Partner</div>
+          <div class="fn-value">Webhook + Email</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lane">
+      <div class="lane-label partner"><div class="role">白标客户</div><div class="sub">Partner</div></div>
+      <div class="lane-content">
+        <div class="flow-node green">
+          <div class="fn-icon">👁️</div>
+          <div class="fn-label">查看结算单</div>
+          <div class="fn-value">Partner Dashboard</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node decision green" style="min-width:150px;">
+          <div class="fn-icon">👍</div>
+          <div class="fn-label">确认 / 争议</div>
+          <div class="fn-value">确认或提争议</div>
+        </div>
+        <div class="flow-arrow labeled">
+          <div class="arrow">→</div>
+          <div>确认</div>
+        </div>
+        <div class="flow-node green end">
+          <div class="fn-icon">💸</div>
+          <div class="fn-label">资金划拨</div>
+          <div class="fn-value">净额结算完成</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== Phase 7: 日常运营 ===== -->
+<div class="section">
+  <div class="section-title">Phase 7 · 日常运营管理 <span class="tag">Operations</span></div>
+  <div class="swimlane">
+
+    <div class="lane">
+      <div class="lane-label partner"><div class="role">白标客户</div><div class="sub">Partner</div></div>
+      <div class="lane-content">
+        <div class="flow-node green">
+          <div class="fn-icon">📊</div>
+          <div class="fn-label">数据分析</div>
+          <div class="fn-value">交易 / 费用 / 收入报表</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node green">
+          <div class="fn-icon">🛡️</div>
+          <div class="fn-label">风控管理</div>
+          <div class="fn-value">限额 / 黑白名单</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node green">
+          <div class="fn-icon">🆙</div>
+          <div class="fn-label">申请权限变更</div>
+          <div class="fn-value">提额 / 新品 / 调费</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node green">
+          <div class="fn-icon">📞</div>
+          <div class="fn-label">工单 & 客服</div>
+          <div class="fn-value">技术支持 / 投诉</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lane">
+      <div class="lane-label platform"><div class="role">平台</div><div class="sub">Platform</div></div>
+      <div class="lane-content">
+        <div class="flow-node blue">
+          <div class="fn-icon">⚙️</div>
+          <div class="fn-label">系统运维</div>
+          <div class="fn-value">API监控 / 可用性</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node blue">
+          <div class="fn-icon">🔄</div>
+          <div class="fn-label">变更处理</div>
+          <div class="fn-value">审核 + 配置更新</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node blue">
+          <div class="fn-icon">📋</div>
+          <div class="fn-label">合规审计</div>
+          <div class="fn-value">定期复查</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== Summary ===== -->
+<div class="section">
+  <div class="section-title">核心参与角色 <span class="tag">Roles</span></div>
+  <div class="legend-bar">
+    <div class="legend-item"><span style="color:#52C41A;">●</span> 白标客户 (Partner) — 入驻、配置、发卡、查看报表</div>
+    <div class="legend-item"><span style="color:#60A5FA;">●</span> 平台 (Platform) — 审核、配置、计费、结算、运维</div>
+    <div class="legend-item"><span style="color:#FF4D4F;">●</span> 发卡方 (Provider) — Visa/Mastercard 处理商</div>
+    <div class="legend-item"><span style="color:#FFCA00;">●</span> 持卡人 (End User) — 最终使用卡片的用户</div>
+  </div>
+</div>
+
+<div style="text-align:center;padding:30px 0 10px;color:#55556E;font-size:12px;">
+  Card White Label Platform · Partner Business Flow · v1.0
+</div>
+
+</div>
+</body>
+</html>

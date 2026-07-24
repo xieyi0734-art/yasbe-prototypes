@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Get Started — CYRO</title>
+<style>
+/* === Reset & Base === */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --gold: #E59303;
+  --gold-light: rgba(229,147,3,0.08);
+  --gold-mid: rgba(229,147,3,0.18);
+  --bg: #ffffff;
+  --text: #1a1a2e;
+  --text-muted: #4a4a5e;
+  --text-light: #8a8a9e;
+  --border: #e4e4ec;
+  --card-bg: #ffffff;
+  --radius: 10px;
+  --max-w: 440px;
+  --font: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b0b1a;
+    --text: #e8e8f0;
+    --text-muted: #a0a0b8;
+    --text-light: #6a6a80;
+    --border: #2a2a40;
+    --card-bg: #111128;
+    --gold-light: rgba(229,147,3,0.06);
+    --gold-mid: rgba(229,147,3,0.12);
+  }
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* === Simple Nav === */
+.auth-nav {
+  padding: 20px 24px;
+  max-width: 1120px;
+  margin: 0 auto;
+  width: 100%;
+}
+.auth-nav a {
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  gap: 0;
+  position: relative;
+}
+.auth-nav .logo-main {
+  font-size: 20px; font-weight: 700;
+  letter-spacing: 1.2px;
+  color: var(--text);
+}
+.auth-nav .logo-main .c-gold { color: var(--gold); }
+.auth-nav .logo-main .y-gold { color: var(--gold); }
+.auth-nav .logo-tagline {
+  display: block;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-light);
+  position: absolute;
+  bottom: -13px;
+  left: 0;
+  white-space: nowrap;
+}
+
+/* === Auth Card === */
+.auth-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px 80px;
+}
+.auth-card {
+  width: 100%;
+  max-width: var(--max-w);
+}
+.auth-card h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+.auth-card .auth-sub {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  margin-bottom: 32px;
+}
+
+/* === Form === */
+.form-group {
+  margin-bottom: 18px;
+}
+.form-group label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.form-group input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--card-bg);
+  color: var(--text);
+  font-size: 0.95rem;
+  font-family: var(--font);
+  transition: border-color 0.2s;
+  outline: none;
+}
+.form-group input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-light);
+}
+.form-group input::placeholder {
+  color: var(--text-light);
+}
+.form-group .input-error {
+  border-color: #ef4444;
+}
+.form-error {
+  font-size: 0.78rem;
+  color: #ef4444;
+  margin-top: 4px;
+  display: none;
+}
+.form-error.show {
+  display: block;
+}
+
+/* === Password fields === */
+.pw-row {
+  position: relative;
+}
+.pw-toggle {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-light);
+  font-size: 0.85rem;
+  padding: 4px;
+}
+
+/* Password strength */
+.pw-strength {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+}
+.pw-strength-bar {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--border);
+  transition: background 0.2s;
+}
+.pw-strength-text {
+  font-size: 0.75rem;
+  margin-top: 4px;
+  color: var(--text-light);
+}
+
+/* === Submit Button === */
+.btn-submit {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 8px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+  font-family: var(--font);
+}
+.btn-submit:hover { opacity: 0.88; transform: translateY(-1px); }
+.btn-submit:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+/* === Divider === */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 24px 0;
+  color: var(--text-light);
+  font-size: 0.8rem;
+}
+.divider::before, .divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* === Google Button === */
+.btn-google {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--card-bg);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  font-family: var(--font);
+  text-decoration: none;
+}
+.btn-google:hover {
+  border-color: var(--text);
+  background: var(--gold-light);
+}
+.btn-google:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-google .google-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: #4285F4;
+}
+
+/* === Footer link === */
+.auth-footer {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+.auth-footer a {
+  color: var(--gold);
+  text-decoration: none;
+  font-weight: 600;
+}
+.auth-footer a:hover { text-decoration: underline; }
+
+/* === Alert === */
+.alert {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-bottom: 20px;
+  display: none;
+}
+.alert.show { display: block; }
+.alert-error {
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.2);
+  color: #ef4444;
+}
+.alert-success {
+  background: rgba(16,185,129,0.08);
+  border: 1px solid rgba(16,185,129,0.2);
+  color: #10B981;
+}
+
+/* === Terms === */
+.terms-note {
+  margin-top: 16px;
+  font-size: 0.78rem;
+  color: var(--text-light);
+  text-align: center;
+  line-height: 1.6;
+}
+.terms-note a {
+  color: var(--gold);
+  text-decoration: none;
+}
+.terms-note a:hover { text-decoration: underline; }
+
+/* === Responsive === */
+@media (max-width: 480px) {
+  .auth-wrapper { padding: 20px 16px 60px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Simple Nav -->
+<nav class="auth-nav">
+  <a href="index.html">
+    <span class="logo-main"><span class="c-gold">C</span><span class="y-gold">Y</span>RO</span>
+    <span class="logo-tagline">Back to home</span>
+  </a>
+</nav>
+
+<!-- Auth Card -->
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <h1>Get started</h1>
+    <p class="auth-sub">Create a CYRO account to access the PayFi ecosystem. No KYC required — just your email.</p>
+
+    <div class="alert alert-error" id="alertBox"></div>
+
+    <form id="signupForm" novalidate>
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <input type="email" id="email" placeholder="you@example.com" required autocomplete="email">
+        <div class="form-error" id="emailError">Please enter a valid email address.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="pw-row">
+          <input type="password" id="password" placeholder="Create a password" required autocomplete="new-password" minlength="8">
+          <button type="button" class="pw-toggle" id="pwToggle" aria-label="Toggle password visibility">Show</button>
+        </div>
+        <div class="pw-strength" id="pwStrength">
+          <div class="pw-strength-bar" id="pwBar1"></div>
+          <div class="pw-strength-bar" id="pwBar2"></div>
+          <div class="pw-strength-bar" id="pwBar3"></div>
+        </div>
+        <div class="pw-strength-text" id="pwStrengthText"></div>
+        <div class="form-error" id="pwError">Password must be at least 8 characters.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="confirm">Confirm password</label>
+        <div class="pw-row">
+          <input type="password" id="confirm" placeholder="Repeat your password" required autocomplete="new-password">
+          <button type="button" class="pw-toggle" id="confirmToggle" aria-label="Toggle password visibility">Show</button>
+        </div>
+        <div class="form-error" id="confirmError">Passwords do not match.</div>
+      </div>
+
+      <button type="submit" class="btn-submit" id="submitBtn">Create Account</button>
+    </form>
+
+    <div class="divider">or continue with</div>
+
+    <button class="btn-google" id="googleSignupBtn">
+      <span class="google-icon">G</span>
+      Sign up with Google
+    </button>
+
+    <div class="terms-note">
+      By creating an account, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+    </div>
+
+    <div class="auth-footer">
+      Already have an account? <a href="signin.html">Sign In</a>
+    </div>
+  </div>
+</div>
+
+<script>
+// === Password strength checker ===
+const pwInput = document.getElementById('password');
+const pwBars = [
+  document.getElementById('pwBar1'),
+  document.getElementById('pwBar2'),
+  document.getElementById('pwBar3')
+];
+const pwStrengthText = document.getElementById('pwStrengthText');
+
+pwInput.addEventListener('input', function() {
+  const val = this.value;
+  let score = 0;
+  if (val.length >= 8) score++;
+  if (/[A-Z]/.test(val) && /[a-z]/.test(val)) score++;
+  if (/\d/.test(val) || /[^A-Za-z0-9]/.test(val)) score++;
+
+  const colors = ['', '#ef4444', '#f59e0b', '#10B981'];
+  const labels = ['', 'Weak', 'Medium', 'Strong'];
+
+  pwBars.forEach((bar, i) => {
+    bar.style.background = i < score ? colors[score] : 'var(--border)';
+  });
+  pwStrengthText.textContent = score > 0 ? labels[score] : '';
+  pwStrengthText.style.color = colors[score] || 'var(--text-light)';
+});
+
+// === Google Sign-Up (simulated) ===
+document.getElementById('googleSignupBtn')?.addEventListener('click', function(e) {
+  e.preventDefault();
+  const btn = this;
+  const originalText = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span style="opacity:0.5">Connecting...</span>';
+
+  setTimeout(() => {
+    const domains = ['gmail.com', 'googlemail.com'];
+    const user = {
+      email: `user.${Math.random().toString(36).substring(2, 6)}@${domains[Math.floor(Math.random() * domains.length)]}`,
+      authMethod: 'google'
+    };
+    localStorage.setItem('cyro_user', JSON.stringify(user));
+    window.location.href = 'index.html';
+  }, 1200);
+});
+
+// === Password toggle ===
+document.getElementById('pwToggle')?.addEventListener('click', function() {
+  const isPassword = pwInput.type === 'password';
+  pwInput.type = isPassword ? 'text' : 'password';
+  this.textContent = isPassword ? 'Hide' : 'Show';
+});
+document.getElementById('confirmToggle')?.addEventListener('click', function() {
+  const confirmInput = document.getElementById('confirm');
+  const isPassword = confirmInput.type === 'password';
+  confirmInput.type = isPassword ? 'text' : 'password';
+  this.textContent = isPassword ? 'Hide' : 'Show';
+});
+
+// === Form validation & submission ===
+const form = document.getElementById('signupForm');
+const emailInput = document.getElementById('email');
+const confirmInput = document.getElementById('confirm');
+const emailError = document.getElementById('emailError');
+const pwError = document.getElementById('pwError');
+const confirmError = document.getElementById('confirmError');
+const alertBox = document.getElementById('alertBox');
+const submitBtn = document.getElementById('submitBtn');
+
+emailInput.addEventListener('blur', () => {
+  if (emailInput.value && !isValidEmail(emailInput.value)) {
+    emailInput.classList.add('input-error');
+    emailError.classList.add('show');
+  } else {
+    emailInput.classList.remove('input-error');
+    emailError.classList.remove('show');
+  }
+});
+emailInput.addEventListener('input', () => {
+  if (emailInput.classList.contains('input-error')) {
+    emailInput.classList.remove('input-error');
+    emailError.classList.remove('show');
+  }
+});
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+form.addEventListener('submit', function(e) {
+  e.preventDefault();
+  let valid = true;
+
+  // Validate email
+  if (!emailInput.value.trim()) {
+    emailInput.classList.add('input-error');
+    emailError.textContent = 'Email is required.';
+    emailError.classList.add('show');
+    valid = false;
+  } else if (!isValidEmail(emailInput.value.trim())) {
+    emailInput.classList.add('input-error');
+    emailError.textContent = 'Please enter a valid email address.';
+    emailError.classList.add('show');
+    valid = false;
+  } else {
+    emailInput.classList.remove('input-error');
+    emailError.classList.remove('show');
+  }
+
+  // Validate password
+  if (!pwInput.value) {
+    pwInput.classList.add('input-error');
+    pwError.textContent = 'Password is required.';
+    pwError.classList.add('show');
+    valid = false;
+  } else if (pwInput.value.length < 8) {
+    pwInput.classList.add('input-error');
+    pwError.textContent = 'Password must be at least 8 characters.';
+    pwError.classList.add('show');
+    valid = false;
+  } else {
+    pwInput.classList.remove('input-error');
+    pwError.classList.remove('show');
+  }
+
+  // Validate confirm
+  if (!confirmInput.value) {
+    confirmInput.classList.add('input-error');
+    confirmError.textContent = 'Please confirm your password.';
+    confirmError.classList.add('show');
+    valid = false;
+  } else if (confirmInput.value !== pwInput.value) {
+    confirmInput.classList.add('input-error');
+    confirmError.textContent = 'Passwords do not match.';
+    confirmError.classList.add('show');
+    valid = false;
+  } else {
+    confirmInput.classList.remove('input-error');
+    confirmError.classList.remove('show');
+  }
+
+  if (!valid) return;
+
+  // Simulate account creation
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Creating account...';
+  alertBox.classList.remove('show', 'alert-error', 'alert-success');
+
+  setTimeout(() => {
+    const user = { email: emailInput.value.trim(), authMethod: 'email' };
+    localStorage.setItem('cyro_user', JSON.stringify(user));
+    window.location.href = 'index.html';
+  }, 1000);
+});
+</script>
+
+</body>
+</html>

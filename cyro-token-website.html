@@ -112,6 +112,45 @@ nav .nav-cta {
   transition: opacity 0.2s;
 }
 nav .nav-cta:hover { opacity: 0.85; }
+nav .nav-signin {
+  padding: 8px 16px;
+  font-size: 14px; font-weight: 500;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+nav .nav-signin:hover { color: var(--text); }
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.nav-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px; font-weight: 700;
+  cursor: default;
+}
+.nav-logout {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.nav-logout:hover {
+  border-color: var(--text);
+  color: var(--text);
+}
 .mobile-toggle { display: none; flex-direction: column; gap: 4px; cursor: pointer; background: none; border: none; padding: 4px; }
 .mobile-toggle span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; transition: 0.2s; }
 
@@ -769,7 +808,12 @@ footer {
       <a href="#utility">Utility</a>
       <a href="#team">Team</a>
       <a href="#faq">FAQ</a>
-      <a href="#" class="nav-cta">Get CYRO</a>
+      <a href="signin.html" class="nav-signin" id="navSigninBtn">Sign In</a>
+      <a href="signup.html" class="nav-cta" id="navCtaBtn">Get Started</a>
+      <div class="nav-user" id="navUser" style="display:none">
+        <span class="nav-avatar" id="navAvatar"></span>
+        <button class="nav-logout" id="navLogoutBtn">Sign Out</button>
+      </div>
     </div>
     <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">
       <span></span><span></span><span></span>
@@ -1298,6 +1342,30 @@ document.querySelectorAll('.faq-question').forEach(q => {
     if (!wasOpen) item.classList.add('open');
   });
 });
+
+// Auth state management (frontend simulation)
+function updateNavForAuth() {
+  const user = JSON.parse(localStorage.getItem('cyro_user') || 'null');
+  const signinBtn = document.getElementById('navSigninBtn');
+  const ctaBtn = document.getElementById('navCtaBtn');
+  const userEl = document.getElementById('navUser');
+  const avatarEl = document.getElementById('navAvatar');
+  if (user) {
+    signinBtn.style.display = 'none';
+    ctaBtn.style.display = 'none';
+    userEl.style.display = 'flex';
+    avatarEl.textContent = user.email.charAt(0).toUpperCase();
+  } else {
+    signinBtn.style.display = 'inline';
+    ctaBtn.style.display = 'inline';
+    userEl.style.display = 'none';
+  }
+}
+document.getElementById('navLogoutBtn')?.addEventListener('click', () => {
+  localStorage.removeItem('cyro_user');
+  updateNavForAuth();
+});
+updateNavForAuth();
 
 // Respect system color scheme
 (function(){

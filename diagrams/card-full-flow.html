@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>实体卡开卡完整业务流程</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0B0E14;
+    color: #E8ECF0;
+    font-family: 'Segoe UI', -apple-system, 'PingFang SC', sans-serif;
+    padding: 30px;
+  }
+  .container { max-width: 1250px; margin: 0 auto; }
+
+  .page-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .page-subtitle { color: #7B8CA8; font-size: 13px; margin-bottom: 24px; }
+
+  /* ---- Legend ---- */
+  .legend {
+    display: flex; gap: 24px;
+    padding: 10px 18px;
+    background: rgba(255,255,255,.03);
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 8px;
+    margin-bottom: 28px;
+    font-size: 12px;
+    flex-wrap: wrap;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+  /* ---- Zone (区域) ---- */
+  .zone {
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 24px;
+    position: relative;
+  }
+  .zone-title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .5px;
+    margin-bottom: 14px;
+  }
+
+  .zone-1 { background: rgba(59,130,246,.04); border: 1.5px solid rgba(59,130,246,.12); }
+  .zone-2 { background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.08); }
+  .zone-3 { background: rgba(34,197,94,.03); border: 1px solid rgba(34,197,94,.1); }
+  .zone-4 { background: rgba(239,68,68,.03); border: 1px solid rgba(239,68,68,.1); }
+
+  /* ---- Flow Row (水平一行节点) ---- */
+  .flow-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  /* ---- Node (卡片/盒子) ---- */
+  .node {
+    background: #131820;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    line-height: 1.5;
+    text-align: center;
+    min-width: 100px;
+  }
+  .node-sm { padding: 6px 12px; font-size: 12px; }
+  .node-lg { width: 180px; }
+  .node-pill { border-radius: 20px; padding: 8px 18px; }
+
+  .node-blue { border-color: #3B82F6; }
+  .node-green { border-color: #22C55E; background: rgba(34,197,94,.04); }
+  .node-gold { border-color: #E59303; }
+  .node-purple { border-color: #8B5CF6; }
+  .node-red { border-color: #EF4444; background: rgba(239,68,68,.06); }
+
+  .node .nl { font-size: 11px; color: #7B8CA8; }
+  .node .ns { font-size: 11px; color: #7B8CA8; margin-top: 2px; }
+
+  /* ---- Arrow ---- */
+  .arrow {
+    color: rgba(255,255,255,.15);
+    font-size: 14px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .arrow-down { display: block; text-align: center; color: rgba(255,255,255,.15); font-size: 14px; margin: 2px 0; }
+  .arrow-green { color: #22C55E; }
+  .arrow-gold { color: #E59303; }
+  .arrow-red { color: #EF4444; }
+
+  /* ---- Column Layout (区域4用) ---- */
+  .cols-2 {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    margin-top: 8px;
+  }
+  .col-4 {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 480px;
+  }
+  .col-4 .col-title {
+    padding: 6px 14px;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    width: 100%;
+    text-align: center;
+  }
+  .col-title-green { background: rgba(34,197,94,.1); color: #22C55E; border: 1px solid rgba(34,197,94,.2); }
+  .col-title-gold { background: rgba(229,147,3,.1); color: #E59303; border: 1px solid rgba(229,147,3,.2); }
+
+  .col-4 .step {
+    width: 100%;
+    margin-bottom: 0;
+  }
+  .col-4 .step .node { margin-bottom: 0; }
+  .col-4 .step + .step { margin-top: 0; }
+
+  /* ---- Decision diamond (CSS) ---- */
+  .diamond {
+    width: 90px; height: 56px;
+    background: #131820;
+    border: 2px solid #d29922;
+    transform: rotate(45deg);
+    margin: 6px 0 2px 0;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 6px;
+  }
+  .diamond-inner {
+    transform: rotate(-45deg);
+    font-size: 12px;
+    text-align: center;
+    line-height: 1.3;
+    color: #E8ECF0;
+  }
+  .diamond-inner .sm { font-size: 10px; color: #7B8CA8; }
+
+  /* ---- Connector lines ---- */
+  .v-connector { height: 20px; width: 2px; background: rgba(255,255,255,.15); margin: 0 auto; }
+  .h-connector { display: flex; align-items: center; gap: 0; color: rgba(255,255,255,.12); font-size: 12px; }
+  .split-row {
+    display: flex; justify-content: center;
+    gap: 30px; margin: 2px 0;
+    font-size: 11px;
+  }
+  .split-item { text-align: center; }
+  .split-item .arrow-d { color: rgba(255,255,255,.15); font-size: 12px; }
+
+  .bridge { display: flex; align-items: center; justify-content: center; gap: 0; height: 14px; }
+  .bridge .hl { width: 80px; height: 1.5px; background: rgba(255,255,255,.12); }
+  .bridge .dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.12); }
+
+  /* ---- Bottom merge ---- */
+  .merge-area { text-align: center; margin-top: 4px; }
+  .merge-area .lines { display: flex; justify-content: center; gap: 0; }
+  .merge-area .lines .hl { width: 200px; height: 1.5px; background: rgba(255,255,255,.12); }
+  .merge-area .lines .vl { width: 1.5px; height: 16px; background: rgba(255,255,255,.12); margin: 0 auto; }
+  .merge-area .final { display: inline-block; background: rgba(34,197,94,.08); border: 1px solid #22C55E; border-radius: 20px; padding: 10px 24px; font-weight: 600; color: #22C55E; margin-top: 0; }
+
+  /* ---- Status badge ---- */
+  .badge { display: inline-block; border-radius: 10px; padding: 1px 8px; font-size: 10px; font-weight: 500; }
+  .badge-green { background: rgba(34,197,94,.12); color: #22C55E; border: 1px solid rgba(34,197,94,.2); }
+  .badge-blue { background: rgba(59,130,246,.12); color: #60A5FA; border: 1px solid rgba(59,130,246,.2); }
+
+  /* ---- Status flow pills (区域3底部) ---- */
+  .pills {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 4px; flex-wrap: wrap;
+  }
+  .pill {
+    display: inline-block; border-radius: 13px; padding: 4px 14px;
+    font-size: 11px; font-weight: 600;
+  }
+  .pill-gray { background: rgba(75,85,99,.15); color: #9CA3AF; }
+  .pill-green { background: rgba(34,197,94,.12); color: #22C55E; }
+  .pill-blue { background: rgba(59,130,246,.12); color: #60A5FA; }
+  .pill-arrow { color: rgba(255,255,255,.15); font-size: 12px; }
+
+  /* ---- Entry node (区域4顶部) ---- */
+  .entry-area { text-align: center; margin-bottom: 4px; }
+  .entry-area .node { display: inline-block; }
+  .entry-split { text-align: center; margin: 2px 0; }
+  .entry-split .fork { display: flex; justify-content: center; }
+  .entry-split .fork .hl { width: 180px; height: 1.5px; background: rgba(255,255,255,.12); }
+  .entry-split .ends { display: flex; justify-content: space-around; margin-top: 2px; }
+  .entry-split .ends .d { width: 2px; height: 10px; background: rgba(255,255,255,.12); }
+
+  /* ---- Section spacer ---- */
+  .spacer-8 { height: 8px; }
+
+  .flex-center { display: flex; justify-content: center; }
+  .gap-8 { gap: 8px; }
+  .gap-12 { gap: 12px; }
+  .mt-4 { margin-top: 4px; }
+  .mt-8 { margin-top: 8px; }
+  .mt-12 { margin-top: 12px; }
+  .w-full { width: 100%; }
+  .text-center { text-align: center; }
+
+  /* ---- 跨区域箭头 ---- */
+  .zone-goto {
+    text-align: center;
+    margin: -4px 0 -2px 0;
+    font-size: 13px;
+    color: #E59303;
+    letter-spacing: 1px;
+  }
+
+  .no-gap > * { margin: 0; }
+  .compact > * + * { margin-top: 0; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="page-title">📋 实体卡开卡完整业务流程</div>
+<div class="page-subtitle">管理端配置 → 客户端申请 → 开卡记录 → 待激活 → 激活 & PIN 设置</div>
+
+<div class="legend">
+  <span class="legend-item"><span class="legend-dot" style="background:#22C55E"></span> 同步路径</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#E59303"></span> 异步路径</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#EF4444"></span> 失败路径</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#3B82F6"></span> 管理端操作</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#E8ECF0"></span> 用户端操作</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#8B5CF6"></span> Interlace 系统</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#E59303"></span> 跨区域流转</span>
+</div>
+
+<!-- ================================================ -->
+<!-- 区域 1：管理端 - 卡片服务管理 -->
+<!-- ================================================ -->
+<div class="zone zone-1">
+  <div class="zone-title" style="color:#3B82F6">🏢 管理端 · 卡片服务管理</div>
+
+  <div class="flow-row">
+    <div class="node node-pill">📂 卡片服务管理</div>
+    <span class="arrow">→</span>
+    <div class="node node-blue node-lg">
+      ➕ 新增实体卡选项
+      <div class="ns">配置 BIN / 费用 / 限额</div>
+    </div>
+    <span class="arrow">→</span>
+    <div class="node">
+      BIN 方案配置
+      <div class="ns">IQ / BZ BIN</div>
+    </div>
+    <span class="arrow">→</span>
+    <div class="node node-green node-pill">✅ 发布至客户端</div>
+  </div>
+  <div class="zone-goto">↓ 下放 C 端 ↓</div>
+</div>
+
+<!-- ================================================ -->
+<!-- 区域 2：客户端 - 开卡申请流程 -->
+<!-- ================================================ -->
+<div class="zone zone-2">
+  <div class="zone-title" style="color:#E8ECF0">💳 用户端 · 开卡申请流程</div>
+
+  <div class="flow-row">
+    <div class="node">🏷️ 选择卡片类型<div class="ns">虚拟卡 / 实体卡</div></div>
+    <span class="arrow">→</span>
+
+    <div style="display:flex;flex-direction:column;align-items:center;">
+      <div class="diamond"><div class="diamond-inner">是否<b>实体卡</b>？<div class="sm">(用户选择)</div></div></div>
+      <div class="split-row">
+        <div class="split-item"><div class="arrow-d">↓</div><span style="color:#22C55E;font-weight:600;">Y</span></div>
+        <div class="split-item"><div class="arrow-d">↓</div><span style="color:#7B8CA8;">N（虚拟卡，直接开卡）</span></div>
+      </div>
+    </div>
+
+    <span class="arrow arrow-green">→ 实体卡 →</span>
+
+    <div class="node node-blue node-lg">
+      📮 填写收件信息
+      <div class="ns">姓 / 名 / 电话 / 邮箱</div>
+      <div class="ns">地址 / 城市 / 州 / 邮编 / 国家</div>
+      <div style="margin-top:4px;padding:3px 6px;background:rgba(59,130,246,.06);border:1px dashed rgba(59,130,246,.12);border-radius:4px;font-size:10px;color:#60A5FA;font-style:italic;">
+        字段对接 PhysicalCardBulkShip API
+      </div>
+    </div>
+
+    <span class="arrow">→</span>
+
+    <div class="node node-purple">
+      🔄 Create Physical Card
+      <div class="ns">CardMode="PHYSICAL"</div>
+    </div>
+
+    <span class="arrow">→</span>
+
+    <div class="node node-purple">
+      📦 Physical Card Bulk Ship
+      <div class="ns">批量运输信息提交</div>
+    </div>
+  </div>
+
+  <div class="zone-goto">↓ 卡片进入"待激活"状态 ↓</div>
+</div>
+
+<!-- ================================================ -->
+<!-- 区域 3：开卡记录页 -->
+<!-- ================================================ -->
+<div class="zone zone-3">
+  <div class="zone-title" style="color:#22C55E">📋 区域 3 · 开卡记录页（独立页面）</div>
+
+  <div class="flow-row">
+    <div class="node">📋 开卡记录页<div class="ns">所有开卡记录统一展示</div></div>
+    <span class="arrow">→</span>
+    <div class="node">🖥️ 虚拟卡记录<div class="ns">基本信息 + 卡片状态</div></div>
+    <span class="arrow">→</span>
+    <div class="node node-gold">📦 实体卡记录<div class="ns">基本信息 + 快递信息</div></div>
+    <span class="arrow">→</span>
+    <div class="node node-green" style="border-style:dashed;">
+      📮 回显快递信息
+      <div class="ns">快递公司 / 物流单号 / 物流状态</div>
+    </div>
+  </div>
+
+  <div class="pills" style="margin-top:10px;">
+    <span style="color:#7B8CA8;font-size:11px;font-weight:500;">卡片状态流转：</span>
+    <span class="pill pill-gray">⏳ 待激活</span>
+    <span class="pill-arrow">→</span>
+    <span class="pill pill-green">✅ 激活成功</span>
+    <span class="pill-arrow">→</span>
+    <span class="pill pill-blue">🔐 PIN 已设置</span>
+    <span class="pill-arrow">→</span>
+    <span class="pill pill-green">🟢 使用中</span>
+  </div>
+
+  <div class="zone-goto">↓ 待激活 → 进入激活流程 ↓</div>
+</div>
+
+<!-- ================================================ -->
+<!-- 区域 4：实体卡激活流程 -->
+<!-- ================================================ -->
+<div class="zone zone-4">
+  <div class="zone-title" style="color:#EF4444">🔓 区域 4 · 实体卡激活及 PIN 设置</div>
+
+  <!-- 公共入口 -->
+  <div class="entry-area">
+    <div class="node node-gold node-pill">⏳ 待激活卡片 <span class="badge badge-blue">状态: Pending</span></div>
+    <div class="v-connector"></div>
+    <div class="node node-green node-pill">🔘 点击「去激活」<div class="ns">⚠️ 提示：请收到卡片后再激活</div></div>
+  </div>
+
+  <div class="entry-split">
+    <div class="fork"><div class="hl"></div></div>
+    <div class="ends"><div class="d"></div><div class="d"></div></div>
+  </div>
+
+  <!-- ===== 两列布局 ===== -->
+  <div class="cols-2">
+
+    <!-- ===== 左列：同步 ===== -->
+    <div class="col-4">
+      <div class="col-title col-title-green">🟢 同步激活（用户在线等待）</div>
+
+      <div class="step"><div class="node node-purple">确认激活弹窗<div class="ns">「立即激活」/「取消」</div></div></div>
+      <div class="arrow-down">↓</div>
+
+      <div class="step"><div class="node node-blue">🔄 激活中... (Loading)<div class="ns">同步请求等待 Interlace 返回</div></div></div>
+      <div class="arrow-down">↓</div>
+
+      <div class="step"><div class="node node-purple">🔗 Activate Physical Card<div class="ns">同步 API 调用</div></div></div>
+      <div class="arrow-down">↓</div>
+
+      <div class="step"><div class="diamond"><div class="diamond-inner">激活成功？</div></div></div>
+
+      <div class="split-row">
+        <div class="split-item" style="color:#22C55E;">
+          <div class="arrow-d">↓</div>
+          <span style="font-weight:600;">成功</span>
+        </div>
+        <div class="split-item" style="color:#EF4444;">
+          <div class="arrow-d">↓</div>
+          <span style="font-weight:600;">失败</span>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;width:100%;">
+        <div class="node node-green" style="flex:1;">✅ 激活成功<div class="ns">卡片状态 → Active</div></div>
+        <div class="node node-red" style="flex:1;">⚠️ 激活失败<div class="ns">显示错误原因</div></div>
+      </div>
+
+      <div class="bridge"><div class="hl"></div><div class="dot"></div><div class="hl"></div></div>
+
+      <div class="step"><div class="node node-purple">🔐 设置 PIN 码<div class="ns">UpdatePhysicalCardPIN API</div></div></div>
+      <div class="arrow-down">↓</div>
+
+      <div class="step"><div class="node node-green node-pill">✅ PIN 设置成功<div class="ns">卡片激活完成，可正常使用</div></div></div>
+
+      <div class="arrow-down" style="color:#EF4444;">✗ ← 失败时提示：请联系客服或重新激活</div>
+      <div class="step"><div class="node node-red">联系客服<div class="ns">显示客服联系方式 / 重试按钮</div></div></div>
+    </div>
+
+    <!-- ===== 右列：异步 ===== -->
+    <div class="col-4">
+      <div class="col-title col-title-gold">🟡 异步激活（用户提交后离线等待）</div>
+
+      <div class="step"><div class="node node-purple">确认激活弹窗<div class="ns">「提交激活申请」/「取消」</div></div></div>
+      <div class="arrow-down">↓</div>
+
+      <div class="step"><div class="node node-gold">📨 激活申请已提交<div class="ns">系统将处理您的请求</div></div></div>
+      <div class="arrow-down" style="color:#E59303;">↓ 等待中...</div>
+
+      <div class="step"><div class="node node-gold">⏳ 等待邮件通知<div class="ns">📧 用户收到邮件查看结果</div></div></div>
+      <div class="arrow-down">↓</div>
+
+      <div class="step"><div class="diamond"><div class="diamond-inner">激活结果</div></div></div>
+
+      <div class="split-row">
+        <div class="split-item" style="color:#22C55E;">
+          <div class="arrow-d">↓</div>
+          <span style="font-weight:600;">成功</span>
+        </div>
+        <div class="split-item" style="color:#EF4444;">
+          <div class="arrow-d">↓</div>
+          <span style="font-weight:600;">失败</span>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;width:100%;">
+        <div class="node node-green" style="flex:1;">✅ 激活成功<div class="ns">邮件中提示：设置 PIN</div></div>
+        <div class="node node-red" style="flex:1;">⚠️ 激活失败<div class="ns">邮件中提示错误原因</div></div>
+      </div>
+
+      <div class="bridge"><div class="hl"></div><div class="dot"></div><div class="hl"></div></div>
+
+      <div class="step"><div class="node node-purple">🔐 设置 PIN 码（系统内）<div class="ns">用户在页面内设置 PIN</div></div></div>
+      <div class="arrow-down">↓</div>
+
+      <div class="step"><div class="node node-green node-pill">✅ PIN 设置成功<div class="ns">卡片激活完成，可正常使用</div></div></div>
+
+      <div class="arrow-down" style="color:#EF4444;">✗ ← 失败时提示：重新申请激活或联系客服</div>
+      <div class="step"><div class="node node-red">重新申请 / 联系客服<div class="ns">显示客服联系方式</div></div></div>
+    </div>
+
+  </div><!-- end cols-2 -->
+
+  <!-- 底部汇聚 -->
+  <div class="merge-area">
+    <div class="lines">
+      <div class="hl"></div>
+      <div class="hl"></div>
+    </div>
+    <div class="v-connector" style="height:14px;"></div>
+    <div class="final">✦ 卡片激活 + PIN 设置完成 · 可正常使用 ✦</div>
+  </div>
+
+</div><!-- end zone-4 -->
+
+</div>
+</body>
+</html>
