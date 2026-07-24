@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beeznis Admin — Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f2f5;color:#333}
+.layout{display:flex;min-height:100vh}
+/* 侧边栏 */
+.sidebar{width:240px;background:#001529;color:#fff;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100}
+.sidebar-logo{padding:20px 24px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sidebar-logo h1{font-size:18px;font-weight:700;color:#e59303}
+.sidebar-logo p{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px}
+.sidebar-menu{flex:1;padding:12px 0;overflow-y:auto}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:10px 24px;font-size:14px;color:rgba(255,255,255,.65);cursor:pointer;transition:all .2s;position:relative}
+.sidebar-item:hover{color:#fff;background:rgba(255,255,255,.04)}
+.sidebar-item.active{color:#fff;background:rgba(229,147,3,.15)}
+.sidebar-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#e59303;border-radius:0 2px 2px 0}
+.sidebar-item .icon{font-size:18px;width:22px;text-align:center}
+.sidebar-item .badge{margin-left:auto;background:#ff4d4f;color:#fff;font-size:11px;padding:1px 7px;border-radius:10px}
+.sidebar-footer{padding:16px 24px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px}
+.sidebar-footer .avatar{width:32px;height:32px;border-radius:50%;background:#e59303;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;font-weight:600}
+.sidebar-footer .name{font-size:13px;color:rgba(255,255,255,.85)}
+.sidebar-footer .role{font-size:11px;color:rgba(255,255,255,.45)}
+/* 主区域 */
+.main{margin-left:240px;flex:1;min-height:100vh}
+.header{background:#fff;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f0f0f0;position:sticky;top:0;z-index:50}
+.header-left{display:flex;align-items:center;gap:12px}
+.header-left h2{font-size:18px;font-weight:600;color:#1a1a2e}
+.header-right{display:flex;align-items:center;gap:16px}
+.header-right .time-select{display:flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;cursor:pointer}
+.header-right .time-select:hover{border-color:#e59303}
+.content{padding:24px}
+/* KPI 卡片行 */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:24px}
+.kpi-card{background:#fff;border-radius:10px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.06);position:relative;overflow:hidden}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi-card.card-0::before{background:#1677ff}
+.kpi-card.card-1::before{background:#722ed1}
+.kpi-card.card-2::before{background:#13c2c2}
+.kpi-card.card-3::before{background:#eb2f96}
+.kpi-card.card-4::before{background:#52c41a}
+.kpi-label{font-size:12px;color:#999;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.kpi-label .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.kpi-value{font-size:24px;font-weight:700;color:#1a1a2e;margin-bottom:4px}
+.kpi-sub{font-size:12px;color:#bbb}
+.kpi-change{font-size:12px;margin-top:8px}
+.kpi-change.up{color:#52c41a}
+.kpi-change.down{color:#ff4d4f}
+/* 图表行 */
+.charts-row{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px}
+.chart-card{background:#fff;border-radius:10px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.chart-card.full{grid-column:1/-1}
+.chart-title{font-size:14px;font-weight:600;color:#1a1a2e;margin-bottom:16px}
+/* 简易柱状图 */
+.bar-chart{display:flex;align-items:flex-end;gap:4px;height:160px;padding:0 4px;position:relative}
+.bar-group{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;height:100%;justify-content:flex-end}
+.bar{width:24px;border-radius:3px 3px 0 0;min-height:4px;transition:height .3s;position:relative}
+.bar:hover{opacity:.8}
+.bar-label{font-size:10px;color:#999;margin-top:4px}
+.bar-value{font-size:9px;color:#666;margin-bottom:2px;white-space:nowrap}
+/* 币种明细表 */
+.table-section{background:#fff;border-radius:10px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:24px}
+.table-section h3{font-size:14px;font-weight:600;color:#1a1a2e;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.table-section h3 .tag{font-size:11px;font-weight:400;color:#999;background:#f5f5f5;padding:2px 8px;border-radius:4px}
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{text-align:left;padding:10px 12px;font-size:12px;color:#999;font-weight:500;border-bottom:1px solid #f0f0f0;background:#fafafa}
+.data-table td{padding:10px 12px;font-size:13px;color:#333;border-bottom:1px solid #f0f0f0}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:#fafafa}
+.data-table .total-row td{font-weight:600;background:#fffbe6;color:#333}
+.data-table .positive{color:#52c41a}
+.data-table .negative{color:#ff4d4f}
+/* 用户维度卡片 */
+.user-stats{background:#fff;border-radius:10px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:24px}
+.user-stats h3{font-size:14px;font-weight:600;color:#1a1a2e;margin-bottom:16px}
+.user-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+.user-stat-card{text-align:center;padding:16px;border:1px solid #f0f0f0;border-radius:8px}
+.user-stat-card .num{font-size:22px;font-weight:700;color:#1a1a2e}
+.user-stat-card .lbl{font-size:12px;color:#999;margin-top:4px}
+/* 响应式 */
+@media(max-width:1200px){.kpi-row{grid-template-columns:repeat(3,1fr)}.charts-row{grid-template-columns:1fr}}
+@media(max-width:768px){.kpi-row{grid-template-columns:repeat(2,1fr)}.sidebar{width:200px}.main{margin-left:200px}.user-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:480px){.kpi-row{grid-template-columns:1fr}.sidebar{width:0;overflow:hidden}.main{margin-left:0}.user-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <h1>Beeznis</h1>
+      <p>Admin Console</p>
+    </div>
+    <nav class="sidebar-menu">
+      <div class="sidebar-item active">
+        <span class="icon">📊</span> Dashboard
+      </div>
+      <div class="sidebar-item">
+        <span class="icon">👥</span> Customers
+      </div>
+      <div class="sidebar-item">
+        <span class="icon">💳</span> Card Management
+        <span class="badge">12</span>
+      </div>
+      <div class="sidebar-item">
+        <span class="icon">🔄</span> Transactions
+      </div>
+      <div class="sidebar-item">
+        <span class="icon">🏦</span> Fiat Management
+      </div>
+      <div class="sidebar-item">
+        <span class="icon">₿</span> Crypto Management
+      </div>
+      <div class="sidebar-item">
+        <span class="icon">📄</span> KYB / KYC
+      </div>
+      <div class="sidebar-item">
+        <span class="icon">📋</span> Reports
+      </div>
+      <div class="sidebar-item">
+        <span class="icon">⚙️</span> Settings
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="avatar">D</div>
+      <div>
+        <div class="name">Driven Xie</div>
+        <div class="role">Admin</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-left">
+        <h2>Dashboard</h2>
+      </div>
+      <div class="header-right">
+        <div class="time-select" onclick="toggleDropdown()">
+          <span id="selectedTime">This Month</span>
+          <span>▾</span>
+        </div>
+        <div style="display:flex;gap:8px">
+          <span style="cursor:pointer;font-size:18px">🔔</span>
+          <span style="cursor:pointer;font-size:18px">⚙️</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Time dropdown -->
+    <div id="timeDropdown" style="display:none;position:fixed;top:56px;right:80px;background:#fff;border:1px solid #e0e0e0;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.12);z-index:200;min-width:160px">
+      <div class="dropdown-item" onclick="selectTime('This Month')">This Month</div>
+      <div class="dropdown-item" onclick="selectTime('Yesterday')">Yesterday</div>
+      <div class="dropdown-item" onclick="selectTime('Last 7 Days')">Last 7 Days</div>
+      <div class="dropdown-item" onclick="selectTime('All Time')">All Time</div>
+    </div>
+
+    <div class="content">
+      <!-- KPI Row -->
+      <div class="kpi-row" id="kpiRow">
+        <!-- 由 JS 动态生成 -->
+      </div>
+
+      <!-- Charts Row -->
+      <div class="charts-row">
+        <div class="chart-card">
+          <div class="chart-title">Fiat Monthly Turnover</div>
+          <div class="bar-chart" id="fiatChart"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Crypto Monthly Turnover</div>
+          <div class="bar-chart" id="cryptoChart"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Card Monthly Turnover</div>
+          <div class="bar-chart" id="cardChart"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Exchange Monthly Turnover</div>
+          <div class="bar-chart" id="exchangeChart"></div>
+        </div>
+      </div>
+
+      <!-- User Stats -->
+      <div class="user-stats">
+        <h3>👥 用户维度 User Metrics</h3>
+        <div class="user-grid">
+          <div class="user-stat-card">
+            <div class="num" id="totalUsers">0</div>
+            <div class="lbl">总注册用户</div>
+          </div>
+          <div class="user-stat-card">
+            <div class="num" id="activeUsers">0</div>
+            <div class="lbl">活跃用户</div>
+          </div>
+          <div class="user-stat-card">
+            <div class="num" id="newUsers">0</div>
+            <div class="lbl">本月新增</div>
+          </div>
+          <div class="user-stat-card">
+            <div class="num" id="kycRate">0%</div>
+            <div class="lbl">KYC 完成率</div>
+          </div>
+          <div class="user-stat-card">
+            <div class="num" id="kybRate">0%</div>
+            <div class="lbl">KYB 完成率</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Currency Breakdown Tables -->
+      <div class="table-section">
+        <h3>💰 Fiat Currency Breakdown <span class="tag">YTD</span></h3>
+        <table class="data-table" id="fiatTable">
+          <thead>
+            <tr>
+              <th>Currency</th>
+              <th>Deposit Amount</th>
+              <th># of Deposits</th>
+              <th>Withdraw Amount</th>
+              <th># of Withdrawals</th>
+            </tr>
+          </thead>
+          <tbody id="fiatTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="table-section">
+        <h3>₿ Crypto Currency Breakdown <span class="tag">YTD</span></h3>
+        <table class="data-table" id="cryptoTable">
+          <thead>
+            <tr>
+              <th>Currency</th>
+              <th>Deposit Amount</th>
+              <th># of Deposits</th>
+              <th>Withdraw Amount</th>
+              <th># of Withdrawals</th>
+            </tr>
+          </thead>
+          <tbody id="cryptoTableBody"></tbody>
+        </table>
+      </div>
+
+      <!-- KYC/KYB Status -->
+      <div class="user-stats">
+        <h3>🛡️ 认证状态 Verification Status</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:13px;color:#666">Personal (KYC):</span>
+              <span style="font-size:13px;font-weight:600;color:#1a1a2e" id="kycCount">0</span>
+            </div>
+            <div style="height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden">
+              <div id="kycBar" style="height:100%;background:#1677ff;border-radius:4px;width:0%"></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:13px;color:#666">Company (KYB):</span>
+              <span style="font-size:13px;font-weight:600;color:#1a1a2e" id="kybCount">0</span>
+            </div>
+            <div style="height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden">
+              <div id="kybBar" style="height:100%;background:#52c41a;border-radius:4px;width:0%"></div>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:right;margin-top:12px">
+          <span style="font-size:12px;color:#999">已认证率: </span>
+          <span style="font-size:14px;font-weight:600;color:#1a1a2e" id="verifiedRate">0%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ====== Data ======
+const kpiData = [
+  { label: 'Fiat Turnover', value: 447087, sub: 'USD Equivalent', icon: '🏦', change: '+12.5%', up: true },
+  { label: 'Crypto Turnover', value: 0, sub: 'USD Equivalent', icon: '₿', change: '0.0%', up: true },
+  { label: 'Card Turnover', value: 54, sub: 'Issuance + Spending', icon: '💳', change: '+5.2%', up: true },
+  { label: 'Exchange Turnover', value: 2017, sub: 'Buy + Sell', icon: '🔄', change: '+28.3%', up: true },
+  { label: 'Rewards Distributed', value: 300, sub: 'Total Asset Value', icon: '🎁', change: '+8.1%', up: true },
+];
+
+const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const monthlyData = {
+  fiat: [320000, 280000, 380000, 340000, 410000, 447087, 0, 0, 0, 0, 0, 0],
+  crypto: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  card: [12, 15, 8, 22, 18, 54, 0, 0, 0, 0, 0, 0],
+  exchange: [400, 600, 1200, 800, 1500, 2017, 0, 0, 0, 0, 0, 0],
+};
+
+const fiatBreakdown = [
+  { cur: 'USD', deposit: 126400, depCount: 22, withdraw: 104000, wdCount: 4 },
+  { cur: 'EUR', deposit: 42587, depCount: 10, withdraw: 110100, wdCount: 3 },
+  { cur: 'GBP', deposit: 22000, depCount: 4, withdraw: 42000, wdCount: 1 },
+];
+
+const cryptoBreakdown = [
+  { cur: 'USDT (All Chain)', deposit: 0, depCount: 0, withdraw: 0, wdCount: 0 },
+  { cur: 'USDC (All Chain)', deposit: 0, depCount: 0, withdraw: 0, wdCount: 0 },
+  { cur: 'BTC', deposit: 0, depCount: 0, withdraw: 0, wdCount: 0 },
+  { cur: 'ETH', deposit: 0, depCount: 0, withdraw: 0, wdCount: 0 },
+];
+
+const userMetrics = {
+  totalUsers: 846,
+  activeUsers: 312,
+  newUsers: 48,
+  kycCount: 215,
+  kybCount: 98,
+  totalRegistered: 846,
+};
+
+// ====== Render KPI ======
+function renderKPI() {
+  const row = document.getElementById('kpiRow');
+  row.innerHTML = kpiData.map((k, i) => `
+    <div class="kpi-card card-${i}">
+      <div class="kpi-label"><span class="dot" style="background:${['#1677ff','#722ed1','#13c2c2','#eb2f96','#52c41a'][i]}"></span> ${k.icon} ${k.label}</div>
+      <div class="kpi-value">$${k.value.toLocaleString()}</div>
+      <div class="kpi-sub">${k.sub}</div>
+      <div class="kpi-change ${k.up ? 'up' : 'down'}">${k.change} vs last month</div>
+    </div>
+  `).join('');
+}
+
+// ====== Render Bar Charts ======
+function renderChart(id, data, color) {
+  const max = Math.max(...data, 1);
+  const el = document.getElementById(id);
+  el.innerHTML = months.map((m, i) => {
+    const h = max > 0 ? (data[i] / max * 140) : 0;
+    const v = data[i] > 0 ? '$' + data[i].toLocaleString() : '';
+    return `
+      <div class="bar-group">
+        <div class="bar-value">${v}</div>
+        <div class="bar" style="height:${Math.max(h, 1)}px;background:${color}"></div>
+        <div class="bar-label">${m}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ====== Render Tables ======
+function renderTable(id, data) {
+  const tbody = document.getElementById(id);
+  let totalDep = 0, totalWd = 0, totalDepCnt = 0, totalWdCnt = 0;
+  data.forEach(r => {
+    totalDep += r.deposit;
+    totalWd += r.withdraw;
+    totalDepCnt += r.depCount;
+    totalWdCnt += r.wdCount;
+  });
+  tbody.innerHTML = data.map(r => `
+    <tr>
+      <td><strong>${r.cur}</strong></td>
+      <td class="positive">$${r.deposit.toLocaleString()}</td>
+      <td>${r.depCount}</td>
+      <td class="negative">$${r.withdraw.toLocaleString()}</td>
+      <td>${r.wdCount}</td>
+    </tr>
+  `).join('') + `
+    <tr class="total-row">
+      <td><strong>Total</strong></td>
+      <td class="positive">$${totalDep.toLocaleString()}</td>
+      <td>${totalDepCnt}</td>
+      <td class="negative">$${totalWd.toLocaleString()}</td>
+      <td>${totalWdCnt}</td>
+    </tr>
+  `;
+}
+
+// ====== Render User Metrics ======
+function renderUserMetrics() {
+  document.getElementById('totalUsers').textContent = userMetrics.totalUsers;
+  document.getElementById('activeUsers').textContent = userMetrics.activeUsers;
+  document.getElementById('newUsers').textContent = userMetrics.newUsers;
+
+  const kycRate = userMetrics.totalRegistered > 0 ? Math.round(userMetrics.kycCount / userMetrics.totalRegistered * 100) : 0;
+  const kybRate = userMetrics.totalRegistered > 0 ? Math.round(userMetrics.kybCount / userMetrics.totalRegistered * 100) : 0;
+  document.getElementById('kycRate').textContent = kycRate + '%';
+  document.getElementById('kybRate').textContent = kybRate + '%';
+  document.getElementById('kycCount').textContent = userMetrics.kycCount + ' / ' + userMetrics.totalRegistered;
+  document.getElementById('kybCount').textContent = userMetrics.kybCount + ' / ' + userMetrics.totalRegistered;
+  document.getElementById('kycBar').style.width = kycRate + '%';
+  document.getElementById('kybBar').style.width = kybRate + '%';
+  document.getElementById('verifiedRate').textContent = Math.round((userMetrics.kycCount + userMetrics.kybCount) / (userMetrics.totalRegistered * 2) * 100) + '%';
+}
+
+// ====== Time Dropdown ======
+function toggleDropdown() {
+  const dd = document.getElementById('timeDropdown');
+  dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+}
+function selectTime(t) {
+  document.getElementById('selectedTime').textContent = t;
+  document.getElementById('timeDropdown').style.display = 'none';
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.time-select') && !e.target.closest('#timeDropdown')) {
+    document.getElementById('timeDropdown').style.display = 'none';
+  }
+});
+
+// ====== Init ======
+renderKPI();
+renderChart('fiatChart', monthlyData.fiat, '#1677ff');
+renderChart('cryptoChart', monthlyData.crypto, '#722ed1');
+renderChart('cardChart', monthlyData.card, '#13c2c2');
+renderChart('exchangeChart', monthlyData.exchange, '#eb2f96');
+renderTable('fiatTableBody', fiatBreakdown);
+renderTable('cryptoTableBody', cryptoBreakdown);
+renderUserMetrics();
+</script>
+
+</body>
+</html>
