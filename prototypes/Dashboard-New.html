@@ -51,12 +51,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .chart-title{font-size:14px;font-weight:600;color:#1a1a2e;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
 .chart-title .legend{font-size:11px;font-weight:400;color:#999;display:flex;gap:12px}
 .chart-title .legend span{display:flex;align-items:center;gap:4px}
+.toggle-group{display:inline-flex;border:1px solid #d9d9d9;border-radius:6px;overflow:hidden}
+.toggle-btn{padding:3px 12px;font-size:12px;cursor:pointer;background:#fff;color:#666;border:none;border-right:1px solid #d9d9d9;transition:all .2s;line-height:1.6}
+.toggle-btn:last-child{border-right:none}
+.toggle-btn.active{background:#e59303;color:#fff;border-color:#e59303}
 .bar-chart{display:flex;align-items:flex-end;gap:3px;height:180px;padding:0 4px;position:relative}
 .bar-group{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;height:100%;justify-content:flex-end;position:relative}
 .bar-amount{width:20px;border-radius:3px 3px 0 0;min-height:2px;transition:height .3s}
 .bar-count{width:12px;border-radius:3px 3px 0 0;min-height:2px;transition:height .3s;margin-top:1px}
 .bar-label{font-size:9px;color:#999;margin-top:3px}
 .bar-value{font-size:8px;color:#666;margin-bottom:1px;white-space:nowrap}
+.chain-badge{display:inline-block;padding:2px 8px;border-radius:4px;background:#f0f5ff;color:#1677ff;font-size:11px;font-weight:500}
 .bar-legend{font-size:9px;color:#999;text-align:center;margin-top:2px;display:flex;gap:8px;justify-content:center}
 .bar-legend span{display:flex;align-items:center;gap:2px}
 .legend-dot{width:6px;height:6px;border-radius:50%;display:inline-block}
@@ -151,35 +156,43 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <div class="charts-row">
         <div class="chart-card">
           <div class="chart-title">
-            Fiat Monthly Turnover
-            <span class="legend"><span><span class="legend-dot" style="background:#1677ff"></span> Amt</span><span><span class="legend-dot" style="background:#91caff"></span> Tx</span></span>
+            <span>Fiat Monthly Turnover</span>
+            <div class="toggle-group" id="fiatToggle">
+              <span class="toggle-btn active" onclick="switchChartMode('fiat','amt')">Amount</span>
+              <span class="toggle-btn" onclick="switchChartMode('fiat','tx')">Tx Count</span>
+            </div>
           </div>
           <div class="bar-chart" id="fiatChart"></div>
-          <div class="bar-legend"><span><span class="legend-dot" style="background:#1677ff"></span> Amount (USD)</span><span><span class="legend-dot" style="background:#91caff"></span> Tx Count</span></div>
         </div>
         <div class="chart-card">
           <div class="chart-title">
-            Crypto Monthly Turnover
-            <span class="legend"><span><span class="legend-dot" style="background:#722ed1"></span> Amt</span><span><span class="legend-dot" style="background:#d3adf7"></span> Tx</span></span>
+            <span>Crypto Monthly Turnover</span>
+            <div class="toggle-group" id="cryptoToggle">
+              <span class="toggle-btn active" onclick="switchChartMode('crypto','amt')">Amount</span>
+              <span class="toggle-btn" onclick="switchChartMode('crypto','tx')">Tx Count</span>
+            </div>
           </div>
           <div class="bar-chart" id="cryptoChart"></div>
-          <div class="bar-legend"><span><span class="legend-dot" style="background:#722ed1"></span> Amount (USD)</span><span><span class="legend-dot" style="background:#d3adf7"></span> Tx Count</span></div>
         </div>
         <div class="chart-card">
           <div class="chart-title">
-            Card Monthly Turnover
-            <span class="legend"><span><span class="legend-dot" style="background:#13c2c2"></span> Deposit</span><span><span class="legend-dot" style="background:#87e8de"></span> Spend</span></span>
+            <span>Card Monthly Turnover</span>
+            <div class="toggle-group" id="cardToggle">
+              <span class="toggle-btn active" onclick="switchChartMode('card','dep')">Deposit</span>
+              <span class="toggle-btn" onclick="switchChartMode('card','spend')">Spending</span>
+            </div>
           </div>
           <div class="bar-chart" id="cardChart"></div>
-          <div class="bar-legend"><span><span class="legend-dot" style="background:#13c2c2"></span> Card Deposit</span><span><span class="legend-dot" style="background:#87e8de"></span> Card Spending</span></div>
         </div>
         <div class="chart-card">
           <div class="chart-title">
-            Exchange Monthly Turnover
-            <span class="legend"><span><span class="legend-dot" style="background:#eb2f96"></span> Amt</span><span><span class="legend-dot" style="background:#ffadd2"></span> Tx</span></span>
+            <span>Exchange Monthly Turnover</span>
+            <div class="toggle-group" id="exchangeToggle">
+              <span class="toggle-btn active" onclick="switchChartMode('exchange','amt')">Amount</span>
+              <span class="toggle-btn" onclick="switchChartMode('exchange','tx')">Tx Count</span>
+            </div>
           </div>
           <div class="bar-chart" id="exchangeChart"></div>
-          <div class="bar-legend"><span><span class="legend-dot" style="background:#eb2f96"></span> Amount (USD)</span><span><span class="legend-dot" style="background:#ffadd2"></span> Tx Count</span></div>
         </div>
       </div>
 
@@ -197,27 +210,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
       <!-- User Metrics -->
       <div class="user-stats">
-        <h3>👥 User Metrics <span class="tag">C端 / B端 分开统计</span></h3>
-        <div class="user-grid">
+        <h3>
+          <span>👥 User Metrics</span>
+          <div class="toggle-group" id="userToggle">
+            <span class="toggle-btn active" onclick="switchUser('c')">C端</span>
+            <span class="toggle-btn" onclick="switchUser('b')">B端</span>
+          </div>
+        </h3>
+        <div class="user-grid" id="userGrid">
           <div class="user-stat-card">
-            <div class="num" id="personalUsers">0</div>
-            <div class="lbl">Personal 个人 (C端)</div>
-            <div class="note">Total individual accounts</div>
+            <div class="num" id="totalUsers">0</div>
+            <div class="lbl" id="totalLabel">Total</div>
+            <div class="note">Registered accounts</div>
           </div>
           <div class="user-stat-card">
-            <div class="num" id="companyUsers">0</div>
-            <div class="lbl">Company 企业 (B端)</div>
-            <div class="note">Total business accounts</div>
+            <div class="num" id="activeUsers">0</div>
+            <div class="lbl" id="activeLabel">Active</div>
+            <div class="note" id="activeNote">With any activity this month</div>
           </div>
           <div class="user-stat-card">
-            <div class="num" id="activePersonal">0</div>
-            <div class="lbl">活跃 Personal</div>
-            <div class="note">With any activity this month</div>
+            <div class="num" id="verifUsers">0</div>
+            <div class="lbl" id="verifLabel">Verified</div>
+            <div class="note" id="verifNote">KYC / KYB passed</div>
           </div>
           <div class="user-stat-card">
-            <div class="num" id="activeCompany">0</div>
-            <div class="lbl">活跃 Company</div>
-            <div class="note">With any activity this month</div>
+            <div class="num" id="pendingUsers">0</div>
+            <div class="lbl" id="pendingLabel">Pending Review</div>
+            <div class="note" id="pendingNote">Awaiting verification review</div>
           </div>
         </div>
       </div>
@@ -378,12 +397,23 @@ const fiatBreakdown = [
 ];
 
 const cryptoBreakdown = [
-  { cur: 'CYRO', chains: 'Ethereum, Solana, BNB, Base, Tron', deposit: 5000, depCount: 6, withdraw: 2000, wdCount: 2 },
-  { cur: 'USDT', chains: 'Ethereum, Solana, BNB, Base, Tron', deposit: 3500, depCount: 4, withdraw: 1000, wdCount: 1 },
-  { cur: 'USDC', chains: 'Ethereum, Solana, BNB, Base', deposit: 2800, depCount: 3, withdraw: 1500, wdCount: 1 },
-  { cur: 'BTC', chains: 'Bitcoin', deposit: 0, depCount: 0, withdraw: 0, wdCount: 0 },
-  { cur: 'ETH', chains: 'Ethereum', deposit: 600, depCount: 1, withdraw: 0, wdCount: 0 },
-  { cur: 'Tether', chains: 'Ethereum', deposit: 0, depCount: 0, withdraw: 0, wdCount: 0 },
+  { cur: 'CYRO', chain: 'Ethereum', deposit: 2000, depCount: 2, withdraw: 800, wdCount: 1 },
+  { cur: 'CYRO', chain: 'Solana', deposit: 1200, depCount: 1, withdraw: 500, wdCount: 1 },
+  { cur: 'CYRO', chain: 'BNB', deposit: 800, depCount: 1, withdraw: 300, wdCount: 0 },
+  { cur: 'CYRO', chain: 'Base', deposit: 500, depCount: 1, withdraw: 200, wdCount: 0 },
+  { cur: 'CYRO', chain: 'Tron', deposit: 500, depCount: 1, withdraw: 200, wdCount: 0 },
+  { cur: 'USDT', chain: 'Ethereum', deposit: 1200, depCount: 1, withdraw: 400, wdCount: 1 },
+  { cur: 'USDT', chain: 'Solana', deposit: 1000, depCount: 1, withdraw: 300, wdCount: 0 },
+  { cur: 'USDT', chain: 'BNB', deposit: 600, depCount: 1, withdraw: 200, wdCount: 0 },
+  { cur: 'USDT', chain: 'Base', deposit: 400, depCount: 1, withdraw: 100, wdCount: 0 },
+  { cur: 'USDT', chain: 'Tron', deposit: 300, depCount: 0, withdraw: 0, wdCount: 0 },
+  { cur: 'USDC', chain: 'Ethereum', deposit: 1000, depCount: 1, withdraw: 600, wdCount: 1 },
+  { cur: 'USDC', chain: 'Solana', deposit: 800, depCount: 1, withdraw: 500, wdCount: 0 },
+  { cur: 'USDC', chain: 'BNB', deposit: 600, depCount: 1, withdraw: 400, wdCount: 0 },
+  { cur: 'USDC', chain: 'Base', deposit: 400, depCount: 0, withdraw: 0, wdCount: 0 },
+  { cur: 'BTC', chain: 'Bitcoin', deposit: 0, depCount: 0, withdraw: 0, wdCount: 0 },
+  { cur: 'ETH', chain: 'Ethereum', deposit: 600, depCount: 1, withdraw: 0, wdCount: 0 },
+  { cur: 'Tether', chain: 'Ethereum', deposit: 0, depCount: 0, withdraw: 0, wdCount: 0 },
 ];
 
 // ====== Render KPI ======
@@ -400,24 +430,40 @@ function renderKPI() {
   `).join('');
 }
 
-function renderDualChart(id, data, amtColor, txColor) {
-  const maxAmt = Math.max(...data.map(d => d.amt || d.dep + d.spend), 1);
+let chartModes = { fiat: 'amt', crypto: 'amt', card: 'dep', exchange: 'amt' };
+
+function switchChartMode(chart, mode) {
+  chartModes[chart] = mode;
+  document.querySelectorAll('#' + chart + 'Toggle .toggle-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.trim() === (mode === 'amt' ? 'Amount' : mode === 'tx' ? 'Tx Count' : mode === 'dep' ? 'Deposit' : 'Spending'));
+  });
+  if (chart === 'fiat') renderDualChart('fiatChart', fiatMonthly, '#1677ff', mode);
+  else if (chart === 'crypto') renderDualChart('cryptoChart', cryptoMonthly, '#722ed1', mode);
+  else if (chart === 'card') renderCardChart(mode);
+  else if (chart === 'exchange') renderDualChart('exchangeChart', exchangeMonthly, '#eb2f96', mode);
+}
+
+function renderDualChart(id, data, color, mode) {
+  const maxVal = Math.max(...data.map(d => mode === 'amt' ? (d.amt || 0) : (d.tx || 0)), 1);
   const el = document.getElementById(id);
   el.innerHTML = data.map((d, i) => {
-    const amt = d.amt || (d.dep + d.spend);
-    const h = maxAmt > 0 ? (amt / maxAmt * 150) : 0;
-    const v = amt > 0 ? '$' + amt.toLocaleString() : '';
-    return '<div class="bar-group"><div class="bar-value">' + v + '</div><div class="bar-amount" style="height:' + Math.max(h,2) + 'px;background:' + amtColor + '"></div><div class="bar-label">' + months[i] + '</div></div>';
+    const val = mode === 'amt' ? (d.amt || 0) : (d.tx || 0);
+    const h = maxVal > 0 ? (val / maxVal * 150) : 0;
+    const lbl = mode === 'amt' ? (val > 0 ? '$' + val.toLocaleString() : '') : (val > 0 ? val + ' tx' : '');
+    return '<div class="bar-group"><div class="bar-value">' + lbl + '</div><div class="bar-amount" style="height:' + Math.max(h,2) + 'px;background:' + color + ';width:' + (mode === 'amt' ? 20 : 16) + 'px"></div><div class="bar-label">' + months[i] + '</div></div>';
   }).join('');
 }
 
-function renderCardChart() {
-  const maxDep = Math.max(...cardMonthly.map(d => d.dep), 1);
+function renderCardChart(mode) {
+  const modeVal = mode || chartModes.card;
+  const maxVal = Math.max(...cardMonthly.map(d => modeVal === 'dep' ? d.dep : d.spend), 1);
   const el = document.getElementById('cardChart');
+  const depColor = '#13c2c2', spendColor = '#87e8de';
   el.innerHTML = cardMonthly.map((d, i) => {
-    const h1 = maxDep > 0 ? (d.dep / maxDep * 140) : 0;
-    const h2 = maxDep > 0 ? (d.spend / maxDep * 140) : 0;
-    return '<div class="bar-group"><div class="bar-value">' + (d.dep > 0 ? '$' + d.dep.toLocaleString() : '') + '</div><div class="bar-amount" style="height:' + Math.max(h1,2) + 'px;background:#13c2c2"></div><div class="bar-amount" style="height:' + Math.max(h2,2) + 'px;background:#87e8de;margin-top:1px"></div><div class="bar-label">' + months[i] + '</div></div>';
+    const val = modeVal === 'dep' ? d.dep : d.spend;
+    const h = maxVal > 0 ? (val / maxVal * 150) : 0;
+    const lbl = val > 0 ? '$' + val.toLocaleString() : '';
+    return '<div class="bar-group"><div class="bar-value">' + lbl + '</div><div class="bar-amount" style="height:' + Math.max(h,2) + 'px;background:' + (modeVal === 'dep' ? depColor : spendColor) + '"></div><div class="bar-label">' + months[i] + '</div></div>';
   }).join('');
 }
 
@@ -438,7 +484,12 @@ function renderCryptoTable() {
   const tbody = document.getElementById('cryptoTableBody');
   let totalDep = 0, totalWd = 0, totalDepCnt = 0, totalWdCnt = 0;
   cryptoBreakdown.forEach(r => { totalDep += r.deposit; totalWd += r.withdraw; totalDepCnt += r.depCount; totalWdCnt += r.wdCount; });
-  tbody.innerHTML = cryptoBreakdown.map(r => '<tr><td><strong>' + r.cur + '</strong></td><td style="font-size:11px;color:#888">' + r.chains + '</td><td class="positive">$' + r.deposit.toLocaleString() + '</td><td>' + r.depCount + '</td><td class="negative">$' + r.withdraw.toLocaleString() + '</td><td>' + r.wdCount + '</td></tr>').join('') + '<tr class="total-row"><td><strong>Total</strong></td><td></td><td class="positive">$' + totalDep.toLocaleString() + '</td><td>' + totalDepCnt + '</td><td class="negative">$' + totalWd.toLocaleString() + '</td><td>' + totalWdCnt + '</td></tr>';
+  let html = '', curIdx = -1, prevCur = '';
+  cryptoBreakdown.forEach((r, i) => {
+    if (r.cur !== prevCur) { curIdx++; prevCur = r.cur; }
+    html += '<tr' + (curIdx % 2 === 0 ? '' : ' style="background:#fafafa"') + '><td style="font-weight:' + (curIdx > 0 ? '400;color:#666' : '700;color:#1a1a2e') + '">' + (i === 0 || cryptoBreakdown[i-1].cur !== r.cur ? r.cur : '') + '</td><td style="font-size:12px"><span class="chain-badge">' + r.chain + '</span></td><td class="positive">$' + r.deposit.toLocaleString() + '</td><td>' + r.depCount + '</td><td class="negative">$' + r.withdraw.toLocaleString() + '</td><td>' + r.wdCount + '</td></tr>';
+  });
+  tbody.innerHTML = html + '<tr class="total-row"><td><strong>Total</strong></td><td></td><td class="positive">$' + totalDep.toLocaleString() + '</td><td>' + totalDepCnt + '</td><td class="negative">$' + totalWd.toLocaleString() + '</td><td>' + totalWdCnt + '</td></tr>';
 }
 
 function renderFiatTable() {
@@ -449,23 +500,39 @@ function renderFiatTable() {
 }
 
 function renderUserMetrics() {
+  switchUser('c');
+}
+
+let currentUserMode = 'c';
+function switchUser(mode) {
+  currentUserMode = mode;
   const sd = systemData;
-  document.getElementById('personalUsers').textContent = sd.personalUsers;
-  document.getElementById('companyUsers').textContent = sd.companyUsers;
-  document.getElementById('activePersonal').textContent = sd.activePersonal;
-  document.getElementById('activeCompany').textContent = sd.activeCompany;
-  const totalRegistered = sd.personalUsers + sd.companyUsers;
-  const kycRate = totalRegistered > 0 ? Math.round(sd.kycTotal / totalRegistered * 100) : 0;
-  const kybRate = totalRegistered > 0 ? Math.round(sd.kybTotal / totalRegistered * 100) : 0;
-  document.getElementById('kycCount').textContent = sd.kycApproved + ' / ' + sd.kycTotal;
-  document.getElementById('kybCount').textContent = sd.kybApproved + ' / ' + sd.kybTotal;
-  document.getElementById('kycBar').style.width = kycRate + '%';
-  document.getElementById('kybBar').style.width = kybRate + '%';
-  document.getElementById('reviewL1').textContent = sd.reviewL1;
-  document.getElementById('reviewL2').textContent = sd.reviewL2;
-  document.getElementById('resubmission').textContent = sd.resubmission;
-  document.getElementById('approvedCount').textContent = sd.kycApproved + sd.kybApproved;
-  document.getElementById('suspendedCount').textContent = sd.suspended;
+  document.querySelectorAll('#userToggle .toggle-btn').forEach(b => b.classList.toggle('active', b.textContent.trim() === (mode === 'c' ? 'C端' : 'B端')));
+  if (mode === 'c') {
+    document.getElementById('totalUsers').textContent = sd.personalUsers;
+    document.getElementById('activeUsers').textContent = sd.activePersonal;
+    document.getElementById('verifUsers').textContent = sd.kycTotal;
+    document.getElementById('pendingUsers').textContent = sd.reviewL1 + sd.reviewL2 + sd.resubmission;
+    document.getElementById('totalLabel').textContent = 'Personal 个人';
+    document.getElementById('activeLabel').textContent = '活跃 Personal';
+    document.getElementById('verifLabel').textContent = '已认证 (KYC)';
+    document.getElementById('pendingLabel').textContent = '审核中';
+    document.getElementById('activeNote').textContent = 'With any activity this month';
+    document.getElementById('verifNote').textContent = 'KYC passed';
+    document.getElementById('pendingNote').textContent = 'Awaiting KYC review';
+  } else {
+    document.getElementById('totalUsers').textContent = sd.companyUsers;
+    document.getElementById('activeUsers').textContent = sd.activeCompany;
+    document.getElementById('verifUsers').textContent = sd.kybTotal;
+    document.getElementById('pendingUsers').textContent = '0';
+    document.getElementById('totalLabel').textContent = 'Company 企业';
+    document.getElementById('activeLabel').textContent = '活跃 Company';
+    document.getElementById('verifLabel').textContent = '已认证 (KYB)';
+    document.getElementById('pendingLabel').textContent = '审核中';
+    document.getElementById('activeNote').textContent = 'With any activity this month';
+    document.getElementById('verifNote').textContent = 'KYB passed';
+    document.getElementById('pendingNote').textContent = 'Awaiting KYB review';
+  }
 }
 
 function toggleDropdown() {
@@ -483,10 +550,10 @@ document.addEventListener('click', function(e) {
 });
 
 renderKPI();
-renderDualChart('fiatChart', fiatMonthly, '#1677ff', '#91caff');
-renderDualChart('cryptoChart', cryptoMonthly, '#722ed1', '#d3adf7');
-renderCardChart();
-renderDualChart('exchangeChart', exchangeMonthly, '#eb2f96', '#ffadd2');
+renderDualChart('fiatChart', fiatMonthly, '#1677ff', chartModes.fiat);
+renderDualChart('cryptoChart', cryptoMonthly, '#722ed1', chartModes.crypto);
+renderCardChart(chartModes.card);
+renderDualChart('exchangeChart', exchangeMonthly, '#eb2f96', chartModes.exchange);
 renderRewardsChart();
 renderCryptoTable();
 renderFiatTable();
