@@ -80,7 +80,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .data-table .negative{color:#ff4d4f}
 .user-stats{background:#fff;border-radius:10px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:24px}
 .user-stats h3{font-size:14px;font-weight:600;color:#1a1a2e;margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.user-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.user-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
 .user-stat-card{text-align:center;padding:16px;border:1px solid #f0f0f0;border-radius:8px}
 .user-stat-card .num{font-size:22px;font-weight:700;color:#1a1a2e}
 .user-stat-card .lbl{font-size:12px;color:#999;margin-top:4px}
@@ -90,8 +90,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .status-item .num{font-size:18px;font-weight:700;color:#1a1a2e}
 .status-item .lbl{font-size:11px;color:#999;margin-top:2px}
 @media(max-width:1200px){.kpi-row{grid-template-columns:repeat(3,1fr)}.charts-row{grid-template-columns:1fr}}
-@media(max-width:768px){.kpi-row{grid-template-columns:repeat(2,1fr)}.sidebar{width:200px}.main{margin-left:200px}.user-grid{grid-template-columns:repeat(2,1fr)}.status-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:480px){.kpi-row{grid-template-columns:1fr}.sidebar{width:0;overflow:hidden}.main{margin-left:0}.user-grid{grid-template-columns:1fr}.status-grid{grid-template-columns:1fr}}
+@media(max-width:768px){.sidebar{width:200px}.main{margin-left:200px}.user-grid{grid-template-columns:repeat(3,1fr)}.status-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.sidebar{width:0;overflow:hidden}.main{margin-left:0}.user-grid{grid-template-columns:repeat(2,1fr)}.status-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -106,13 +106,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <nav class="sidebar-menu">
       <div class="sidebar-item active"><span class="icon">📊</span> 仪表盘</div>
       <div class="sidebar-item"><span class="icon">👥</span> 客户管理</div>
-      <div class="sidebar-item"><span class="icon">💳</span> 卡片管理 <span class="badge">12</span></div>
-      <div class="sidebar-item"><span class="icon">🔄</span> 交易记录</div>
       <div class="sidebar-item"><span class="icon">🏦</span> 法币管理</div>
-      <div class="sidebar-item"><span class="icon">₿</span> 加密资产管理</div>
-      <div class="sidebar-item"><span class="icon">📄</span> KYB / KYC</div>
-      <div class="sidebar-item"><span class="icon">📋</span> 报表中心</div>
-      <div class="sidebar-item"><span class="icon">⚙️</span> 系统设置</div>
+      <div class="sidebar-item"><span class="icon">₿</span> 加密货币管理</div>
+      <div class="sidebar-item"><span class="icon">🔄</span> 兑换管理</div>
+      <div class="sidebar-item"><span class="icon">💳</span> 卡片管理 <span class="badge">12</span></div>
+      <div class="sidebar-item"><span class="icon">📋</span> 内容管理</div>
+      <div class="sidebar-item"><span class="icon">🛡️</span> 风控管理</div>
+      <div class="sidebar-item"><span class="icon">📈</span> 投资管理</div>
+      <div class="sidebar-item"><span class="icon">⚙️</span> 系统管理</div>
     </nav>
     <div class="sidebar-footer">
       <div class="avatar">D</div>
@@ -151,8 +152,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     </div>
 
     <div class="content">
-      <!-- KPI Row -->
+      <!-- KPI Row 1: 交易财务 -->
       <div class="kpi-row" id="kpiRow"></div>
+
+      <!-- KPI Row 2: 卡片运营指标 -->
+      <div class="user-stats">
+        <h3>💳 卡片运营指标 <span class="tag">本月累计</span></h3>
+        <div class="kpi-row" id="cardKpiRow"></div>
+      </div>
 
       <!-- Charts Row 1: Fiat, Crypto, Card, Exchange -->
       <div class="charts-row">
@@ -224,6 +231,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
             <div class="num" id="totalUsers">0</div>
             <div class="lbl" id="totalLabel">总计</div>
             <div class="note">注册账户数</div>
+          </div>
+          <div class="user-stat-card">
+            <div class="num" id="newUsers">0</div>
+            <div class="lbl">新增注册</div>
+            <div class="note" id="newUserNote">本月新增</div>
+          </div>
+          <div class="user-stat-card">
+            <div class="num" id="newVerifUsers">0</div>
+            <div class="lbl">新增认证</div>
+            <div class="note" id="newVerifNote">本月通过</div>
           </div>
           <div class="user-stat-card">
             <div class="num" id="activeUsers">0</div>
@@ -330,12 +347,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
 <script>
 // ====== Data ======
+const cardKpiData = [
+  { label: '累计发卡', value: 1256, sub: '全部卡片', icon: '💳', change: '+8.7%', up: true },
+  { label: '激活卡数', value: 894, sub: '已激活/累计', icon: '✅', change: '71.2%', up: true },
+  { label: '活跃卡数', value: 342, sub: '当月有交易', icon: '🔥', change: '+5.3%', up: true },
+  { label: '余额总量', value: 282400, sub: '卡片余额 USD', icon: '💰', change: '+12.1%', up: true },
+  { label: '卡片流水', value: 12840, sub: '充值 + 消费', icon: '🔄', change: '+15.2%', up: true },
+];
+
 const kpiData = [
-  { label: '法币交易额', value: 447087, sub: '等值 USD', icon: '&#127974;', change: '+12.5%', up: true },
-  { label: '加密交易额', value: 12450, sub: '等值 USD', icon: '&#8383;', change: '+8.3%', up: true },
-  { label: '卡片流水', value: 12840, sub: '充值 + 消费', icon: '&#128179;', change: '+15.2%', up: true },
-  { label: '兑换交易额', value: 2017, sub: '买入 + 卖出', icon: '&#128260;', change: '+28.3%', up: true },
-  { label: '奖励发放', value: 8500, sub: 'YASBee 资产价值', icon: '&#127873;', change: '+5.1%', up: true },
+  { label: '法币交易额', value: 447087, sub: '等值 USD', icon: '🏦', change: '+12.5%', up: true },
+  { label: '加密交易额', value: 12450, sub: '等值 USD', icon: '₿', change: '+8.3%', up: true },
+  { label: '兑换交易额', value: 2017, sub: '买入 + 卖出', icon: '🔄', change: '+28.3%', up: true },
+  { label: '奖励发放', value: 8500, sub: 'YASBee 资产价值', icon: '🎁', change: '+5.1%', up: true },
+  { label: '认证审核', value: 12, sub: '待处理审核', icon: '🛡️', change: '-2件', up: false },
 ];
 
 const months = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
@@ -385,6 +410,8 @@ const rewardsMonthly = [
 
 const systemData = {
   personalUsers: 69, companyUsers: 14,
+  newPersonal: 8, newCompany: 2,
+  newKyc: 5, newKyb: 1,
   activePersonal: 42, activeCompany: 18,
   kycTotal: 42, kybTotal: 18,
   kycApproved: 35, kybApproved: 15,
@@ -421,15 +448,30 @@ const cryptoBreakdown = [
 // ====== Render KPI ======
 function renderKPI() {
   const row = document.getElementById('kpiRow');
-  const colors = ['#1677ff','#722ed1','#13c2c2','#eb2f96','#52c41a'];
+  const colors = ['#1677ff','#722ed1','#eb2f96','#52c41a','#fa8c16'];
   row.innerHTML = kpiData.map((k, i) => `
     <div class="kpi-card" style="border-top:3px solid ${colors[i]}">
       <div class="kpi-label"><span class="dot" style="background:${colors[i]}"></span> ${k.icon} ${k.label}</div>
-      <div class="kpi-value">$${k.value.toLocaleString()}</div>
+      <div class="kpi-value">${k.value >= 1000 ? '$' + k.value.toLocaleString() : k.value}</div>
       <div class="kpi-sub">${k.sub}</div>
       <div class="kpi-change ${k.up ? 'up' : 'down'}">${k.change} 环比上月</div>
     </div>
   `).join('');
+}
+
+function renderCardKPI() {
+  const row = document.getElementById('cardKpiRow');
+  const colors = ['#13c2c2','#52c41a','#fa541c','#1677ff','#eb2f96'];
+  row.innerHTML = cardKpiData.map((k, i) => {
+    const val = k.value >= 1000 ? '$' + k.value.toLocaleString() : k.value.toLocaleString();
+    return `
+    <div class="kpi-card" style="border-top:3px solid ${colors[i]}">
+      <div class="kpi-label"><span class="dot" style="background:${colors[i]}"></span> ${k.icon} ${k.label}</div>
+      <div class="kpi-value">${val}</div>
+      <div class="kpi-sub">${k.sub}</div>
+      <div class="kpi-change ${k.up ? 'up' : 'down'}">${k.change} 环比上月</div>
+    </div>
+  `}).join('');
 }
 
 let chartModes = { fiat: 'amt', crypto: 'amt', card: 'dep', exchange: 'amt' };
@@ -512,10 +554,14 @@ function switchUser(mode) {
   document.querySelectorAll('#userToggle .toggle-btn').forEach(b => b.classList.toggle('active', b.textContent.trim() === (mode === 'c' ? 'C端' : 'B端')));
   if (mode === 'c') {
     document.getElementById('totalUsers').textContent = sd.personalUsers;
+    document.getElementById('newUsers').textContent = sd.newPersonal;
+    document.getElementById('newVerifUsers').textContent = sd.newKyc;
     document.getElementById('activeUsers').textContent = sd.activePersonal;
     document.getElementById('verifUsers').textContent = sd.kycTotal;
     document.getElementById('pendingUsers').textContent = sd.reviewL1 + sd.reviewL2 + sd.resubmission;
     document.getElementById('totalLabel').textContent = '个人用户';
+    document.getElementById('newUserNote').textContent = '本月新增注册';
+    document.getElementById('newVerifNote').textContent = '本月 KYC 通过';
     document.getElementById('activeLabel').textContent = '活跃个人';
     document.getElementById('verifLabel').textContent = '已认证 (KYC)';
     document.getElementById('pendingLabel').textContent = '审核中';
@@ -524,10 +570,14 @@ function switchUser(mode) {
     document.getElementById('pendingNote').textContent = '等待 KYC 审核';
   } else {
     document.getElementById('totalUsers').textContent = sd.companyUsers;
+    document.getElementById('newUsers').textContent = sd.newCompany;
+    document.getElementById('newVerifUsers').textContent = sd.newKyb;
     document.getElementById('activeUsers').textContent = sd.activeCompany;
     document.getElementById('verifUsers').textContent = sd.kybTotal;
     document.getElementById('pendingUsers').textContent = '0';
     document.getElementById('totalLabel').textContent = '企业用户';
+    document.getElementById('newUserNote').textContent = '本月新增注册';
+    document.getElementById('newVerifNote').textContent = '本月 KYB 通过';
     document.getElementById('activeLabel').textContent = '活跃企业';
     document.getElementById('verifLabel').textContent = '已认证 (KYB)';
     document.getElementById('pendingLabel').textContent = '审核中';
@@ -552,6 +602,7 @@ document.addEventListener('click', function(e) {
 });
 
 renderKPI();
+renderCardKPI();
 renderDualChart('fiatChart', fiatMonthly, '#1677ff', chartModes.fiat);
 renderDualChart('cryptoChart', cryptoMonthly, '#722ed1', chartModes.crypto);
 renderCardChart(chartModes.card);
