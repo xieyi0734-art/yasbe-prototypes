@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: false
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
