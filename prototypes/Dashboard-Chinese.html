@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beeznis Admin — Dashboard v4</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f2f5;color:#333}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:240px;background:#001529;color:#fff;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100}
+.sidebar-logo{padding:20px 24px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sidebar-logo h1{font-size:18px;font-weight:700;color:#e59303}
+.sidebar-logo p{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px}
+.sidebar-menu{flex:1;padding:12px 0;overflow-y:auto}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:10px 24px;font-size:14px;color:rgba(255,255,255,.65);cursor:pointer;transition:all .2s;position:relative}
+.sidebar-item:hover{color:#fff;background:rgba(255,255,255,.04)}
+.sidebar-item.active{color:#fff;background:rgba(229,147,3,.15)}
+.sidebar-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#e59303;border-radius:0 2px 2px 0}
+.sidebar-item .icon{font-size:18px;width:22px;text-align:center}
+.sidebar-item .badge{margin-left:auto;background:#ff4d4f;color:#fff;font-size:11px;padding:1px 7px;border-radius:10px}
+.sidebar-footer{padding:16px 24px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px}
+.sidebar-footer .avatar{width:32px;height:32px;border-radius:50%;background:#e59303;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;font-weight:600}
+.sidebar-footer .name{font-size:13px;color:rgba(255,255,255,.85)}
+.sidebar-footer .role{font-size:11px;color:rgba(255,255,255,.45)}
+.main{margin-left:240px;flex:1;min-height:100vh}
+.header{background:#fff;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f0f0f0;position:sticky;top:0;z-index:50}
+.header-left{display:flex;align-items:center;gap:12px}
+.header-left h2{font-size:18px;font-weight:600;color:#1a1a2e}
+.header-right{display:flex;align-items:center;gap:16px}
+.header-right .time-select{display:flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;cursor:pointer}
+.header-right .time-select:hover{border-color:#e59303}
+.content{padding:24px}
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:24px}
+.kpi-card{background:#fff;border-radius:10px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.06);position:relative;overflow:hidden}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi-label{font-size:12px;color:#999;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.kpi-label .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.kpi-value{font-size:24px;font-weight:700;color:#1a1a2e;margin-bottom:4px}
+.kpi-sub{font-size:12px;color:#bbb}
+.kpi-change{font-size:12px;margin-top:8px}
+.kpi-change.up{color:#52c41a}
+.kpi-change.down{color:#ff4d4f}
+.charts-row{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px}
+.chart-card{background:#fff;border-radius:10px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.chart-card.full{grid-column:1/-1}
+.chart-title{font-size:14px;font-weight:600;color:#1a1a2e;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+.chart-title .legend{font-size:11px;font-weight:400;color:#999;display:flex;gap:12px}
+.chart-title .legend span{display:flex;align-items:center;gap:4px}
+.toggle-group{display:inline-flex;border:1px solid #d9d9d9;border-radius:6px;overflow:hidden}
+.toggle-btn{padding:3px 12px;font-size:12px;cursor:pointer;background:#fff;color:#666;border:none;border-right:1px solid #d9d9d9;transition:all .2s;line-height:1.6}
+.toggle-btn:last-child{border-right:none}
+.toggle-btn.active{background:#e59303;color:#fff;border-color:#e59303}
+.dropdown-item{padding:8px 16px;font-size:13px;cursor:pointer;transition:background .15s}
+.dropdown-item:hover{background:#f5f5f5}
+.bar-chart{display:flex;align-items:flex-end;gap:3px;height:180px;padding:0 4px;position:relative}
+.bar-group{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;height:100%;justify-content:flex-end;position:relative}
+.bar-amount{width:20px;border-radius:3px 3px 0 0;min-height:2px;transition:height .3s}
+.bar-count{width:12px;border-radius:3px 3px 0 0;min-height:2px;transition:height .3s;margin-top:1px}
+.bar-label{font-size:9px;color:#999;margin-top:3px}
+.bar-value{font-size:8px;color:#666;margin-bottom:1px;white-space:nowrap}
+.chain-badge{display:inline-block;padding:2px 8px;border-radius:4px;background:#f0f5ff;color:#1677ff;font-size:11px;font-weight:500}
+.bar-legend{font-size:9px;color:#999;text-align:center;margin-top:2px;display:flex;gap:8px;justify-content:center}
+.bar-legend span{display:flex;align-items:center;gap:2px}
+.legend-dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.table-section{background:#fff;border-radius:10px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:24px}
+.table-section h3{font-size:14px;font-weight:600;color:#1a1a2e;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.table-section h3 .tag{font-size:11px;font-weight:400;color:#999;background:#f5f5f5;padding:2px 8px;border-radius:4px}
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{text-align:left;padding:10px 12px;font-size:12px;color:#999;font-weight:500;border-bottom:1px solid #f0f0f0;background:#fafafa}
+.data-table td{padding:10px 12px;font-size:13px;color:#333;border-bottom:1px solid #f0f0f0}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:#fafafa}
+.data-table .total-row td{font-weight:600;background:#fffbe6;color:#333}
+.data-table .positive{color:#52c41a}
+.data-table .negative{color:#ff4d4f}
+.user-stats{background:#fff;border-radius:10px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:24px}
+.user-stats h3{font-size:14px;font-weight:600;color:#1a1a2e;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.user-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.user-stat-card{text-align:center;padding:16px;border:1px solid #f0f0f0;border-radius:8px}
+.user-stat-card .num{font-size:22px;font-weight:700;color:#1a1a2e}
+.user-stat-card .lbl{font-size:12px;color:#999;margin-top:4px}
+.user-stat-card .note{font-size:10px;color:#ccc;margin-top:2px}
+.status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+.status-item{text-align:center;padding:12px;border:1px solid #f0f0f0;border-radius:8px}
+.status-item .num{font-size:18px;font-weight:700;color:#1a1a2e}
+.status-item .lbl{font-size:11px;color:#999;margin-top:2px}
+@media(max-width:1200px){.kpi-row{grid-template-columns:repeat(3,1fr)}.charts-row{grid-template-columns:1fr}}
+@media(max-width:768px){.kpi-row{grid-template-columns:repeat(2,1fr)}.sidebar{width:200px}.main{margin-left:200px}.user-grid{grid-template-columns:repeat(2,1fr)}.status-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.kpi-row{grid-template-columns:1fr}.sidebar{width:0;overflow:hidden}.main{margin-left:0}.user-grid{grid-template-columns:1fr}.status-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <h1>Beeznis</h1>
+      <p>管理后台</p>
+    </div>
+    <nav class="sidebar-menu">
+      <div class="sidebar-item active"><span class="icon">📊</span> 仪表盘</div>
+      <div class="sidebar-item"><span class="icon">👥</span> 客户管理</div>
+      <div class="sidebar-item"><span class="icon">💳</span> 卡片管理 <span class="badge">12</span></div>
+      <div class="sidebar-item"><span class="icon">🔄</span> 交易记录</div>
+      <div class="sidebar-item"><span class="icon">🏦</span> 法币管理</div>
+      <div class="sidebar-item"><span class="icon">₿</span> 加密资产管理</div>
+      <div class="sidebar-item"><span class="icon">📄</span> KYB / KYC</div>
+      <div class="sidebar-item"><span class="icon">📋</span> 报表中心</div>
+      <div class="sidebar-item"><span class="icon">⚙️</span> 系统设置</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="avatar">D</div>
+      <div>
+        <div class="name">Driven Xie</div>
+        <div class="role">管理员</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-left">
+        <h2>仪表盘</h2>
+      </div>
+      <div class="header-right">
+        <div class="time-select" onclick="toggleDropdown()">
+          <span id="selectedTime">本月</span>
+          <span>▾</span>
+        </div>
+        <div style="display:flex;gap:8px">
+          <span style="cursor:pointer;font-size:18px">🔔</span>
+          <span style="cursor:pointer;font-size:18px">⚙️</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Time dropdown -->
+    <div id="timeDropdown" style="display:none;position:fixed;top:56px;right:80px;background:#fff;border:1px solid #e0e0e0;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.12);z-index:200;min-width:160px">
+      <div class="dropdown-item" onclick="selectTime('本月')">本月</div>
+      <div class="dropdown-item" onclick="selectTime('昨日')">昨日</div>
+      <div class="dropdown-item" onclick="selectTime('近7天')">近7天</div>
+      <div class="dropdown-item" onclick="selectTime('全部')">全部</div>
+    </div>
+
+    <div class="content">
+      <!-- KPI Row -->
+      <div class="kpi-row" id="kpiRow"></div>
+
+      <!-- Charts Row 1: Fiat, Crypto, Card, Exchange -->
+      <div class="charts-row">
+        <div class="chart-card">
+          <div class="chart-title">
+            <span>法币月度交易额</span>
+            <div class="toggle-group" id="fiatToggle">
+              <span class="toggle-btn active" onclick="switchChartMode('fiat','amt')">金额</span>
+              <span class="toggle-btn" onclick="switchChartMode('fiat','tx')">笔数</span>
+            </div>
+          </div>
+          <div class="bar-chart" id="fiatChart"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">
+            <span>加密月度交易额</span>
+            <div class="toggle-group" id="cryptoToggle">
+              <span class="toggle-btn active" onclick="switchChartMode('crypto','amt')">金额</span>
+              <span class="toggle-btn" onclick="switchChartMode('crypto','tx')">笔数</span>
+            </div>
+          </div>
+          <div class="bar-chart" id="cryptoChart"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">
+            <span>卡片月度流水</span>
+            <div class="toggle-group" id="cardToggle">
+              <span class="toggle-btn active" onclick="switchChartMode('card','dep')">充值</span>
+              <span class="toggle-btn" onclick="switchChartMode('card','spend')">消费</span>
+            </div>
+          </div>
+          <div class="bar-chart" id="cardChart"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">
+            <span>兑换月度交易额</span>
+            <div class="toggle-group" id="exchangeToggle">
+              <span class="toggle-btn active" onclick="switchChartMode('exchange','amt')">金额</span>
+              <span class="toggle-btn" onclick="switchChartMode('exchange','tx')">笔数</span>
+            </div>
+          </div>
+          <div class="bar-chart" id="exchangeChart"></div>
+        </div>
+      </div>
+
+      <!-- Rewards Chart -->
+      <div class="charts-row">
+        <div class="chart-card full">
+          <div class="chart-title">
+            YASBee 奖励发放分布
+            <span class="legend"><span><span class="legend-dot" style="background:#52c41a"></span> 销售额</span><span><span class="legend-dot" style="background:#95de64"></span> 销售笔数</span><span><span class="legend-dot" style="background:#ffc53d"></span> 赠予额</span><span><span class="legend-dot" style="background:#ffe58f"></span> 赠予笔数</span></span>
+          </div>
+          <div class="bar-chart" id="rewardsChart"></div>
+          <div class="bar-legend"><span><span class="legend-dot" style="background:#52c41a"></span> 销售金额</span><span><span class="legend-dot" style="background:#95de64"></span> 销售笔数</span><span><span class="legend-dot" style="background:#ffc53d"></span> 赠予金额</span><span><span class="legend-dot" style="background:#ffe58f"></span> 赠予笔数</span></div>
+        </div>
+      </div>
+
+      <!-- User Metrics -->
+      <div class="user-stats">
+        <h3>
+          <span>👥 用户指标</span>
+          <div class="toggle-group" id="userToggle">
+            <span class="toggle-btn active" onclick="switchUser('c')">C端</span>
+            <span class="toggle-btn" onclick="switchUser('b')">B端</span>
+          </div>
+        </h3>
+        <div class="user-grid" id="userGrid">
+          <div class="user-stat-card">
+            <div class="num" id="totalUsers">0</div>
+            <div class="lbl" id="totalLabel">总计</div>
+            <div class="note">注册账户数</div>
+          </div>
+          <div class="user-stat-card">
+            <div class="num" id="activeUsers">0</div>
+            <div class="lbl" id="activeLabel">活跃</div>
+            <div class="note" id="activeNote">当月有活动记录</div>
+          </div>
+          <div class="user-stat-card">
+            <div class="num" id="verifUsers">0</div>
+            <div class="lbl" id="verifLabel">已认证</div>
+            <div class="note" id="verifNote">KYC / KYB 通过</div>
+          </div>
+          <div class="user-stat-card">
+            <div class="num" id="pendingUsers">0</div>
+            <div class="lbl" id="pendingLabel">待审核</div>
+            <div class="note" id="pendingNote">等待认证审核</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Verification Status -->
+      <div class="user-stats">
+        <h3>🛡️ 认证状态 <span class="tag">含审核中数量</span></h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:16px">
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:13px;color:#666">个人认证 (KYC) 已认证:</span>
+              <span style="font-size:13px;font-weight:600;color:#1a1a2e" id="kycCount">0</span>
+            </div>
+            <div style="height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden">
+              <div id="kycBar" style="height:100%;background:#1677ff;border-radius:4px;width:0%"></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:13px;color:#666">企业认证 (KYB) 已认证:</span>
+              <span style="font-size:13px;font-weight:600;color:#1a1a2e" id="kybCount">0</span>
+            </div>
+            <div style="height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden">
+              <div id="kybBar" style="height:100%;background:#52c41a;border-radius:4px;width:0%"></div>
+            </div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:#666;margin-bottom:8px">⏳ 审核队列 (Pending Review)</div>
+        <div class="status-grid">
+          <div class="status-item">
+            <div class="num" id="reviewL1">0</div>
+            <div class="lbl">L1 初审</div>
+          </div>
+          <div class="status-item">
+            <div class="num" id="reviewL2">0</div>
+            <div class="lbl">L2 复审</div>
+          </div>
+          <div class="status-item">
+            <div class="num" id="resubmission">0</div>
+            <div class="lbl">重新提交</div>
+          </div>
+        </div>
+        <div style="text-align:right;margin-top:8px">
+          <span style="font-size:12px;color:#999">已通过: </span>
+          <span style="font-size:14px;font-weight:600;color:#52c41a" id="approvedCount">0</span>
+          <span style="font-size:12px;color:#999;margin-left:12px">已暂停: </span>
+          <span style="font-size:14px;font-weight:600;color:#ff4d4f" id="suspendedCount">0</span>
+        </div>
+      </div>
+
+
+      <!-- Crypto Currency Breakdown -->
+      <div class="table-section">
+        <h3>₿ 加密资产明细 <span class="tag">全部资产及网络</span></h3>
+        <table class="data-table" id="cryptoTable">
+          <thead>
+            <tr>
+              <th>币种</th>
+              <th>网络 / 链</th>
+              <th>充值金额</th>
+              <th>充值笔数</th>
+              <th>提现金额</th>
+              <th>提现笔数</th>
+            </tr>
+          </thead>
+          <tbody id="cryptoTableBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Fiat Currency Breakdown -->
+      <div class="table-section">
+        <h3>💰 法币明细 <span class="tag">年初至今</span></h3>
+        <table class="data-table" id="fiatTable">
+          <thead>
+            <tr>
+              <th>币种</th>
+              <th>充值金额</th>
+              <th>充值笔数</th>
+              <th>提现金额</th>
+              <th>提现笔数</th>
+            </tr>
+          </thead>
+          <tbody id="fiatTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ====== Data ======
+const kpiData = [
+  { label: '法币交易额', value: 447087, sub: '等值 USD', icon: '&#127974;', change: '+12.5%', up: true },
+  { label: '加密交易额', value: 12450, sub: '等值 USD', icon: '&#8383;', change: '+8.3%', up: true },
+  { label: '卡片流水', value: 12840, sub: '充值 + 消费', icon: '&#128179;', change: '+15.2%', up: true },
+  { label: '兑换交易额', value: 2017, sub: '买入 + 卖出', icon: '&#128260;', change: '+28.3%', up: true },
+  { label: '奖励发放', value: 8500, sub: 'YASBee 资产价值', icon: '&#127873;', change: '+5.1%', up: true },
+];
+
+const months = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+
+const fiatMonthly = [
+  { amt: 320000, tx: 15 }, { amt: 280000, tx: 12 }, { amt: 380000, tx: 18 },
+  { amt: 340000, tx: 14 }, { amt: 410000, tx: 20 }, { amt: 447087, tx: 22 },
+  { amt: 0, tx: 0 }, { amt: 0, tx: 0 }, { amt: 0, tx: 0 },
+  { amt: 0, tx: 0 }, { amt: 0, tx: 0 }, { amt: 0, tx: 0 },
+];
+
+const cryptoMonthly = [
+  { amt: 0, tx: 0 }, { amt: 1500, tx: 3 }, { amt: 3200, tx: 5 },
+  { amt: 2100, tx: 4 }, { amt: 5600, tx: 8 }, { amt: 12450, tx: 12 },
+  { amt: 0, tx: 0 }, { amt: 0, tx: 0 }, { amt: 0, tx: 0 },
+  { amt: 0, tx: 0 }, { amt: 0, tx: 0 }, { amt: 0, tx: 0 },
+];
+
+const cardMonthly = [
+  { dep: 5000, spend: 1000 }, { dep: 8000, spend: 2000 }, { dep: 6000, spend: 1500 },
+  { dep: 12000, spend: 3000 }, { dep: 15000, spend: 3500 }, { dep: 18000, spend: 4200 },
+  { dep: 0, spend: 0 }, { dep: 0, spend: 0 }, { dep: 0, spend: 0 },
+  { dep: 0, spend: 0 }, { dep: 0, spend: 0 }, { dep: 0, spend: 0 },
+];
+
+const exchangeMonthly = [
+  { amt: 400, tx: 5 }, { amt: 600, tx: 8 }, { amt: 1200, tx: 12 },
+  { amt: 800, tx: 10 }, { amt: 1500, tx: 15 }, { amt: 2017, tx: 18 },
+  { amt: 0, tx: 0 }, { amt: 0, tx: 0 }, { amt: 0, tx: 0 },
+  { amt: 0, tx: 0 }, { amt: 0, tx: 0 }, { amt: 0, tx: 0 },
+];
+
+const rewardsMonthly = [
+  { sa: 1200, sc: 8, ga: 300, gc: 3 },
+  { sa: 1800, sc: 12, ga: 450, gc: 4 },
+  { sa: 2400, sc: 15, ga: 600, gc: 5 },
+  { sa: 1600, sc: 10, ga: 350, gc: 3 },
+  { sa: 2800, sc: 18, ga: 700, gc: 6 },
+  { sa: 3200, sc: 22, ga: 850, gc: 7 },
+  { sa: 0, sc: 0, ga: 0, gc: 0 },
+  { sa: 0, sc: 0, ga: 0, gc: 0 },
+  { sa: 0, sc: 0, ga: 0, gc: 0 },
+  { sa: 0, sc: 0, ga: 0, gc: 0 },
+  { sa: 0, sc: 0, ga: 0, gc: 0 },
+  { sa: 0, sc: 0, ga: 0, gc: 0 },
+];
+
+const systemData = {
+  personalUsers: 69, companyUsers: 14,
+  activePersonal: 42, activeCompany: 18,
+  kycTotal: 42, kybTotal: 18,
+  kycApproved: 35, kybApproved: 15,
+  reviewL1: 5, reviewL2: 0,
+  resubmission: 0, suspended: 1, frozen: 0,
+};
+
+const fiatBreakdown = [
+  { cur: 'USD', deposit: 126400, depCount: 22, withdraw: 104000, wdCount: 4 },
+  { cur: 'EUR', deposit: 42587, depCount: 10, withdraw: 110100, wdCount: 3 },
+  { cur: 'GBP', deposit: 22000, depCount: 4, withdraw: 42000, wdCount: 1 },
+];
+
+const cryptoBreakdown = [
+  { cur: 'CYRO', chain: 'Ethereum', deposit: 2000, depCount: 2, withdraw: 800, wdCount: 1 },
+  { cur: 'CYRO', chain: 'Solana', deposit: 1200, depCount: 1, withdraw: 500, wdCount: 1 },
+  { cur: 'CYRO', chain: 'BNB', deposit: 800, depCount: 1, withdraw: 300, wdCount: 0 },
+  { cur: 'CYRO', chain: 'Base', deposit: 500, depCount: 1, withdraw: 200, wdCount: 0 },
+  { cur: 'CYRO', chain: 'Tron', deposit: 500, depCount: 1, withdraw: 200, wdCount: 0 },
+  { cur: 'USDT', chain: 'Ethereum', deposit: 1200, depCount: 1, withdraw: 400, wdCount: 1 },
+  { cur: 'USDT', chain: 'Solana', deposit: 1000, depCount: 1, withdraw: 300, wdCount: 0 },
+  { cur: 'USDT', chain: 'BNB', deposit: 600, depCount: 1, withdraw: 200, wdCount: 0 },
+  { cur: 'USDT', chain: 'Base', deposit: 400, depCount: 1, withdraw: 100, wdCount: 0 },
+  { cur: 'USDT', chain: 'Tron', deposit: 300, depCount: 0, withdraw: 0, wdCount: 0 },
+  { cur: 'USDC', chain: 'Ethereum', deposit: 1000, depCount: 1, withdraw: 600, wdCount: 1 },
+  { cur: 'USDC', chain: 'Solana', deposit: 800, depCount: 1, withdraw: 500, wdCount: 0 },
+  { cur: 'USDC', chain: 'BNB', deposit: 600, depCount: 1, withdraw: 400, wdCount: 0 },
+  { cur: 'USDC', chain: 'Base', deposit: 400, depCount: 0, withdraw: 0, wdCount: 0 },
+  { cur: 'BTC', chain: 'Bitcoin', deposit: 0, depCount: 0, withdraw: 0, wdCount: 0 },
+  { cur: 'ETH', chain: 'Ethereum', deposit: 600, depCount: 1, withdraw: 0, wdCount: 0 },
+  { cur: 'Tether', chain: 'Ethereum', deposit: 0, depCount: 0, withdraw: 0, wdCount: 0 },
+];
+
+// ====== Render KPI ======
+function renderKPI() {
+  const row = document.getElementById('kpiRow');
+  const colors = ['#1677ff','#722ed1','#13c2c2','#eb2f96','#52c41a'];
+  row.innerHTML = kpiData.map((k, i) => `
+    <div class="kpi-card" style="border-top:3px solid ${colors[i]}">
+      <div class="kpi-label"><span class="dot" style="background:${colors[i]}"></span> ${k.icon} ${k.label}</div>
+      <div class="kpi-value">$${k.value.toLocaleString()}</div>
+      <div class="kpi-sub">${k.sub}</div>
+      <div class="kpi-change ${k.up ? 'up' : 'down'}">${k.change} 环比上月</div>
+    </div>
+  `).join('');
+}
+
+let chartModes = { fiat: 'amt', crypto: 'amt', card: 'dep', exchange: 'amt' };
+
+function switchChartMode(chart, mode) {
+  chartModes[chart] = mode;
+  document.querySelectorAll('#' + chart + 'Toggle .toggle-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.trim() === (mode === 'amt' ? '金额' : mode === 'tx' ? '笔数' : mode === 'dep' ? '充值' : '消费'));
+  });
+  if (chart === 'fiat') renderDualChart('fiatChart', fiatMonthly, '#1677ff', mode);
+  else if (chart === 'crypto') renderDualChart('cryptoChart', cryptoMonthly, '#722ed1', mode);
+  else if (chart === 'card') renderCardChart(mode);
+  else if (chart === 'exchange') renderDualChart('exchangeChart', exchangeMonthly, '#eb2f96', mode);
+}
+
+function renderDualChart(id, data, color, mode) {
+  const maxVal = Math.max(...data.map(d => mode === 'amt' ? (d.amt || 0) : (d.tx || 0)), 1);
+  const el = document.getElementById(id);
+  el.innerHTML = data.map((d, i) => {
+    const val = mode === 'amt' ? (d.amt || 0) : (d.tx || 0);
+    const h = maxVal > 0 ? (val / maxVal * 150) : 0;
+    const lbl = mode === 'amt' ? (val > 0 ? '$' + val.toLocaleString() : '') : (val > 0 ? val + ' 笔' : '');
+    return '<div class="bar-group"><div class="bar-value">' + lbl + '</div><div class="bar-amount" style="height:' + Math.max(h,2) + 'px;background:' + color + ';width:' + (mode === 'amt' ? 20 : 16) + 'px"></div><div class="bar-label">' + months[i] + '</div></div>';
+  }).join('');
+}
+
+function renderCardChart(mode) {
+  const modeVal = mode || chartModes.card;
+  const maxVal = Math.max(...cardMonthly.map(d => modeVal === 'dep' ? d.dep : d.spend), 1);
+  const el = document.getElementById('cardChart');
+  const depColor = '#13c2c2', spendColor = '#87e8de';
+  el.innerHTML = cardMonthly.map((d, i) => {
+    const val = modeVal === 'dep' ? d.dep : d.spend;
+    const h = maxVal > 0 ? (val / maxVal * 150) : 0;
+    const lbl = val > 0 ? '$' + val.toLocaleString() : '';
+    return '<div class="bar-group"><div class="bar-value">' + lbl + '</div><div class="bar-amount" style="height:' + Math.max(h,2) + 'px;background:' + (modeVal === 'dep' ? depColor : spendColor) + '"></div><div class="bar-label">' + months[i] + '</div></div>';
+  }).join('');
+}
+
+function renderRewardsChart() {
+  const maxVal = Math.max(...rewardsMonthly.map(d => Math.max(d.sa, d.ga)), 1);
+  const maxCount = Math.max(...rewardsMonthly.map(d => Math.max(d.sc, d.gc)), 1);
+  const el = document.getElementById('rewardsChart');
+  el.innerHTML = rewardsMonthly.map((d, i) => {
+    const h1 = maxVal > 0 ? (d.sa / maxVal * 130) : 0;
+    const h2 = maxCount > 0 ? (d.sc / maxCount * 65) : 0;
+    const h3 = maxVal > 0 ? (d.ga / maxVal * 130) : 0;
+    const h4 = maxCount > 0 ? (d.gc / maxCount * 65) : 0;
+    return '<div class="bar-group"><div class="bar-amount" style="height:' + Math.max(h1,2) + 'px;background:#52c41a" title="销售额 $' + d.sa + '"></div><div class="bar-amount" style="height:' + Math.max(h2,2) + 'px;background:#95de64" title="销售 ' + d.sc + ' 笔"></div><div class="bar-amount" style="height:' + Math.max(h3,2) + 'px;background:#ffc53d" title="赠予额 $' + d.ga + '"></div><div class="bar-amount" style="height:' + Math.max(h4,2) + 'px;background:#ffe58f" title="赠予 ' + d.gc + ' 笔"></div><div class="bar-label">' + months[i] + '</div></div>';
+  }).join('');
+}
+
+function renderCryptoTable() {
+  const tbody = document.getElementById('cryptoTableBody');
+  let totalDep = 0, totalWd = 0, totalDepCnt = 0, totalWdCnt = 0;
+  cryptoBreakdown.forEach(r => { totalDep += r.deposit; totalWd += r.withdraw; totalDepCnt += r.depCount; totalWdCnt += r.wdCount; });
+  let html = '', curIdx = -1, prevCur = '';
+  cryptoBreakdown.forEach((r, i) => {
+    if (r.cur !== prevCur) { curIdx++; prevCur = r.cur; }
+    html += '<tr' + (curIdx % 2 === 0 ? '' : ' style="background:#fafafa"') + '><td style="font-weight:' + (curIdx > 0 ? '400;color:#666' : '700;color:#1a1a2e') + '">' + (i === 0 || cryptoBreakdown[i-1].cur !== r.cur ? r.cur : '') + '</td><td style="font-size:12px"><span class="chain-badge">' + r.chain + '</span></td><td class="positive">$' + r.deposit.toLocaleString() + '</td><td>' + r.depCount + '</td><td class="negative">$' + r.withdraw.toLocaleString() + '</td><td>' + r.wdCount + '</td></tr>';
+  });
+  tbody.innerHTML = html + '<tr class="total-row"><td><strong>合计</strong></td><td></td><td class="positive">$' + totalDep.toLocaleString() + '</td><td>' + totalDepCnt + '</td><td class="negative">$' + totalWd.toLocaleString() + '</td><td>' + totalWdCnt + '</td></tr>';
+}
+
+function renderFiatTable() {
+  const tbody = document.getElementById('fiatTableBody');
+  let totalDep = 0, totalWd = 0, totalDepCnt = 0, totalWdCnt = 0;
+  fiatBreakdown.forEach(r => { totalDep += r.deposit; totalWd += r.withdraw; totalDepCnt += r.depCount; totalWdCnt += r.wdCount; });
+  tbody.innerHTML = fiatBreakdown.map(r => '<tr><td><strong>' + r.cur + '</strong></td><td class="positive">$' + r.deposit.toLocaleString() + '</td><td>' + r.depCount + '</td><td class="negative">$' + r.withdraw.toLocaleString() + '</td><td>' + r.wdCount + '</td></tr>').join('') + '<tr class="total-row"><td><strong>合计</strong></td><td class="positive">$' + totalDep.toLocaleString() + '</td><td>' + totalDepCnt + '</td><td class="negative">$' + totalWd.toLocaleString() + '</td><td>' + totalWdCnt + '</td></tr>';
+}
+
+function renderUserMetrics() {
+  switchUser('c');
+}
+
+let currentUserMode = 'c';
+function switchUser(mode) {
+  currentUserMode = mode;
+  const sd = systemData;
+  document.querySelectorAll('#userToggle .toggle-btn').forEach(b => b.classList.toggle('active', b.textContent.trim() === (mode === 'c' ? 'C端' : 'B端')));
+  if (mode === 'c') {
+    document.getElementById('totalUsers').textContent = sd.personalUsers;
+    document.getElementById('activeUsers').textContent = sd.activePersonal;
+    document.getElementById('verifUsers').textContent = sd.kycTotal;
+    document.getElementById('pendingUsers').textContent = sd.reviewL1 + sd.reviewL2 + sd.resubmission;
+    document.getElementById('totalLabel').textContent = '个人用户';
+    document.getElementById('activeLabel').textContent = '活跃个人';
+    document.getElementById('verifLabel').textContent = '已认证 (KYC)';
+    document.getElementById('pendingLabel').textContent = '审核中';
+    document.getElementById('activeNote').textContent = '当月有活动';
+    document.getElementById('verifNote').textContent = 'KYC 通过';
+    document.getElementById('pendingNote').textContent = '等待 KYC 审核';
+  } else {
+    document.getElementById('totalUsers').textContent = sd.companyUsers;
+    document.getElementById('activeUsers').textContent = sd.activeCompany;
+    document.getElementById('verifUsers').textContent = sd.kybTotal;
+    document.getElementById('pendingUsers').textContent = '0';
+    document.getElementById('totalLabel').textContent = '企业用户';
+    document.getElementById('activeLabel').textContent = '活跃企业';
+    document.getElementById('verifLabel').textContent = '已认证 (KYB)';
+    document.getElementById('pendingLabel').textContent = '审核中';
+    document.getElementById('activeNote').textContent = '当月有活动';
+    document.getElementById('verifNote').textContent = 'KYB 通过';
+    document.getElementById('pendingNote').textContent = '等待 KYB 审核';
+  }
+}
+
+function toggleDropdown() {
+  const dd = document.getElementById('timeDropdown');
+  dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+}
+function selectTime(t) {
+  document.getElementById('selectedTime').textContent = t;
+  document.getElementById('timeDropdown').style.display = 'none';
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.time-select') && !e.target.closest('#timeDropdown')) {
+    document.getElementById('timeDropdown').style.display = 'none';
+  }
+});
+
+renderKPI();
+renderDualChart('fiatChart', fiatMonthly, '#1677ff', chartModes.fiat);
+renderDualChart('cryptoChart', cryptoMonthly, '#722ed1', chartModes.crypto);
+renderCardChart(chartModes.card);
+renderDualChart('exchangeChart', exchangeMonthly, '#eb2f96', chartModes.exchange);
+renderRewardsChart();
+renderCryptoTable();
+renderFiatTable();
+renderUserMetrics();
+</script>
+
+</body>
+</html>
