@@ -1,0 +1,72 @@
+Getting Started
+For AI agents: visit https://docs.mesh.complyadvantage.com/v2.1/llms.txt for an index of all pages formatted in Markdown and endpoints in OpenAPI.
+Jump to Content
+GuidesAPI ReferenceLog In
+Guides
+Log In
+GuidesAPI Reference
+Getting Started
+Documentation
+Getting Started
+Key integration use cases
+Creating and screening customers
+Checking for screening hits
+Viewing screening results
+Simple step-by-step integration
+Glossary
+Mesh API
+Overview
+Errors
+Versioning
+Rate Limiting
+Working with lists
+Data Types
+Dates and times
+Countries and currencies
+Webhooks
+Onboarding
+Postman and OpenAPI Schema
+Customers
+Cases
+Alerts and Risks
+Powered by
+Getting Started
+Getting started with your ComplyAdvantage Mesh API integration
+Getting Started
+Getting started with your ComplyAdvantage Mesh API integration
+This guide offers step-by-step instructions for integrating with the ComplyAdvantage Mesh API and addresses common use cases, including creating and screening customers, checking for hits, and viewing cases, alerts, and risks.
+Setting up your environment
+API authentication
+To begin using the ComplyAdvantage Mesh API, you’ll need credentials provided during onboarding. Your nominated API user should have received a welcome email containing instructions for setting up their password and specifying their organization name. These credentials are used to generate an access token:
+username: The email address of the API user.
+password: The password created by the API user.
+realm: The organization name as stated in the welcome email.
+Sample API authentication request
+{
+"username": "[email protected]",
+"password": "password",
+"realm": "organization name"
+}
+ℹ️
+API user best practices
+It is recommended to have a dedicated email address for your API user (e.g. [email protected]) and have one API user per account. This will enable you to create tokens for each account without having to switch accounts.
+Creating a customer screening configuration
+❗️
+Setting up screening configurations
+Screening configurations should be set up in collaboration with a compliance or risk team to ensure the appropriate screening lists are selected. These configurations can be updated at any time.
+Customers are screened against pre-configured settings. Before creating and screening your first customer, you must set up a customer screening configuration. This can be done via ComplyAdvantage Mesh web application or the API. You can create multiple configurations and select the appropriate one for each customer during the screening process.
+Create a customer screening configuration via the web application
+Follow the steps outlined in this article.
+Create a customer screening configuration via API
+Use the create screening configuration API.
+ℹ️
+Customer screening configuration identifier
+After creating a customer screening configuration, make sure to note the configuration_identifier. This identifier is required when creating and screening customers.
+Example of a screening configuration identifier
+Updated 5 months ago
+Key integration use cases
+Did this page help you?
+Yes
+No
+Copy Page
+Getting Started
