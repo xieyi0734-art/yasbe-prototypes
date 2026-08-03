@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mesh (ComplyAdvantage) 接入业务流程图 - YASBe</title>
+<title>Mesh (ComplyAdvantage) 接入业务流程图 v2 - YASBe</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -15,11 +15,30 @@
   .container { max-width: 1400px; margin: 0 auto; }
 
   .page-title { font-size: 28px; font-weight: 700; color: #FFCA00; margin-bottom: 6px; }
-  .page-sub { font-size: 14px; color: #8888A0; margin-bottom: 40px; }
+  .page-sub { font-size: 14px; color: #8888A0; margin-bottom: 36px; }
   .page-sub .badge {
     display: inline-block; background: rgba(255,202,0,.12); color: #FFCA00;
     padding: 2px 10px; border-radius: 10px; font-size: 12px; margin-right: 8px;
   }
+  .page-sub .badge.green { background: rgba(74,222,128,.12); color: #4ade80; }
+  .page-sub .badge.blue  { background: rgba(96,165,250,.12); color: #60A5FA; }
+
+  /* 已定决策条 */
+  .decided-bar {
+    display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 36px;
+  }
+  .decided-chip {
+    background: #14171c; border: 1px solid #2c3240; border-radius: 10px;
+    padding: 10px 16px; font-size: 13px; color: #B8BECC;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .decided-chip .check {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: rgba(74,222,128,.15); color: #4ade80;
+    display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .decided-chip b { color: #FFFFFF; }
 
   /* ===== Section ===== */
   .section { margin-bottom: 44px; }
@@ -34,13 +53,15 @@
     width: 24px; height: 24px; border-radius: 6px;
     display: flex; align-items: center; justify-content: center;
   }
+  .section-title .num.green { background: #4ade80; }
+  .section-title .num.blue  { background: #60A5FA; }
+  .section-title .num.red   { background: #FF4D4F; }
   .section-title .tag {
     font-size: 11px; background: rgba(255,202,0,.15); color: #FFCA00;
     padding: 2px 10px; border-radius: 10px; font-weight: 500;
   }
-  .section-title .tag.blue  { background: rgba(96,165,250,.15); color: #60A5FA; }
   .section-title .tag.green { background: rgba(74,222,128,.15); color: #4ade80; }
-  .section-title .tag.red   { background: rgba(255,77,79,.15); color: #FF4D4F; }
+  .section-title .tag.blue  { background: rgba(96,165,250,.15); color: #60A5FA; }
 
   /* ===== Flow canvas ===== */
   .flow-canvas {
@@ -53,14 +74,13 @@
     align-items: center;
   }
 
-  /* Step box */
   .step {
     background: #1a1e26;
     border: 1px solid #2c3240;
     border-radius: 12px;
     padding: 14px 20px;
-    min-width: 320px;
-    max-width: 560px;
+    min-width: 340px;
+    max-width: 620px;
     text-align: center;
     position: relative;
   }
@@ -75,8 +95,11 @@
   }
   .step.gold { border-color: rgba(255,202,0,.5); }
   .step.gold .step-num { background: #FFCA00; }
+  .step.green { border-color: rgba(74,222,128,.4); }
   .step.green .step-num { background: #4ade80; }
+  .step.red { border-color: rgba(255,77,79,.4); }
   .step.red .step-num { background: #FF4D4F; }
+  .step.blue { border-color: rgba(96,165,250,.4); }
   .step.blue .step-num { background: #60A5FA; }
   .step.warn { border-color: rgba(255,202,0,.35); background: #1c1a14; }
 
@@ -85,7 +108,7 @@
     background: #1a1e26;
     border: 2px dashed #FFCA00;
     border-radius: 50%;
-    width: 180px; height: 96px;
+    width: 200px; height: 104px;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     text-align: center;
@@ -95,40 +118,27 @@
   .decision .d-sub { font-size: 11px; color: #8a93a8; margin-top: 3px; }
 
   /* Arrow */
-  .arrow-v {
-    width: 2px; height: 32px;
-    background: #3a4150;
-    position: relative;
-  }
+  .arrow-v { width: 2px; height: 30px; background: #3a4150; position: relative; }
   .arrow-v::after {
     content: ''; position: absolute; bottom: 0; left: 50%;
     transform: translateX(-50%);
     border-left: 6px solid transparent; border-right: 6px solid transparent;
     border-top: 8px solid #3a4150;
   }
-  .arrow-label {
-    font-size: 11px; color: #5c6478; margin: 2px 0;
-  }
+  .arrow-label { font-size: 11px; color: #5c6478; margin: 2px 0; }
 
   /* Branch row */
-  .branch-row {
-    display: flex; gap: 24px; justify-content: center; width: 100%;
-    margin: 8px 0;
-  }
-  .branch-col { flex: 1; max-width: 380px; display: flex; flex-direction: column; align-items: center; }
-  .branch-h {
-    font-size: 12px; font-weight: 600; padding: 4px 14px; border-radius: 8px; margin-bottom: 12px;
-  }
+  .branch-row { display: flex; gap: 24px; justify-content: center; width: 100%; margin: 8px 0; }
+  .branch-col { flex: 1; max-width: 420px; display: flex; flex-direction: column; align-items: center; }
+  .branch-h { font-size: 12px; font-weight: 600; padding: 4px 14px; border-radius: 8px; margin-bottom: 12px; }
   .branch-h.green { background: rgba(74,222,128,.15); color: #4ade80; }
   .branch-h.red   { background: rgba(255,77,79,.15); color: #FF4D4F; }
+  .branch-h.blue  { background: rgba(96,165,250,.15); color: #60A5FA; }
 
   .join-v { width: 2px; height: 24px; background: #3a4150; }
 
-  /* Decision split connector */
   .split { display: flex; width: 100%; position: relative; justify-content: center; }
-  .split-line {
-    width: 60%; height: 2px; background: #3a4150; position: relative;
-  }
+  .split-line { width: 60%; height: 2px; background: #3a4150; position: relative; }
   .split-line::after {
     content: ''; position: absolute; top: -4px; right: 0;
     border-top: 6px solid transparent; border-bottom: 6px solid transparent;
@@ -140,26 +150,13 @@
     border-right: 8px solid #3a4150;
   }
 
-  /* ===== Notes / Decision cards ===== */
+  /* ===== Cards ===== */
   .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
   .card {
     background: #14171c; border: 1px solid #23232f; border-radius: 12px; padding: 16px 18px;
   }
   .card-title { font-size: 14px; font-weight: 600; color: #FFCA00; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
   .card-title .dot { width: 8px; height: 8px; border-radius: 50%; background: #FFCA00; }
-  .card ol { list-style: none; counter-reset: c; }
-  .card ol li {
-    counter-increment: c; font-size: 13px; color: #B8BECC;
-    padding: 5px 0 5px 26px; position: relative; line-height: 1.5;
-  }
-  .card ol li::before {
-    content: counter(c);
-    position: absolute; left: 0; top: 5px;
-    width: 18px; height: 18px; border-radius: 50%;
-    background: #1a1e26; border: 1px solid #2c3240;
-    font-size: 10px; font-weight: 600; color: #60A5FA;
-    display: flex; align-items: center; justify-content: center;
-  }
   .card p { font-size: 13px; color: #B8BECC; line-height: 1.6; }
   .card .hl { color: #FFCA00; font-weight: 600; }
 
@@ -181,9 +178,7 @@
     color: #4ade80; font-size: 13px; font-weight: 700;
   }
 
-  .footer-note {
-    margin-top: 32px; font-size: 12px; color: #5c6478; text-align: center;
-  }
+  .footer-note { margin-top: 32px; font-size: 12px; color: #5c6478; text-align: center; }
 </style>
 </head>
 <body>
@@ -191,10 +186,18 @@
 
   <div class="page-title">Mesh (ComplyAdvantage) 接入业务流程图</div>
   <div class="page-sub">
-    <span class="badge">AML 客户风险持续评估</span>
-    <span class="badge">来源: docs.mesh.complyadvantage.com/v2.1</span>
-    <span class="badge" style="background:rgba(96,165,250,.12);color:#60A5FA;">YASBe 产品分析</span>
-    <br>同步 / 异步双模式 · 持续监控可选 · 案件人工评审
+    <span class="badge green">✓ 实时筛查</span>
+    <span class="badge blue">✓ 自建案件系统</span>
+    <span class="badge">✓ 持续监控开启</span>
+    <span class="badge" style="background:rgba(255,77,79,.12);color:#FF4D4F;">决策版 v2</span>
+    <br>基于已确认的三项产品决策 · 来源: docs.mesh.complyadvantage.com/v2.1
+  </div>
+
+  <!-- ============ 已定决策 ============ -->
+  <div class="decided-bar">
+    <div class="decided-chip"><span class="check">✓</span> 决策 1 · <b>开户实时筛查</b>（同步模式，1-3 秒出结果）</div>
+    <div class="decided-chip"><span class="check">✓</span> 决策 2 · <b>自建案件系统</b>（API 拉告警 → 我方系统审核）</div>
+    <div class="decided-chip"><span class="check">✓</span> 决策 3 · <b>持续监控开启</b>（24h 重筛查 + 按量计费）</div>
   </div>
 
   <!-- ============ SECTION 1: 接入前准备 ============ -->
@@ -210,87 +213,82 @@
       <div class="step gold">
         <span class="step-num">②</span>
         <div class="step-title">创建客户筛查配置</div>
-        <div class="step-sub">选择筛查名单（制裁 / PEP / 负面媒体 / 警告名单…）<br>⚠ 需合规/风控团队共同制定 · 记下 configuration_identifier</div>
+        <div class="step-sub">选择名单（制裁 / PEP / 负面媒体 / 警告名单…）+ 风险分公式与阈值<br>⚠ 需合规/风控团队共同制定 · 记下 configuration_identifier</div>
       </div>
       <div class="arrow-v"></div>
-      <div class="decision">
-        <div class="d-title">③ 集成模式</div>
-        <div class="d-sub">同步 vs 异步<br>可混合使用</div>
-      </div>
-      <div class="arrow-v"></div>
-      <div class="branch-row">
-        <div class="branch-col">
-          <div class="branch-h green">A · 同步筛查</div>
-          <div class="step blue" style="min-width:280px;">
-            <div class="step-title">实时返回结果</div>
-            <div class="step-sub">开户等待 1-3 秒<br>适合在线注册 / 实时决策</div>
-          </div>
-        </div>
-        <div class="branch-col">
-          <div class="branch-h blue">B · 异步筛查</div>
-          <div class="step blue" style="min-width:280px;">
-            <div class="step-title">webhook 推送结果</div>
-            <div class="step-sub">先收单后筛查<br>适合大批量 / 风控复审流程</div>
-          </div>
-        </div>
+      <div class="step gold">
+        <span class="step-num">③</span>
+        <div class="step-title">配置同步筛查模式 + Webhook</div>
+        <div class="step-sub">同步调用 + last_sync_step=ALERTING（一次调用拿全结果）<br>配置 CASE_STATE_UPDATED webhook（按 webhook-id 去重 + 签名校验）</div>
       </div>
     </div>
   </div>
 
-  <!-- ============ SECTION 2: 客户入驻 ============ -->
+  <!-- ============ SECTION 2: 开户实时筛查 ============ -->
   <div class="section">
-    <div class="section-title"><span class="num">2</span> 客户入驻（每个新客户触发） <span class="tag green">核心流程</span></div>
+    <div class="section-title"><span class="num green">2</span> 用户开户 · 实时筛查 <span class="tag green">核心流程 · 同步 1-3 秒</span></div>
     <div class="flow-canvas">
-      <div class="step gold">
+      <div class="step green">
         <span class="step-num">④</span>
-        <div class="step-title">创建并筛查客户</div>
-        <div class="step-sub">POST create-and-screen<br>入参：客户信息 + external_identifier（我方客户ID，唯一）<br>返回：customer_identifier（<b style="color:#FFCA00">必须存库</b>）+ 风险级别 + 筛查结果</div>
+        <div class="step-title">用户提交 KYC / KYB 资料</div>
+        <div class="step-sub">个人实名认证（KYC）或 企业认证（KYB）表单提交<br>前台进入「筛查中」等待态（1-3 秒）</div>
+      </div>
+      <div class="arrow-v"></div>
+      <div class="step gold">
+        <span class="step-num">⑤</span>
+        <div class="step-title">实时调用「创建并筛查客户」API</div>
+        <div class="step-sub">POST create-and-screen（同步）<br>入参：客户信息 + external_identifier（我方客户ID）<br>返回：customer_identifier（<b style="color:#FFCA00">必须存库</b>）+ 风险级别 + 命中档案<br>结果<b style="color:#60A5FA">实时同步给审核人员</b>，辅助人工判断</div>
       </div>
       <div class="arrow-v"></div>
       <div class="decision">
         <div class="d-title">筛查结果</div>
-        <div class="d-sub">是否命中名单档案</div>
+        <div class="d-sub">是否命中 + 风险级别</div>
       </div>
       <div class="split"><div class="split-line"></div></div>
       <div class="branch-row">
         <div class="branch-col">
-          <div class="branch-h green">未命中 · NO_PROFILES</div>
+          <div class="branch-h green">未命中 · 低/中风险</div>
           <div class="step green" style="min-width:280px;">
-            <div class="step-title">自动放行（STP）</div>
-            <div class="step-sub">零人工干预 · 继续开户流程<br>按配置自动开启 / 不开启持续监控</div>
+            <div class="step-title">STP 自动放行</div>
+            <div class="step-sub">零人工干预<br>直接开户成功 → 进入持续监控</div>
           </div>
         </div>
         <div class="branch-col">
-          <div class="branch-h red">命中 · HAS_PROFILES</div>
+          <div class="branch-h red">命中 · 或高风险 / PROHIBITED</div>
           <div class="step red" style="min-width:280px;">
-            <div class="step-title">⏸ 暂停开户 → 生成案件</div>
-            <div class="step-sub">自动创建 Case（待人工评审）<br>前台展示「审核中」而非直接拒绝</div>
+            <div class="step-title">⏸ 暂停开户 → 转入自建案件系统</div>
+            <div class="step-sub">前台显示「审核中」而非直接拒绝<br>命中档案随结果同步给审核人员</div>
           </div>
         </div>
       </div>
-      <div class="join-v"></div>
-      <div class="arrow-v"></div>
     </div>
   </div>
 
-  <!-- ============ SECTION 3: 案件评审 ============ -->
+  <!-- ============ SECTION 3: 自建案件系统 ============ -->
   <div class="section">
-    <div class="section-title"><span class="num">3</span> 案件评审与决策 <span class="tag red">人工介入</span></div>
+    <div class="section-title"><span class="num blue">3</span> 自建案件系统 · 人工审核 <span class="tag blue">我方系统内完成评审</span></div>
     <div class="flow-canvas">
-      <div class="step warn">
-        <div class="step-title">两条评审路径（产品决策点）</div>
-        <div class="step-sub">A. Mesh 网页版人工评审 —— 零开发，仅接 CASE_STATE_UPDATED webhook 收结果<br>B. API 拉取告警/风险 → 导入自有案件系统 —— 开发量多 3-5 倍</div>
+      <div class="step blue">
+        <span class="step-num">⑥</span>
+        <div class="step-title">命中客户 → 自建系统创建 Case</div>
+        <div class="step-sub">以 customer_identifier + external_identifier 关联我方客户<br>案件状态机：待审核 → 审核中 → 已关闭</div>
       </div>
       <div class="arrow-v"></div>
       <div class="step blue">
-        <span class="step-num">⑤</span>
-        <div class="step-title">人工评审</div>
-        <div class="step-sub">案件(Case) → 告警(Alert) → 匹配档案(Profile)<br>判断：真命中？误报？风险可接受？</div>
+        <span class="step-num">⑦</span>
+        <div class="step-title">API 拉取告警 / 风险详情</div>
+        <div class="step-sub">获取告警（Alert）→ 匹配档案（Profile）→ 风险分数与命中原因<br>渲染到自建系统的案件审核台</div>
+      </div>
+      <div class="arrow-v"></div>
+      <div class="step blue">
+        <span class="step-num">⑧</span>
+        <div class="step-title">审核人员评审</div>
+        <div class="step-sub">结合实时筛查结果 + 告警详情<br>判断：真命中？误报？风险可接受？</div>
       </div>
       <div class="arrow-v"></div>
       <div class="decision">
         <div class="d-title">评审决策</div>
-        <div class="d-sub">case_stage.decision_type</div>
+        <div class="d-sub">回写 case_stage.decision_type</div>
       </div>
       <div class="split"><div class="split-line"></div></div>
       <div class="branch-row">
@@ -298,96 +296,106 @@
           <div class="branch-h green">POSITIVE · 通过</div>
           <div class="step green" style="min-width:280px;">
             <div class="step-title">无风险 / 有风险-接受</div>
-            <div class="step-sub">放行客户继续开户</div>
+            <div class="step-sub">放行客户继续开户<br>→ 进入持续监控</div>
           </div>
         </div>
         <div class="branch-col">
           <div class="branch-h red">NEGATIVE · 拒绝</div>
           <div class="step red" style="min-width:280px;">
             <div class="step-title">有风险-离船（Offboard）</div>
-            <div class="step-sub">拦截 / 终止业务关系<br>PROHIBITED 可考虑自动离船</div>
+            <div class="step-sub">拦截 / 终止业务关系<br>PROHIBITED 可配置自动拒绝</div>
           </div>
         </div>
+      </div>
+      <div class="arrow-v"></div>
+      <div class="step blue">
+        <div class="step-title">决策回写 Mesh（更新案件状态）</div>
+        <div class="step-sub">通过 webhook（CASE_STATE_UPDATED）或 API 同步最终决策<br>审计留痕：案件、决策人、时间、原因</div>
       </div>
     </div>
   </div>
 
   <!-- ============ SECTION 4: 持续监控 ============ -->
   <div class="section">
-    <div class="section-title"><span class="num">4</span> 持续监控（可选 · 按客户开启） <span class="tag blue">合规增值</span></div>
+    <div class="section-title"><span class="num red">4</span> 持续监控（已开启 · 按客户运行） <span class="tag">24h 重筛查</span></div>
     <div class="flow-canvas">
-      <div class="step blue">
-        <span class="step-num">⑥</span>
-        <div class="step-title">每 24h 用最新名单重筛查</div>
-        <div class="step-sub">新命中 → 自动生成新案件 → 回到「案件评审」<br>成本随客户数线性增长（按筛查量计费）<br>建议：高风险客户开、低风险关</div>
+      <div class="step red">
+        <span class="step-num">⑨</span>
+        <div class="step-title">每个已开户客户 · 每 24h 重筛查</div>
+        <div class="step-sub">用最新名单自动重筛查（按筛查量计费）<br><b style="color:#4ade80">新命中 → 自动生成新案件 → 回流自建案件系统</b>（第 3 阶段流程）</div>
       </div>
       <div class="arrow-v"></div>
       <div class="branch-row">
         <div class="branch-col">
           <div class="step green" style="min-width:280px;">
+            <span class="step-num green">⑩</span>
             <div class="step-title">客户信息变更</div>
-            <div class="step-sub">update-and-rescore<br>重算风险分 · 可能升档触发再筛查</div>
+            <div class="step-sub">update-and-rescore 重算风险分<br>升档可能触发再筛查 → 新案件</div>
           </div>
         </div>
         <div class="branch-col">
-          <div class="step red" style="min-width:280px;">
+          <div class="step blue" style="min-width:280px;">
+            <span class="step-num blue">⑪</span>
             <div class="step-title">关户 / 终止关系</div>
             <div class="step-sub">关闭监控（停计费）<br>历史案件保留供审计</div>
           </div>
         </div>
       </div>
+      <div class="join-v"></div>
+      <div class="step warn">
+        <div class="step-title">回流闭环：监控新命中案件 → 自建案件系统 → 人工评审 → 决策回写</div>
+      </div>
     </div>
   </div>
 
-  <!-- ============ 三个产品决策 ============ -->
+  <!-- ============ 决策影响 ============ -->
   <div class="section">
-    <div class="section-title"><span class="num">★</span> 三个必须先拍板的产品决策</div>
+    <div class="section-title"><span class="num">★</span> 三项决策对集成的影响</div>
     <div class="cards">
       <div class="card">
-        <div class="card-title"><span class="dot"></span> 决策 1 · 入驻实时 or 异步？</div>
-        <p>同步 = 开户表单提交后卡 1-3 秒实时拿结果，可立即放行/拦截，体验好。<br><br>异步 = 先收单后筛查，走风控复审流程。<br><br>文档推荐实时场景用 <span class="hl">同步 + last_sync_step=ALERTING</span>（一次调用拿全结果）。</p>
+        <div class="card-title"><span class="dot"></span> 决策 1 · 实时筛查</div>
+        <p>需设计 <span class="hl">「筛查中」等待态</span>（1-3 秒），建议 loading 动画 + 超时兜底。<br><br>开户表单提交后<b>同步阻塞</b>，需评估接口耗时对转化率影响；高并发需关注限流（默认 300 次/分）。</p>
       </div>
       <div class="card">
-        <div class="card-title"><span class="dot"></span> 决策 2 · 案件评审放哪？</div>
-        <p><span class="hl">Mesh 网页版</span>：零开发，运营去对方后台操作，只接一个 webhook 收结果。<br><br><span class="hl">自有案件系统</span>：实现告警拉取、风险详情、决策回写，工作量差 3-5 倍。<br><br>这是影响集成成本最大的分叉点。</p>
+        <div class="card-title"><span class="dot"></span> 决策 2 · 自建案件系统</div>
+        <p>开发量最大：<span class="hl">告警拉取、风险详情渲染、决策回写</span> 三块全自研。<br><br>建议：案件列表 + 审核详情页 + 决策按钮（通过/拒绝）+ 审计日志，四个模块 MVP。<br><br>审核人员流程：待办列表 → 查看告警 → 决策 → 自动回写。</p>
       </div>
       <div class="card">
-        <div class="card-title"><span class="dot"></span> 决策 3 · 持续监控开不开？</div>
-        <p>开启 = 每个客户每 24h 重筛查，新命中自动出案件，合规价值高，但 <span class="hl">按筛查量计费</span>，成本随客户数线性涨。<br><br>建议：高风险客户开、低风险关，或全开配静音规则减噪音。</p>
+        <div class="card-title"><span class="dot"></span> 决策 3 · 持续监控</div>
+        <p>成本随客户数<b>线性增长</b>（每客户每 24h 一次筛查）。<br><br>建议先全开观察命中率，再按<span class="hl">风险分层</span>优化：低风险可降频，静音规则过滤噪音告警，减少人工工作量。</p>
       </div>
     </div>
   </div>
 
   <!-- ============ 对接前确认清单 ============ -->
   <div class="section">
-    <div class="section-title"><span class="num">✓</span> 对接前需要了解的内容清单</div>
+    <div class="section-title"><span class="num">✓</span> 对接前仍需确认的内容</div>
     <div class="checklist">
       <div class="check-card">
         <div class="cat biz">商务 / 合同</div>
         <ul>
-          <li>计费模型：按筛查次数 / 订阅制 / 批量折扣？（文档未公开，问 account manager）</li>
+          <li>计费模型：按筛查次数 / 订阅制 / 批量折扣？（问 account manager）</li>
           <li>区域实例：EU / US / CA / AU 六区选哪个（数据驻留 + webhook 来源 IP）</li>
-          <li>默认限流 300 次/分钟，可申请调整</li>
-          <li>webhook 签名按账号开启（opt-in），密钥轮换走人工支持</li>
+          <li>持续监控费率确认（决策 3 已开，成本项必问）</li>
         </ul>
       </div>
       <div class="check-card">
         <div class="cat biz">合规 / 配置</div>
         <ul>
-          <li>筛查配置：个人 vs 公司是否用不同名单组合？国家分级？</li>
-          <li>风险分公式：属性权重、阈值 → 低/中/高/禁止（合规团队参与）</li>
-          <li>PEP 分级 CLASS 1-4：一票否决 or 加权计分</li>
+          <li>筛查配置：KYC 个人 vs KYB 企业是否用不同名单组合？</li>
+          <li>风险分公式：属性权重、阈值 → 低/中/高/禁止（合规团队定）</li>
+          <li>PEP 分级 CLASS 1-4 策略：一票否决 or 加权计分</li>
           <li>负面媒体 12+ 子类：哪些直接拒、哪些进人工</li>
-          <li>PROHIBITED 是否自动离船</li>
+          <li>PROHIBITED 自动拒绝是否开启</li>
         </ul>
       </div>
       <div class="check-card">
         <div class="cat tech">技术 / 集成</div>
         <ul>
           <li>external_identifier 唯一映射我方客户 ID（重复 409）</li>
-          <li>customer_identifier 创建后必须存库</li>
+          <li>customer_identifier 创建后必须存库（案件系统主键）</li>
           <li>token 24h 过期，建议 23h 自动刷新</li>
-          <li>webhook at-least-once 需按 webhook-id 去重 + 签名校验</li>
+          <li>webhook at-least-once：按 webhook-id 去重 + 签名校验</li>
           <li>429 退避重试、500 最多重试 3 次</li>
           <li>测试用例：Test CleanUser → 未命中；Victor Bout → 命中</li>
         </ul>
@@ -395,17 +403,18 @@
       <div class="check-card">
         <div class="cat ux">产品 / 体验</div>
         <ul>
-          <li>同步模式「筛查中」等待态设计（1-3 秒）</li>
-          <li>命中客户前台显示「审核中」而非直接拒</li>
-          <li>风控复审 SLA：谁看案件？超时自动策略？</li>
-          <li>客户改地址/国籍 → 触发重算分，可能升档再筛查</li>
+          <li>「筛查中」等待态设计（1-3 秒 loading + 超时兜底）</li>
+          <li>命中客户前台显示「审核中」而非直接拒绝</li>
+          <li>审核系统：待办列表 / 详情 / 决策按钮 / 审计日志</li>
+          <li>风控复审 SLA：谁看案件？多久必须处理？超时自动策略？</li>
+          <li>客户改地址/国籍 → 重算分 → 升档再筛查的提示</li>
           <li>关户即停监控（省钱），历史案件保留</li>
         </ul>
       </div>
     </div>
   </div>
 
-  <div class="footer-note">Mesh (ComplyAdvantage) 接入分析 · 来源: docs.mesh.complyadvantage.com/v2.1 · 完整分析见 YASBe/docs/mesh-integration-analysis.md</div>
+  <div class="footer-note">Mesh (ComplyAdvantage) 接入分析 · 决策版 v2（实时筛查 + 自建案件 + 持续监控）· 来源: docs.mesh.complyadvantage.com/v2.1</div>
 </div>
 </body>
 </html>
