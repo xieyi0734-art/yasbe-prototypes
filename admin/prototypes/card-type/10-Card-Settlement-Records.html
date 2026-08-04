@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>结算记录 - Beeznis Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', -apple-system, sans-serif; background: #f5f6fa; color: #1a1d29; }
+.header { background: #fff; padding: 20px 32px; border-bottom: 1px solid #eef0f4; display: flex; justify-content: space-between; align-items: center; }
+.header h1 { font-size: 22px; font-weight: 600; color: #1a1d29; }
+.header p { font-size: 13px; color: #6b7280; margin-top: 4px; }
+/* 二级菜单 Tab */
+.subnav { background: #fff; border-bottom: 1px solid #eef0f4; padding: 0 32px; display: flex; gap: 4px; }
+.subnav-item { padding: 14px 20px; font-size: 14px; font-weight: 500; color: #6b7280; cursor: pointer; text-decoration: none; border-bottom: 2px solid transparent; transition: all .15s; }
+.subnav-item:hover { color: #1a1d29; }
+.subnav-item.active { color: #E59303; border-bottom-color: #E59303; font-weight: 600; }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; border: none; cursor: pointer; transition: all .2s; text-decoration: none; }
+.btn-primary { background: #E59303; color: #fff; }
+.btn-primary:hover { background: #d08400; }
+.btn-secondary { background: #f3f4f6; color: #374151; }
+.btn-secondary:hover { background: #e5e7eb; }
+.btn-sm { padding: 5px 12px; font-size: 12px; }
+.container { max-width: 1400px; margin: 0 auto; padding: 24px 32px; }
+.filters { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.04); display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+.filter-group { display: flex; flex-direction: column; gap: 4px; }
+.filter-group label { font-size: 12px; color: #6b7280; font-weight: 500; }
+.filter-group input, .filter-group select { padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; min-width: 160px; outline: none; transition: border-color .2s; }
+.filter-group input:focus, .filter-group select:focus { border-color: #E59303; box-shadow: 0 0 0 3px rgba(229,147,3,.08); }
+.table-wrapper { background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.04); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+thead { background: #f9fafb; }
+th { padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: .03em; border-bottom: 1px solid #eef0f4; white-space: nowrap; }
+td { padding: 14px 16px; font-size: 13px; border-bottom: 1px solid #f3f4f6; vertical-align: middle; }
+tr:hover td { background: #fdfdfd; }
+.badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+.badge-active { background: #d1fae5; color: #059669; }
+.badge-pending { background: #fef3c7; color: #b45309; }
+.badge-inactive { background: #f3f4f6; color: #9ca3af; }
+.pagination { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-top: 1px solid #eef0f4; background: #fafbfc; }
+.pagination-info { font-size: 12px; color: #6b7280; }
+.pagination-btns { display: flex; gap: 4px; }
+.page-btn { padding: 6px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: #fff; font-size: 12px; color: #374151; cursor: pointer; transition: all .1s; }
+.page-btn:hover { border-color: #E59303; color: #E59303; }
+.page-btn.active { background: #E59303; color: #fff; border-color: #E59303; }
+.avatar { width: 32px; height: 32px; border-radius: 50%; background: #fef3c7; color: #92400e; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; margin-right: 10px; vertical-align: middle; }
+.agent-name { font-weight: 600; }
+.agent-email { font-size: 12px; color: #9ca3af; }
+.mono { font-family: monospace; }
+/* 弹窗 */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 1000; overflow-y: auto; padding: 40px 16px; }
+.modal-overlay.active { display: flex; align-items: flex-start; justify-content: center; }
+.modal { background: #fff; border-radius: 16px; width: 100%; max-width: 900px; margin: auto; box-shadow: 0 20px 60px rgba(0,0,0,.12); animation: modalIn .2s ease-out; }
+@keyframes modalIn { from { opacity: 0; transform: translateY(16px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 28px; border-bottom: 1px solid #eef0f4; }
+.modal-header h2 { font-size: 17px; font-weight: 600; }
+.modal-close { width: 32px; height: 32px; border-radius: 8px; border: none; background: #f3f4f6; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #6b7280; transition: all .15s; }
+.modal-close:hover { background: #e5e7eb; color: #1a1d29; }
+.modal-body { padding: 24px 28px; }
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+.info-item { background: #f9fafb; border: 1px solid #eef0f4; border-radius: 10px; padding: 12px 14px; }
+.info-item label { display: block; font-size: 11px; color: #6b7280; margin-bottom: 4px; font-weight: 500; }
+.info-item .value { font-size: 14px; font-weight: 600; color: #1a1d29; }
+.info-item .value.mono { font-family: monospace; color: #E59303; }
+.rebate-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+.rebate-stat { background: #f9fafb; border: 1px solid #eef0f4; border-radius: 10px; padding: 14px 16px; }
+.rebate-stat .label { font-size: 11px; color: #6b7280; margin-bottom: 4px; }
+.rebate-stat .count { font-size: 20px; font-weight: 700; color: #1a1d29; }
+.rebate-stat .sub { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+.section-card { background: #fff; border: 1px solid #eef0f4; border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
+.section-card .section-header { padding: 14px 20px; border-bottom: 1px solid #f3f4f6; font-size: 14px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <h1>卡片管理</h1>
+    <p>管理渠道卡配置、卡片代理与返佣结算</p>
+  </div>
+  <button class="btn btn-primary" onclick="openSettleModal()">发起结算</button>
+</div>
+<!-- 二级菜单：卡务管理 | 卡片代理 | 结算记录 -->
+<div class="subnav">
+  <a class="subnav-item" href="08-Card-Type-Management.html">卡务管理</a>
+  <a class="subnav-item" href="09-Card-Agent-Management.html">卡片代理</a>
+  <a class="subnav-item active" href="10-Card-Settlement-Records.html">结算记录</a>
+</div>
+
+<div class="container">
+<div class="filters">
+  <div class="filter-group">
+    <label>结算状态</label>
+    <select id="f-status" onchange="applyFilters()">
+      <option value="">全部状态</option>
+      <option>已结算</option>
+      <option>待结算</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>结算周期起</label>
+    <input type="date" id="f-date-from" onchange="applyFilters()">
+  </div>
+  <div class="filter-group">
+    <label>结算周期止</label>
+    <input type="date" id="f-date-to" onchange="applyFilters()">
+  </div>
+  <div class="filter-group">
+    <label>搜索</label>
+    <input id="f-search" placeholder="结算单号 / 代理姓名" oninput="applyFilters()">
+  </div>
+</div>
+
+<div class="table-wrapper">
+<table>
+<thead>
+<tr>
+  <th>结算单号</th>
+  <th>代理</th>
+  <th>结算周期</th>
+  <th>开卡费返佣</th>
+  <th>充值返点</th>
+  <th>消费返佣</th>
+  <th>结算总额</th>
+  <th>状态</th>
+  <th>结算时间</th>
+  <th>操作</th>
+</tr>
+</thead>
+<tbody id="tb-body">
+</tbody>
+</table>
+<div class="pagination">
+  <div class="pagination-info" id="pg-info"></div>
+  <div class="pagination-btns">
+    <button class="page-btn" onclick="changePage(-1)">‹</button>
+    <span id="pg-pages"></span>
+    <button class="page-btn" onclick="changePage(1)">›</button>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- Modal: 结算明细 -->
+<div class="modal-overlay" id="detailModal">
+<div class="modal">
+  <div class="modal-header">
+    <h2>结算明细</h2>
+    <button class="modal-close" onclick="closeModal('detailModal')">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="info-grid" id="dt-info"></div>
+    <div class="rebate-stats" id="dt-stats"></div>
+    <div class="section-card">
+      <div class="section-header">
+        <span>返佣明细</span>
+        <span id="dt-sub-count" style="font-size:12px;color:#6b7280;font-weight:400;"></span>
+      </div>
+      <table>
+        <thead>
+        <tr>
+          <th>时间</th>
+          <th>下级</th>
+          <th>卡产品</th>
+          <th>类型</th>
+          <th>金额</th>
+          <th>状态</th>
+        </tr>
+        </thead>
+        <tbody id="dt-detail-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Modal: 发起结算 -->
+<div class="modal-overlay" id="settleModal">
+<div class="modal" style="max-width:600px;">
+  <div class="modal-header">
+    <h2>发起结算</h2>
+    <button class="modal-close" onclick="closeModal('settleModal')">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="form-section" style="display:flex;flex-direction:column;gap:14px;">
+      <div>
+        <div style="font-size:12px;color:#6b7280;font-weight:500;margin-bottom:4px;">结算周期</div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <input type="date" id="st-from" value="2026-06-01" style="padding:8px 12px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;flex:1;">
+          <span style="color:#9ca3af;">至</span>
+          <input type="date" id="st-to" value="2026-06-30" style="padding:8px 12px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;flex:1;">
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12px;color:#6b7280;font-weight:500;margin-bottom:6px;">待结算返佣 <span id="st-count" style="color:#E59303;"></span></div>
+        <table class="table" style="width:100%;">
+          <thead>
+            <tr>
+              <th>代理</th>
+              <th style="text-align:right;">开卡费返佣</th>
+              <th style="text-align:right;">充值返点</th>
+              <th style="text-align:right;">消费返佣</th>
+              <th style="text-align:right;">结算总额</th>
+            </tr>
+          </thead>
+          <tbody id="st-body"></tbody>
+        </table>
+      </div>
+      <div>
+        <div style="font-size:12px;color:#6b7280;font-weight:500;margin-bottom:4px;">结算币种</div>
+        <select id="st-coin" style="padding:8px 12px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;width:100%;">
+          <option>USDT</option>
+          <option>USDC</option>
+        </select>
+      </div>
+      <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:10px 14px;font-size:12px;color:#9a3412;">
+        ⚡ 确认后该周期内代理返佣将生成结算单并进入打款流程，状态更新为已结算。结算按代理分别生成，可随时发起下一周期结算。
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer" style="display:flex;justify-content:flex-end;gap:10px;padding:16px 28px;border-top:1px solid #eef0f4;">
+    <button class="btn btn-secondary" onclick="closeModal('settleModal')">取消</button>
+    <button class="btn btn-primary" onclick="confirmSettle()">确认结算</button>
+  </div>
+</div>
+</div>
+
+<!-- Modal: 导出结算单 -->
+<div class="modal-overlay" id="exportModal">
+<div class="modal" style="max-width:480px;">
+  <div class="modal-header">
+    <h2>导出结算单</h2>
+    <button class="modal-close" onclick="closeModal('exportModal')">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="form-section" style="display:flex;flex-direction:column;gap:14px;">
+      <div>
+        <div style="font-size:12px;color:#6b7280;font-weight:500;margin-bottom:4px;">结算周期</div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <input type="date" id="ex-from" value="2026-06-01" style="padding:8px 12px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;flex:1;">
+          <span style="color:#9ca3af;">至</span>
+          <input type="date" id="ex-to" value="2026-06-30" style="padding:8px 12px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;flex:1;">
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12px;color:#6b7280;font-weight:500;margin-bottom:4px;">结算币种</div>
+        <select id="ex-coin" style="padding:8px 12px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;width:100%;">
+          <option>USDT</option>
+          <option>USDC</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:12px;color:#6b7280;font-weight:500;margin-bottom:4px;">结算对象</div>
+        <select id="ex-agent" style="padding:8px 12px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;width:100%;">
+          <option value="">全部代理（按代理分别结算）</option>
+          <option>张伟强</option>
+          <option>李慧敏</option>
+          <option>王建军</option>
+        </select>
+      </div>
+      <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:10px 14px;font-size:12px;color:#9a3412;">
+        ⚡ 导出后生成结算单文件（CSV），系统将按代理分别生成待结算记录，确认后进入打款流程。
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer" style="display:flex;justify-content:flex-end;gap:10px;padding:16px 28px;border-top:1px solid #eef0f4;">
+    <button class="btn btn-secondary" onclick="closeModal('exportModal')">取消</button>
+    <button class="btn btn-primary" onclick="doExport()">确认导出</button>
+  </div>
+</div>
+</div>
+
+<script>
+// ===== 数据 =====
+const settlements = [
+  { id: 'STL-202606-0004', agent: '张伟强', email: 'zhangweiqiang@email.com', cycle: '2026-06-01 ~ 2026-06-30', card: 185.00, recharge: 96.40, consume: 42.75, total: 324.15, status: '待结算', time: '—', coin: '—' },
+  { id: 'STL-202606-0003', agent: '李慧敏', email: 'lihuimin@email.com', cycle: '2026-06-01 ~ 2026-06-30', card: 120.00, recharge: 58.20, consume: 21.50, total: 199.70, status: '待结算', time: '—', coin: '—' },
+  { id: 'STL-202605-0012', agent: '张伟强', email: 'zhangweiqiang@email.com', cycle: '2026-05-01 ~ 2026-05-31', card: 152.50, recharge: 88.35, consume: 36.20, total: 277.05, status: '已结算', time: '2026-06-03 10:15', coin: 'USDT' },
+  { id: 'STL-202605-0011', agent: '李慧敏', email: 'lihuimin@email.com', cycle: '2026-05-01 ~ 2026-05-31', card: 96.00, recharge: 44.80, consume: 15.75, total: 156.55, status: '已结算', time: '2026-06-03 10:14', coin: 'USDC' },
+  { id: 'STL-202605-0010', agent: '王建军', email: 'wangjianjun@email.com', cycle: '2026-05-01 ~ 2026-05-31', card: 32.50, recharge: 18.90, consume: 6.25, total: 57.65, status: '已结算', time: '2026-06-03 10:13', coin: 'USDT' },
+  { id: 'STL-202604-0008', agent: '张伟强', email: 'zhangweiqiang@email.com', cycle: '2026-04-01 ~ 2026-04-30', card: 128.55, recharge: 64.20, consume: 28.90, total: 221.65, status: '已结算', time: '2026-05-02 09:40', coin: 'USDC' }
+];
+
+// 结算明细（按结算单号）
+const detailsMap = {
+  'STL-202606-0004': [
+    { time: '06-28 15:20', sub: '张小明', card: 'Standard Debit', type: '充值返点', amount: 24.50 },
+    { time: '06-25 10:05', sub: '王芳', card: 'Premium Rewards', type: '开卡费返佣', amount: 12.25 },
+    { time: '06-22 16:48', sub: '赵丽', card: 'Standard Debit', type: '消费返佣', amount: 8.40 },
+    { time: '06-18 09:20', sub: '李华', card: 'Travel Prepaid', type: '开卡费返佣', amount: 30.00 },
+    { time: '06-15 11:15', sub: '陈静', card: 'Standard Debit', type: '充值返点', amount: 6.40 },
+    { time: '06-08 14:32', sub: '王强', card: 'Business Expense', type: '消费返佣', amount: 15.75 }
+  ],
+  'STL-202606-0003': [
+    { time: '06-27 09:10', sub: '刘洋', card: 'Standard Debit', type: '开卡费返佣', amount: 20.00 },
+    { time: '06-24 13:45', sub: '周敏', card: 'Flexible Prepaid', type: '充值返点', amount: 12.80 },
+    { time: '06-20 17:30', sub: '吴磊', card: 'Standard Debit', type: '消费返佣', amount: 6.50 },
+    { time: '06-12 10:25', sub: '郑爽', card: 'Gold Elite', type: '开卡费返佣', amount: 50.00 },
+    { time: '06-05 16:05', sub: '孙浩', card: 'Standard Debit', type: '充值返点', amount: 9.60 }
+  ],
+  'STL-202605-0012': [
+    { time: '05-29 14:32', sub: '张小明', card: 'Standard Debit', type: '充值返点', amount: 24.50 },
+    { time: '05-26 10:05', sub: '王芳', card: 'Premium Rewards', type: '开卡费返佣', amount: 12.25 },
+    { time: '05-24 16:48', sub: '赵丽', card: 'Standard Debit', type: '消费返佣', amount: 6.40 },
+    { time: '05-20 09:20', sub: '李华', card: 'Travel Prepaid', type: '开卡费返佣', amount: 30.00 },
+    { time: '05-16 11:15', sub: '陈静', card: 'Standard Debit', type: '充值返点', amount: 18.20 },
+    { time: '05-10 15:40', sub: '王强', card: 'Business Expense', type: '消费返佣', amount: 10.50 },
+    { time: '05-06 10:30', sub: '刘芳', card: 'Standard Debit', type: '开卡费返佣', amount: 15.00 }
+  ],
+  'STL-202605-0011': [
+    { time: '05-28 10:15', sub: '刘洋', card: 'Standard Debit', type: '开卡费返佣', amount: 20.00 },
+    { time: '05-23 14:50', sub: '周敏', card: 'Flexible Prepaid', type: '充值返点', amount: 12.80 },
+    { time: '05-19 09:30', sub: '吴磊', card: 'Standard Debit', type: '消费返佣', amount: 5.25 },
+    { time: '05-14 11:20', sub: '郑爽', card: 'Gold Elite', type: '开卡费返佣', amount: 50.00 },
+    { time: '05-08 16:45', sub: '孙浩', card: 'Standard Debit', type: '充值返点', amount: 7.50 }
+  ],
+  'STL-202605-0010': [
+    { time: '05-27 10:40', sub: '赵敏', card: 'Standard Debit', type: '开卡费返佣', amount: 20.00 },
+    { time: '05-21 15:10', sub: '钱进', card: 'Standard Debit', type: '充值返点', amount: 8.90 },
+    { time: '05-13 09:55', sub: '孙丽', card: 'Premium Rewards', type: '消费返佣', amount: 4.25 }
+  ],
+  'STL-202604-0008': [
+    { time: '04-28 14:20', sub: '张小明', card: 'Standard Debit', type: '充值返点', amount: 24.50 },
+    { time: '04-25 10:05', sub: '王芳', card: 'Premium Rewards', type: '开卡费返佣', amount: 12.25 },
+    { time: '04-22 16:48', sub: '赵丽', card: 'Standard Debit', type: '消费返佣', amount: 6.40 },
+    { time: '04-18 09:20', sub: '李华', card: 'Travel Prepaid', type: '开卡费返佣', amount: 30.00 },
+    { time: '04-12 11:15', sub: '陈静', card: 'Standard Debit', type: '充值返点', amount: 18.20 },
+    { time: '04-08 15:40', sub: '王强', card: 'Business Expense', type: '消费返佣', amount: 10.50 }
+  ]
+};
+
+// ===== 渲染 =====
+let page = 1, pageSize = 10;
+
+function applyFilters() {
+  page = 1;
+  render();
+}
+
+function filtered() {
+  const st = document.getElementById('f-status').value;
+  const from = document.getElementById('f-date-from').value;
+  const to = document.getElementById('f-date-to').value;
+  const q = document.getElementById('f-search').value.trim().toLowerCase();
+  return settlements.filter(s => {
+    if (st && s.status !== st) return false;
+    if (from || to) {
+      const cStart = s.cycle.slice(0, 10);
+      if (from && cStart < from) return false;
+      if (to && cStart > to) return false;
+    }
+    if (q && !(s.id.toLowerCase().includes(q) || s.agent.toLowerCase().includes(q))) return false;
+    return true;
+  });
+}
+
+function render() {
+  const list = filtered();
+  const total = list.length;
+  const pages = Math.max(1, Math.ceil(total / pageSize));
+  if (page > pages) page = pages;
+  const start = (page - 1) * pageSize;
+  const slice = list.slice(start, start + pageSize);
+  const body = document.getElementById('tb-body');
+  body.innerHTML = slice.map(s => {
+    const badge = s.status === '已结算'
+      ? '<span class="badge badge-active">已结算</span>'
+      : '<span class="badge badge-pending">待结算</span>';
+    return `<tr>
+      <td><span class="mono" style="font-weight:600;">${s.id}</span></td>
+      <td>
+        <span class="avatar">${s.agent[0]}</span>
+        <span class="agent-name">${s.agent}</span>
+        <div class="agent-email">${s.email}</div>
+      </td>
+      <td style="font-size:12px;color:#6b7280;">${s.cycle}</td>
+      <td style="font-weight:600;">$${s.card.toFixed(2)}</td>
+      <td style="font-weight:600;">$${s.recharge.toFixed(2)}</td>
+      <td style="font-weight:600;">$${s.consume.toFixed(2)}</td>
+      <td style="font-weight:700;color:#E59303;">$${s.total.toFixed(2)}</td>
+      <td>${badge}${s.status === '已结算' ? ' <span class="mono" style="font-size:11px;color:#6b7280;">' + s.coin + '</span>' : ''}</td>
+      <td style="font-size:12px;color:#6b7280;">${s.time}</td>
+      <td>
+        ${s.status === '待结算'
+          ? `<button class="btn btn-primary btn-sm" onclick="openSettleOne('${s.id}')">结算</button>`
+          : ''}
+        <button class="btn btn-secondary btn-sm" onclick="openDetail('${s.id}')">查看明细</button>
+      </td>
+    </tr>`;
+  }).join('');
+  document.getElementById('pg-info').textContent = `共 ${total} 条`;
+  let btns = '';
+  for (let i = 1; i <= pages; i++) {
+    btns += `<button class="page-btn ${i === page ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  document.getElementById('pg-pages').innerHTML = btns;
+}
+
+function changePage(d) { page += d; render(); }
+function goPage(p) { page = p; render(); }
+
+// ===== 结算明细弹窗 =====
+function openDetail(id) {
+  const s = settlements.find(x => x.id === id);
+  if (!s) return;
+  const rows = detailsMap[id] || [];
+  document.getElementById('dt-info').innerHTML = `
+    <div class="info-item"><label>结算单号</label><div class="value mono">${s.id}</div></div>
+    <div class="info-item"><label>代理</label><div class="value">${s.agent} <span style="font-size:12px;color:#9ca3af;font-weight:400;">${s.email}</span></div></div>
+    <div class="info-item"><label>结算周期</label><div class="value" style="font-size:13px;">${s.cycle}</div></div>
+    <div class="info-item"><label>状态</label><div class="value">${s.status === '已结算' ? '<span class="badge badge-active">已结算</span>' : '<span class="badge badge-pending">待结算</span>'} <span class="mono" style="font-size:12px;color:#6b7280;">${s.coin !== '—' ? s.coin : ''}</span></div></div>
+  `;
+  document.getElementById('dt-stats').innerHTML = `
+    <div class="rebate-stat"><div class="label">开卡费返佣</div><div class="count">$${s.card.toFixed(2)}</div></div>
+    <div class="rebate-stat"><div class="label">充值返点</div><div class="count">$${s.recharge.toFixed(2)}</div></div>
+    <div class="rebate-stat"><div class="label">消费返佣</div><div class="count">$${s.consume.toFixed(2)}</div></div>
+    <div class="rebate-stat"><div class="label">结算总额</div><div class="count" style="color:#E59303;">$${s.total.toFixed(2)}</div><div class="sub">${s.status === '已结算' ? '已结算至 ' + s.coin : '待结算'}</div></div>
+  `;
+  document.getElementById('dt-detail-body').innerHTML = rows.map(r => {
+    const badge = r.type === '开卡费返佣'
+      ? '<span class="badge" style="background:#dbeafe;color:#1d4ed8;">开卡费返佣</span>'
+      : r.type === '充值返点'
+        ? '<span class="badge" style="background:#ede9fe;color:#6d28d9;">充值返点</span>'
+        : '<span class="badge" style="background:#fef3c7;color:#b45309;">消费返佣</span>';
+    return `<tr>
+      <td style="font-size:12px;color:#86909c;">${r.time}</td>
+      <td style="font-weight:500;">${r.sub}</td>
+      <td style="font-size:12px;color:#4b5563;">${r.card}</td>
+      <td>${badge}</td>
+      <td style="font-weight:600;">$${r.amount.toFixed(2)}</td>
+      <td>${s.status === '已结算' ? '<span class="badge badge-active">已结算</span>' : '<span class="badge badge-pending">待结算</span>'}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('dt-sub-count').textContent = `共 ${rows.length} 条`;
+  document.getElementById('detailModal').classList.add('active');
+}
+
+// ===== 发起结算 =====
+let settleTargets = [];
+
+function openSettleModal() {
+  // 批量：当前全部待结算单
+  settleTargets = settlements.filter(s => s.status === '待结算');
+  if (!settleTargets.length) { alert('当前没有待结算的返佣单'); return; }
+  renderSettleModal('发起结算（批量）');
+}
+
+function openSettleOne(id) {
+  // 单笔：列表行"结算"按钮
+  settleTargets = settlements.filter(s => s.id === id);
+  renderSettleModal('发起结算');
+}
+
+function renderSettleModal(title) {
+  document.querySelector('#settleModal .modal-header h2').textContent = title;
+  const minFrom = settleTargets.map(s => s.cycle.slice(0, 10)).sort()[0];
+  const maxTo = settleTargets.map(s => s.cycle.slice(-10)).sort().pop();
+  document.getElementById('st-from').value = minFrom;
+  document.getElementById('st-to').value = maxTo;
+  const total = settleTargets.reduce((a, s) => a + s.total, 0);
+  document.getElementById('st-count').textContent = `共 ${settleTargets.length} 笔，合计 $${total.toFixed(2)}`;
+  document.getElementById('st-body').innerHTML = settleTargets.map(s => `
+    <tr>
+      <td style="font-weight:500;">${s.agent}</td>
+      <td style="text-align:right;">$${s.card.toFixed(2)}</td>
+      <td style="text-align:right;">$${s.recharge.toFixed(2)}</td>
+      <td style="text-align:right;">$${s.consume.toFixed(2)}</td>
+      <td style="text-align:right;font-weight:700;color:#E59303;">$${s.total.toFixed(2)}</td>
+    </tr>`).join('');
+  document.getElementById('settleModal').classList.add('active');
+}
+
+function confirmSettle() {
+  const from = document.getElementById('st-from').value;
+  const to = document.getElementById('st-to').value;
+  const coin = document.getElementById('st-coin').value;
+  const now = new Date();
+  const ts = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  const total = settleTargets.reduce((a, s) => a + s.total, 0);
+  settleTargets.forEach(s => { s.status = '已结算'; s.coin = coin; s.time = ts; });
+  closeModal('settleModal');
+  alert(`✅ 已结算 ${settleTargets.length} 笔返佣（${from} ~ ${to}），总额 $${total.toFixed(2)}，结算币种 ${coin}`);
+  render();
+}
+
+// ===== 导出 =====
+function openExportModal() {
+  document.getElementById('exportModal').classList.add('active');
+}
+
+function doExport() {
+  const from = document.getElementById('ex-from').value;
+  const to = document.getElementById('ex-to').value;
+  const coin = document.getElementById('ex-coin').value;
+  const agent = document.getElementById('ex-agent').value;
+  closeModal('exportModal');
+  alert(`✅ 已导出结算单（${from} ~ ${to}，${coin}${agent ? '，代理：' + agent : ''}），共 ${settlements.filter(s => s.cycle.slice(0, 10) >= from && s.cycle.slice(0, 10) <= to).length} 个结算周期 (原型)`);
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('active');
+}
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>卡片代理 - Beeznis Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', -apple-system, sans-serif; background: #f5f6fa; color: #1a1d29; }
+.header { background: #fff; padding: 20px 32px; border-bottom: 1px solid #eef0f4; display: flex; justify-content: space-between; align-items: center; }
+.header h1 { font-size: 22px; font-weight: 600; color: #1a1d29; }
+.header p { font-size: 13px; color: #6b7280; margin-top: 4px; }
+/* 二级菜单 Tab */
+.subnav { background: #fff; border-bottom: 1px solid #eef0f4; padding: 0 32px; display: flex; gap: 4px; }
+.subnav-item { padding: 14px 20px; font-size: 14px; font-weight: 500; color: #6b7280; cursor: pointer; text-decoration: none; border-bottom: 2px solid transparent; transition: all .15s; }
+.subnav-item:hover { color: #1a1d29; }
+.subnav-item.active { color: #E59303; border-bottom-color: #E59303; font-weight: 600; }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; border: none; cursor: pointer; transition: all .2s; text-decoration: none; }
+.btn-primary { background: #E59303; color: #fff; }
+.btn-primary:hover { background: #d08400; }
+.btn-secondary { background: #f3f4f6; color: #374151; }
+.btn-secondary:hover { background: #e5e7eb; }
+.btn-danger { background: #fee2e2; color: #dc2626; }
+.btn-danger:hover { background: #fecaca; }
+.btn-sm { padding: 5px 12px; font-size: 12px; }
+.container { max-width: 1400px; margin: 0 auto; padding: 24px 32px; }
+.filters { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.04); display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+.filter-group { display: flex; flex-direction: column; gap: 4px; }
+.filter-group label { font-size: 12px; color: #6b7280; font-weight: 500; }
+.filter-group input, .filter-group select { padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; min-width: 160px; outline: none; transition: border-color .2s; }
+.filter-group input:focus, .filter-group select:focus { border-color: #E59303; box-shadow: 0 0 0 3px rgba(229,147,3,.08); }
+.table-wrapper { background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.04); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+thead { background: #f9fafb; }
+th { padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: .03em; border-bottom: 1px solid #eef0f4; white-space: nowrap; }
+td { padding: 14px 16px; font-size: 13px; border-bottom: 1px solid #f3f4f6; vertical-align: middle; }
+tr:hover td { background: #fdfdfd; }
+.badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+.badge-active { background: #d1fae5; color: #059669; }
+.badge-inactive { background: #f3f4f6; color: #9ca3af; }
+.badge-agent { background: #dbeafe; color: #2563eb; }
+.badge-kyc { background: #d1fae5; color: #059669; }
+.pagination { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-top: 1px solid #eef0f4; background: #fafbfc; }
+.pagination-info { font-size: 12px; color: #6b7280; }
+.pagination-btns { display: flex; gap: 4px; }
+.page-btn { padding: 6px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: #fff; font-size: 12px; color: #374151; cursor: pointer; transition: all .1s; }
+.page-btn:hover { border-color: #E59303; color: #E59303; }
+.page-btn.active { background: #E59303; color: #fff; border-color: #E59303; }
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 1000; overflow-y: auto; padding: 40px 16px; }
+.modal-overlay.active { display: flex; align-items: flex-start; justify-content: center; }
+.modal { background: #fff; border-radius: 16px; width: 100%; max-width: 820px; margin: auto; box-shadow: 0 20px 60px rgba(0,0,0,.12); animation: modalIn .2s ease-out; }
+@keyframes modalIn { from { opacity: 0; transform: translateY(16px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 28px; border-bottom: 1px solid #eef0f4; }
+.modal-header h2 { font-size: 17px; font-weight: 600; }
+.modal-close { width: 32px; height: 32px; border-radius: 8px; border: none; background: #f3f4f6; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #6b7280; transition: all .15s; }
+.modal-close:hover { background: #e5e7eb; color: #1a1d29; }
+.modal-body { padding: 24px 28px; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 28px; border-top: 1px solid #eef0f4; }
+.form-section-title { font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid #f3f4f6; }
+.form-group { display: flex; flex-direction: column; gap: 4px; }
+.form-group label { font-size: 12px; color: #6b7280; font-weight: 500; }
+.form-group input, .form-group select { padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; outline: none; transition: border-color .2s; }
+.form-group input:focus, .form-group select:focus { border-color: #E59303; box-shadow: 0 0 0 3px rgba(229,147,3,.08); }
+.copy-value { display: flex; align-items: center; gap: 8px; background: #f9fafb; border: 1px solid #eef0f4; border-radius: 8px; padding: 8px 12px; }
+.copy-value code { font-size: 13px; color: #1a1d29; flex: 1; font-family: monospace; }
+.copy-btn { background: none; border: 1px solid #d1d5db; border-radius: 6px; padding: 4px 10px; font-size: 12px; color: #4b5563; cursor: pointer; white-space: nowrap; }
+.copy-btn:hover { border-color: #E59303; color: #E59303; }
+.avatar { width: 32px; height: 32px; border-radius: 50%; background: #fef3c7; color: #92400e; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; margin-right: 10px; vertical-align: middle; }
+.agent-name { font-weight: 600; }
+.agent-email { font-size: 12px; color: #9ca3af; }
+/* 详情弹窗样式 */
+.rebate-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+.rebate-stat { background: #f9fafb; border: 1px solid #eef0f4; border-radius: 10px; padding: 14px 16px; }
+.rebate-stat .label { font-size: 11px; color: #6b7280; margin-bottom: 4px; }
+.rebate-stat .count { font-size: 20px; font-weight: 700; color: #1a1d29; }
+.rebate-stat .sub { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+.info-item { background: #f9fafb; border: 1px solid #eef0f4; border-radius: 10px; padding: 12px 14px; }
+.info-item label { display: block; font-size: 11px; color: #6b7280; margin-bottom: 4px; font-weight: 500; }
+.info-item .value { font-size: 14px; font-weight: 600; color: #1a1d29; }
+.info-item .value.mono { font-family: monospace; color: #E59303; }
+.section-card { background: #fff; border: 1px solid #eef0f4; border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
+.section-card .section-header { padding: 14px 20px; border-bottom: 1px solid #f3f4f6; font-size: 14px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <h1>卡片管理</h1>
+    <p>管理渠道卡配置与卡片代理</p>
+  </div>
+  <button class="btn btn-primary" onclick="openAddAgentModal()">＋ 新增代理</button>
+</div>
+<!-- 二级菜单：卡务管理 | 卡片代理 -->
+<div class="subnav">
+  <a class="subnav-item" href="08-Card-Type-Management.html">卡务管理</a>
+  <a class="subnav-item active" href="09-Card-Agent-Management.html">卡片代理</a>
+  <a class="subnav-item" href="10-Card-Settlement-Records.html">结算记录</a>
+</div>
+
+<div class="container">
+<div class="filters">
+  <div class="filter-group">
+    <label>代理状态</label>
+    <select id="f-status" onchange="applyFilters()">
+      <option value="">全部状态</option>
+      <option>正常</option>
+      <option>已停用</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>搜索</label>
+    <input id="f-search" placeholder="姓名 / 邮箱 / 邀约码" oninput="applyFilters()">
+  </div>
+</div>
+
+<div class="table-wrapper">
+<table>
+<thead>
+<tr>
+  <th>代理</th>
+  <th>分享链接</th>
+  <th>唯一邀约码</th>
+  <th>下级人数</th>
+  <th>累计返佣</th>
+  <th>状态</th>
+  <th>成为代理时间</th>
+  <th>操作</th>
+</tr>
+</thead>
+<tbody id="agent-tbody"></tbody>
+</table>
+<div class="pagination">
+  <div class="pagination-info">共 <span id="total-count">0</span> 个代理</div>
+  <div class="pagination-btns" id="pagination-btns"></div>
+</div>
+</div>
+</div>
+
+<!-- Modal: 新增代理（合并 v2 设置为代理弹窗：客户选择 + 分享信息 + 返佣配置表） -->
+<div class="modal-overlay" id="addAgentModal">
+<div class="modal">
+  <div class="modal-header">
+    <h2>新增代理</h2>
+    <button class="modal-close" onclick="closeModal('addAgentModal')">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="form-section-title">选择客户（仅已通过 KYC 的客户可选）</div>
+    <div class="form-group" style="margin-bottom:16px;">
+      <label>客户</label>
+      <select id="sel-customer" onchange="onCustomerSelect()">
+        <option value="">请选择客户</option>
+      </select>
+    </div>
+    <div id="agent-preview" style="display:none;">
+      <div class="form-section-title">分享信息（自动生成）</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div>
+          <label style="font-size:12px;color:#6b7280;font-weight:500;display:block;margin-bottom:6px;">分享链接</label>
+          <div class="copy-value"><code id="pv-link">-</code><button class="copy-btn" onclick="copyText(document.getElementById('pv-link').textContent, this)">复制</button></div>
+        </div>
+        <div>
+          <label style="font-size:12px;color:#6b7280;font-weight:500;display:block;margin-bottom:6px;">唯一邀约码</label>
+          <div class="copy-value"><code id="pv-code">-</code><button class="copy-btn" onclick="copyText(document.getElementById('pv-code').textContent, this)">复制</button></div>
+        </div>
+      </div>
+    </div>
+    <!-- 返佣配置（合并自 v2 设置为代理弹窗） -->
+    <div class="form-section-title" style="margin-top:20px;">返佣配置 <span style="color:#9CA3AF;font-weight:400;font-size:12px;">（不同卡产品费用不同，返佣按卡产品分别设置）</span></div>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;background:#fff;border:1px solid #E5E7EB;border-radius:8px;overflow:hidden;font-size:12px;">
+        <thead>
+          <tr style="background:#F9FAFB;">
+            <th style="text-align:left;padding:8px 10px;font-weight:500;color:#6B7280;border-bottom:1px solid #E5E7EB;white-space:nowrap;">卡产品</th>
+            <th style="text-align:center;padding:8px 6px;font-weight:500;color:#6B7280;border-bottom:1px solid #E5E7EB;white-space:nowrap;">开卡费用<br>USD</th>
+            <th style="text-align:center;padding:8px 6px;font-weight:500;color:#6B7280;border-bottom:1px solid #E5E7EB;white-space:nowrap;">充值费率<br>%</th>
+            <th style="text-align:center;padding:8px 6px;font-weight:500;color:#6B7280;border-bottom:1px solid #E5E7EB;white-space:nowrap;">充值固定费用<br>USD</th>
+            <th style="text-align:center;padding:8px 6px;font-weight:500;color:#6B7280;border-bottom:1px solid #E5E7EB;white-space:nowrap;">消费费率<br>%</th>
+            <th style="text-align:center;padding:8px 6px;font-weight:500;color:#6B7280;border-bottom:1px solid #E5E7EB;white-space:nowrap;">消费固定费用<br>USD</th>
+          </tr>
+        </thead>
+        <tbody id="rebate-config-tbody">
+          <tr>
+            <td style="padding:8px 10px;border-bottom:1px solid #F3F4F6;font-weight:500;white-space:nowrap;">Standard Debit Card</td>
+            <td style="padding:8px 6px;border-bottom:1px solid #F3F4F6;text-align:center;"><input type="number" value="2.50" step="0.01" style="width:64px;text-align:center;border:1px solid #D1D5DB;border-radius:6px;padding:4px;font-size:12px;outline:none;"></td>
+            <td style="padding:8px 6px;border-bottom:1px solid #F3F4F6;text-align:center;"><input type="number" value="1.50" step="0.01" style="width:64px;text-align:center;border:1px solid #D1D5DB;border-radius:6px;padding:4px;font-size:12px;outline:none;"></td>
+            <td style="padding:8px 6px;border-bottom:1px solid #F3F4F6;text-align:center;"><input type="number" value="0.50" step="0.01" style="width:64px;text-align:center;border:1px solid #D1D5DB;border-radius:6px;padding:4px;font-size:12px;outline:none;"></td>
+            <td style="padding:8px 6px;border-bottom:1px solid #F3F4F6;text-align:center;"><input type="number" value="2.00" step="0.01" style="width:64px;text-align:center;border:1px solid #D1D5DB;border-radius:6px;padding:4px;font-size:12px;outline:none;"></td>
+            <td style="padding:8px 6px;border-bottom:1px solid #F3F4F6;text-align:center;"><input type="number" value="0.00" step="0.01" style="width:64px;text-align:center;border:1px solid #D1D5DB;border-radius:6px;padding:4px;font-size:12px;outline:none;"></td>
+          </tr>
+          <tr>
+            <td style="padding:8px 10px;border-bottom:1px solid #F3F4F6;font-weight:500;white-space:nowrap;">Premium Rewards Card</td>
+            <td style="padding:8px 6px;border-bottom:1px solid #F3F4F6;text-align:center;"><input type="number" value="0.00" step="0.01" style="width:64px;text-align:center;border:1px solid #D1D5DB;border-radius:6px;padding:4px;font-size:12px;outline:none;"></td>
+            <td style="padding:8px 6px;border-bottom:1px solid #F3F4F6;text-align:center;"><input type="number" value="1.00" step="0.01" style="width:64px;text-align:center;border:1px solid #D1D5DB;border-radius:6px;padding:4px;font-size:12px;outline:none;"></td>
+            <td style="padding:8px 6px;border-bottom:1px solid #F3F4F6;text-align:center;"><input type="number" value="0.00" step="0.01" style="width:64px;text-align:center;border:1px solid #D1D5DB;border-radius:6px;padding:4px;font-size:12px;outline:none;"></td>
+            <td style="padding:8px 6px;border-bottom:1px solid #F3F4F6;text-align:center;"><input type="number" value="1.50" step="0.01" style="width:64px;text-align:center;border:1px solid #D1D5DB;border-radius:6px;padding:4px;font-size:12px;outline:none;"></td>
+            <td style="padding:8px 6px;border-bottom:1px solid #F3F4F6;text-align:center;"><input type="number" value="0.00" step="0.01" style="width:64px;text-align:center;border:1px solid #D1D5DB;border-radius:6px;padding:4px;font-size:12px;outline:none;"></td>
+          </tr>
+          <tr>
+            <td style="padding:8px 10px;border-bottom:1px solid #F3F4F6;font-weight:500;white-space:nowrap;">Travel Prepaid Card</td>
+            <td style="padding:8px 6px;border-bottom:1px solid #F3F4F6;text-align:center;"><input type="number" value="5.00" step="0.01" style="width:64px;text-align:center;border:1px solid #D1D5DB;border-radius:6px;padding:4px;font-size:12px;outline:none;"></td>
+            <td style="padding:8px 6px;border-bottom:1px solid #F3F4F6;text-align:center;"><input type="number" value="0.00" step="0.01" style="width:64px;text-align:center;border:1px solid #D1D5DB;border-radius:6px;padding:4px;font-size:12px;outline:none;"></td>
+            <td style="padding:8px 6px;border-bottom:1px solid #F3F4F6;text-align:center;"><input type="number" value="0.00" step="0.01" style="width:64px;text-align:center;border:1px solid #D1D5DB;border-radius:6px;padding:4px;font-size:12px;outline:none;"></td>
+            <td style="padding:8px 6px;border-bottom:1px solid #F3F4F6;text-align:center;"><input type="number" value="2.50" step="0.01" style="width:64px;text-align:center;border:1px solid #D1D5DB;border-radius:6px;padding:4px;font-size:12px;outline:none;"></td>
+            <td style="padding:8px 6px;border-bottom:1px solid #F3F4F6;text-align:center;"><input type="number" value="0.50" step="0.01" style="width:64px;text-align:center;border:1px solid #D1D5DB;border-radius:6px;padding:4px;font-size:12px;outline:none;"></td>
+          </tr>
+          <tr>
+            <td style="padding:8px 10px;border-bottom:1px solid #F3F4F6;font-weight:500;white-space:nowrap;">Business Expense Card</td>
+            <td style="padding:8px 6px;border-bottom:1px solid #F3F4F6;text-align:center;"><input type="number" value="10.00" step="0.01" style="width:64px;text-align:center;border:1px solid #D1D5DB;border-radius:6px;padding:4px;font-size:12px;outline:none;"></td>
+            <td style="padding:8px 6px;border-bottom:1px solid #F3F4F6;text-align:center;"><input type="number" value="0.50" step="0.01" style="width:64px;text-align:center;border:1px solid #D1D5DB;border-radius:6px;padding:4px;font-size:12px;outline:none;"></td>
+            <td style="padding:8px 6px;border-bottom:1px solid #F3F4F6;text-align:center;"><input type="number" value="0.00" step="0.01" style="width:64px;text-align:center;border:1px solid #D1D5DB;border-radius:6px;padding:4px;font-size:12px;outline:none;"></td>
+            <td style="padding:8px 6px;border-bottom:1px solid #F3F4F6;text-align:center;"><input type="number" value="1.00" step="0.01" style="width:64px;text-align:center;border:1px solid #D1D5DB;border-radius:6px;padding:4px;font-size:12px;outline:none;"></td>
+            <td style="padding:8px 6px;border-bottom:1px solid #F3F4F6;text-align:center;"><input type="number" value="0.00" step="0.01" style="width:64px;text-align:center;border:1px solid #D1D5DB;border-radius:6px;padding:4px;font-size:12px;outline:none;"></td>
+          </tr>
+          <tr>
+            <td style="padding:8px 10px;border-bottom:1px solid #F3F4F6;font-weight:500;white-space:nowrap;">Gold Elite Card</td>
+            <td style="padding:8px 6px;border-bottom:1px solid #F3F4F6;text-align:center;"><input type="number" value="50.00" step="0.01" style="width:64px;text-align:center;border:1px solid #D1D5DB;border-radius:6px;padding:4px;font-size:12px;outline:none;"></td>
+            <td style="padding:8px 6px;border-bottom:1px solid #F3F4F6;text-align:center;"><input type="number" value="0.00" step="0.01" style="width:64px;text-align:center;border:1px solid #D1D5DB;border-radius:6px;padding:4px;font-size:12px;outline:none;"></td>
+            <td style="padding:8px 6px;border-bottom:1px solid #F3F4F6;text-align:center;"><input type="number" value="0.00" step="0.01" style="width:64px;text-align:center;border:1px solid #D1D5DB;border-radius:6px;padding:4px;font-size:12px;outline:none;"></td>
+            <td style="padding:8px 6px;border-bottom:1px solid #F3F4F6;text-align:center;"><input type="number" value="1.00" step="0.01" style="width:64px;text-align:center;border:1px solid #D1D5DB;border-radius:6px;padding:4px;font-size:12px;outline:none;"></td>
+            <td style="padding:8px 6px;border-bottom:1px solid #F3F4F6;text-align:center;"><input type="number" value="0.00" step="0.01" style="width:64px;text-align:center;border:1px solid #D1D5DB;border-radius:6px;padding:4px;font-size:12px;outline:none;"></td>
+          </tr>
+          <tr>
+            <td style="padding:8px 10px;font-weight:500;white-space:nowrap;">Flexible Prepaid</td>
+            <td style="padding:8px 6px;text-align:center;"><input type="number" value="0.00" step="0.01" style="width:64px;text-align:center;border:1px solid #D1D5DB;border-radius:6px;padding:4px;font-size:12px;outline:none;"></td>
+            <td style="padding:8px 6px;text-align:center;"><input type="number" value="3.00" step="0.01" style="width:64px;text-align:center;border:1px solid #D1D5DB;border-radius:6px;padding:4px;font-size:12px;outline:none;"></td>
+            <td style="padding:8px 6px;text-align:center;"><input type="number" value="1.00" step="0.01" style="width:64px;text-align:center;border:1px solid #D1D5DB;border-radius:6px;padding:4px;font-size:12px;outline:none;"></td>
+            <td style="padding:8px 6px;text-align:center;"><input type="number" value="3.50" step="0.01" style="width:64px;text-align:center;border:1px solid #D1D5DB;border-radius:6px;padding:4px;font-size:12px;outline:none;"></td>
+            <td style="padding:8px 6px;text-align:center;"><input type="number" value="0.50" step="0.01" style="width:64px;text-align:center;border:1px solid #D1D5DB;border-radius:6px;padding:4px;font-size:12px;outline:none;"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:11px;color:#9CA3AF;margin-top:8px;">* 费率 = 交易金额的百分比；固定费用 = 每笔交易的固定金额（USD）。下级使用对应卡产品产生费用时，代理按该产品配置获得返佣。</div>
+
+    <div style="background:#FFF7ED;border:1px solid #FED7AA;border-radius:8px;padding:10px 14px;font-size:12px;color:#9A3412;margin-top:16px;">
+      ⚡ 备注：<strong>仅通过 KYC 认证的用户可被设置为代理</strong>。设置后代理关系与返佣规则即刻生效。
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeModal('addAgentModal')">取消</button>
+    <button class="btn btn-primary" id="btn-confirm-agent" onclick="confirmAddAgent()" disabled>确认设置代理</button>
+  </div>
+</div>
+</div>
+
+<!-- Modal: 代理详情 -->
+<div class="modal-overlay" id="detailModal">
+<div class="modal" style="max-width:920px;">
+  <div class="modal-header">
+    <h2>代理详情</h2>
+    <button class="modal-close" onclick="closeModal('detailModal')">✕</button>
+  </div>
+  <div class="modal-body">
+    <!-- 代理信息 -->
+    <div id="detail-info"></div>
+    <!-- 返佣统计 -->
+    <div class="form-section-title">返佣统计</div>
+    <div class="rebate-stats" id="detail-stats"></div>
+    <!-- 下级列表 -->
+    <div class="section-card">
+      <div class="section-header"><span>下级客户</span><span style="font-size:12px;color:#9ca3af;font-weight:400;" id="detail-sub-count">0 人</span></div>
+      <div style="overflow-x:auto;">
+      <table>
+        <thead><tr><th>客户</th><th>来源</th><th>状态</th><th>开卡费</th><th>充值返点</th><th>累计贡献</th><th>注册时间</th></tr></thead>
+        <tbody id="detail-subs"></tbody>
+      </table>
+      </div>
+    </div>
+    <!-- 返佣历史 -->
+    <div class="section-card">
+      <div class="section-header"><span>返佣历史记录</span><span style="font-size:12px;color:#9ca3af;font-weight:400;">开卡费返佣 + 充值返点 · 自动结算 USDT/USDC</span></div>
+      <table>
+        <thead><tr><th>时间</th><th>下级</th><th>类型</th><th>金额</th><th>状态</th></tr></thead>
+        <tbody id="detail-rebates"></tbody>
+      </table>
+    </div>
+    <!-- 返佣配置（复用 v2 Referrals 弹窗内容） -->
+    <div class="section-card">
+      <div class="section-header"><span>返佣配置</span><span style="font-size:12px;color:#9ca3af;font-weight:400;">不同卡产品费用不同，返佣按卡产品分别设置</span></div>
+      <div style="overflow-x:auto;">
+      <table>
+        <thead><tr><th style="text-align:left;">卡产品</th><th style="text-align:center;">开卡费用<br>USD</th><th style="text-align:center;">充值费率<br>%</th><th style="text-align:center;">充值固定费用<br>USD</th><th style="text-align:center;">消费费率<br>%</th><th style="text-align:center;">消费固定费用<br>USD</th></tr></thead>
+        <tbody>
+          <tr><td>Standard Debit Card</td><td style="text-align:center;">2.50</td><td style="text-align:center;">1.50</td><td style="text-align:center;">0.50</td><td style="text-align:center;">2.00</td><td style="text-align:center;">0.00</td></tr>
+          <tr><td>Premium Rewards Card</td><td style="text-align:center;">0.00</td><td style="text-align:center;">1.00</td><td style="text-align:center;">0.00</td><td style="text-align:center;">1.50</td><td style="text-align:center;">0.00</td></tr>
+          <tr><td>Travel Prepaid Card</td><td style="text-align:center;">5.00</td><td style="text-align:center;">0.00</td><td style="text-align:center;">0.00</td><td style="text-align:center;">2.50</td><td style="text-align:center;">0.50</td></tr>
+          <tr><td>Business Expense Card</td><td style="text-align:center;">10.00</td><td style="text-align:center;">0.50</td><td style="text-align:center;">0.00</td><td style="text-align:center;">1.00</td><td style="text-align:center;">0.00</td></tr>
+          <tr><td>Gold Elite Card</td><td style="text-align:center;">50.00</td><td style="text-align:center;">0.00</td><td style="text-align:center;">0.00</td><td style="text-align:center;">1.00</td><td style="text-align:center;">0.00</td></tr>
+          <tr><td>Flexible Prepaid</td><td style="text-align:center;">0.00</td><td style="text-align:center;">3.00</td><td style="text-align:center;">1.00</td><td style="text-align:center;">3.50</td><td style="text-align:center;">0.50</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <div style="font-size:11px;color:#9ca3af;margin-top:8px;">* 费率 = 交易金额的百分比；固定费用 = 每笔交易的固定金额（USD）。下级使用对应卡产品产生费用时，代理按该产品配置获得返佣。</div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeModal('detailModal')">关闭</button>
+  </div>
+</div>
+</div>
+
+<script>
+// ===== 数据 =====
+// 已通过 KYC 的客户池（新增代理可选）
+const kycCustomers = [
+  { uid: '100086', name: '张伟强', email: 'zhangweiqiang@email.com', kyc: '2026-05-12', agent: true },
+  { uid: '100092', name: '李慧敏', email: 'lihuimin@email.com',  kyc: '2026-05-18', agent: false },
+  { uid: '100107', name: '王建军', email: 'wangjianjun@email.com', kyc: '2026-06-02', agent: false },
+  { uid: '100115', name: '陈思远', email: 'chensiyuan@email.com', kyc: '2026-06-11', agent: false },
+  { uid: '100121', name: '赵欣怡', email: 'zhaoxinyi@email.com',  kyc: '2026-06-25', agent: false }
+];
+
+// 代理列表
+let agents = [
+  { id: 1, uid: '100086', name: '张伟强', email: 'zhangweiqiang@email.com', link: 'https://yasbee.com/ref/A7X9K2', code: 'YB-8F3K2M', subs: 17, rebate: 128.55, status: '正常', time: '2026-05-12', subList: [
+      { name: '张小明', email: 'zhangxiaoming@email.com', time: '2026-05-15', source: '链接', act: '已激活', open: '$12.50', rc: '$18.00', total: '$30.50' },
+      { name: '王芳',   email: 'wangfang@email.com',     time: '2026-05-16', source: '链接', act: '已激活', open: '$25.00', rc: '$36.75', total: '$61.75' },
+      { name: '赵丽',   email: 'zhaoli@email.com',       time: '2026-05-18', source: '链接', act: '已激活', open: '$10.00', rc: '$12.80', total: '$22.80' },
+      { name: '李华',   email: 'lihua@email.com',        time: '2026-05-20', source: '链接', act: '未激活', open: '$0.00',  rc: '$0.00',  total: '$0.00' },
+      { name: '刘洋',   email: 'liuyang@email.com',      time: '2026-05-21', source: '链接', act: '已激活', open: '$5.00',  rc: '$8.50',  total: '$13.50' }
+    ], rebateList: [
+      { time: '05-26 14:32', sub: '张小明', type: '充值返点', amt: '$24.50', st: '已结算', token: 'USDT' },
+      { time: '05-26 10:05', sub: '王芳',   type: '开卡费返佣', amt: '$12.25', st: '已结算', token: 'USDC' },
+      { time: '05-25 16:48', sub: '赵丽',   type: '充值返点', amt: '$6.40',  st: '已结算', token: 'USDT' },
+      { time: '05-24 09:20', sub: '李华',   type: '开卡费返佣', amt: '$4.45',  st: '待结算', token: '' },
+      { time: '05-23 11:15', sub: '张小明', type: '开卡费返佣', amt: '$30.00', st: '已结算', token: 'USDC' }
+    ] },
+  { id: 2, uid: '100092', name: '李慧敏', email: 'lihuimin@email.com', link: 'https://yasbee.com/ref/M2K6P8', code: 'YB-M2K6P8', subs: 9, rebate: 64.20, status: '正常', time: '2026-05-18', subList: [
+      { name: '周杰', email: 'zhoujie@email.com', time: '2026-05-22', source: '链接', act: '已激活', open: '$5.00', rc: '$9.80', total: '$14.80' },
+      { name: '吴敏', email: 'wumin@email.com',   time: '2026-05-25', source: '链接', act: '已激活', open: '$10.00', rc: '$15.20', total: '$25.20' }
+    ], rebateList: [
+      { time: '05-26 09:30', sub: '周杰', type: '充值返点', amt: '$9.80', st: '已结算', token: 'USDT' },
+      { time: '05-25 15:40', sub: '吴敏', type: '开卡费返佣', amt: '$10.00', st: '已结算', token: 'USDC' }
+    ] },
+  { id: 3, uid: '100107', name: '王建军', email: 'wangjianjun@email.com', link: 'https://yasbee.com/ref/Q5T9D3', code: 'YB-Q5T9D3', subs: 4, rebate: 18.75, status: '正常', time: '2026-06-02', subList: [
+      { name: '孙丽', email: 'sunli@email.com', time: '2026-06-05', source: '链接', act: '已激活', open: '$5.00', rc: '$6.25', total: '$11.25' }
+    ], rebateList: [
+      { time: '06-06 10:00', sub: '孙丽', type: '开卡费返佣', amt: '$5.00', st: '已结算', token: 'USDC' }
+    ] }
+];
+
+const pageSize = 10;
+let currentPage = 1;
+
+// ===== 渲染列表 =====
+function applyFilters() {
+  const st = document.getElementById('f-status').value;
+  const q = document.getElementById('f-search').value.toLowerCase();
+  let list = agents.filter(a => {
+    if (st && a.status !== st) return false;
+    if (q && !a.name.toLowerCase().includes(q) && !a.email.toLowerCase().includes(q) && !a.code.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  currentPage = 1;
+  renderTable(list);
+}
+
+function renderTable(list) {
+  const tbody = document.getElementById('agent-tbody');
+  const total = list.length;
+  const pages = Math.max(1, Math.ceil(total / pageSize));
+  currentPage = Math.min(currentPage, pages);
+  const start = (currentPage - 1) * pageSize;
+  const pd = list.slice(start, start + pageSize);
+  if (!pd.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:#9ca3af;">暂无代理，点击右上角「新增代理」添加</td></tr>';
+  } else {
+    tbody.innerHTML = pd.map(a => {
+      const st = a.status === '正常' ? '<span class="badge badge-active">正常</span>' : '<span class="badge badge-inactive">已停用</span>';
+      return '<tr>' +
+        '<td><span class="avatar">' + a.name[0] + '</span><div style="display:inline-block;vertical-align:middle;"><div class="agent-name">' + a.name + '</div><div class="agent-email">' + a.email + '</div></div></td>' +
+        '<td><div class="copy-value" style="max-width:230px;"><code style="font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + a.link + '</code><button class="copy-btn" onclick="copyText(\'' + a.link + '\', this)">复制</button></div></td>' +
+        '<td><div class="copy-value" style="max-width:150px;"><code style="font-size:12px;">' + a.code + '</code><button class="copy-btn" onclick="copyText(\'' + a.code + '\', this)">复制</button></div></td>' +
+        '<td>' + a.subs + '</td>' +
+        '<td style="font-weight:600;">$' + a.rebate.toFixed(2) + '</td>' +
+        '<td>' + st + '</td>' +
+        '<td style="font-size:12px;color:#9ca3af;">' + a.time + '</td>' +
+        '<td><button class="btn btn-secondary btn-sm" onclick="openDetail(' + a.id + ')">详情</button> <button class="btn btn-danger btn-sm" onclick="toggleAgent(' + a.id + ')">' + (a.status === '正常' ? '停用' : '启用') + '</button></td>' +
+      '</tr>';
+    }).join('');
+  }
+  document.getElementById('total-count').textContent = total;
+  let ph = '';
+  for (let i = 1; i <= pages; i++) ph += '<button class="page-btn' + (i === currentPage ? ' active' : '') + '" onclick="goPage(' + i + ')">' + i + '</button>';
+  document.getElementById('pagination-btns').innerHTML = ph;
+}
+
+function goPage(p) { currentPage = p; applyFilters(); }
+
+function toggleAgent(id) {
+  const a = agents.find(x => x.id === id);
+  if (!a) return;
+  a.status = a.status === '正常' ? '已停用' : '正常';
+  applyFilters();
+}
+
+// ===== 新增代理 =====
+function openAddAgentModal() {
+  const sel = document.getElementById('sel-customer');
+  sel.innerHTML = '<option value="">请选择客户</option>';
+  const agentUids = agents.map(a => a.uid);
+  kycCustomers.forEach(c => {
+    if (c.agent || agentUids.includes(c.uid)) return; // 已是代理的不可重复添加
+    sel.innerHTML += '<option value="' + c.uid + '">' + c.name + '（' + c.email + '）· KYC 已通过</option>';
+  });
+  document.getElementById('agent-preview').style.display = 'none';
+  document.getElementById('btn-confirm-agent').disabled = true;
+  openModal('addAgentModal');
+}
+
+function onCustomerSelect() {
+  const uid = document.getElementById('sel-customer').value;
+  const preview = document.getElementById('agent-preview');
+  const btn = document.getElementById('btn-confirm-agent');
+  if (!uid) { preview.style.display = 'none'; btn.disabled = true; return; }
+  // 生成分享链接与邀约码
+  const code6 = 'YB-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+  const link6 = Math.random().toString(36).slice(2, 8).toUpperCase();
+  document.getElementById('pv-link').textContent = 'https://yasbee.com/ref/' + link6;
+  document.getElementById('pv-code').textContent = code6;
+  preview.style.display = 'block';
+  btn.disabled = false;
+}
+
+function confirmAddAgent() {
+  const uid = document.getElementById('sel-customer').value;
+  const c = kycCustomers.find(x => x.uid === uid);
+  if (!c) return;
+  c.agent = true;
+  const id = Math.max.apply(Math, agents.map(a => a.id)) + 1;
+  agents.push({
+    id: id, uid: c.uid, name: c.name, email: c.email,
+    link: document.getElementById('pv-link').textContent,
+    code: document.getElementById('pv-code').textContent,
+    subs: 0, rebate: 0, status: '正常',
+    time: new Date().toISOString().slice(0, 10),
+    subList: [], rebateList: []
+  });
+  closeModal('addAgentModal');
+  applyFilters();
+  alert('✅ 已保存返佣配置：6 个卡产品 × (开卡费用/充值费率/充值固定费用/消费费率/消费固定费用) (原型)');
+}
+
+// ===== 详情 =====
+function openDetail(id) {
+  const a = agents.find(x => x.id === id);
+  if (!a) return;
+  document.getElementById('detail-info').innerHTML =
+    '<div class="form-section-title">代理信息</div>' +
+    '<div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">' +
+      '<div style="width:44px;height:44px;border-radius:50%;background:#fef3c7;color:#92400e;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;">' + a.name[0] + '</div>' +
+      '<div><div style="font-size:15px;font-weight:600;">' + a.name + '</div><div style="font-size:12px;color:#9ca3af;">UID ' + a.uid + ' · ' + a.email + '</div></div>' +
+      '<span style="margin-left:auto;">' + (a.status === '正常' ? '<span class="badge badge-active">正常</span>' : '<span class="badge badge-inactive">已停用</span>') + '</span>' +
+    '</div>' +
+    '<div class="info-grid">' +
+      '<div class="info-item"><label>分享链接</label><div class="copy-value"><code style="font-size:13px;">' + a.link + '</code><button class="copy-btn" onclick="copyText(\'' + a.link + '\', this)">复制</button></div></div>' +
+      '<div class="info-item"><label>唯一邀约码</label><div class="copy-value"><code class="value mono" style="font-size:13px;color:#E59303;">' + a.code + '</code><button class="copy-btn" onclick="copyText(\'' + a.code + '\', this)">复制</button></div></div>' +
+      '<div class="info-item"><label>成为代理时间</label><div class="value">' + a.time + '</div></div>' +
+      '<div class="info-item"><label>累计返佣</label><div class="value" style="color:#059669;">$' + a.rebate.toFixed(2) + '</div></div>' +
+    '</div>';
+  document.getElementById('detail-stats').innerHTML =
+    '<div class="rebate-stat"><div class="label">下级总人数</div><div class="count">' + a.subs + '</div><div class="sub">通过分享链接注册</div></div>' +
+    '<div class="rebate-stat"><div class="label">本月开卡费返佣</div><div class="count">$' + (a.rebate * 0.4).toFixed(2) + '</div><div class="sub">按返佣配置自动结算</div></div>' +
+    '<div class="rebate-stat"><div class="label">本月充值返点</div><div class="count">$' + (a.rebate * 0.35).toFixed(2) + '</div><div class="sub">按返佣配置自动结算</div></div>' +
+    '<div class="rebate-stat"><div class="label">累计返点收益</div><div class="count" style="color:#059669;">$' + a.rebate.toFixed(2) + '</div><div class="sub">USDT / USDC</div></div>';
+  // 下级
+  const subsTbody = document.getElementById('detail-subs');
+  document.getElementById('detail-sub-count').textContent = a.subs + ' 人';
+  if (!a.subList.length) {
+    subsTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#9ca3af;">暂无下级客户</td></tr>';
+  } else {
+    subsTbody.innerHTML = a.subList.map(s =>
+      '<tr><td><span style="font-weight:500;">' + s.name + '</span><div style="font-size:12px;color:#9ca3af;">' + s.email + '</div></td>' +
+      '<td><span class="badge" style="background:#dbeafe;color:#1d4ed8;">' + s.source + '</span></td>' +
+      '<td>' + (s.act === '已激活' ? '<span class="badge badge-active">已激活</span>' : '<span class="badge badge-inactive">未激活</span>') + '</td>' +
+      '<td>' + s.open + '</td><td>' + s.rc + '</td><td style="font-weight:600;">' + s.total + '</td>' +
+      '<td style="font-size:12px;color:#86909c;">' + s.time + '</td></tr>'
+    ).join('');
+  }
+  // 返佣历史
+  const rbTbody = document.getElementById('detail-rebates');
+  if (!a.rebateList.length) {
+    rbTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:#9ca3af;">暂无返佣记录</td></tr>';
+  } else {
+    rbTbody.innerHTML = a.rebateList.map(r => {
+      const typeBadge = r.type === '充值返点'
+        ? '<span class="badge" style="background:#ede9fe;color:#6d28d9;">' + r.type + '</span>'
+        : '<span class="badge" style="background:#dbeafe;color:#1d4ed8;">' + r.type + '</span>';
+      const stBadge = r.st === '已结算'
+        ? '<span class="badge badge-active">已结算</span> <span style="font-family:monospace;font-size:11px;color:#6b7280;">' + r.token + '</span>'
+        : '<span class="badge" style="background:#fef3c7;color:#92400e;">待结算</span>';
+      return '<tr><td style="font-size:12px;color:#86909c;">' + r.time + '</td><td style="font-weight:500;">' + r.sub + '</td><td>' + typeBadge + '</td><td style="font-weight:600;">' + r.amt + '</td><td>' + stBadge + '</td></tr>';
+    }).join('');
+  }
+  openModal('detailModal');
+}
+
+// ===== 通用 =====
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+function copyText(text, btn) {
+  const done = () => {
+    const old = btn.textContent;
+    btn.textContent = '已复制';
+    setTimeout(() => { btn.textContent = old; }, 2000);
+  };
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+  } else {
+    fallbackCopy(text, done);
+  }
+}
+function fallbackCopy(text, done) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); } catch (e) {}
+  document.body.removeChild(ta);
+  done();
+}
+
+applyFilters();
+</script>
+</body>
+</html>
