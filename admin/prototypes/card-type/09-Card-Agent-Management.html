@@ -165,6 +165,17 @@ tr:hover td { background: #fdfdfd; }
           <div class="copy-value"><code id="pv-code">-</code><button class="copy-btn" onclick="copyText(document.getElementById('pv-code').textContent, this)">复制</button></div>
         </div>
       </div>
+      <div class="form-section-title" style="margin-top:20px;">返点比例</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="form-group">
+          <label>开卡费用返点比例（%）</label>
+          <input type="number" id="rebate-card-pct" value="20" min="0" max="100" step="0.5">
+        </div>
+        <div class="form-group">
+          <label>充值费用返点比例（%）</label>
+          <input type="number" id="rebate-recharge-pct" value="10" min="0" max="100" step="0.5">
+        </div>
+      </div>
     </div>
     <div style="background:#FFF7ED;border:1px solid #FED7AA;border-radius:8px;padding:10px 14px;font-size:12px;color:#9A3412;margin-top:16px;">
       ⚡ 备注：<strong>仅通过 KYC 认证的用户可被设置为代理</strong>。设置后代理关系与返佣规则即刻生效。
@@ -366,6 +377,8 @@ function confirmAddAgent() {
     id: id, uid: c.uid, name: c.name, email: c.email,
     link: document.getElementById('pv-link').textContent,
     code: document.getElementById('pv-code').textContent,
+    rebateCardPct: parseFloat(document.getElementById('rebate-card-pct').value) || 0,
+    rebateRechargePct: parseFloat(document.getElementById('rebate-recharge-pct').value) || 0,
     subs: 0, rebate: 0, status: '正常',
     time: new Date().toISOString().slice(0, 10),
     subList: [], rebateList: []
