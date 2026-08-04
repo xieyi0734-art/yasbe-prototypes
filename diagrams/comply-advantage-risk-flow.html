@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YASBE Platform · ComplyAdvantage 风控接入流程</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#0a0e1a; font-family:'Inter',-apple-system,sans-serif; color:#e1e7ef; min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:48px 20px; }
+.container { max-width:1200px; width:100%; }
+.header { text-align:center; margin-bottom:36px; }
+.header h1 { font-size:26px; font-weight:600; color:#f0f4ff; letter-spacing:-0.5px; }
+.header .subtitle { font-size:13px; color:#6b7a99; margin-top:6px; letter-spacing:0.3px; }
+.header .badge { display:inline-block; font-size:10px; font-weight:600; padding:3px 10px; border-radius:12px; margin-bottom:12px; background:rgba(99,102,241,0.12); color:#818cf8; border:1px solid rgba(99,102,241,0.25); }
+.dot { display:inline-block; width:9px; height:9px; background:#34d399; border-radius:50%; margin-right:10px; animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+
+.diagram-card { background:#0f1422; border:1px solid #1c2640; border-radius:18px; padding:28px; margin-bottom:20px; box-shadow:0 4px 24px rgba(0,0,0,0.3); }
+.diagram-card svg { width:100%; height:auto; display:block; }
+
+.rules-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:20px; }
+.rule-card { background:#0f1422; border:1px solid #1c2640; border-radius:14px; padding:18px; }
+.rule-header { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+.rule-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.rule-dot.emerald { background:#34d399;box-shadow:0 0 8px rgba(52,211,153,0.3); }
+.rule-dot.blue { background:#60a5fa;box-shadow:0 0 8px rgba(96,165,250,0.3); }
+.rule-dot.amber { background:#fbbf24;box-shadow:0 0 8px rgba(251,191,36,0.3); }
+.rule-dot.rose { background:#fb7185;box-shadow:0 0 8px rgba(251,113,133,0.3); }
+.rule-card h3 { font-size:13px; font-weight:600; color:#e1e7ef; }
+.rule-card ul { list-style:none; margin:0; padding:0; }
+.rule-card ul li { font-size:12px; color:#8b9ab5; padding:4px 0; line-height:1.5; padding-left:14px; position:relative; }
+.rule-card ul li::before { content:'•'; position:absolute; left:0; color:#374151; }
+
+.footer { text-align:center; margin-top:20px; font-size:11px; color:#4a5a7a; letter-spacing:0.3px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="badge">YASBE Platform · Process v1.0</div>
+    <h1><span class="dot"></span>ComplyAdvantage 风控接入流程</h1>
+    <div class="subtitle">实时 KYC/KYB 筛查 · 月度定期全量扫描 · 客户信息同步</div>
+  </div>
+
+  <!-- ====== 主流程图 ====== -->
+  <div class="diagram-card">
+    <svg viewBox="0 0 1140 700" xmlns="http://www.w3.org/2000/svg" style="font-family:'Inter',-apple-system,sans-serif;">
+      <defs>
+        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+          <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#131c30" stroke-width="0.5"/>
+        </pattern>
+        <marker id="arrG" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 Z" fill="#34d399"/>
+        </marker>
+        <marker id="arrR" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 Z" fill="#fb7185"/>
+        </marker>
+        <marker id="arrB" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 Z" fill="#60a5fa"/>
+        </marker>
+        <marker id="arrA" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 Z" fill="#fbbf24"/>
+        </marker>
+        <marker id="arrI" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 Z" fill="#818cf8"/>
+        </marker>
+        <filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      <rect width="1140" height="700" fill="url(#grid)"/>
+
+      <!-- 场景标签 -->
+      <rect x="40" y="14" width="340" height="28" rx="14" fill="rgba(96,165,250,0.08)" stroke="rgba(96,165,250,0.2)" stroke-width="1"/>
+      <text x="210" y="32" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="600">场景 A：用户 KYC/KYB 提交风控</text>
+
+      <rect x="400" y="14" width="340" height="28" rx="14" fill="rgba(251,191,36,0.08)" stroke="rgba(251,191,36,0.2)" stroke-width="1"/>
+      <text x="570" y="32" text-anchor="middle" fill="#fbbf24" font-size="12" font-weight="600">场景 B：每月定期全量扫描</text>
+
+      <rect x="760" y="14" width="340" height="28" rx="14" fill="rgba(52,211,153,0.08)" stroke="rgba(52,211,153,0.2)" stroke-width="1"/>
+      <text x="930" y="32" text-anchor="middle" fill="#34d399" font-size="12" font-weight="600">场景 C：客户信息同步更新</text>
+
+      <!-- ===================== 场景 A：实时 KYC/KYB ===================== -->
+
+      <!-- A1: 用户提交 -->
+      <rect x="100" y="70" width="220" height="50" rx="25" fill="rgba(96,165,250,0.08)" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="210" y="92" text-anchor="middle" fill="#60a5fa" font-size="14" font-weight="600">👤 用户提交 KYC/KYB</text>
+      <text x="210" y="108" text-anchor="middle" fill="#6b7a99" font-size="10">证件 / 企业信息</text>
+
+      <line x1="210" y1="120" x2="210" y2="150" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#arrB)"/>
+
+      <!-- A2: 提交到 C/A -->
+      <rect x="80" y="155" width="260" height="50" rx="25" fill="rgba(129,140,248,0.08)" stroke="#818cf8" stroke-width="1.5"/>
+      <text x="210" y="177" text-anchor="middle" fill="#a5b4fc" font-size="14" font-weight="600">📤 提交到 ComplyAdvantage</text>
+      <text x="210" y="193" text-anchor="middle" fill="#6b7a99" font-size="10">客户资料实时上送</text>
+      <rect x="316" y="160" width="30" height="18" rx="9" fill="rgba(129,140,248,0.15)" stroke="rgba(129,140,248,0.3)" stroke-width="1"/>
+      <text x="331" y="172" text-anchor="middle" fill="#a5b4fc" font-size="9" font-weight="600">C/A</text>
+
+      <line x1="210" y1="205" x2="210" y2="235" stroke="#818cf8" stroke-width="1.5" marker-end="url(#arrI)"/>
+
+      <!-- A3: 触发风控 -->
+      <rect x="100" y="240" width="220" height="50" rx="25" fill="rgba(129,140,248,0.08)" stroke="#818cf8" stroke-width="1.5"/>
+      <text x="210" y="262" text-anchor="middle" fill="#a5b4fc" font-size="14" font-weight="600">⚡ 触发风控流程</text>
+      <text x="210" y="278" text-anchor="middle" fill="#6b7a99" font-size="10">C/A 风险规则自动筛查</text>
+
+      <line x1="210" y1="290" x2="210" y2="320" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arrA)"/>
+
+      <!-- A4: 返回结果 -->
+      <rect x="80" y="325" width="260" height="50" rx="25" fill="rgba(251,191,36,0.08)" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="210" y="347" text-anchor="middle" fill="#fbbf24" font-size="14" font-weight="600">📋 返回风控结果 / 风险提示</text>
+      <text x="210" y="363" text-anchor="middle" fill="#6b7a99" font-size="10">命中风险规则 / 待人工判定</text>
+
+      <line x1="210" y1="375" x2="210" y2="405" stroke="#818cf8" stroke-width="1.5" marker-end="url(#arrI)"/>
+
+      <!-- A5: 运营处理 -->
+      <rect x="100" y="410" width="220" height="50" rx="25" fill="rgba(129,140,248,0.08)" stroke="#818cf8" stroke-width="1.5"/>
+      <text x="210" y="432" text-anchor="middle" fill="#a5b4fc" font-size="14" font-weight="600">🧑‍💼 运营人员处理</text>
+      <text x="210" y="448" text-anchor="middle" fill="#6b7a99" font-size="10">审核风控结果</text>
+
+      <!-- A5 分叉：通过 / 拒绝 -->
+      <line x1="150" y1="460" x2="130" y2="490" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrG)"/>
+      <line x1="270" y1="460" x2="305" y2="490" stroke="#fb7185" stroke-width="1.5" marker-end="url(#arrR)"/>
+
+      <rect x="55" y="495" width="150" height="44" rx="22" fill="rgba(52,211,153,0.1)" stroke="#34d399" stroke-width="1.5"/>
+      <text x="130" y="516" text-anchor="middle" fill="#34d399" font-size="13" font-weight="600">✅ 通过</text>
+      <text x="130" y="531" text-anchor="middle" fill="#6b7a99" font-size="9">认证通过，放行</text>
+
+      <rect x="230" y="495" width="150" height="44" rx="22" fill="rgba(251,113,133,0.1)" stroke="#fb7185" stroke-width="1.5"/>
+      <text x="305" y="516" text-anchor="middle" fill="#fb7185" font-size="13" font-weight="600">❌ 拒绝</text>
+      <text x="305" y="531" text-anchor="middle" fill="#6b7a99" font-size="9">驳回，通知用户</text>
+
+      <!-- ===================== 场景 B：每月定期扫描 ===================== -->
+
+      <!-- B1: 每月触发 -->
+      <rect x="460" y="70" width="220" height="50" rx="25" fill="rgba(251,191,36,0.08)" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="570" y="92" text-anchor="middle" fill="#fbbf24" font-size="14" font-weight="600">🗓️ 每月定时触发</text>
+      <text x="570" y="108" text-anchor="middle" fill="#6b7a99" font-size="10">自动任务 · 周期扫描</text>
+
+      <line x1="570" y1="120" x2="570" y2="150" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arrA)"/>
+
+      <!-- B2: 扫描客户 -->
+      <rect x="440" y="155" width="260" height="50" rx="25" fill="rgba(251,191,36,0.08)" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="570" y="177" text-anchor="middle" fill="#fbbf24" font-size="14" font-weight="600">🔎 扫描当前所有客户</text>
+      <text x="570" y="193" text-anchor="middle" fill="#6b7a99" font-size="10">全量客户清单送检</text>
+
+      <line x1="570" y1="205" x2="570" y2="235" stroke="#818cf8" stroke-width="1.5" marker-end="url(#arrI)"/>
+
+      <!-- B3: 触发风险规则 -->
+      <rect x="440" y="240" width="260" height="50" rx="25" fill="rgba(129,140,248,0.08)" stroke="#818cf8" stroke-width="1.5"/>
+      <text x="570" y="262" text-anchor="middle" fill="#a5b4fc" font-size="14" font-weight="600">⚠️ 触发风险规则</text>
+      <text x="570" y="278" text-anchor="middle" fill="#6b7a99" font-size="10">C/A 规则引擎生成警报</text>
+      <rect x="676" y="245" width="30" height="18" rx="9" fill="rgba(129,140,248,0.15)" stroke="rgba(129,140,248,0.3)" stroke-width="1"/>
+      <text x="691" y="257" text-anchor="middle" fill="#a5b4fc" font-size="9" font-weight="600">C/A</text>
+
+      <line x1="570" y1="290" x2="570" y2="320" stroke="#fb7185" stroke-width="1.5" marker-end="url(#arrR)"/>
+
+      <!-- B4: C/A 返回警报 -->
+      <rect x="440" y="325" width="260" height="50" rx="25" fill="rgba(251,113,133,0.08)" stroke="#fb7185" stroke-width="1.5"/>
+      <text x="570" y="347" text-anchor="middle" fill="#fb7185" font-size="14" font-weight="600">📨 C/A 返回警报提示</text>
+      <text x="570" y="363" text-anchor="middle" fill="#6b7a99" font-size="10">Webhook 推送 / 主动拉取</text>
+
+      <line x1="570" y1="375" x2="570" y2="405" stroke="#818cf8" stroke-width="1.5" marker-end="url(#arrI)"/>
+
+      <!-- B5: 生成 Case -->
+      <rect x="470" y="410" width="200" height="50" rx="25" fill="rgba(129,140,248,0.08)" stroke="#818cf8" stroke-width="1.5"/>
+      <text x="570" y="432" text-anchor="middle" fill="#a5b4fc" font-size="14" font-weight="600">📁 平台生成 Case</text>
+      <text x="570" y="448" text-anchor="middle" fill="#6b7a99" font-size="10">风险案件自动建档</text>
+
+      <line x1="570" y1="460" x2="570" y2="490" stroke="#818cf8" stroke-width="1.5" marker-end="url(#arrI)"/>
+
+      <!-- B6: 运营处理 Case -->
+      <rect x="450" y="495" width="240" height="50" rx="25" fill="rgba(129,140,248,0.08)" stroke="#818cf8" stroke-width="1.5"/>
+      <text x="570" y="517" text-anchor="middle" fill="#a5b4fc" font-size="14" font-weight="600">🧑‍💼 运营处理 Case</text>
+      <text x="570" y="533" text-anchor="middle" fill="#6b7a99" font-size="10">案件待处理</text>
+
+      <!-- B6 三分叉 -->
+      <line x1="500" y1="545" x2="450" y2="580" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrG)"/>
+      <line x1="570" y1="545" x2="610" y2="580" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arrA)"/>
+      <line x1="640" y1="545" x2="770" y2="580" stroke="#fb7185" stroke-width="1.5" marker-end="url(#arrR)"/>
+
+      <rect x="380" y="585" width="140" height="44" rx="22" fill="rgba(52,211,153,0.1)" stroke="#34d399" stroke-width="1.5"/>
+      <text x="450" y="606" text-anchor="middle" fill="#34d399" font-size="13" font-weight="600">✅ 消除警报</text>
+      <text x="450" y="621" text-anchor="middle" fill="#6b7a99" font-size="9">误报关闭</text>
+
+      <rect x="540" y="585" width="140" height="44" rx="22" fill="rgba(251,191,36,0.1)" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="610" y="606" text-anchor="middle" fill="#fbbf24" font-size="13" font-weight="600">🏷️ 标记高风险</text>
+      <text x="610" y="621" text-anchor="middle" fill="#6b7a99" font-size="9">客户打标</text>
+
+      <rect x="700" y="585" width="140" height="44" rx="22" fill="rgba(251,113,133,0.1)" stroke="#fb7185" stroke-width="1.5"/>
+      <text x="770" y="606" text-anchor="middle" fill="#fb7185" font-size="13" font-weight="600">⛔ 暂停客户</text>
+      <text x="770" y="621" text-anchor="middle" fill="#6b7a99" font-size="9">限制/冻结</text>
+
+      <!-- ===================== 场景 C：客户信息同步 ===================== -->
+
+      <!-- C1: 用户更新 -->
+      <rect x="820" y="70" width="220" height="50" rx="25" fill="rgba(52,211,153,0.08)" stroke="#34d399" stroke-width="1.5"/>
+      <text x="930" y="92" text-anchor="middle" fill="#34d399" font-size="14" font-weight="600">🔄 用户更新信息</text>
+      <text x="930" y="108" text-anchor="middle" fill="#6b7a99" font-size="10">证件 / 企业信息变更</text>
+
+      <line x1="930" y1="120" x2="930" y2="150" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrG)"/>
+
+      <!-- C2: 同步到 C/A -->
+      <rect x="800" y="155" width="260" height="50" rx="25" fill="rgba(129,140,248,0.08)" stroke="#818cf8" stroke-width="1.5"/>
+      <text x="930" y="177" text-anchor="middle" fill="#a5b4fc" font-size="14" font-weight="600">📤 客户信息更新到 C/A</text>
+      <text x="930" y="193" text-anchor="middle" fill="#6b7a99" font-size="10">同步客户档案变更</text>
+      <rect x="1036" y="160" width="30" height="18" rx="9" fill="rgba(129,140,248,0.15)" stroke="rgba(129,140,248,0.3)" stroke-width="1"/>
+      <text x="1051" y="172" text-anchor="middle" fill="#a5b4fc" font-size="9" font-weight="600">C/A</text>
+
+      <line x1="930" y1="205" x2="930" y2="235" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrG)"/>
+
+      <!-- C3: 档案更新完成 -->
+      <rect x="820" y="240" width="220" height="50" rx="25" fill="rgba(52,211,153,0.08)" stroke="#34d399" stroke-width="1.5"/>
+      <text x="930" y="262" text-anchor="middle" fill="#34d399" font-size="14" font-weight="600">✅ C/A 档案已更新</text>
+      <text x="930" y="278" text-anchor="middle" fill="#6b7a99" font-size="10">平台与 C/A 信息一致</text>
+
+      <!-- C 场景延伸说明 -->
+      <rect x="820" y="325" width="220" height="50" rx="25" fill="rgba(52,211,153,0.05)" stroke="#1c2640" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="930" y="347" text-anchor="middle" fill="#8b9ab5" font-size="13" font-weight="600">🔁 下次扫描使用新档案</text>
+      <text x="930" y="363" text-anchor="middle" fill="#4a5a7a" font-size="10">月度扫描基于最新数据</text>
+
+      <!-- 跨场景虚线标注 -->
+      <line x1="60" y1="660" x2="1080" y2="660" stroke="#1c2640" stroke-width="1" stroke-dasharray="5,4"/>
+      <rect x="430" y="648" width="280" height="22" rx="11" fill="#0f1422" stroke="#1c2640" stroke-width="1"/>
+      <text x="570" y="662" text-anchor="middle" fill="#8b9ab5" font-size="10">场景 A / B 均依赖 C/A 外部风控服务</text>
+    </svg>
+  </div>
+
+  <!-- ====== 核心规则 ====== -->
+  <div class="rules-grid">
+    <div class="rule-card">
+      <div class="rule-header">
+        <div class="rule-dot blue"></div>
+        <h3>🔍 实时 KYC/KYB 风控</h3>
+      </div>
+      <ul>
+        <li>用户提交 KYC/KYB → 信息上送 C/A</li>
+        <li>C/A 触发风控流程，返回结果/风险提示</li>
+        <li>运营审核：通过 → 认证放行；拒绝 → 驳回通知</li>
+      </ul>
+    </div>
+    <div class="rule-card">
+      <div class="rule-header">
+        <div class="rule-dot amber"></div>
+        <h3>🔁 月度定期扫描</h3>
+      </div>
+      <ul>
+        <li>每月自动扫描全量客户，触发风险规则</li>
+        <li>C/A 生成警报 → 平台接收后自动建 Case</li>
+        <li>运营处理：消除警报 / 标记高风险 / 暂停客户</li>
+      </ul>
+    </div>
+    <div class="rule-card">
+      <div class="rule-header">
+        <div class="rule-dot emerald"></div>
+        <h3>🔄 客户信息同步</h3>
+      </div>
+      <ul>
+        <li>用户更新证件/企业信息时同步到 C/A</li>
+        <li>保持平台与 C/A 客户档案一致</li>
+        <li>后续月度扫描基于最新档案数据</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer">
+    YASBE Platform · ComplyAdvantage 风控接入流程 · v1.0 · 2026-08-04
+  </div>
+</div>
+</body>
+</html>
