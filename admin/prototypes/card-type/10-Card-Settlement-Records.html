@@ -78,7 +78,6 @@ tr:hover td { background: #fdfdfd; }
     <h1>卡片管理</h1>
     <p>管理渠道卡配置、卡片代理与返佣结算</p>
   </div>
-  <button class="btn btn-primary" onclick="openSettleModal()">发起结算</button>
 </div>
 <!-- 二级菜单：卡务管理 | 卡片代理 | 返佣记录 | 结算记录 -->
 <div class="subnav">
@@ -90,14 +89,6 @@ tr:hover td { background: #fdfdfd; }
 
 <div class="container">
 <div class="filters">
-  <div class="filter-group">
-    <label>结算状态</label>
-    <select id="f-status" onchange="applyFilters()">
-      <option value="">全部状态</option>
-      <option>已结算</option>
-      <option>待结算</option>
-    </select>
-  </div>
   <div class="filter-group">
     <label>结算周期起</label>
     <input type="date" id="f-date-from" onchange="applyFilters()">
@@ -169,57 +160,6 @@ tr:hover td { background: #fdfdfd; }
         <tbody id="dt-detail-body"></tbody>
       </table>
     </div>
-  </div>
-</div>
-</div>
-
-<!-- Modal: 发起结算 -->
-<div class="modal-overlay" id="settleModal">
-<div class="modal" style="max-width:600px;">
-  <div class="modal-header">
-    <h2>发起结算</h2>
-    <button class="modal-close" onclick="closeModal('settleModal')">✕</button>
-  </div>
-  <div class="modal-body">
-    <div class="form-section" style="display:flex;flex-direction:column;gap:14px;">
-      <div>
-        <div style="font-size:12px;color:#6b7280;font-weight:500;margin-bottom:4px;">结算周期</div>
-        <div style="display:flex;gap:10px;align-items:center;">
-          <input type="date" id="st-from" value="2026-06-01" style="padding:8px 12px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;flex:1;">
-          <span style="color:#9ca3af;">至</span>
-          <input type="date" id="st-to" value="2026-06-30" style="padding:8px 12px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;flex:1;">
-        </div>
-      </div>
-      <div>
-        <div style="font-size:12px;color:#6b7280;font-weight:500;margin-bottom:6px;">待结算返佣 <span id="st-count" style="color:#E59303;"></span></div>
-        <table class="table" style="width:100%;">
-          <thead>
-            <tr>
-              <th>代理</th>
-              <th style="text-align:right;">开卡费总额</th>
-              <th style="text-align:right;">开卡返佣总额</th>
-              <th style="text-align:right;">充值费总额</th>
-              <th style="text-align:right;">充值返佣总额</th>
-            </tr>
-          </thead>
-          <tbody id="st-body"></tbody>
-        </table>
-      </div>
-      <div>
-        <div style="font-size:12px;color:#6b7280;font-weight:500;margin-bottom:4px;">结算币种</div>
-        <select id="st-coin" style="padding:8px 12px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;width:100%;">
-          <option>USDT</option>
-          <option>USDC</option>
-        </select>
-      </div>
-      <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:10px 14px;font-size:12px;color:#9a3412;">
-        ⚡ 确认后该周期内代理返佣将生成结算单并进入打款流程，状态更新为已结算。结算按代理分别生成，可随时发起下一周期结算。
-      </div>
-    </div>
-  </div>
-  <div class="modal-footer" style="display:flex;justify-content:flex-end;gap:10px;padding:16px 28px;border-top:1px solid #eef0f4;">
-    <button class="btn btn-secondary" onclick="closeModal('settleModal')">取消</button>
-    <button class="btn btn-primary" onclick="confirmSettle()">确认结算</button>
   </div>
 </div>
 </div>
@@ -328,12 +268,11 @@ function applyFilters() {
 }
 
 function filtered() {
-  const st = document.getElementById('f-status').value;
   const from = document.getElementById('f-date-from').value;
   const to = document.getElementById('f-date-to').value;
   const q = document.getElementById('f-search').value.trim().toLowerCase();
   return settlements.filter(s => {
-    if (st && s.status !== st) return false;
+    if (s.status !== '已结算') return false;
     if (from || to) {
       const cStart = s.cycle.slice(0, 10);
       if (from && cStart < from) return false;
@@ -353,9 +292,7 @@ function render() {
   const slice = list.slice(start, start + pageSize);
   const body = document.getElementById('tb-body');
   body.innerHTML = slice.map(s => {
-    const settledAmount = s.status === '已结算'
-      ? '<span style="font-weight:600;">$' + s.total.toFixed(2) + '</span> <span class="mono" style="font-size:11px;color:#6b7280;">' + s.coin + '</span>'
-      : '<span style="color:#9ca3af;">$0.00</span>';
+    const settledAmount = '<span style="font-weight:600;">$' + s.total.toFixed(2) + '</span> <span class="mono" style="font-size:11px;color:#6b7280;">' + s.coin + '</span>';
     return `<tr>
       <td><span class="mono" style="font-weight:600;">${s.id}</span></td>
       <td>
@@ -367,9 +304,6 @@ function render() {
       <td>${settledAmount}</td>
       <td style="font-size:12px;color:#6b7280;">${s.time}</td>
       <td>
-        ${s.status === '待结算'
-          ? `<button class="btn btn-primary btn-sm" onclick="openSettleOne('${s.id}')">结算</button>`
-          : ''}
         <button class="btn btn-secondary btn-sm" onclick="openDetail('${s.id}')">查看明细</button>
       </td>
     </tr>`;
@@ -415,54 +349,6 @@ function openDetail(id) {
     </tr>`).join('');
   document.getElementById('dt-sub-count').textContent = `共 ${rows.length} 条`;
   document.getElementById('detailModal').classList.add('active');
-}
-
-// ===== 发起结算 =====
-let settleTargets = [];
-
-function openSettleModal() {
-  // 批量：当前全部待结算单
-  settleTargets = settlements.filter(s => s.status === '待结算');
-  if (!settleTargets.length) { alert('当前没有待结算的返佣单'); return; }
-  renderSettleModal('发起结算（批量）');
-}
-
-function openSettleOne(id) {
-  // 单笔：列表行"结算"按钮
-  settleTargets = settlements.filter(s => s.id === id);
-  renderSettleModal('发起结算');
-}
-
-function renderSettleModal(title) {
-  document.querySelector('#settleModal .modal-header h2').textContent = title;
-  const minFrom = settleTargets.map(s => s.cycle.slice(0, 10)).sort()[0];
-  const maxTo = settleTargets.map(s => s.cycle.slice(-10)).sort().pop();
-  document.getElementById('st-from').value = minFrom;
-  document.getElementById('st-to').value = maxTo;
-  const total = settleTargets.reduce((a, s) => a + s.total, 0);
-  document.getElementById('st-count').textContent = `共 ${settleTargets.length} 笔，合计 $${total.toFixed(2)}`;
-  document.getElementById('st-body').innerHTML = settleTargets.map(s => `
-    <tr>
-      <td style="font-weight:500;">${s.agent}</td>
-      <td style="text-align:right;">$${s.card.toFixed(2)}</td>
-      <td style="text-align:right;">$${s.recharge.toFixed(2)}</td>
-      <td style="text-align:right;">$${s.consume.toFixed(2)}</td>
-      <td style="text-align:right;font-weight:700;color:#E59303;">$${s.total.toFixed(2)}</td>
-    </tr>`).join('');
-  document.getElementById('settleModal').classList.add('active');
-}
-
-function confirmSettle() {
-  const from = document.getElementById('st-from').value;
-  const to = document.getElementById('st-to').value;
-  const coin = document.getElementById('st-coin').value;
-  const now = new Date();
-  const ts = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-  const total = settleTargets.reduce((a, s) => a + s.total, 0);
-  settleTargets.forEach(s => { s.status = '已结算'; s.coin = coin; s.time = ts; });
-  closeModal('settleModal');
-  alert(`✅ 已结算 ${settleTargets.length} 笔返佣（${from} ~ ${to}），总额 $${total.toFixed(2)}，结算币种 ${coin}`);
-  render();
 }
 
 // ===== 导出 =====
