@@ -55,6 +55,8 @@ tr:hover td { background: #fdfdfd; }
 .modal-header h2 { font-size: 17px; font-weight: 600; }
 .modal-close { width: 32px; height: 32px; border-radius: 8px; border: none; background: #f3f4f6; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #6b7280; transition: all .15s; }
 .modal-close:hover { background: #e5e7eb; color: #1a1d29; }
+.pct-input { width:96px; text-align:center; border:1px solid #d1d5db; border-radius:6px; padding:6px 8px; font-size:13px; color:#1a1d29; }
+.pct-input:focus { outline:none; border-color:#E59303; box-shadow:0 0 0 2px rgba(229,147,3,.15); }
 .modal-body { padding: 24px 28px; }
 .modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 28px; border-top: 1px solid #eef0f4; }
 .form-section-title { font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid #f3f4f6; }
@@ -96,6 +98,7 @@ tr:hover td { background: #fdfdfd; }
 <div class="subnav">
   <a class="subnav-item" href="08-Card-Type-Management.html">卡务管理</a>
   <a class="subnav-item active" href="09-Card-Agent-Management.html">卡片代理</a>
+  <a class="subnav-item" href="10-Card-Rebate-Records.html">返佣记录</a>
   <a class="subnav-item" href="10-Card-Settlement-Records.html">结算记录</a>
 </div>
 
@@ -165,16 +168,19 @@ tr:hover td { background: #fdfdfd; }
           <div class="copy-value"><code id="pv-code">-</code><button class="copy-btn" onclick="copyText(document.getElementById('pv-code').textContent, this)">复制</button></div>
         </div>
       </div>
-      <div class="form-section-title" style="margin-top:20px;">返点比例</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-        <div class="form-group">
-          <label>开卡费用返点比例（%）</label>
-          <input type="number" id="rebate-card-pct" value="20" min="0" max="100" step="0.5">
-        </div>
-        <div class="form-group">
-          <label>充值费用返点比例（%）</label>
-          <input type="number" id="rebate-recharge-pct" value="10" min="0" max="100" step="0.5">
-        </div>
+      <div class="form-section-title" style="margin-top:20px;">卡片返佣比例（每个卡片单独设置）</div>
+      <div style="overflow-x:auto;">
+      <table>
+        <thead><tr>
+          <th style="text-align:left;">卡片名称</th>
+          <th style="text-align:center;width:100px;">渠道</th>
+          <th style="text-align:center;width:100px;">开卡费</th>
+          <th style="text-align:center;width:140px;">充值手续费</th>
+          <th style="text-align:center;width:160px;">开卡费用返点比例（%）</th>
+          <th style="text-align:center;width:160px;">充值费用返点比例（%）</th>
+        </tr></thead>
+        <tbody id="card-rebate-tbody"></tbody>
+      </table>
       </div>
     </div>
     <div style="background:#FFF7ED;border:1px solid #FED7AA;border-radius:8px;padding:10px 14px;font-size:12px;color:#9A3412;margin-top:16px;">
@@ -244,8 +250,49 @@ tr:hover td { background: #fdfdfd; }
 </div>
 </div>
 
+<!-- Modal: 编辑代理（每张卡片分别设置返佣比例） -->
+<div class="modal-overlay" id="editAgentModal">
+<div class="modal">
+  <div class="modal-header">
+    <h2>编辑代理</h2>
+    <button class="modal-close" onclick="closeModal('editAgentModal')">✕</button>
+  </div>
+  <div class="modal-body">
+    <div id="edit-info"></div>
+    <div class="form-section-title" style="margin-top:16px;">卡片返佣比例（每个卡片单独设置）</div>
+    <div style="overflow-x:auto;">
+    <table>
+      <thead><tr>
+        <th style="text-align:left;">卡片名称</th>
+        <th style="text-align:center;width:100px;">渠道</th>
+        <th style="text-align:center;width:100px;">开卡费</th>
+        <th style="text-align:center;width:140px;">充值手续费</th>
+        <th style="text-align:center;width:160px;">开卡费用返点比例（%）</th>
+        <th style="text-align:center;width:160px;">充值费用返点比例（%）</th>
+      </tr></thead>
+      <tbody id="edit-card-tbody"></tbody>
+    </table>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeModal('editAgentModal')">取消</button>
+    <button class="btn btn-primary" onclick="confirmEditAgent()">保存修改</button>
+  </div>
+</div>
+</div>
+
 <script>
 // ===== 数据 =====
+// 卡产品池（与卡产品管理页 08 一致：启用中的 6 张卡，含渠道与费用）
+const cardProducts = [
+  { name: 'Standard Debit Card', ditch: 'Stripe', opening_fee: 2.5, opening_fee_rate: 0, recharge_fee_rate: 1.5, recharge_fixed_fee: 0.5 },
+  { name: 'Premium Rewards Card', ditch: 'Stripe', opening_fee: 0, opening_fee_rate: 0, recharge_fee_rate: 1.0, recharge_fixed_fee: 0 },
+  { name: 'Travel Prepaid Card', ditch: 'Interlace', opening_fee: 5, opening_fee_rate: 0, recharge_fee_rate: 0, recharge_fixed_fee: 0 },
+  { name: 'Business Expense Card', ditch: 'Marqeta', opening_fee: 10, opening_fee_rate: 0, recharge_fee_rate: 0.5, recharge_fixed_fee: 0 },
+  { name: 'Gold Elite Card', ditch: 'Stripe', opening_fee: 50, opening_fee_rate: 0, recharge_fee_rate: 0, recharge_fixed_fee: 0 },
+  { name: 'Flexible Prepaid', ditch: 'Marqeta', opening_fee: 0, opening_fee_rate: 2.0, recharge_fee_rate: 3.0, recharge_fixed_fee: 1.0 }
+];
+
 // 已通过 KYC 的客户池（新增代理可选）
 const kycCustomers = [
   { uid: '100086', name: '张伟强', email: 'zhangweiqiang@email.com', kyc: '2026-05-12', agent: true },
@@ -269,6 +316,10 @@ let agents = [
       { time: '05-25 16:48', sub: '赵丽',   type: '充值返点', amt: '$6.40',  st: '已结算', token: 'USDT' },
       { time: '05-24 09:20', sub: '李华',   type: '开卡费返佣', amt: '$4.45',  st: '待结算', token: '' },
       { time: '05-23 11:15', sub: '张小明', type: '开卡费返佣', amt: '$30.00', st: '已结算', token: 'USDC' }
+    ], cardRebates: [
+      { card: 'Standard Debit Card', openPct: 20, rechargePct: 10 },
+      { card: 'Premium Rewards Card', openPct: 15, rechargePct: 8 },
+      { card: 'Travel Prepaid Card', openPct: 25, rechargePct: 12 }
     ] },
   { id: 2, uid: '100092', name: '李慧敏', email: 'lihuimin@email.com', link: 'https://yasbee.com/ref/M2K6P8', code: 'YB-M2K6P8', subs: 9, rebate: 64.20, status: '正常', time: '2026-05-18', subList: [
       { name: '周杰', email: 'zhoujie@email.com', time: '2026-05-22', source: '链接', act: '已激活', open: '$5.00', rc: '$9.80', total: '$14.80' },
@@ -276,11 +327,16 @@ let agents = [
     ], rebateList: [
       { time: '05-26 09:30', sub: '周杰', type: '充值返点', amt: '$9.80', st: '已结算', token: 'USDT' },
       { time: '05-25 15:40', sub: '吴敏', type: '开卡费返佣', amt: '$10.00', st: '已结算', token: 'USDC' }
+    ], cardRebates: [
+      { card: 'Standard Debit Card', openPct: 20, rechargePct: 10 },
+      { card: 'Flexible Prepaid', openPct: 10, rechargePct: 5 }
     ] },
   { id: 3, uid: '100107', name: '王建军', email: 'wangjianjun@email.com', link: 'https://yasbee.com/ref/Q5T9D3', code: 'YB-Q5T9D3', subs: 4, rebate: 18.75, status: '正常', time: '2026-06-02', subList: [
       { name: '孙丽', email: 'sunli@email.com', time: '2026-06-05', source: '链接', act: '已激活', open: '$5.00', rc: '$6.25', total: '$11.25' }
     ], rebateList: [
       { time: '06-06 10:00', sub: '孙丽', type: '开卡费返佣', amt: '$5.00', st: '已结算', token: 'USDC' }
+    ], cardRebates: [
+      { card: 'Standard Debit Card', openPct: 20, rechargePct: 10 }
     ] }
 ];
 
@@ -320,7 +376,7 @@ function renderTable(list) {
         '<td style="font-weight:600;">$' + a.rebate.toFixed(2) + '</td>' +
         '<td>' + st + '</td>' +
         '<td style="font-size:12px;color:#9ca3af;">' + a.time + '</td>' +
-        '<td><button class="btn btn-secondary btn-sm" onclick="openDetail(' + a.id + ')">详情</button> <button class="btn btn-danger btn-sm" onclick="toggleAgent(' + a.id + ')">' + (a.status === '正常' ? '停用' : '启用') + '</button></td>' +
+        '<td><button class="btn btn-secondary btn-sm" onclick="openDetail(' + a.id + ')">详情</button> <button class="btn btn-secondary btn-sm" onclick="openEditAgent(' + a.id + ')">编辑</button> <button class="btn btn-danger btn-sm" onclick="toggleAgent(' + a.id + ')">' + (a.status === '正常' ? '停用' : '启用') + '</button></td>' +
       '</tr>';
     }).join('');
   }
@@ -348,23 +404,74 @@ function openAddAgentModal() {
     if (c.agent || agentUids.includes(c.uid)) return; // 已是代理的不可重复添加
     sel.innerHTML += '<option value="' + c.uid + '">' + c.name + '（' + c.email + '）· KYC 已通过</option>';
   });
+  renderRebateRows('card-rebate-tbody', null);
   document.getElementById('agent-preview').style.display = 'none';
   document.getElementById('btn-confirm-agent').disabled = true;
   openModal('addAgentModal');
 }
 
+// 卡产品费用展示（与卡产品管理页口径一致）
+function fmtOpenFee(c) {
+  let s = '';
+  if (c.opening_fee) s += '$' + parseFloat(c.opening_fee).toFixed(2);
+  if (c.opening_fee_rate) s += (s ? '+' : '') + parseFloat(c.opening_fee_rate).toFixed(1) + '%';
+  return s || '—';
+}
+function fmtRechargeFee(c) {
+  let s = '';
+  if (c.recharge_fee_rate) s += parseFloat(c.recharge_fee_rate).toFixed(1) + '%';
+  if (c.recharge_fixed_fee) s += (s ? '+' : '') + '$' + parseFloat(c.recharge_fixed_fee).toFixed(2);
+  return s || '—';
+}
+
+// 渲染卡片返佣比例列表（agent 为空 = 新增弹窗，默认 20/10；非空 = 编辑弹窗，读取代理已配置值）
+function renderRebateRows(tbodyId, agent) {
+  const tbody = document.getElementById(tbodyId);
+  tbody.innerHTML = cardProducts.map(c => {
+    let openPct = 20, rechargePct = 10;
+    if (agent) {
+      const r = (agent.cardRebates || []).find(x => x.card === c.name);
+      if (r) { openPct = r.openPct; rechargePct = r.rechargePct; }
+    }
+    return '<tr>' +
+      '<td style="font-weight:500;">' + c.name + '</td>' +
+      '<td style="text-align:center;color:#6b7280;">' + c.ditch + '</td>' +
+      '<td style="text-align:center;color:#6b7280;">' + fmtOpenFee(c) + '</td>' +
+      '<td style="text-align:center;color:#6b7280;">' + fmtRechargeFee(c) + '</td>' +
+      '<td style="text-align:center;"><input type="number" class="pct-input" value="' + openPct + '" min="0" max="100" step="0.5"></td>' +
+      '<td style="text-align:center;"><input type="number" class="pct-input" value="' + rechargePct + '" min="0" max="100" step="0.5"></td>' +
+      '</tr>';
+  }).join('');
+}
+
+// 读取列表每行的返点比例
+function collectRebateRows(tbodyId) {
+  const tbody = document.getElementById(tbodyId);
+  return Array.from(tbody.querySelectorAll('tr')).map((tr, i) => {
+    const inputs = tr.querySelectorAll('.pct-input');
+    return {
+      card: cardProducts[i].name,
+      openPct: parseFloat(inputs[0].value) || 0,
+      rechargePct: parseFloat(inputs[1].value) || 0
+    };
+  });
+}
+
+function updateConfirmBtn() {
+  document.getElementById('btn-confirm-agent').disabled = !document.getElementById('sel-customer').value;
+}
+
 function onCustomerSelect() {
   const uid = document.getElementById('sel-customer').value;
   const preview = document.getElementById('agent-preview');
-  const btn = document.getElementById('btn-confirm-agent');
-  if (!uid) { preview.style.display = 'none'; btn.disabled = true; return; }
+  if (!uid) { preview.style.display = 'none'; updateConfirmBtn(); return; }
   // 生成分享链接与邀约码
   const code6 = 'YB-' + Math.random().toString(36).slice(2, 8).toUpperCase();
   const link6 = Math.random().toString(36).slice(2, 8).toUpperCase();
   document.getElementById('pv-link').textContent = 'https://yasbee.com/ref/' + link6;
   document.getElementById('pv-code').textContent = code6;
   preview.style.display = 'block';
-  btn.disabled = false;
+  updateConfirmBtn();
 }
 
 function confirmAddAgent() {
@@ -377,8 +484,9 @@ function confirmAddAgent() {
     id: id, uid: c.uid, name: c.name, email: c.email,
     link: document.getElementById('pv-link').textContent,
     code: document.getElementById('pv-code').textContent,
-    rebateCardPct: parseFloat(document.getElementById('rebate-card-pct').value) || 0,
-    rebateRechargePct: parseFloat(document.getElementById('rebate-recharge-pct').value) || 0,
+    rebateCardPct: 0,
+    rebateRechargePct: 0,
+    cardRebates: collectRebateRows('card-rebate-tbody'),
     subs: 0, rebate: 0, status: '正常',
     time: new Date().toISOString().slice(0, 10),
     subList: [], rebateList: []
@@ -442,6 +550,36 @@ function openDetail(id) {
   openModal('detailModal');
 }
 
+// ===== 编辑代理（每张卡片分别设置返佣比例） =====
+let editingAgentId = null;
+
+function openEditAgent(id) {
+  const a = agents.find(x => x.id === id);
+  if (!a) return;
+  editingAgentId = id;
+  document.getElementById('edit-info').innerHTML =
+    '<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">' +
+      '<div style="width:40px;height:40px;border-radius:50%;background:#fef3c7;color:#92400e;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;">' + a.name[0] + '</div>' +
+      '<div><div style="font-size:14px;font-weight:600;">' + a.name + '</div><div style="font-size:12px;color:#9ca3af;">UID ' + a.uid + ' · ' + a.email + '</div></div>' +
+      '<span style="margin-left:auto;font-size:12px;color:#9ca3af;">成为代理时间：' + a.time + '</span>' +
+    '</div>' +
+    '<div class="info-grid">' +
+      '<div class="info-item"><label>分享链接</label><div class="copy-value"><code style="font-size:12px;">' + a.link + '</code><button class="copy-btn" onclick="copyText(\'' + a.link + '\', this)">复制</button></div></div>' +
+      '<div class="info-item"><label>唯一邀约码</label><div class="copy-value"><code class="value mono" style="font-size:12px;color:#E59303;">' + a.code + '</code><button class="copy-btn" onclick="copyText(\'' + a.code + '\', this)">复制</button></div></div>' +
+    '</div>';
+  renderRebateRows('edit-card-tbody', a);
+  openModal('editAgentModal');
+}
+
+function confirmEditAgent() {
+  const a = agents.find(x => x.id === editingAgentId);
+  if (!a) return;
+  a.cardRebates = collectRebateRows('edit-card-tbody');
+  closeModal('editAgentModal');
+  applyFilters();
+  alert('✅ 代理返佣配置已保存 (原型)');
+}
+
 // ===== 通用 =====
 function openModal(id) { document.getElementById(id).classList.add('active'); }
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
@@ -470,6 +608,7 @@ function fallbackCopy(text, done) {
   done();
 }
 
+renderRebateRows('card-rebate-tbody', null);
 applyFilters();
 </script>
 </body>

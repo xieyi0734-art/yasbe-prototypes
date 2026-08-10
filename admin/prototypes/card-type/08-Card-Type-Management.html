@@ -11,6 +11,10 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #f5f6fa; col
 .header { background: #fff; padding: 20px 32px; border-bottom: 1px solid #eef0f4; display: flex; justify-content: space-between; align-items: center; }
 .header h1 { font-size: 22px; font-weight: 600; color: #1a1d29; }
 .header p { font-size: 13px; color: #6b7280; margin-top: 4px; }
+.subnav { background: #fff; border-bottom: 1px solid #eef0f4; padding: 0 32px; display: flex; gap: 4px; }
+.subnav-item { padding: 14px 20px; font-size: 14px; font-weight: 500; color: #6b7280; cursor: pointer; text-decoration: none; border-bottom: 2px solid transparent; transition: all .15s; }
+.subnav-item:hover { color: #1a1d29; }
+.subnav-item.active { color: #E59303; border-bottom-color: #E59303; font-weight: 600; }
 .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; border: none; cursor: pointer; transition: all .2s; text-decoration: none; }
 .btn-primary { background: #E59303; color: #fff; }
 .btn-primary:hover { background: #d08400; }
@@ -106,10 +110,17 @@ tr:hover td { background: #fdfdfd; }
 <body>
 <div class="header">
   <div>
-    <h1>卡务管理</h1>
-    <p>管理所有渠道卡的配置、费率和钱包支持</p>
+    <h1>卡片管理</h1>
+    <p>管理所有渠道卡的配置、费率、钱包支持与卡片代理</p>
   </div>
   <button class="btn btn-primary" onclick="openAddModal()">＋ 新建卡片</button>
+</div>
+<!-- 二级菜单：卡务管理 | 卡片代理 -->
+<div class="subnav">
+  <a class="subnav-item active" href="08-Card-Type-Management.html">卡务管理</a>
+  <a class="subnav-item" href="09-Card-Agent-Management.html">卡片代理</a>
+  <a class="subnav-item" href="10-Card-Rebate-Records.html">返佣记录</a>
+  <a class="subnav-item" href="10-Card-Settlement-Records.html">结算记录</a>
 </div>
 <div class="container">
 <div class="filters">
