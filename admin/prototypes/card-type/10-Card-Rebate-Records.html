@@ -114,6 +114,8 @@ tr:hover td { background: #fdfdfd; }
   <th>充值返点</th>
   <th>消费返佣</th>
   <th>总返佣金额</th>
+  <th>未结算金额</th>
+  <th>已结算金额</th>
   <th>操作</th>
 </tr>
 </thead>
@@ -280,7 +282,6 @@ function filtered() {
   const to = document.getElementById('f-date-to').value;
   const q = document.getElementById('f-search').value.trim().toLowerCase();
   return settlements.filter(s => {
-    if (s.status !== '待结算') return false;
     if (from || to) {
       const cStart = s.cycle.slice(0, 10);
       if (from && cStart < from) return false;
@@ -300,6 +301,16 @@ function render() {
   const slice = list.slice(start, start + pageSize);
   const body = document.getElementById('tb-body');
   body.innerHTML = slice.map(s => {
+    const unsettled = s.status === '待结算'
+      ? `<span style="font-weight:700;color:#E59303;">$${s.total.toFixed(2)}</span>`
+      : '<span style="color:#9ca3af;">$0.00</span>';
+    const settled = s.status === '已结算'
+      ? `<span style="font-weight:600;">$${s.total.toFixed(2)}</span> <span class="mono" style="font-size:11px;color:#6b7280;">${s.coin}</span>`
+      : '<span style="color:#9ca3af;">$0.00</span>';
+    const actions = s.status === '待结算'
+      ? `<button class="btn btn-primary btn-sm" onclick="openSettleOne('${s.id}')">结算</button>
+        <button class="btn btn-secondary btn-sm" onclick="openDetail('${s.id}')">查看明细</button>`
+      : `<button class="btn btn-secondary btn-sm" onclick="openDetail('${s.id}')">查看明细</button>`;
     return `<tr>
       <td>
         <span class="avatar">${s.agent[0]}</span>
@@ -311,10 +322,9 @@ function render() {
       <td style="font-weight:600;">$${s.recharge.toFixed(2)}</td>
       <td style="font-weight:600;">$${s.consume.toFixed(2)}</td>
       <td style="font-weight:700;color:#E59303;">$${s.total.toFixed(2)}</td>
-      <td>
-        <button class="btn btn-primary btn-sm" onclick="openSettleOne('${s.id}')">结算</button>
-        <button class="btn btn-secondary btn-sm" onclick="openDetail('${s.id}')">查看明细</button>
-      </td>
+      <td>${unsettled}</td>
+      <td>${settled}</td>
+      <td>${actions}</td>
     </tr>`;
   }).join('');
   document.getElementById('pg-info').textContent = `共 ${total} 条`;
