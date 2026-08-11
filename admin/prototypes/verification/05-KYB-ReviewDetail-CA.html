@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - KYB Review Detail (ComplyAdvantage)</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; }
+
+    body {
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 240px;
+      background: #1a1a2e;
+      color: white;
+      padding: 20px 0;
+      min-height: 100vh;
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo {
+      padding: 0 20px 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 16px;
+      font-size: 18px;
+      font-weight: 700;
+      color: #e59303;
+    }
+
+    .sidebar-group-title {
+      padding: 12px 20px 4px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: rgba(255,255,255,0.35);
+    }
+
+    .sidebar-item {
+      padding: 10px 20px;
+      color: rgba(255,255,255,0.6);
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sidebar-item:hover { background: rgba(255,255,255,0.05); color: white; }
+    .sidebar-item.active { background: rgba(255,255,255,0.1); color: white; border-right: 3px solid #e59303; }
+    .sidebar-item .arrow { margin-left: auto; font-size: 10px; color: rgba(255,255,255,0.4); }
+
+    .sidebar-sub {
+      padding-left: 34px;
+    }
+
+    .sidebar-sub .sidebar-item { font-size: 13px; padding: 8px 20px; }
+
+    /* Main Content */
+    .main {
+      flex: 1;
+      padding: 24px 32px;
+      max-width: calc(100% - 240px);
+    }
+
+    /* Top Bar */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .breadcrumb {
+      font-size: 13px;
+      color: #999;
+    }
+
+    .breadcrumb span { color: #333; font-weight: 500; }
+
+    .top-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .top-actions .btn-icon {
+      width: 36px; height: 36px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Page Header */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .page-header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .page-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1a1a2e;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .page-title .user-id {
+      font-size: 14px;
+      font-weight: 400;
+      color: #999;
+    }
+
+    .status-tags {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .tag.review { background: #e3f2fd; color: #1565c0; }
+    .tag.high { background: #fbe9e7; color: #bf360c; }
+
+    .submit-time { font-size: 12px; color: #999; }
+
+    /* ===== ComplyAdvantage Risk Screening Card ===== */
+    .ca-card {
+      background: white;
+      border-radius: 12px;
+      border: 1px solid #e8eaed;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .ca-card.hit {
+      border-color: #ef9a9a;
+      box-shadow: 0 0 0 1px #ffcdd2 inset;
+    }
+
+    .ca-card.clean {
+      border-color: #a5d6a7;
+    }
+
+    .ca-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 24px;
+      border-bottom: 1px solid #f0f0f0;
+      background: #fafbfc;
+    }
+
+    .ca-logo {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .ca-card.hit .ca-logo { background: #fbe9e7; }
+    .ca-card.clean .ca-logo { background: #e8f5e9; }
+
+    .ca-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1a1a2e;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ca-title .provider {
+      font-size: 11px;
+      font-weight: 600;
+      background: #1a1a2e;
+      color: #e59303;
+      padding: 2px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.3px;
+    }
+
+    .ca-sub {
+      font-size: 12px;
+      color: #999;
+      margin-top: 2px;
+    }
+
+    .ca-header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .ca-status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+
+    .ca-card.hit .ca-status-chip { background: #fbe9e7; color: #bf360c; }
+    .ca-card.clean .ca-status-chip { background: #e8f5e9; color: #2e7d32; }
+
+    .ca-demo-toggle {
+      font-size: 12px;
+      color: #1976d2;
+      background: none;
+      border: 1px dashed #90caf9;
+      padding: 4px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .ca-demo-toggle:hover { background: #e3f2fd; }
+
+    /* Hit summary row */
+    .ca-hit-summary {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 24px;
+      background: #fff5f5;
+      border-bottom: 1px solid #ffcdd2;
+    }
+
+    .ca-hit-count {
+      font-size: 22px;
+      font-weight: 700;
+      color: #bf360c;
+    }
+
+    .ca-hit-count small {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      color: #999;
+    }
+
+    .ca-hit-badges {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .ca-hit-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 8px;
+      background: white;
+      border: 1px solid #ef9a9a;
+      color: #bf360c;
+    }
+
+    .ca-hit-badge .n { background: #bf360c; color: white; border-radius: 10px; padding: 0 6px; font-size: 11px; }
+
+    .ca-hit-score {
+      margin-left: auto;
+      font-size: 12px;
+      color: #bf360c;
+      font-weight: 600;
+    }
+
+    /* Clean summary row */
+    .ca-clean-summary {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 24px;
+      border-bottom: 1px solid #e8eaed;
+    }
+
+    .ca-clean-icon {
+      font-size: 22px;
+    }
+
+    .ca-clean-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: #2e7d32;
+    }
+
+    .ca-clean-sub {
+      font-size: 12px;
+      color: #999;
+      margin-top: 2px;
+    }
+
+    .ca-clean-meta {
+      margin-left: auto;
+      font-size: 12px;
+      color: #666;
+      text-align: right;
+    }
+
+    /* Hit detail table */
+    .ca-detail {
+      padding: 16px 24px;
+    }
+
+    .ca-detail-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ca-detail-title .expand-btn {
+      margin-left: auto;
+      font-size: 12px;
+      color: #1976d2;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .ca-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #e8eaed;
+    }
+
+    .ca-table th {
+      background: #fafbfc;
+      padding: 10px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #666;
+      text-align: left;
+      border-bottom: 1px solid #e8eaed;
+    }
+
+    .ca-table td {
+      padding: 12px 14px;
+      font-size: 13px;
+      color: #333;
+      border-bottom: 1px solid #f0f0f0;
+      vertical-align: middle;
+    }
+
+    .ca-table tr:last-child td { border-bottom: none; }
+
+    .match-type {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 2px 10px;
+      border-radius: 12px;
+    }
+
+    .match-type.sanctions { background: #fbe9e7; color: #bf360c; }
+    .match-type.pep { background: #fff8e1; color: #e65100; }
+    .match-type.adverse { background: #ede7f6; color: #4527a0; }
+
+    .match-score {
+      font-weight: 600;
+    }
+
+    .match-score.high { color: #bf360c; }
+    .match-score.med { color: #e65100; }
+    .match-score.low { color: #999; }
+
+    .score-bar {
+      width: 70px;
+      height: 6px;
+      background: #f0f0f0;
+      border-radius: 3px;
+      display: inline-block;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    .score-bar .fill { display: block; height: 100%; border-radius: 3px; }
+    .score-bar .fill.high { background: #d32f2f; width: 92%; }
+    .score-bar .fill.med { background: #ef6c00; width: 78%; }
+    .score-bar .fill.low { background: #bdbdbd; width: 45%; }
+
+    .ca-footer {
+      padding: 12px 24px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ca-card.hit .ca-footer { background: #fff5f5; color: #bf360c; font-weight: 500; }
+    .ca-card.clean .ca-footer { background: #fafbfc; color: #666; }
+
+    .ca-footer .ca-view-link {
+      margin-left: auto;
+      color: #1976d2;
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .ca-footer .ca-view-link:hover { text-decoration: underline; }
+
+    /* Info Card (case details) */
+    .info-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px 24px;
+      border: 1px solid #e8eaed;
+      margin-bottom: 20px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .info-item .label {
+      font-size: 12px;
+      color: #999;
+    }
+
+    .info-item .value {
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    /* Section Card */
+    .section-card {
+      background: white;
+      border-radius: 12px;
+      border: 1px solid #e8eaed;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .section-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sub-section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a1a2e;
+      background: #f7f8fa;
+      padding: 8px 14px;
+      border-radius: 6px;
+      margin: 18px 0 12px;
+    }
+
+    .sub-section-title:first-child { margin-top: 0; }
+
+    .section-header h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1a1a2e;
+    }
+
+    .section-body { padding: 20px 24px; }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 16px;
+    }
+
+    .field-row.full { grid-template-columns: 1fr; }
+
+    .field-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .field-item .field-label {
+      font-size: 12px;
+      color: #999;
+      font-weight: 500;
+    }
+
+    .field-item .field-value {
+      font-size: 14px;
+      color: #333;
+      padding: 8px 12px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      border: 1px solid #e8eaed;
+    }
+
+    .doc-preview {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: #f5f5f5;
+      border-radius: 6px;
+    }
+
+    .doc-preview .doc-icon { font-size: 20px; }
+    .doc-preview .doc-name { font-size: 13px; color: #333; }
+    .doc-preview .doc-size { font-size: 11px; color: #999; }
+
+    /* History Timeline */
+    .timeline { }
+
+    .timeline-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .timeline-item:last-child { border-bottom: none; }
+
+    .timeline-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #1976d2;
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+
+    .timeline-dot.orange { background: #e65100; }
+    .timeline-dot.gray { background: #bbb; }
+    .timeline-dot.red { background: #c62828; }
+
+    .timeline-content { flex: 1; }
+
+    .timeline-content .tl-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .timeline-content .tl-desc {
+      font-size: 12px;
+      color: #999;
+      margin-top: 2px;
+    }
+
+    /* Bottom Action */
+    .action-bar {
+      background: white;
+      border-radius: 12px;
+      padding: 20px 24px;
+      border: 1px solid #e8eaed;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .action-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .action-info .label {
+      font-size: 12px;
+      color: #999;
+    }
+
+    .action-info .value {
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .btn-group { display: flex; gap: 12px; }
+
+    .btn {
+      padding: 12px 28px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .btn-reject {
+      background: #fbe9e7;
+      color: #c62828;
+      border: 1px solid #ef9a9a;
+    }
+
+    .btn-reject:hover { background: #ffccbc; }
+
+    .btn-approve {
+      background: #1976d2;
+      color: white;
+    }
+
+    .btn-approve:hover { background: #1565c0; }
+
+    /* ===== Confirm Modal (high risk approve) ===== */
+    .modal-mask {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-mask.show { display: flex; }
+
+    .modal {
+      background: white;
+      border-radius: 14px;
+      width: 480px;
+      max-width: calc(100vw - 48px);
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    }
+
+    .modal-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .modal-header .m-icon {
+      font-size: 20px;
+    }
+
+    .modal-header h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a2e;
+    }
+
+    .modal-body {
+      padding: 20px 24px;
+      font-size: 13px;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    .modal-body .warn-box {
+      background: #fff5f5;
+      border: 1px solid #ffcdd2;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-top: 12px;
+      font-size: 12px;
+      color: #bf360c;
+    }
+
+    .modal-body .warn-box .row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+    }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    .btn-ghost {
+      background: white;
+      border: 1px solid #d9d9d9;
+      color: #333;
+    }
+
+    .btn-ghost:hover { border-color: #1976d2; color: #1976d2; }
+
+    .btn-danger {
+      background: #d32f2f;
+      color: white;
+    }
+
+    .btn-danger:hover { background: #b71c1c; }
+
+    .btn-approve-solid {
+      background: #1976d2;
+      color: white;
+    }
+
+    .btn-approve-solid:hover { background: #1565c0; }
+
+    .modal-body .checkbox-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-top: 14px;
+      font-size: 12px;
+      color: #666;
+      cursor: pointer;
+    }
+
+    .modal-body .checkbox-row input { margin-top: 2px; }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">Beeznis Admin</div>
+    <div class="sidebar-group-title">Overview</div>
+    <div class="sidebar-item">📊 Dashboard</div>
+    <div class="sidebar-group-title">Customer Management</div>
+    <div class="sidebar-item">👥 Overview</div>
+    <div class="sidebar-item active">✅ Verification Review</div>
+    <div class="sidebar-item">📋 Customer List</div>
+    <div class="sidebar-item">🛡️ ComplyAdvantage Cases</div>
+    <div class="sidebar-group-title">Operations</div>
+    <div class="sidebar-item">💱 Fiat</div>
+    <div class="sidebar-item">🪙 Crypto</div>
+    <div class="sidebar-item">💳 Card</div>
+    <div class="sidebar-item">📢 Content</div>
+    <div class="sidebar-group-title">Control</div>
+    <div class="sidebar-item">⚠️ Risk Management</div>
+    <div class="sidebar-item">⚙️ System</div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div class="breadcrumb">
+        Customer Management / Verification Review / KYB / <span>#USR-20240315-0042</span>
+      </div>
+      <div class="top-actions">
+        <button class="btn-icon">🔍</button>
+        <button class="btn-icon">⋮</button>
+      </div>
+    </div>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <div class="page-title">
+          TechNova Solutions Pte. Ltd.
+          <span class="user-id">#USR-20240315-0042</span>
+        </div>
+        <div class="status-tags">
+          <span class="tag review">Level 1 Review</span>
+          <span class="submit-time">Submitted: Jun 10, 2026 14:32</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ComplyAdvantage Risk Screening Card (clean default) ===== -->
+    <div class="ca-card clean" id="caCard" data-hits="1" data-risk="74 / 100 · Medium">
+      <div class="ca-header">
+        <div class="ca-logo">🛡️</div>
+        <div>
+          <div class="ca-title">
+            ComplyAdvantage Screening
+            <span class="provider">ComplyAdvantage</span>
+          </div>
+          <div class="ca-sub">AML screening on company submission · Case <b>CA-KYB-20260610-0042</b></div>
+        </div>
+        <div class="ca-header-right">
+          <span class="ca-status-chip" id="caStatusChip" style="background:#e8f5e9;color:#2e7d32;">✅ No Hits</span>
+          <button class="ca-demo-toggle" onclick="toggleDemo()">Demo: toggle hit / clean</button>
+        </div>
+      </div>
+
+      <!-- Hit state -->
+      <div id="caHitState" style="display:none;">
+        <div class="ca-hit-summary">
+          <div class="ca-hit-count">
+            1<small>hit</small>
+          </div>
+          <div class="ca-hit-badges">
+            <span class="ca-hit-badge">⚠️ Sanctions <span class="n">1</span></span>
+            <span class="ca-hit-badge">👤 PEP <span class="n">0</span></span>
+            <span class="ca-hit-badge">📰 Adverse Media <span class="n">0</span></span>
+          </div>
+          <div class="ca-hit-score">Risk score: 74 / 100 · Medium</div>
+        </div>
+
+        <div class="ca-detail">
+          <div class="ca-detail-title">
+            🎯 Hit Details
+            <button class="expand-btn" onclick="toggleDetail()">Expand all ▾</button>
+          </div>
+          <table class="ca-table">
+            <thead>
+              <tr>
+                <th>List Type</th>
+                <th>Matched Entity</th>
+                <th>Country</th>
+                <th>Match Score</th>
+                <th>Entity Category</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="match-type sanctions">⚠️ Sanctions</span></td>
+                <td><b>TechNova Solutions Ltd.</b><br><span style="font-size:11px;color:#999;">List: OFAC SDN · Ref: 88901</span></td>
+                <td>🇸🇬 Singapore</td>
+                <td>
+                  <span class="score-bar"><span class="fill med"></span></span>
+                  <span class="match-score med">74%</span>
+                </td>
+                <td>Company</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Clean state -->
+      <div id="caCleanState">
+        <div class="ca-clean-summary">
+          <div class="ca-clean-icon">✅</div>
+          <div>
+            <div class="ca-clean-text">No hits found</div>
+            <div class="ca-clean-sub">Company passed AML screening</div>
+          </div>
+          <div class="ca-clean-meta">
+            Screened against <b>2,500+ watchlists</b><br>
+            <span style="color:#999;">Sanctions · PEP · Adverse Media · Regulatory</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ca-footer" id="caFooter" style="background:#fafbfc;color:#666;">
+        <span id="caFooterText">Customer passed AML screening — no hits found</span>
+        <a class="ca-view-link" onclick="alert('Navigate to ComplyAdvantage Case detail')">View CA Case CA-KYB-20260610-0042 →</a>
+      </div>
+    </div>
+
+    <!-- Case Details -->
+    <div class="info-card">
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="label">Case ID</span>
+          <span class="value">B-T3BMQ70G</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Review Type</span>
+          <span class="value">KYB · Level 1 Review</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Assigned To</span>
+          <span class="value">admin@beeznis.com</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Submitted At</span>
+          <span class="value">Jun 10, 2026 14:32</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Company Information -->
+    <div class="section-card">
+      <div class="section-header">
+        <h3>Company Information</h3>
+      </div>
+      <div class="section-body">
+        <div class="field-row full">
+          <div class="field-item">
+            <span class="field-label">Company Name</span>
+            <span class="field-value">TechNova Solutions Pte. Ltd.</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-item">
+            <span class="field-label">Registration Number</span>
+            <span class="field-value">202012345W</span>
+          </div>
+          <div class="field-item">
+            <span class="field-label">Company Email</span>
+            <span class="field-value">finance@technova.sg</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-item">
+            <span class="field-label">Incorporate Jurisdiction</span>
+            <span class="field-value">Singapore</span>
+          </div>
+          <div class="field-item">
+            <span class="field-label">Industry</span>
+            <span class="field-value">Technology</span>
+          </div>
+        </div>
+        <div class="field-row full">
+          <div class="field-item">
+            <span class="field-label">Company Introduction</span>
+            <span class="field-value">B2B SaaS platform for cross-border payments and treasury management, operating in Southeast Asia since 2021.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Verification Info -->
+    <div class="section-card">
+      <div class="section-header">
+        <h3>Verification Info &mdash; Registration Information Confirmation</h3>
+      </div>
+      <div class="section-body">
+        <div class="sub-section-title">Account Information</div>
+        <div class="field-row">
+          <div class="field-item">
+            <span class="field-label">Company Email</span>
+            <span class="field-value">finance@technova.sg</span>
+          </div>
+          <div class="field-item">
+            <span class="field-label">Account Status</span>
+            <span class="field-value">Verified</span>
+          </div>
+        </div>
+
+        <div class="sub-section-title">Company Information</div>
+        <div class="field-row">
+          <div class="field-item">
+            <span class="field-label">Company Name</span>
+            <span class="field-value">TechNova Solutions Pte. Ltd.</span>
+          </div>
+          <div class="field-item">
+            <span class="field-label">Company Registration Number</span>
+            <span class="field-value">202012345W</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-item">
+            <span class="field-label">Company Website</span>
+            <span class="field-value">https://technova.sg</span>
+          </div>
+          <div class="field-item">
+            <span class="field-label">Incorporate Jurisdiction</span>
+            <span class="field-value">Singapore</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-item">
+            <span class="field-label">Registered Address</span>
+            <span class="field-value">1 Raffles Place, #20-02, Singapore 048616</span>
+          </div>
+          <div class="field-item">
+            <span class="field-label">Business Address</span>
+            <span class="field-value">1 Raffles Place, #20-02, Singapore 048616</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-item">
+            <span class="field-label">Number of Employees</span>
+            <span class="field-value">45</span>
+          </div>
+          <div class="field-item">
+            <span class="field-label">Industry</span>
+            <span class="field-value">Technology</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-item">
+            <span class="field-label">Business Scope</span>
+            <span class="field-value">Cross-border payment services, treasury management, B2B SaaS</span>
+          </div>
+          <div class="field-item">
+            <span class="field-label">Company Introduction</span>
+            <span class="field-value">Operating in Southeast Asia since 2021.</span>
+          </div>
+        </div>
+
+        <div class="sub-section-title">Legal Representative</div>
+        <div class="field-row">
+          <div class="field-item">
+            <span class="field-label">First Name</span>
+            <span class="field-value">Wei Ming</span>
+          </div>
+          <div class="field-item">
+            <span class="field-label">Middle Name</span>
+            <span class="field-value">&mdash;</span>
+          </div>
+          <div class="field-item">
+            <span class="field-label">Last Name</span>
+            <span class="field-value">Tan</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-item">
+            <span class="field-label">Nationality</span>
+            <span class="field-value">Singaporean</span>
+          </div>
+          <div class="field-item">
+            <span class="field-label">Role</span>
+            <span class="field-value">Director</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-item">
+            <span class="field-label">Date of Birth</span>
+            <span class="field-value">1985-07-22</span>
+          </div>
+          <div class="field-item">
+            <span class="field-label">Document Type</span>
+            <span class="field-value">NRIC</span>
+          </div>
+        </div>
+        <div class="field-row full">
+          <div class="field-item">
+            <span class="field-label">Proof of Address</span>
+            <span class="field-value">
+              <div class="doc-preview" style="margin-top:4px;">
+                <span class="doc-icon">&#128196;</span>
+                <span class="doc-name">tan_weiming_poa.pdf</span>
+                <span class="doc-size">· 0.6 MB</span>
+                <span style="margin-left:auto;">
+                  <a href="#" style="color:#1976d2;font-size:12px;">Preview</a>
+                  <a href="#" style="color:#1976d2;font-size:12px;margin-left:10px;">Download</a>
+                </span>
+              </div>
+            </span>
+          </div>
+        </div>
+
+        <div class="sub-section-title">Shareholders</div>
+        <div class="field-row">
+          <div class="field-item">
+            <span class="field-label">Shareholder 1</span>
+            <span class="field-value">Tan Wei Ming (60%)</span>
+          </div>
+          <div class="field-item">
+            <span class="field-label">Shareholder 2</span>
+            <span class="field-value">Ventures Asia Fund LP (40%)</span>
+          </div>
+        </div>
+
+        <div class="sub-section-title">Business Details</div>
+        <div class="field-row">
+          <div class="field-item">
+            <span class="field-label">Planned Monthly Number of Collection</span>
+            <span class="field-value">200</span>
+          </div>
+          <div class="field-item">
+            <span class="field-label">Planned Monthly Number of Payouts</span>
+            <span class="field-value">180</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-item">
+            <span class="field-label">Business Region</span>
+            <span class="field-value">Southeast Asia</span>
+          </div>
+          <div class="field-item">
+            <span class="field-label">Planned Transaction Currencies</span>
+            <span class="field-value">USD, SGD, EUR</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-item">
+            <span class="field-label">Planned Monthly Volume of Collection</span>
+            <span class="field-value">$250,000</span>
+          </div>
+          <div class="field-item">
+            <span class="field-label">Planned Monthly Volume of Payout</span>
+            <span class="field-value">$230,000</span>
+          </div>
+        </div>
+
+        <div class="sub-section-title">Documents Upload</div>
+        <div class="field-row">
+          <div class="field-item">
+            <span class="field-label">Certificate of Incorporation</span>
+            <span class="field-value">
+              <div class="doc-preview" style="margin-top:4px;">
+                <span class="doc-icon">&#128196;</span>
+                <span class="doc-name">cert_incorporation.pdf</span>
+                <span class="doc-size">· 0.4 MB</span>
+                <span style="margin-left:auto;">
+                  <a href="#" style="color:#1976d2;font-size:12px;">Preview</a>
+                  <a href="#" style="color:#1976d2;font-size:12px;margin-left:10px;">Download</a>
+                </span>
+              </div>
+            </span>
+          </div>
+          <div class="field-item">
+            <span class="field-label">Certificate of Incumbency</span>
+            <span class="field-value">
+              <div class="doc-preview" style="margin-top:4px;">
+                <span class="doc-icon">&#128196;</span>
+                <span class="doc-name">cert_incumbency.pdf</span>
+                <span class="doc-size">· 0.3 MB</span>
+                <span style="margin-left:auto;">
+                  <a href="#" style="color:#1976d2;font-size:12px;">Preview</a>
+                  <a href="#" style="color:#1976d2;font-size:12px;margin-left:10px;">Download</a>
+                </span>
+              </div>
+            </span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-item">
+            <span class="field-label">Certificate of Good Standing</span>
+            <span class="field-value">
+              <div class="doc-preview" style="margin-top:4px;">
+                <span class="doc-icon">&#128196;</span>
+                <span class="doc-name">cert_good_standing.pdf</span>
+                <span class="doc-size">· 0.3 MB</span>
+                <span style="margin-left:auto;">
+                  <a href="#" style="color:#1976d2;font-size:12px;">Preview</a>
+                  <a href="#" style="color:#1976d2;font-size:12px;margin-left:10px;">Download</a>
+                </span>
+              </div>
+            </span>
+          </div>
+          <div class="field-item">
+            <span class="field-label">Memorandum &amp; Articles of Association</span>
+            <span class="field-value">
+              <div class="doc-preview" style="margin-top:4px;">
+                <span class="doc-icon">&#128196;</span>
+                <span class="doc-name">maa.pdf</span>
+                <span class="doc-size">· 1.1 MB</span>
+                <span style="margin-left:auto;">
+                  <a href="#" style="color:#1976d2;font-size:12px;">Preview</a>
+                  <a href="#" style="color:#1976d2;font-size:12px;margin-left:10px;">Download</a>
+                </span>
+              </div>
+            </span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-item">
+            <span class="field-label">Corporate Shareholding Structure Chart</span>
+            <span class="field-value">
+              <div class="doc-preview" style="margin-top:4px;">
+                <span class="doc-icon">&#128196;</span>
+                <span class="doc-name">shareholding_chart.pdf</span>
+                <span class="doc-size">· 0.5 MB</span>
+                <span style="margin-left:auto;">
+                  <a href="#" style="color:#1976d2;font-size:12px;">Preview</a>
+                  <a href="#" style="color:#1976d2;font-size:12px;margin-left:10px;">Download</a>
+                </span>
+              </div>
+            </span>
+          </div>
+          <div class="field-item">
+            <span class="field-label">Proof of Business Activity</span>
+            <span class="field-value">
+              <div class="doc-preview" style="margin-top:4px;">
+                <span class="doc-icon">&#128196;</span>
+                <span class="doc-name">proof_activity.pdf</span>
+                <span class="doc-size">· 0.8 MB</span>
+                <span style="margin-left:auto;">
+                  <a href="#" style="color:#1976d2;font-size:12px;">Preview</a>
+                  <a href="#" style="color:#1976d2;font-size:12px;margin-left:10px;">Download</a>
+                </span>
+              </div>
+            </span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-item">
+            <span class="field-label">Annual Report or Audited Financial Statement</span>
+            <span class="field-value">
+              <div class="doc-preview" style="margin-top:4px;">
+                <span class="doc-icon">&#128196;</span>
+                <span class="doc-name">annual_report_2025.pdf</span>
+                <span class="doc-size">· 2.3 MB</span>
+                <span style="margin-left:auto;">
+                  <a href="#" style="color:#1976d2;font-size:12px;">Preview</a>
+                  <a href="#" style="color:#1976d2;font-size:12px;margin-left:10px;">Download</a>
+                </span>
+              </div>
+            </span>
+          </div>
+          <div class="field-item">
+            <span class="field-label">Last 3 Months Bank Statement</span>
+            <span class="field-value">
+              <div class="doc-preview" style="margin-top:4px;">
+                <span class="doc-icon">&#128196;</span>
+                <span class="doc-name">bank_statement_q1_2026.pdf</span>
+                <span class="doc-size">· 1.5 MB</span>
+                <span style="margin-left:auto;">
+                  <a href="#" style="color:#1976d2;font-size:12px;">Preview</a>
+                  <a href="#" style="color:#1976d2;font-size:12px;margin-left:10px;">Download</a>
+                </span>
+              </div>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Review History -->
+    <div class="section-card">
+      <div class="section-header">
+        <h3>Review History</h3>
+        <span style="font-size:12px;color:#999;">3 records</span>
+      </div>
+      <div class="section-body">
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-dot red"></div>
+            <div class="timeline-content">
+              <div class="tl-title">Case Submitted</div>
+              <div class="tl-desc">Jun 10, 2026 14:32 · ComplyAdvantage screening triggered automatically</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot gray"></div>
+            <div class="timeline-content">
+              <div class="tl-title">KYC Approved</div>
+              <div class="tl-desc">Mar 18, 2024 14:32 · Reviewed by admin@beeznis.com</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot gray"></div>
+            <div class="timeline-content">
+              <div class="tl-title">Initial Submission</div>
+              <div class="tl-desc">Mar 15, 2024 09:15</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Action Bar -->
+    <div class="action-bar">
+      <div class="action-info">
+        <span class="label">Review Actions</span>
+        <span class="value" id="actionHint">⚠️ 2 hits found — approving requires risk confirmation</span>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-reject">Reject</button>
+        <button class="btn btn-approve" onclick="openConfirmModal()">Approve</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- High-risk Approve Confirmation Modal -->
+  <div class="modal-mask" id="confirmModal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="m-icon">⚠️</span>
+        <h3>Confirm Approval — Risk Hit Detected</h3>
+      </div>
+      <div class="modal-body">
+        This customer has <b>2 ComplyAdvantage hits</b> (Sanctions 1 · PEP 1) with risk score <b>92/100</b>.
+        Approving this submission will clear the user's KYC review.
+        <div class="warn-box">
+          <div class="row"><span>⚠️ Sanctions — OFAC SDN</span><b style="color:#bf360c;">92%</b></div>
+          <div class="row"><span>👤 PEP — Former official</span><b style="color:#e65100;">78%</b></div>
+        </div>
+        <label class="checkbox-row">
+          <input type="checkbox" id="riskAckCheck">
+          I have reviewed the hits and accept the risk of approving this customer
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeConfirmModal()">Cancel</button>
+        <button class="btn btn-danger" onclick="closeConfirmModal()">Reject Instead</button>
+        <button class="btn btn-approve-solid" onclick="finalApprove()">Approve Anyway</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleDemo() {
+      const card = document.getElementById('caCard');
+      const hit = document.getElementById('caHitState');
+      const clean = document.getElementById('caCleanState');
+      const chip = document.getElementById('caStatusChip');
+      const footerText = document.getElementById('caFooterText');
+      const hint = document.getElementById('actionHint');
+      const hits = card.dataset.hits;
+      const risk = card.dataset.risk;
+
+      if (hit.style.display !== 'none') {
+        // switch to clean
+        hit.style.display = 'none';
+        clean.style.display = 'block';
+        card.classList.remove('hit');
+        card.classList.add('clean');
+        chip.textContent = '✅ No Hits';
+        chip.className = 'ca-status-chip';
+        chip.style.background = '#e8f5e9';
+        chip.style.color = '#2e7d32';
+        footerText.textContent = 'Customer passed AML screening — no hits found';
+        document.getElementById('caFooter').style.background = '#fafbfc';
+        document.getElementById('caFooter').style.color = '#666';
+        hint.textContent = 'No risk hits — approve normally';
+      } else {
+        hit.style.display = 'block';
+        clean.style.display = 'none';
+        card.classList.remove('clean');
+        card.classList.add('hit');
+        chip.textContent = '⚠️ ' + hits + ' Hit' + (hits === '1' ? '' : 's') + ' Found';
+        chip.className = 'ca-status-chip';
+        chip.style.background = '#fbe9e7';
+        chip.style.color = '#bf360c';
+        footerText.textContent = '⚠️ High risk detected — review hits before approving this submission';
+        document.getElementById('caFooter').style.background = '#fff5f5';
+        document.getElementById('caFooter').style.color = '#bf360c';
+        hint.textContent = '⚠️ ' + hits + ' hit' + (hits === '1' ? '' : 's') + ' found — approving requires risk confirmation';
+      }
+    }
+
+    function toggleDetail() {
+      const btn = document.querySelector('.ca-detail-title .expand-btn');
+      btn.textContent = btn.textContent.includes('Expand') ? 'Collapse ▴' : 'Expand all ▾';
+    }
+
+    function openConfirmModal() {
+      const card = document.getElementById('caCard');
+      // Only show modal when in hit state (risk present)
+      if (card.classList.contains('hit')) {
+        document.getElementById('confirmModal').classList.add('show');
+      } else {
+        alert('Approved (clean state — no risk confirmation needed)');
+      }
+    }
+
+    function closeConfirmModal() {
+      document.getElementById('confirmModal').classList.remove('show');
+    }
+
+    function finalApprove() {
+      const check = document.getElementById('riskAckCheck');
+      if (!check.checked) {
+        alert('Please tick the acknowledgment checkbox to approve');
+        return;
+      }
+      closeConfirmModal();
+      alert('Approved with risk acknowledgment');
+    }
+  </script>
+</body>
+</html>

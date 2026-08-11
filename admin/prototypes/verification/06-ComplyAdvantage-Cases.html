@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - ComplyAdvantage Cases</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; }
+
+    body { background: #f0f2f5; color: #333; }
+
+    /* ===== Sidebar ===== */
+    .sidebar {
+      position: fixed; left: 0; top: 0; bottom: 0; width: 220px;
+      background: #1a1a2e; color: #a0a3b8; padding-top: 20px; z-index: 10;
+    }
+    .sidebar-logo {
+      color: white; font-size: 17px; font-weight: 700; padding: 0 20px 20px;
+      border-bottom: 1px solid #2a2a44; margin-bottom: 14px;
+    }
+    .sidebar-logo b { color: #E59303; }
+    .sidebar-group-title {
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;
+      color: #6a6d85; padding: 14px 20px 6px;
+    }
+    .sidebar-item {
+      padding: 10px 20px; font-size: 13px; cursor: pointer; color: #a0a3b8;
+      transition: all 0.15s; display: flex; align-items: center; gap: 8px;
+    }
+    .sidebar-item:hover { background: #24243e; color: white; }
+    .sidebar-item.active { background: #E59303; color: #1a1a2e; font-weight: 600; }
+    .sidebar-item .badge {
+      margin-left: auto; background: #d32f2f; color: white; font-size: 10px;
+      padding: 1px 6px; border-radius: 8px; font-weight: 600;
+    }
+
+    /* ===== Main ===== */
+    .main { margin-left: 220px; padding: 0 24px 40px; }
+
+    .top-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 0; border-bottom: 1px solid #e8e8e8;
+    }
+    .breadcrumb { font-size: 13px; color: #999; }
+    .breadcrumb span { color: #333; font-weight: 500; }
+    .btn-icon {
+      border: none; background: none; font-size: 16px; cursor: pointer;
+      color: #555; padding: 6px;
+    }
+
+    .page-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      padding: 22px 0 18px;
+    }
+    .page-title { font-size: 22px; font-weight: 700; color: #1a1a2e; }
+    .page-sub { font-size: 13px; color: #888; margin-top: 6px; }
+    .header-btn {
+      background: #E59303; color: white; border: none; border-radius: 8px;
+      padding: 10px 20px; font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    .header-btn.ghost {
+      background: white; color: #333; border: 1px solid #d9d9d9; margin-right: 10px;
+    }
+    .header-btn.ghost:hover { border-color: #E59303; color: #E59303; }
+
+    /* ===== Stats Bar ===== */
+    .stats-bar {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 18px;
+    }
+    .stat-card {
+      background: white; border-radius: 12px; padding: 16px 18px;
+      border: 1px solid #eef0f3; display: flex; align-items: center; gap: 14px;
+    }
+    .stat-icon {
+      width: 42px; height: 42px; border-radius: 10px; display: flex;
+      align-items: center; justify-content: center; font-size: 20px;
+    }
+    .stat-icon.blue { background: #e8f0fe; }
+    .stat-icon.red { background: #fdecea; }
+    .stat-icon.amber { background: #fef4e6; }
+    .stat-icon.green { background: #e6f7ed; }
+    .stat-num { font-size: 22px; font-weight: 700; color: #1a1a2e; }
+    .stat-label { font-size: 12px; color: #888; margin-top: 2px; }
+
+    /* ===== Filter Bar ===== */
+    .filter-bar {
+      background: white; border-radius: 12px; padding: 14px 16px;
+      border: 1px solid #eef0f3; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .filter-bar input[type="text"] {
+      flex: 0 1 240px; padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 8px;
+      font-size: 13px; outline: none;
+    }
+    .filter-bar input[type="text"]:focus { border-color: #E59303; }
+    .filter-bar select {
+      padding: 8px 10px; border: 1px solid #d9d9d9; border-radius: 8px;
+      font-size: 13px; color: #333; background: white; outline: none;
+    }
+    .filter-bar select:focus { border-color: #E59303; }
+
+    /* ===== Table ===== */
+    .table-card {
+      background: white; border-radius: 12px; border: 1px solid #eef0f3; overflow: hidden;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead th {
+      text-align: left; padding: 13px 14px; font-size: 12px; font-weight: 600;
+      color: #8890a0; background: #fafbfc; border-bottom: 1px solid #eef0f3;
+      white-space: nowrap;
+    }
+    tbody td { padding: 13px 14px; border-bottom: 1px solid #f4f5f7; vertical-align: middle; }
+    tbody tr:hover { background: #fafbfd; }
+    tbody tr.case-row { cursor: pointer; }
+
+    .cell-main { font-weight: 600; color: #1a1a2e; }
+    .cell-sub { font-size: 11px; color: #999; margin-top: 2px; }
+    .cell-id { color: #1976d2; font-weight: 600; }
+
+    .risk-tag {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;
+    }
+    .risk-high { background: #fdecea; color: #d32f2f; }
+    .risk-med { background: #fef4e6; color: #e65100; }
+    .risk-low { background: #e8f0fe; color: #1976d2; }
+    .risk-clean { background: #e6f7ed; color: #2e7d32; }
+
+    .hit-num { font-weight: 700; font-size: 14px; }
+    .hit-num.high { color: #d32f2f; }
+    .hit-num.med { color: #e65100; }
+    .hit-num.low { color: #1976d2; }
+    .hit-num.zero { color: #2e7d32; }
+
+    .status-tag {
+      display: inline-block; padding: 3px 10px; border-radius: 12px;
+      font-size: 12px; font-weight: 500;
+    }
+    .st-pending { background: #fef4e6; color: #e65100; }
+    .st-suspended { background: #fdecea; color: #d32f2f; }
+    .st-falsepos { background: #e6f7ed; color: #2e7d32; }
+    .st-accepted { background: #e8f0fe; color: #1976d2; }
+
+    .case-actions { display: flex; gap: 6px; white-space: nowrap; }
+    .mini-btn {
+      padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 600;
+      border: 1px solid; cursor: pointer; background: white; transition: all 0.15s;
+    }
+    .mb-suspend { color: #d32f2f; border-color: #ef9a9a; }
+    .mb-suspend:hover { background: #d32f2f; color: white; }
+    .mb-fp { color: #e65100; border-color: #ffb74d; }
+    .mb-fp:hover { background: #e65100; color: white; }
+    .mb-accept { color: #1976d2; border-color: #90caf9; }
+    .mb-accept:hover { background: #1976d2; color: white; }
+    .case-actions .done { font-size: 12px; color: #999; }
+
+    /* ===== Expanded row (hit detail) ===== */
+    .hit-detail-row td { background: #fafbfd; padding: 0; }
+    .hit-detail-inner { padding: 6px 14px 16px; }
+    .hit-detail-inner .hd-title {
+      font-size: 12px; font-weight: 600; color: #1a1a2e; margin: 8px 0 8px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .hd-table { background: white; border: 1px solid #eef0f3; border-radius: 8px; overflow: hidden; }
+    .hd-table th {
+      padding: 9px 12px; font-size: 11px; color: #8890a0; background: #fafbfc;
+      text-align: left; font-weight: 600; border-bottom: 1px solid #eef0f3;
+    }
+    .hd-table td { padding: 9px 12px; font-size: 12px; border-bottom: 1px solid #f4f5f7; }
+    .hd-table tr:last-child td { border-bottom: none; }
+    .match-type {
+      display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600;
+    }
+    .match-type.sanctions { background: #fdecea; color: #d32f2f; }
+    .match-type.pep { background: #fef4e6; color: #e65100; }
+    .match-type.media { background: #e8f0fe; color: #1976d2; }
+    .match-type.regulatory { background: #f3e5f5; color: #7b1fa2; }
+    .score-cell { display: flex; align-items: center; gap: 8px; }
+    .score-bar { width: 60px; height: 6px; background: #f0f0f0; border-radius: 3px; overflow: hidden; }
+    .score-bar .fill { display: block; height: 100%; border-radius: 3px; }
+    .fill.high { background: #d32f2f; }
+    .fill.med { background: #ff9800; }
+    .fill.low { background: #4caf50; }
+
+    /* ===== Modal ===== */
+    .modal-mask {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+      z-index: 1000; align-items: center; justify-content: center;
+    }
+    .modal-mask.show { display: flex; }
+    .modal {
+      background: white; border-radius: 14px; width: 460px;
+      max-width: calc(100vw - 48px); overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    }
+    .modal-header { padding: 18px 24px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; gap: 10px; }
+    .modal-header .m-icon { font-size: 20px; }
+    .modal-header h3 { font-size: 16px; font-weight: 600; color: #1a1a2e; }
+    .modal-body { padding: 20px 24px; font-size: 13px; color: #333; line-height: 1.6; }
+    .modal-body .m-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 13px; }
+    .modal-body .m-row .k { color: #888; }
+    .modal-body .m-row .v { font-weight: 500; color: #1a1a2e; }
+    .modal-body .warn-box {
+      background: #fff5f5; border: 1px solid #ffcdd2; border-radius: 8px;
+      padding: 12px 16px; margin-top: 14px; font-size: 12px; color: #bf360c;
+    }
+    .modal-body .info-box {
+      background: #f0f7ff; border: 1px solid #b3d4fc; border-radius: 8px;
+      padding: 12px 16px; margin-top: 14px; font-size: 12px; color: #1565c0;
+    }
+    .modal-footer { padding: 16px 24px; border-top: 1px solid #f0f0f0; display: flex; justify-content: flex-end; gap: 12px; }
+
+    .btn {
+      padding: 10px 22px; border-radius: 8px; font-size: 13px; font-weight: 600;
+      cursor: pointer; border: none; transition: all 0.2s;
+    }
+    .btn-ghost { background: white; border: 1px solid #d9d9d9; color: #333; }
+    .btn-ghost:hover { border-color: #E59303; color: #E59303; }
+    .btn-danger { background: #d32f2f; color: white; }
+    .btn-danger:hover { background: #b71c1c; }
+    .btn-warn { background: #e65100; color: white; }
+    .btn-warn:hover { background: #bf360c; }
+    .btn-primary { background: #E59303; color: white; }
+    .btn-primary:hover { background: #c97e02; }
+    .btn-blue { background: #1976d2; color: white; }
+    .btn-blue:hover { background: #1565c0; }
+
+    .pagination {
+      display: flex; justify-content: flex-end; align-items: center; gap: 10px;
+      padding: 14px 16px; font-size: 13px; color: #666;
+    }
+    .pagination .pg-btn {
+      padding: 5px 12px; border: 1px solid #d9d9d9; border-radius: 6px;
+      background: white; cursor: pointer; font-size: 12px; color: #333;
+    }
+    .pagination .pg-btn:hover { border-color: #E59303; color: #E59303; }
+    .pagination .pg-btn.active { background: #E59303; border-color: #E59303; color: white; }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">Beeznis <b>Admin</b></div>
+    <div class="sidebar-group-title">Overview</div>
+    <div class="sidebar-item">📊 Dashboard</div>
+    <div class="sidebar-group-title">Customer Management</div>
+    <div class="sidebar-item">👥 Overview</div>
+    <div class="sidebar-item">✅ Verification Review</div>
+    <div class="sidebar-item">📋 Customer List</div>
+    <div class="sidebar-item active">🛡️ ComplyAdvantage Cases <span class="badge">7</span></div>
+    <div class="sidebar-group-title">Operations</div>
+    <div class="sidebar-item">💱 Fiat</div>
+    <div class="sidebar-item">🪙 Crypto</div>
+    <div class="sidebar-item">💳 Card</div>
+    <div class="sidebar-item">📢 Content</div>
+    <div class="sidebar-group-title">Control</div>
+    <div class="sidebar-item">⚠️ Risk Management</div>
+    <div class="sidebar-item">⚙️ System</div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div class="breadcrumb">Customer Management / <span>ComplyAdvantage Cases</span></div>
+      <div class="top-actions">
+        <button class="btn-icon">🔍</button>
+        <button class="btn-icon">⋮</button>
+      </div>
+    </div>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div>
+        <div class="page-title">🛡️ ComplyAdvantage Cases</div>
+        <div class="page-sub">AML screening cases generated on every KYC / KYB submission — review and process each hit</div>
+      </div>
+      <div>
+        <button class="header-btn ghost" onclick="alert('Export CSV')">⤓ Export</button>
+        <button class="header-btn" onclick="alert('Manual re-scan triggered')">↻ Re-scan All</button>
+      </div>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+      <div class="stat-card">
+        <div class="stat-icon blue">🛡️</div>
+        <div>
+          <div class="stat-num">7</div>
+          <div class="stat-label">Total Cases (today)</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red">⚠️</div>
+        <div>
+          <div class="stat-num">2</div>
+          <div class="stat-label">High Risk</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon amber">⏳</div>
+        <div>
+          <div class="stat-num">4</div>
+          <div class="stat-label">Pending Review</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">✅</div>
+        <div>
+          <div class="stat-num">3</div>
+          <div class="stat-label">Processed (12h)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <input type="text" id="searchInput" placeholder="Search Case ID / name / company…" oninput="applyFilters()">
+      <select id="typeFilter" onchange="applyFilters()">
+        <option value="all">Type: All</option>
+        <option value="kyc">KYC</option>
+        <option value="kyb">KYB</option>
+      </select>
+      <select id="riskFilter" onchange="applyFilters()">
+        <option value="all">Risk: All</option>
+        <option value="high">High</option>
+        <option value="med">Medium</option>
+        <option value="low">Low</option>
+        <option value="clean">No Hit</option>
+      </select>
+      <select id="statusFilter" onchange="applyFilters()">
+        <option value="all">Status: All</option>
+        <option value="pending">Pending</option>
+        <option value="suspended">Suspended</option>
+        <option value="falsepos">False Positive</option>
+        <option value="accepted">Risk Accepted</option>
+      </select>
+    </div>
+
+    <!-- Table -->
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>Case ID</th>
+            <th>Type</th>
+            <th>Subject</th>
+            <th>Risk Level</th>
+            <th>Hits</th>
+            <th>Scanned At</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="caseBody">
+          <tr class="case-row" data-type="kyc" data-risk="high" data-status="pending" data-search="CA-KYC-20260610-0042 john doe">
+            <td class="cell-id">CA-KYC-20260610-0042</td>
+            <td>KYC</td>
+            <td>
+              <div class="cell-main">John Michael Doe</div>
+              <div class="cell-sub">#USR-20240315-0042</div>
+            </td>
+            <td><span class="risk-tag risk-high">⬤ High</span></td>
+            <td><span class="hit-num high">2</span></td>
+            <td>Jun 10, 2026 14:32</td>
+            <td><span class="status-tag st-pending">Pending</span></td>
+            <td>
+              <div class="case-actions">
+                <button class="mini-btn mb-suspend" onclick="openAction('suspend', 'CA-KYC-20260610-0042')">Suspend</button>
+                <button class="mini-btn mb-fp" onclick="openAction('fp', 'CA-KYC-20260610-0042')">误报</button>
+                <button class="mini-btn mb-accept" onclick="openAction('accept', 'CA-KYC-20260610-0042')">风险接受</button>
+              </div>
+            </td>
+          </tr>
+          <tr class="hit-detail-row" style="display:none;">
+            <td colspan="8">
+              <div class="hit-detail-inner">
+                <div class="hd-title">🎯 Hit Details — Sanctions 1 · PEP 1</div>
+                <table class="hd-table">
+                  <thead>
+                    <tr><th>List Type</th><th>Matched Entity</th><th>Country</th><th>Match Score</th><th>Entity Category</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><span class="match-type sanctions">⚠️ Sanctions</span></td>
+                      <td><b>Doe, John Michael</b><br><span style="font-size:11px;color:#999;">List: OFAC SDN · Ref: 12345</span></td>
+                      <td>🇺🇸 United States</td>
+                      <td><span class="score-cell"><span class="score-bar"><span class="fill high"></span></span><b style="color:#d32f2f;">92%</b></span></td>
+                      <td>Individual</td>
+                    </tr>
+                    <tr>
+                      <td><span class="match-type pep">👤 PEP</span></td>
+                      <td><b>John M. Doe</b><br><span style="font-size:11px;color:#999;">Former official, Dept. of Commerce (2010–2014)</span></td>
+                      <td>🇺🇸 United States</td>
+                      <td><span class="score-cell"><span class="score-bar"><span class="fill med"></span></span><b style="color:#e65100;">78%</b></span></td>
+                      <td>Individual · PEP</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </td>
+          </tr>
+
+          <tr class="case-row" data-type="kyb" data-risk="med" data-status="pending" data-search="CA-KYB-20260610-0041 technova solutions">
+            <td class="cell-id">CA-KYB-20260610-0041</td>
+            <td>KYB</td>
+            <td>
+              <div class="cell-main">TechNova Solutions Pte. Ltd.</div>
+              <div class="cell-sub">#USR-20240315-0042 · Reg 202012345W</div>
+            </td>
+            <td><span class="risk-tag risk-med">⬤ Medium</span></td>
+            <td><span class="hit-num med">1</span></td>
+            <td>Jun 10, 2026 14:02</td>
+            <td><span class="status-tag st-pending">Pending</span></td>
+            <td>
+              <div class="case-actions">
+                <button class="mini-btn mb-suspend" onclick="openAction('suspend', 'CA-KYB-20260610-0041')">Suspend</button>
+                <button class="mini-btn mb-fp" onclick="openAction('fp', 'CA-KYB-20260610-0041')">误报</button>
+                <button class="mini-btn mb-accept" onclick="openAction('accept', 'CA-KYB-20260610-0041')">风险接受</button>
+              </div>
+            </td>
+          </tr>
+          <tr class="hit-detail-row" style="display:none;">
+            <td colspan="8">
+              <div class="hit-detail-inner">
+                <div class="hd-title">🎯 Hit Details — Sanctions 1</div>
+                <table class="hd-table">
+                  <thead>
+                    <tr><th>List Type</th><th>Matched Entity</th><th>Country</th><th>Match Score</th><th>Entity Category</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><span class="match-type sanctions">⚠️ Sanctions</span></td>
+                      <td><b>TechNova Solutions Ltd.</b><br><span style="font-size:11px;color:#999;">List: OFAC SDN · Ref: 88901</span></td>
+                      <td>🇸🇬 Singapore</td>
+                      <td><span class="score-cell"><span class="score-bar"><span class="fill med"></span></span><b style="color:#e65100;">74%</b></span></td>
+                      <td>Company</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </td>
+          </tr>
+
+          <tr class="case-row" data-type="kyc" data-risk="med" data-status="pending" data-search="CA-KYC-20260610-0040 sarah wong">
+            <td class="cell-id">CA-KYC-20260610-0040</td>
+            <td>KYC</td>
+            <td>
+              <div class="cell-main">Sarah Wong</div>
+              <div class="cell-sub">#USR-20240312-0038</div>
+            </td>
+            <td><span class="risk-tag risk-med">⬤ Medium</span></td>
+            <td><span class="hit-num med">1</span></td>
+            <td>Jun 10, 2026 11:47</td>
+            <td><span class="status-tag st-pending">Pending</span></td>
+            <td>
+              <div class="case-actions">
+                <button class="mini-btn mb-suspend" onclick="openAction('suspend', 'CA-KYC-20260610-0040')">Suspend</button>
+                <button class="mini-btn mb-fp" onclick="openAction('fp', 'CA-KYC-20260610-0040')">误报</button>
+                <button class="mini-btn mb-accept" onclick="openAction('accept', 'CA-KYC-20260610-0040')">风险接受</button>
+              </div>
+            </td>
+          </tr>
+          <tr class="hit-detail-row" style="display:none;">
+            <td colspan="8">
+              <div class="hit-detail-inner">
+                <div class="hd-title">🎯 Hit Details — Adverse Media 1</div>
+                <table class="hd-table">
+                  <thead>
+                    <tr><th>List Type</th><th>Matched Entity</th><th>Country</th><th>Match Score</th><th>Entity Category</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><span class="match-type media">📰 Adverse Media</span></td>
+                      <td><b>Sarah Wong</b><br><span style="font-size:11px;color:#999;">Financial misconduct article, 2023</span></td>
+                      <td>🇭🇰 Hong Kong</td>
+                      <td><span class="score-cell"><span class="score-bar"><span class="fill med"></span></span><b style="color:#e65100;">68%</b></span></td>
+                      <td>Individual</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </td>
+          </tr>
+
+          <tr class="case-row" data-type="kyc" data-risk="low" data-status="accepted" data-search="CA-KYC-20260610-0039 mark lee">
+            <td class="cell-id">CA-KYC-20260610-0039</td>
+            <td>KYC</td>
+            <td>
+              <div class="cell-main">Mark Lee</div>
+              <div class="cell-sub">#USR-20240310-0030</div>
+            </td>
+            <td><span class="risk-tag risk-low">⬤ Low</span></td>
+            <td><span class="hit-num low">1</span></td>
+            <td>Jun 10, 2026 10:15</td>
+            <td><span class="status-tag st-accepted">Risk Accepted</span></td>
+            <td>
+              <div class="case-actions"><span class="done">✓ Processed · admin@beeznis.com</span></div>
+            </td>
+          </tr>
+          <tr class="hit-detail-row" style="display:none;">
+            <td colspan="8">
+              <div class="hit-detail-inner">
+                <div class="hd-title">🎯 Hit Details — PEP 1</div>
+                <table class="hd-table">
+                  <thead>
+                    <tr><th>List Type</th><th>Matched Entity</th><th>Country</th><th>Match Score</th><th>Entity Category</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><span class="match-type pep">👤 PEP</span></td>
+                      <td><b>Mark Lee</b><br><span style="font-size:11px;color:#999;">Local council member, Singapore</span></td>
+                      <td>🇸🇬 Singapore</td>
+                      <td><span class="score-cell"><span class="score-bar"><span class="fill low"></span></span><b style="color:#4caf50;">52%</b></span></td>
+                      <td>Individual · PEP</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </td>
+          </tr>
+
+          <tr class="case-row" data-type="kyb" data-risk="clean" data-status="falsepos" data-search="CA-KYB-20260610-0038 acme trading">
+            <td class="cell-id">CA-KYB-20260610-0038</td>
+            <td>KYB</td>
+            <td>
+              <div class="cell-main">Acme Trading Co.</div>
+              <div class="cell-sub">#USR-20240308-0027 · Reg 201812345K</div>
+            </td>
+            <td><span class="risk-tag risk-clean">⬤ No Hit</span></td>
+            <td><span class="hit-num zero">0</span></td>
+            <td>Jun 10, 2026 09:40</td>
+            <td><span class="status-tag st-falsepos">False Positive</span></td>
+            <td>
+              <div class="case-actions"><span class="done">✓ Processed · admin@beeznis.com</span></div>
+            </td>
+          </tr>
+          <tr class="hit-detail-row" style="display:none;">
+            <td colspan="8">
+              <div class="hit-detail-inner">
+                <div class="hd-title">✅ No hits — screened against 2,500+ watchlists</div>
+              </div>
+            </td>
+          </tr>
+
+          <tr class="case-row" data-type="kyc" data-risk="high" data-status="suspended" data-search="CA-KYC-20260610-0037 liu wei">
+            <td class="cell-id">CA-KYC-20260610-0037</td>
+            <td>KYC</td>
+            <td>
+              <div class="cell-main">Liu Wei</div>
+              <div class="cell-sub">#USR-20240307-0024</div>
+            </td>
+            <td><span class="risk-tag risk-high">⬤ High</span></td>
+            <td><span class="hit-num high">3</span></td>
+            <td>Jun 10, 2026 08:55</td>
+            <td><span class="status-tag st-suspended">Suspended</span></td>
+            <td>
+              <div class="case-actions"><span class="done">✓ Suspended · admin@beeznis.com</span></div>
+            </td>
+          </tr>
+          <tr class="hit-detail-row" style="display:none;">
+            <td colspan="8">
+              <div class="hit-detail-inner">
+                <div class="hd-title">🎯 Hit Details — Sanctions 2 · Regulatory 1</div>
+                <table class="hd-table">
+                  <thead>
+                    <tr><th>List Type</th><th>Matched Entity</th><th>Country</th><th>Match Score</th><th>Entity Category</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><span class="match-type sanctions">⚠️ Sanctions</span></td>
+                      <td><b>Liu Wei</b><br><span style="font-size:11px;color:#999;">List: EU Consolidated · Ref: 44721</span></td>
+                      <td>🇨🇳 China</td>
+                      <td><span class="score-cell"><span class="score-bar"><span class="fill high"></span></span><b style="color:#d32f2f;">95%</b></span></td>
+                      <td>Individual</td>
+                    </tr>
+                    <tr>
+                      <td><span class="match-type regulatory">⚖️ Regulatory</span></td>
+                      <td><b>Wei Liu (variation)</b><br><span style="font-size:11px;color:#999;">List: UNSC · Ref: 44722</span></td>
+                      <td>🇨🇳 China</td>
+                      <td><span class="score-cell"><span class="score-bar"><span class="fill high"></span></span><b style="color:#d32f2f;">90%</b></span></td>
+                      <td>Individual</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </td>
+          </tr>
+
+          <tr class="case-row" data-type="kyb" data-risk="med" data-status="pending" data-search="CA-KYB-20260610-0036 blueocean logistics">
+            <td class="cell-id">CA-KYB-20260610-0036</td>
+            <td>KYB</td>
+            <td>
+              <div class="cell-main">BlueOcean Logistics GmbH</div>
+              <div class="cell-sub">#USR-20240306-0021 · Reg HRB 234567</div>
+            </td>
+            <td><span class="risk-tag risk-med">⬤ Medium</span></td>
+            <td><span class="hit-num med">1</span></td>
+            <td>Jun 10, 2026 08:12</td>
+            <td><span class="status-tag st-pending">Pending</span></td>
+            <td>
+              <div class="case-actions">
+                <button class="mini-btn mb-suspend" onclick="openAction('suspend', 'CA-KYB-20260610-0036')">Suspend</button>
+                <button class="mini-btn mb-fp" onclick="openAction('fp', 'CA-KYB-20260610-0036')">误报</button>
+                <button class="mini-btn mb-accept" onclick="openAction('accept', 'CA-KYB-20260610-0036')">风险接受</button>
+              </div>
+            </td>
+          </tr>
+          <tr class="hit-detail-row" style="display:none;">
+            <td colspan="8">
+              <div class="hit-detail-inner">
+                <div class="hd-title">🎯 Hit Details — Adverse Media 1</div>
+                <table class="hd-table">
+                  <thead>
+                    <tr><th>List Type</th><th>Matched Entity</th><th>Country</th><th>Match Score</th><th>Entity Category</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><span class="match-type media">📰 Adverse Media</span></td>
+                      <td><b>BlueOcean Logistics GmbH</b><br><span style="font-size:11px;color:#999;">Shipping dispute coverage, 2024</span></td>
+                      <td>🇩🇪 Germany</td>
+                      <td><span class="score-cell"><span class="score-bar"><span class="fill med"></span></span><b style="color:#e65100;">61%</b></span></td>
+                      <td>Company</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </td>
+          </tr>
+
+          <tr class="case-row" data-type="kyc" data-risk="clean" data-status="falsepos" data-search="CA-KYC-20260610-0035 emily chen">
+            <td class="cell-id">CA-KYC-20260610-0035</td>
+            <td>KYC</td>
+            <td>
+              <div class="cell-main">Emily Chen</div>
+              <div class="cell-sub">#USR-20240305-0018</div>
+            </td>
+            <td><span class="risk-tag risk-clean">⬤ No Hit</span></td>
+            <td><span class="hit-num zero">0</span></td>
+            <td>Jun 10, 2026 07:50</td>
+            <td><span class="status-tag st-falsepos">False Positive</span></td>
+            <td>
+              <div class="case-actions"><span class="done">✓ Processed · admin@beeznis.com</span></div>
+            </td>
+          </tr>
+          <tr class="hit-detail-row" style="display:none;">
+            <td colspan="8">
+              <div class="hit-detail-inner">
+                <div class="hd-title">✅ No hits — screened against 2,500+ watchlists</div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>Showing 1–7 of 7</span>
+        <button class="pg-btn">‹</button>
+        <button class="pg-btn active">1</button>
+        <button class="pg-btn">2</button>
+        <button class="pg-btn">›</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Confirmation Modal -->
+  <div class="modal-mask" id="actionModal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="m-icon" id="modalIcon">⚠️</span>
+        <h3 id="modalTitle">Suspend Case</h3>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeAction()">Cancel</button>
+        <button class="btn" id="modalConfirmBtn" onclick="confirmAction()">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let pendingAction = null;
+    let pendingCaseId = null;
+
+    // ---- Row expand toggle ----
+    document.querySelectorAll('.case-row').forEach(row => {
+      row.addEventListener('click', function () {
+        const detail = this.nextElementSibling;
+        if (detail && detail.classList.contains('hit-detail-row')) {
+          detail.style.display = detail.style.display === 'none' ? 'table-row' : 'none';
+        }
+      });
+    });
+
+    // ---- Filters ----
+    function applyFilters() {
+      const q = document.getElementById('searchInput').value.trim().toLowerCase();
+      const t = document.getElementById('typeFilter').value;
+      const r = document.getElementById('riskFilter').value;
+      const s = document.getElementById('statusFilter').value;
+
+      document.querySelectorAll('.case-row').forEach(row => {
+        const show = (!q || row.dataset.search.includes(q)) &&
+                     (t === 'all' || row.dataset.type === t) &&
+                     (r === 'all' || row.dataset.risk === r) &&
+                     (s === 'all' || row.dataset.status === s);
+        row.style.display = show ? '' : 'none';
+        const detail = row.nextElementSibling;
+        if (detail && detail.classList.contains('hit-detail-row')) {
+          detail.style.display = 'none';
+        }
+      });
+    }
+
+    // ---- Action modals ----
+    function openAction(action, caseId) {
+      pendingAction = action;
+      pendingCaseId = caseId;
+      const icon = document.getElementById('modalIcon');
+      const title = document.getElementById('modalTitle');
+      const body = document.getElementById('modalBody');
+      const btn = document.getElementById('modalConfirmBtn');
+
+      if (action === 'suspend') {
+        icon.textContent = '🚫';
+        title.textContent = 'Suspend Case ' + caseId;
+        body.innerHTML =
+          '<div class="m-row"><span class="k">Case ID</span><span class="v">' + caseId + '</span></div>' +
+          '<div class="m-row"><span class="k">Action</span><span class="v">Suspend</span></div>' +
+          '<div class="m-row"><span class="k">Effect</span><span class="v">Freeze user &amp; block further submissions</span></div>' +
+          '<div class="warn-box">Suspending will freeze the user\'s account and block the related KYC/KYB review until the case is resolved. This action can be reviewed later.</div>';
+        btn.className = 'btn btn-danger';
+        btn.textContent = 'Suspend Case';
+      } else if (action === 'fp') {
+        icon.textContent = '🏷️';
+        title.textContent = 'Mark as False Positive — ' + caseId;
+        body.innerHTML =
+          '<div class="m-row"><span class="k">Case ID</span><span class="v">' + caseId + '</span></div>' +
+          '<div class="m-row"><span class="k">Action</span><span class="v">Mark as False Positive</span></div>' +
+          '<div class="info-box">The matched entity will be marked as a false positive. The case is closed and the related KYC/KYB review can proceed normally.</div>';
+        btn.className = 'btn btn-warn';
+        btn.textContent = 'Mark False Positive';
+      } else {
+        icon.textContent = '🟢';
+        title.textContent = 'Accept Risk — ' + caseId;
+        body.innerHTML =
+          '<div class="m-row"><span class="k">Case ID</span><span class="v">' + caseId + '</span></div>' +
+          '<div class="m-row"><span class="k">Action</span><span class="v">Risk Accept</span></div>' +
+          '<div class="info-box">You acknowledge the hits and accept the associated risk. The case is closed and the related KYC/KYB review can proceed normally.</div>';
+        btn.className = 'btn btn-blue';
+        btn.textContent = 'Accept Risk';
+      }
+      document.getElementById('actionModal').classList.add('show');
+    }
+
+    function closeAction() {
+      document.getElementById('actionModal').classList.remove('show');
+      pendingAction = null;
+      pendingCaseId = null;
+    }
+
+    function confirmAction() {
+      if (!pendingCaseId) return;
+      const caseId = pendingCaseId;
+      const action = pendingAction;
+
+      // find row by case id
+      let row = null;
+      document.querySelectorAll('.case-row').forEach(r => {
+        if (r.querySelector('.cell-id').textContent === caseId) row = r;
+      });
+      if (!row) { closeAction(); return; }
+
+      const statusTd = row.querySelector('td:nth-child(7)');
+      const actionsTd = row.querySelector('td:nth-child(8)');
+      const riskTd = row.querySelector('td:nth-child(4)');
+
+      if (action === 'suspend') {
+        row.dataset.status = 'suspended';
+        statusTd.innerHTML = '<span class="status-tag st-suspended">Suspended</span>';
+        actionsTd.innerHTML = '<div class="case-actions"><span class="done">✓ Suspended · admin@beeznis.com</span></div>';
+      } else if (action === 'fp') {
+        row.dataset.status = 'falsepos';
+        statusTd.innerHTML = '<span class="status-tag st-falsepos">False Positive</span>';
+        actionsTd.innerHTML = '<div class="case-actions"><span class="done">✓ Processed · admin@beeznis.com</span></div>';
+      } else {
+        row.dataset.status = 'accepted';
+        statusTd.innerHTML = '<span class="status-tag st-accepted">Risk Accepted</span>';
+        actionsTd.innerHTML = '<div class="case-actions"><span class="done">✓ Processed · admin@beeznis.com</span></div>';
+      }
+
+      closeAction();
+      updateStats();
+    }
+
+    function updateStats() {
+      let pending = 0;
+      document.querySelectorAll('.case-row').forEach(r => {
+        if (r.dataset.status === 'pending') pending++;
+      });
+      document.querySelectorAll('.stat-card')[2].querySelector('.stat-num').textContent = pending;
+    }
+  </script>
+</body>
+</html>
