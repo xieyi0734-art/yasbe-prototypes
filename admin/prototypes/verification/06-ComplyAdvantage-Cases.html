@@ -234,6 +234,63 @@
     }
     .pagination .pg-btn:hover { border-color: #E59303; color: #E59303; }
     .pagination .pg-btn.active { background: #E59303; border-color: #E59303; color: white; }
+
+    /* ===== Risk Detail Drawer ===== */
+    .entity-link { color: #1976d2; font-weight: 600; cursor: pointer; }
+    .entity-link:hover { text-decoration: underline; }
+    .drawer-mask {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+      z-index: 1100;
+    }
+    .drawer-mask.show { display: block; }
+    .drawer {
+      position: fixed; top: 0; right: -760px; width: 720px; max-width: 92vw;
+      height: 100vh; background: white; z-index: 1101;
+      box-shadow: -8px 0 32px rgba(0,0,0,0.18);
+      transition: right 0.25s ease; display: flex; flex-direction: column;
+    }
+    .drawer.open { right: 0; }
+    .drawer-header {
+      padding: 18px 24px; border-bottom: 1px solid #f0f0f0;
+      display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
+    }
+    .drawer-close {
+      border: none; background: none; font-size: 18px; color: #999; cursor: pointer; padding: 4px;
+    }
+    .drawer-close:hover { color: #333; }
+    .drawer-body { flex: 1; overflow-y: auto; padding: 20px 24px 36px; }
+    .d-section { margin-bottom: 22px; }
+    .d-section-title {
+      font-size: 12px; font-weight: 700; color: #1a1a2e; text-transform: uppercase;
+      letter-spacing: 0.05em; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+    }
+    .d-card { background: #fafbfc; border: 1px solid #eef0f3; border-radius: 10px; padding: 12px 16px; }
+    .d-row {
+      display: flex; justify-content: space-between; gap: 20px; padding: 6px 0;
+      font-size: 13px; border-bottom: 1px dashed #eef0f3;
+    }
+    .d-row:last-child { border-bottom: none; }
+    .d-row .k { color: #8890a0; flex-shrink: 0; }
+    .d-row .v { color: #1a1a2e; font-weight: 500; text-align: right; }
+    .d-row .v a { color: #1976d2; text-decoration: none; }
+    .d-row .v a:hover { text-decoration: underline; }
+    .d-score { display: flex; align-items: center; gap: 10px; }
+    .d-score .score-bar { width: 120px; }
+    .d-tags { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+    .d-tag {
+      font-size: 11px; padding: 2px 8px; border-radius: 10px;
+      background: #f0f2f5; color: #333; font-weight: 600;
+    }
+    .d-tag.ok { background: #e6f7ed; color: #2e7d32; }
+    .d-tag.miss { background: #fdecea; color: #d32f2f; }
+    .rd-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;
+    }
+    .rd-badge.sanctions { background: #fdecea; color: #d32f2f; }
+    .rd-badge.pep { background: #fef4e6; color: #e65100; }
+    .rd-badge.media { background: #e8f0fe; color: #1976d2; }
+    .rd-badge.regulatory { background: #f3e5f5; color: #7b1fa2; }
   </style>
 </head>
 <body>
@@ -382,14 +439,14 @@
                   <tbody>
                     <tr>
                       <td><span class="match-type sanctions">⚠️ Sanctions</span></td>
-                      <td><b>Doe, John Michael</b><br><span style="font-size:11px;color:#999;">Source: OFAC SDN List</span></td>
+                      <td><span class="entity-link" onclick="openRiskDetail('CA-KYC-20260610-0042',0)">Doe, John Michael</span><br><span style="font-size:11px;color:#999;">Source: OFAC SDN List</span></td>
                       <td>🇺🇸 United States</td>
                       <td><span class="score-cell"><span class="score-bar"><span class="fill high"></span></span><b style="color:#d32f2f;">92%</b></span></td>
                       <td>Individual</td>
                     </tr>
                     <tr>
                       <td><span class="match-type pep">👤 PEP</span></td>
-                      <td><b>John M. Doe</b><br><span style="font-size:11px;color:#999;">Former official, Dept. of Commerce (2010–2014)</span></td>
+                      <td><span class="entity-link" onclick="openRiskDetail('CA-KYC-20260610-0042',1)">John M. Doe</span><br><span style="font-size:11px;color:#999;">Former official, Dept. of Commerce (2010–2014)</span></td>
                       <td>🇺🇸 United States</td>
                       <td><span class="score-cell"><span class="score-bar"><span class="fill med"></span></span><b style="color:#e65100;">78%</b></span></td>
                       <td>Individual</td>
@@ -430,7 +487,7 @@
                   <tbody>
                     <tr>
                       <td><span class="match-type sanctions">⚠️ Sanctions</span></td>
-                      <td><b>TechNova Solutions Ltd.</b><br><span style="font-size:11px;color:#999;">Source: OFAC SDN List</span></td>
+                      <td><span class="entity-link" onclick="openRiskDetail('CA-KYB-20260610-0041',0)">TechNova Solutions Ltd.</span><br><span style="font-size:11px;color:#999;">Source: OFAC SDN List</span></td>
                       <td>🇸🇬 Singapore</td>
                       <td><span class="score-cell"><span class="score-bar"><span class="fill med"></span></span><b style="color:#e65100;">74%</b></span></td>
                       <td>Company</td>
@@ -471,7 +528,7 @@
                   <tbody>
                     <tr>
                       <td><span class="match-type media">📰 Adverse Media</span></td>
-                      <td><b>Sarah Wong</b><br><span style="font-size:11px;color:#999;">Financial misconduct article, 2023</span></td>
+                      <td><span class="entity-link" onclick="openRiskDetail('CA-KYC-20260610-0040',0)">Sarah Wong</span><br><span style="font-size:11px;color:#999;">Financial misconduct article, 2023</span></td>
                       <td>🇭🇰 Hong Kong</td>
                       <td><span class="score-cell"><span class="score-bar"><span class="fill med"></span></span><b style="color:#e65100;">68%</b></span></td>
                       <td>Individual</td>
@@ -508,7 +565,7 @@
                   <tbody>
                     <tr>
                       <td><span class="match-type pep">👤 PEP</span></td>
-                      <td><b>Mark Lee</b><br><span style="font-size:11px;color:#999;">Local council member, Singapore</span></td>
+                      <td><span class="entity-link" onclick="openRiskDetail('CA-KYC-20260610-0039',0)">Mark Lee</span><br><span style="font-size:11px;color:#999;">Local council member, Singapore</span></td>
                       <td>🇸🇬 Singapore</td>
                       <td><span class="score-cell"><span class="score-bar"><span class="fill low"></span></span><b style="color:#4caf50;">52%</b></span></td>
                       <td>Individual</td>
@@ -568,14 +625,14 @@
                   <tbody>
                     <tr>
                       <td><span class="match-type sanctions">⚠️ Sanctions</span></td>
-                      <td><b>Liu Wei</b><br><span style="font-size:11px;color:#999;">Source: EU Consolidated Sanctions List</span></td>
+                      <td><span class="entity-link" onclick="openRiskDetail('CA-KYC-20260610-0037',0)">Liu Wei</span><br><span style="font-size:11px;color:#999;">Source: EU Consolidated Sanctions List</span></td>
                       <td>🇨🇳 China</td>
                       <td><span class="score-cell"><span class="score-bar"><span class="fill high"></span></span><b style="color:#d32f2f;">95%</b></span></td>
                       <td>Individual</td>
                     </tr>
                     <tr>
                       <td><span class="match-type regulatory">⚖️ Regulatory</span></td>
-                      <td><b>Wei Liu (variation)</b><br><span style="font-size:11px;color:#999;">Source: UN Security Council Sanctions List</span></td>
+                      <td><span class="entity-link" onclick="openRiskDetail('CA-KYC-20260610-0037',1)">Wei Liu (variation)</span><br><span style="font-size:11px;color:#999;">Source: UN Security Council Sanctions List</span></td>
                       <td>🇨🇳 China</td>
                       <td><span class="score-cell"><span class="score-bar"><span class="fill high"></span></span><b style="color:#d32f2f;">90%</b></span></td>
                       <td>Individual</td>
@@ -616,7 +673,7 @@
                   <tbody>
                     <tr>
                       <td><span class="match-type media">📰 Adverse Media</span></td>
-                      <td><b>BlueOcean Logistics GmbH</b><br><span style="font-size:11px;color:#999;">Shipping dispute coverage, 2024</span></td>
+                      <td><span class="entity-link" onclick="openRiskDetail('CA-KYB-20260610-0036',0)">BlueOcean Logistics GmbH</span><br><span style="font-size:11px;color:#999;">Shipping dispute coverage, 2024</span></td>
                       <td>🇩🇪 Germany</td>
                       <td><span class="score-cell"><span class="score-bar"><span class="fill med"></span></span><b style="color:#e65100;">61%</b></span></td>
                       <td>Company</td>
@@ -674,6 +731,23 @@
         <button class="btn" id="modalConfirmBtn" onclick="confirmAction()">Confirm</button>
       </div>
     </div>
+  </div>
+
+  <!-- Risk Detail Drawer -->
+  <div class="drawer-mask" id="riskDrawerMask" onclick="closeRiskDetail()"></div>
+  <div class="drawer" id="riskDrawer">
+    <div class="drawer-header">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <span class="rd-badge sanctions" id="rdBadge">⚠️ Sanctions</span>
+          <span class="d-score"><span class="score-bar"><span class="fill high" id="rdFill" style="width:92%"></span></span><b id="rdScore" style="font-size:14px;color:#d32f2f;">92%</b></span>
+        </div>
+        <div style="font-size:19px;font-weight:700;color:#1a1a2e;" id="rdName">Doe, John Michael</div>
+        <div style="font-size:12px;color:#8890a0;margin-top:4px;" id="rdSource">Source: OFAC SDN List</div>
+      </div>
+      <button class="drawer-close" onclick="closeRiskDetail()">✕</button>
+    </div>
+    <div class="drawer-body" id="rdBody"></div>
   </div>
 
   <script>
@@ -797,6 +871,329 @@
         if (r.dataset.status === 'pending') pending++;
       });
       document.querySelectorAll('.stat-card')[2].querySelector('.stat-num').textContent = pending;
+    }
+
+    // ---- Risk Detail Drawer ----
+    // Data grounded in GET /v2/entity-screening/risks/{risk_identifier}
+    // (match_details.matching_reasons.influencing_factors, risk_indicators.*, profile.*)
+    const RISK_DETAILS = {
+      'CA-KYC-20260610-0042': [
+        {
+          badge: 'sanctions', badgeText: '⚠️ Sanctions', score: 92,
+          name: 'Doe, John Michael', source: 'OFAC SDN List · United States',
+          matchRows: [
+            ['Original Name', 'DOE, JOHN MICHAEL'],
+            ['Cleaned Name', 'John Michael Doe'],
+            ['Exact Words', 'John, Michael'],
+            ['Inexact Words', '—'],
+            ['Equivalent Words', 'J. Michael Doe'],
+            ['Name Rarity', 'Common'],
+            ['Years of Birth', '1980 ✓ matched'],
+            ['Country Codes', 'US ✓ matched'],
+            ['Unmatched Words', '—']
+          ],
+          indTitle: 'Sanction Details', indBadge: 'sanctions',
+          indRows: [
+            ['Source Name', 'OFAC SDN List'],
+            ['Programs', 'RUSSIA-EO14024, UKRAINE-EO13662'],
+            ['Reasons', 'Executive Order 14024 — acting for or on behalf of a sanctioned person'],
+            ['Listing Id', '16479'],
+            ['Listed Start', '2022-03-15'],
+            ['Listed End', '—'],
+            ['Issuing Jurisdictions', 'United States'],
+            ['Official URL', '<a href="#" onclick="return false">ofac.treasury.gov › 16479</a>']
+          ],
+          profTitle: 'Entity Profile — Person', profBadge: 'person',
+          profRows: [
+            ['Name (Primary)', 'Doe, John Michael'],
+            ['Name (Alias)', 'J. Michael Doe'],
+            ['Date of Birth', '1980-05-14'],
+            ['Gender', 'Male'],
+            ['Nationalities', 'United States'],
+            ['Locations', 'New York, United States (PLACE_OF_BIRTH)'],
+            ['Positions', 'Director, Doe Holdings Ltd.'],
+            ['Relationships', 'CEO of Doe Holdings Ltd. (2015–present)']
+          ]
+        },
+        {
+          badge: 'pep', badgeText: '👤 PEP', score: 78,
+          name: 'John M. Doe', source: 'World Bank PEP Database · United States',
+          matchRows: [
+            ['Original Name', 'JOHN M. DOE'],
+            ['Cleaned Name', 'John M. Doe'],
+            ['Exact Words', 'John, Doe'],
+            ['Inexact Words', '—'],
+            ['Equivalent Words', 'John Michael Doe'],
+            ['Name Rarity', 'Common'],
+            ['Years of Birth', '—'],
+            ['Country Codes', 'US ✓ matched'],
+            ['Unmatched Words', 'Michael']
+          ],
+          indTitle: 'PEP Details', indBadge: 'pep',
+          indRows: [
+            ['Class', 'PEP_CLASS_2'],
+            ['Level', 'NATIONAL'],
+            ['Political Position Type', 'SENIOR_GOVERNMENT_OFFICIAL'],
+            ['Institution Type', 'GOVERNMENT_DEPARTMENT'],
+            ['Political Positions', 'Former Assistant Secretary, Dept. of Commerce (2010–2014)'],
+            ['Scope of Influence', 'United States (national)'],
+            ['Source', 'World Bank PEP Database']
+          ],
+          profTitle: 'Entity Profile — Person', profBadge: 'person',
+          profRows: [
+            ['Name (Primary)', 'Doe, John Michael'],
+            ['Date of Birth', '1980-05-14'],
+            ['Nationalities', 'United States'],
+            ['Locations', 'Washington, D.C., United States'],
+            ['Positions', 'Former Assistant Secretary, Dept. of Commerce']
+          ]
+        }
+      ],
+      'CA-KYB-20260610-0041': [
+        {
+          badge: 'sanctions', badgeText: '⚠️ Sanctions', score: 74,
+          name: 'TechNova Solutions Ltd.', source: 'OFAC SDN List · United Kingdom',
+          matchRows: [
+            ['Original Name', 'TECHNOVA SOLUTIONS LTD'],
+            ['Cleaned Name', 'TechNova Solutions Ltd.'],
+            ['Exact Words', 'TechNova, Solutions'],
+            ['Inexact Words', 'Ltd (vs Limited)'],
+            ['Equivalent Words', 'Technova Solutions Limited'],
+            ['Name Rarity', 'Uncommon'],
+            ['Years of Birth', '—'],
+            ['Country Codes', 'GB ✓ matched'],
+            ['Unmatched Words', '—']
+          ],
+          indTitle: 'Sanction Details', indBadge: 'sanctions',
+          indRows: [
+            ['Source Name', 'OFAC SDN List'],
+            ['Programs', 'SYRIA-EO13582'],
+            ['Reasons', 'Entity designated for acting for or on behalf of a listed person'],
+            ['Listing Id', '98213'],
+            ['Listed Start', '2019-07-30'],
+            ['Listed End', '—'],
+            ['Issuing Jurisdictions', 'United States'],
+            ['Official URL', '<a href="#" onclick="return false">ofac.treasury.gov › 98213</a>']
+          ],
+          profTitle: 'Entity Profile — Company', profBadge: 'company',
+          profRows: [
+            ['Legal Name', 'TechNova Solutions Ltd.'],
+            ['Trading Name', 'TechNova Solutions'],
+            ['Registration Numbers', '08051234 (UK Companies House)'],
+            ['Legal Form', 'Private Limited Company'],
+            ['Locations', 'London, United Kingdom (REGISTRATION_ADDRESS)'],
+            ['Operational Address', 'Manchester, United Kingdom']
+          ]
+        }
+      ],
+      'CA-KYC-20260610-0040': [
+        {
+          badge: 'media', badgeText: '📰 Adverse Media', score: 68,
+          name: 'Sarah Wong', source: 'Financial Crime News · Hong Kong',
+          matchRows: [
+            ['Original Name', 'SARAH WONG'],
+            ['Cleaned Name', 'Sarah Wong'],
+            ['Exact Words', 'Sarah, Wong'],
+            ['Inexact Words', '—'],
+            ['Equivalent Words', 'Wong Siu-ling (王曉玲)'],
+            ['Name Rarity', 'Uncommon'],
+            ['Years of Birth', '—'],
+            ['Country Codes', 'HK ✓ matched'],
+            ['Unmatched Words', '—']
+          ],
+          indTitle: 'Adverse Media Details', indBadge: 'media',
+          indRows: [
+            ['Title', 'Former finance director faces misconduct probe over HK$4.2m losses'],
+            ['Published At', '2023-11-08'],
+            ['URL', '<a href="#" onclick="return false">financialcrimenews.com › s-wong-probe</a>'],
+            ['Snippet', '"Wong, 41, allegedly signed off vendor invoices without board approval between 2019 and 2021."']
+          ],
+          profTitle: 'Entity Profile — Person', profBadge: 'person',
+          profRows: [
+            ['Name (Primary)', 'Wong, Sarah'],
+            ['Date of Birth', '1982-09-03'],
+            ['Nationalities', 'Hong Kong'],
+            ['Locations', 'Hong Kong (PLACE_OF_BIRTH)'],
+            ['Positions', 'Former Finance Director, Oceanwide Ltd.']
+          ]
+        }
+      ],
+      'CA-KYC-20260610-0039': [
+        {
+          badge: 'pep', badgeText: '👤 PEP', score: 52,
+          name: 'Mark Lee', source: 'Singapore Government Gazette · Singapore',
+          matchRows: [
+            ['Original Name', 'MARK LEE'],
+            ['Cleaned Name', 'Mark Lee'],
+            ['Exact Words', 'Mark, Lee'],
+            ['Inexact Words', '—'],
+            ['Equivalent Words', 'Lee Wei Ming (李伟铭)'],
+            ['Name Rarity', 'Common'],
+            ['Years of Birth', '—'],
+            ['Country Codes', 'SG ✓ matched'],
+            ['Unmatched Words', '—']
+          ],
+          indTitle: 'PEP Details', indBadge: 'pep',
+          indRows: [
+            ['Class', 'PEP_CLASS_3'],
+            ['Level', 'LOCAL'],
+            ['Political Position Type', 'LOCAL_GOVERNMENT_OFFICIAL'],
+            ['Institution Type', 'LOCAL_COUNCIL'],
+            ['Political Positions', 'Member, Bishan–Toa Payoh Town Council (2016–present)'],
+            ['Scope of Influence', 'Local (district)'],
+            ['Source', 'Singapore Government Gazette']
+          ],
+          profTitle: 'Entity Profile — Person', profBadge: 'person',
+          profRows: [
+            ['Name (Primary)', 'Lee, Mark'],
+            ['Date of Birth', '1975-01-22'],
+            ['Nationalities', 'Singapore'],
+            ['Locations', 'Singapore (PLACE_OF_BIRTH)'],
+            ['Positions', 'Town Council Member']
+          ]
+        }
+      ],
+      'CA-KYC-20260610-0037': [
+        {
+          badge: 'sanctions', badgeText: '⚠️ Sanctions', score: 95,
+          name: 'Liu Wei', source: 'EU Consolidated List · China',
+          matchRows: [
+            ['Original Name', 'LIU WEI'],
+            ['Cleaned Name', 'Liu Wei'],
+            ['Exact Words', 'Liu, Wei'],
+            ['Inexact Words', '—'],
+            ['Equivalent Words', 'Liu Wei (刘伟)'],
+            ['Name Rarity', 'Common'],
+            ['Years of Birth', '1974 ✓ matched'],
+            ['Country Codes', 'CN ✓ matched'],
+            ['Unmatched Words', '—']
+          ],
+          indTitle: 'Sanction Details', indBadge: 'sanctions',
+          indRows: [
+            ['Source Name', 'EU Consolidated Financial Sanctions List'],
+            ['Programs', 'EU-RUSSIA-REGIME-3'],
+            ['Reasons', 'Responsible for actions undermining territorial integrity of Ukraine'],
+            ['Listing Id', 'EU.13452'],
+            ['Listed Start', '2022-04-08'],
+            ['Listed End', '—'],
+            ['Issuing Jurisdictions', 'European Union'],
+            ['Official URL', '<a href="#" onclick="return false">data.europa.eu › EU.13452</a>']
+          ],
+          profTitle: 'Entity Profile — Person', profBadge: 'person',
+          profRows: [
+            ['Name (Primary)', 'Liu, Wei'],
+            ['Date of Birth', '1974-11-02'],
+            ['Nationalities', 'China'],
+            ['Locations', 'Beijing, China (PLACE_OF_BIRTH)'],
+            ['Positions', 'Board Member, Xinjiang Industrial Group']
+          ]
+        },
+        {
+          badge: 'regulatory', badgeText: '⚖️ Regulatory', score: 90,
+          name: 'Wei Liu', source: 'UN Security Council List · China',
+          matchRows: [
+            ['Original Name', 'WEI LIU'],
+            ['Cleaned Name', 'Wei Liu'],
+            ['Exact Words', 'Wei, Liu'],
+            ['Inexact Words', '—'],
+            ['Equivalent Words', 'Liu Wei (刘伟)'],
+            ['Name Rarity', 'Common'],
+            ['Years of Birth', '1974 ✓ matched'],
+            ['Country Codes', 'CN ✓ matched'],
+            ['Unmatched Words', '—']
+          ],
+          indTitle: 'Regulatory / Watchlist Details', indBadge: 'regulatory',
+          indRows: [
+            ['Source Name', 'UN Security Council Consolidated List'],
+            ['Enforcement Agencies', 'UN Security Council Sanctions Committee'],
+            ['Enforcement Types', 'Asset freeze, Travel ban'],
+            ['Offenses', 'Designated under UNSC Resolution 1718 (2006)'],
+            ['Activation Date', '2018-06-12'],
+            ['Termination Date', '—'],
+            ['Official URL', '<a href="#" onclick="return false">scsanctions.un.org › 14179</a>']
+          ],
+          profTitle: 'Entity Profile — Person', profBadge: 'person',
+          profRows: [
+            ['Name (Primary)', 'Liu, Wei'],
+            ['Date of Birth', '1974-11-02'],
+            ['Nationalities', 'China'],
+            ['Locations', 'Beijing, China (PLACE_OF_BIRTH)'],
+            ['Positions', 'Chairman, Dandong Logistics Co.']
+          ]
+        }
+      ],
+      'CA-KYB-20260610-0036': [
+        {
+          badge: 'media', badgeText: '📰 Adverse Media', score: 61,
+          name: 'BlueOcean Logistics GmbH', source: 'Trade Compliance Monitor · Germany',
+          matchRows: [
+            ['Original Name', 'BLUEOcean LOGISTICS GMBH'],
+            ['Cleaned Name', 'BlueOcean Logistics GmbH'],
+            ['Exact Words', 'BlueOcean, Logistics'],
+            ['Inexact Words', 'GmbH (vs GmbH & Co. KG)'],
+            ['Equivalent Words', 'Blue Ocean Logistics'],
+            ['Name Rarity', 'Uncommon'],
+            ['Years of Birth', '—'],
+            ['Country Codes', 'DE ✓ matched'],
+            ['Unmatched Words', '—']
+          ],
+          indTitle: 'Adverse Media Details', indBadge: 'media',
+          indRows: [
+            ['Title', 'Hamburg freight forwarder named in dual-use export dispute'],
+            ['Published At', '2024-02-19'],
+            ['URL', '<a href="#" onclick="return false">tradecompliancemonitor.com › blueocean-dispute</a>'],
+            ['Snippet', '"BlueOcean Logistics GmbH was identified in a 2023 customs investigation over re-exported components."']
+          ],
+          profTitle: 'Entity Profile — Company', profBadge: 'company',
+          profRows: [
+            ['Legal Name', 'BlueOcean Logistics GmbH'],
+            ['Trading Name', 'BlueOcean Logistics'],
+            ['Registration Numbers', 'HRB 142367 (Amtsgericht Hamburg)'],
+            ['Legal Form', 'Gesellschaft mit beschränkter Haftung'],
+            ['Locations', 'Hamburg, Germany (REGISTRATION_ADDRESS)'],
+            ['Operational Address', 'Bremerhaven, Germany']
+          ]
+        }
+      ]
+    };
+
+    function openRiskDetail(caseId, hitIdx) {
+      const data = (RISK_DETAILS[caseId] || [])[hitIdx];
+      if (!data) return;
+      document.getElementById('rdBadge').className = 'rd-badge ' + data.badge;
+      document.getElementById('rdBadge').textContent = data.badgeText;
+      document.getElementById('rdFill').className = 'fill ' + (data.score >= 70 ? 'high' : data.score >= 40 ? 'med' : 'low');
+      document.getElementById('rdFill').style.width = data.score + '%';
+      document.getElementById('rdScore').textContent = data.score + '%';
+      document.getElementById('rdScore').style.color = data.score >= 70 ? '#d32f2f' : data.score >= 40 ? '#ff9800' : '#4caf50';
+      document.getElementById('rdName').textContent = data.name;
+      document.getElementById('rdSource').textContent = 'Source: ' + data.source;
+
+      const rows = arr => arr.map(r =>
+        '<div class="d-row"><span class="k">' + r[0] + '</span><span class="v">' + r[1] + '</span></div>'
+      ).join('');
+
+      document.getElementById('rdBody').innerHTML =
+        '<div class="d-section">' +
+          '<div class="d-section-title">🔍 Match Summary</div>' +
+          '<div class="d-card">' + rows(data.matchRows) + '</div>' +
+        '</div>' +
+        '<div class="d-section">' +
+          '<div class="d-section-title">🛡️ ' + data.indTitle + '</div>' +
+          '<div class="d-card">' + rows(data.indRows) + '</div>' +
+        '</div>' +
+        '<div class="d-section">' +
+          '<div class="d-section-title">📇 ' + data.profTitle + '</div>' +
+          '<div class="d-card">' + rows(data.profRows) + '</div>' +
+        '</div>';
+
+      document.getElementById('riskDrawerMask').classList.add('show');
+      document.getElementById('riskDrawer').classList.add('open');
+    }
+
+    function closeRiskDetail() {
+      document.getElementById('riskDrawerMask').classList.remove('show');
+      document.getElementById('riskDrawer').classList.remove('open');
     }
   </script>
 </body>
