@@ -819,25 +819,25 @@
           <div class="ca-hit-score">Risk score: 92 / 100 · High</div>
         </div>
 
-        <div class="ca-detail">
+        <div class="ca-detail" id="caDetailBody">
           <div class="ca-detail-title">
             🎯 Hit Details
-            <button class="expand-btn" onclick="toggleDetail()">Expand all ▾</button>
+            <button class="expand-btn" onclick="toggleDetail()">Collapse ▴</button>
           </div>
           <table class="ca-table">
             <thead>
               <tr>
-                <th>List Type</th>
+                <th>Risk Type</th>
                 <th>Matched Entity</th>
                 <th>Country</th>
                 <th>Match Score</th>
-                <th>Entity Category</th>
+                <th>Entity Type</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td><span class="match-type sanctions">⚠️ Sanctions</span></td>
-                <td><b>Doe, John Michael</b><br><span style="font-size:11px;color:#999;">List: OFAC SDN · Ref: 12345</span></td>
+                <td><b>Doe, John Michael</b><br><span style="font-size:11px;color:#999;">Source: OFAC SDN List</span></td>
                 <td>🇺🇸 United States</td>
                 <td>
                   <span class="score-bar"><span class="fill high"></span></span>
@@ -853,7 +853,7 @@
                   <span class="score-bar"><span class="fill med"></span></span>
                   <span class="match-score med">78%</span>
                 </td>
-                <td>Individual · PEP</td>
+                <td>Individual</td>
               </tr>
             </tbody>
           </table>
@@ -1266,8 +1266,16 @@
     }
 
     function toggleDetail() {
+      const body = document.getElementById('caDetailBody');
       const btn = document.querySelector('.ca-detail-title .expand-btn');
-      btn.textContent = btn.textContent.includes('Expand') ? 'Collapse ▴' : 'Expand all ▾';
+      const table = body.querySelector('table');
+      if (table.style.display === 'none') {
+        table.style.display = '';
+        btn.textContent = 'Collapse ▴';
+      } else {
+        table.style.display = 'none';
+        btn.textContent = 'Expand all ▾';
+      }
     }
 
     function openConfirmModal() {
