@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>YASBe · 站内通知原型</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#111418; --surface:#191B1F; --surface-2:#1A1D22; --surface-3:#232831;
+    --border:rgba(255,255,255,.10); --border-2:rgba(255,255,255,.14);
+    --text:#F5F7FA; --muted:#8C93A1; --muted-2:#6B7280;
+    --gold:#F3C548; --gold-2:#FFCA00; --danger:#EF4444; --success:#22C55E; --info:#60A5FA;
+    --purple:#8B5CF6; --cyan:#22D3EE; --radius:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+    background:var(--bg); color:var(--text); font-size:14px; line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--gold); color:#111}
+  /* ---------- 应用外壳 ---------- */
+  .app{display:flex; flex-direction:column; height:100vh}
+  .topbar{
+    height:60px; display:flex; align-items:center; justify-content:space-between;
+    padding:0 20px; border-bottom:1px solid var(--border); background:var(--surface);
+  }
+  .brand{display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.06em}
+  .brand .logo{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--gold),#E59303);display:flex;align-items:center;justify-content:center;font-weight:900;color:#1a1204}
+  .brand small{font-size:10px; font-weight:400; color:var(--muted); letter-spacing:.14em; font-style:italic}
+  .top-actions{display:flex; align-items:center; gap:14px}
+  .avatar{width:32px;height:32px;border-radius:50%;background:var(--surface-3);border:1px solid var(--border-2);display:flex;align-items:center;justify-content:center;color:var(--gold);font-weight:700;font-size:13px}
+  /* 铃铛 */
+  .bell-wrap{position:relative; cursor:pointer; padding:6px; border-radius:10px; transition:background .15s}
+  .bell-wrap:hover{background:var(--surface-3)}
+  .bell-wrap svg{display:block;color:var(--text)}
+  .badge{
+    position:absolute; top:0; right:0; min-width:18px; height:18px; padding:0 4px;
+    background:var(--danger); color:#fff; border-radius:9px; font-size:11px; font-weight:700;
+    display:flex; align-items:center; justify-content:center; border:2px solid var(--surface);
+    transition:transform .15s ease; transform-origin:center;
+  }
+  .badge.hide{transform:scale(0)}
+  .body{flex:1; display:flex; overflow:hidden}
+  /* 侧栏（示意） */
+  .sidebar{
+    width:220px; padding:16px 12px; border-right:1px solid var(--border); display:flex;
+    flex-direction:column; gap:4px; background:var(--surface);
+  }
+  .nav-item{display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px; color:var(--muted); cursor:pointer; transition:.15s}
+  .nav-item:hover{color:var(--text); background:var(--surface-3)}
+  .nav-item.active{color:var(--gold); background:rgba(243,197,72,.08)}
+  .nav-item svg{flex-shrink:0}
+  .main{flex:1; padding:28px; overflow-y:auto}
+  .ph-card{max-width:720px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:24px; margin-bottom:16px}
+  .ph-card h3{font-size:15px; margin-bottom:6px}
+  .ph-card p{color:var(--muted); font-size:13px}
+  .big-num{font-size:34px; font-weight:800; letter-spacing:-.02em}
+  .big-num .unit{font-size:18px; font-weight:600; color:var(--muted)}
+  .gold{color:var(--gold)}
+  /* 业务类型色块 */
+  .legend{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px}
+  .chip{font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:8px; letter-spacing:.02em; white-space:nowrap; line-height:1.4}
+  .chip-compliance{background:rgba(243,197,72,.14); color:var(--gold); border:1px solid rgba(243,197,72,.35)}
+  .chip-fiat{background:rgba(34,197,94,.14); color:var(--success); border:1px solid rgba(34,197,94,.35)}
+  .chip-crypto{background:rgba(139,92,246,.16); color:#C4B5FD; border:1px solid rgba(139,92,246,.4)}
+  .chip-card{background:rgba(96,165,250,.14); color:var(--info); border:1px solid rgba(96,165,250,.35)}
+  .chip-security{background:rgba(239,68,68,.14); color:#FCA5A5; border:1px solid rgba(239,68,68,.4)}
+  .chip-convert{background:rgba(34,211,238,.12); color:#67E8F9; border:1px solid rgba(34,211,238,.35)}
+  .chip-plain{background:var(--surface-3); color:var(--muted); border:1px solid var(--border-2)}
+  /* ---------- 抽屉 ---------- */
+  .overlay{position:fixed; inset:0; background:rgba(0,0,0,.5); opacity:0; pointer-events:none; transition:opacity .25s; z-index:40}
+  .overlay.show{opacity:1; pointer-events:auto}
+  .drawer{
+    position:fixed; top:0; right:0; height:100%; width:440px; max-width:100vw;
+    background:var(--surface); border-left:1px solid var(--border-2);
+    transform:translateX(105%); transition:transform .28s cubic-bezier(.32,.72,.32,1); z-index:50;
+    display:flex; flex-direction:column;
+  }
+  .drawer.open{transform:translateX(0)}
+  .drawer-head{padding:18px 20px 12px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between}
+  .drawer-head h2{font-size:17px; font-weight:700}
+  .drawer-actions{display:flex; gap:8px; align-items:center}
+  .btn{
+    border:1px solid var(--border-2); background:var(--surface-2); color:var(--text); border-radius:8px;
+    padding:6px 12px; font-size:12.5px; font-weight:600; cursor:pointer; transition:.15s;
+  }
+  .btn:hover{background:var(--surface-3)}
+  .btn.gold{background:var(--gold); color:#1a1204; border-color:transparent}
+  .btn.gold:hover{background:var(--gold-2)}
+  .btn.icon{display:flex; align-items:center; gap:6px}
+  /* 筛选 tab */
+  .tabs{display:flex; gap:6px; padding:12px 20px 4px; overflow-x:auto; scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{
+    padding:6px 14px; border-radius:20px; font-size:12.5px; font-weight:600; color:var(--muted);
+    cursor:pointer; border:1px solid transparent; white-space:nowrap; transition:.15s;
+  }
+  .tab:hover{color:var(--text)}
+  .tab.active{background:var(--surface-3); color:var(--gold); border-color:var(--border-2)}
+  /* 说明行 */
+  .hint{padding:8px 22px 2px; font-size:11.5px; color:var(--muted-2); line-height:1.6}
+  .hint b{color:var(--muted)}
+  /* 通知列表 */
+  .nlist{flex:1; overflow-y:auto; padding:6px 12px 20px}
+  .n-group{font-size:11.5px; color:var(--muted-2); padding:10px 8px 6px; letter-spacing:.04em}
+  .n-item{
+    display:flex; gap:12px; padding:13px 12px; border-radius:12px; cursor:pointer; transition:.15s;
+    border:1px solid transparent;
+  }
+  .n-item:hover{background:var(--surface-2)}
+  .n-item.unread{background:var(--surface-2)}
+  .n-item.unread:hover{background:var(--surface-3)}
+  .n-icon{width:38px;height:38px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  .t-icon{color:#111; font-size:16px}
+  .dom-compliance .n-icon{background:rgba(243,197,72,.14)} .dom-compliance .t-icon{color:var(--gold)}
+  .dom-fiat .n-icon{background:rgba(34,197,94,.14)} .dom-fiat .t-icon{color:var(--success)}
+  .dom-crypto .n-icon{background:rgba(139,92,246,.16)} .dom-crypto .t-icon{color:#C4B5FD}
+  .dom-card .n-icon{background:rgba(96,165,250,.14)} .dom-card .t-icon{color:var(--info)}
+  .dom-security .n-icon{background:rgba(239,68,68,.14)} .dom-security .t-icon{color:#FCA5A5}
+  .dom-convert .n-icon{background:rgba(34,211,238,.12)} .dom-convert .t-icon{color:#67E8F9}
+  .n-body{flex:1; min-width:0}
+  .n-title{font-weight:600; font-size:13.5px; display:flex; align-items:center; gap:8px}
+  .n-title .dot{width:8px;height:8px;border-radius:50%;background:var(--info);flex-shrink:0;box-shadow:0 0 0 3px rgba(96,165,250,.18)}
+  .n-content{color:var(--muted); font-size:12.5px; margin-top:2px}
+  .n-content b{color:var(--text); font-weight:600}
+  .n-content .gold{color:var(--gold); font-weight:700}
+  .n-meta{margin-top:6px; font-size:11.5px; color:var(--muted-2)}
+  .n-meta .ch{color:var(--muted); font-weight:600}
+  .n-meta .ch.forced{color:var(--danger)}
+  .n-right{display:flex; flex-direction:column; align-items:flex-end; gap:6px; flex-shrink:0; margin-left:4px}
+  .jump{display:flex; align-items:center; gap:3px; font-size:11px; font-weight:600; color:var(--muted-2); transition:.15s}
+  .n-item:hover .jump{color:var(--gold)}
+  .n-item.read{opacity:.55}
+  .n-item.read:hover{opacity:.85}
+  .n-item.read .dot{display:none}
+  /* 空态 */
+  .empty{flex:1; display:none; flex-direction:column; align-items:center; justify-content:center; text-align:center; color:var(--muted); padding:40px 20px}
+  .empty.show{display:flex}
+  .empty svg{opacity:.5; margin-bottom:14px}
+  .empty .et{font-weight:600; color:var(--text); font-size:14px; margin-bottom:4px}
+  .empty .es{font-size:12.5px}
+  /* 状态时间线（详情演示） */
+  .timeline{padding:8px 2px 2px}
+  .tl-item{display:flex; gap:12px}
+  .tl-dot{width:10px;height:10px;border-radius:50%;background:var(--surface-3);border:2px solid var(--border-2);flex-shrink:0;margin-top:4px}
+  .tl-item.done .tl-dot{background:var(--success);border-color:var(--success)}
+  .tl-item.now .tl-dot{background:var(--gold);border-color:var(--gold)}
+  .tl-line{width:2px;flex-shrink:0;margin:0 14px;background:var(--border-2)}
+  .tl-body{padding-bottom:16px}
+  .tl-title{font-weight:600; font-size:13px}
+  .tl-sub{color:var(--muted); font-size:12px; margin-top:2px}
+  /* ---------- 模拟跳转页面 ---------- */
+  .page-head{display:flex; align-items:center; gap:10px; margin-bottom:16px}
+  .page-head .p-ico{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center}
+  .page-head h2{font-size:18px; font-weight:700}
+  .page-head small{display:block; color:var(--muted); font-size:12px; font-weight:400; margin-top:2px}
+  .banner{
+    display:flex; align-items:center; gap:8px; max-width:720px; background:rgba(243,197,72,.08);
+    border:1px solid rgba(243,197,72,.35); border-left:4px solid var(--gold); color:var(--gold);
+    border-radius:12px; padding:12px 16px; font-size:12.5px; font-weight:600; margin-bottom:16px;
+  }
+  .row{display:flex; justify-content:space-between; align-items:center; padding:11px 2px; border-bottom:1px solid var(--border); font-size:13px}
+  .row:last-child{border-bottom:none}
+  .row .k{color:var(--muted)}
+  .row .v{font-weight:600}
+  .row .v.gold{color:var(--gold)}
+  /* ---------- Toast ---------- */
+  .toast-zone{position:fixed; top:72px; right:20px; z-index:80; display:flex; flex-direction:column; gap:10px; width:340px; max-width:calc(100vw - 32px)}
+  .toast{
+    background:var(--surface); border:1px solid var(--border-2); border-left:4px solid var(--gold);
+    border-radius:12px; padding:13px 14px; display:flex; gap:12px; align-items:flex-start;
+    box-shadow:0 18px 40px rgba(0,0,0,.5); cursor:pointer;
+    transform:translateX(120%); opacity:0; transition:transform .3s cubic-bezier(.32,.72,.32,1), opacity .3s;
+  }
+  .toast.show{transform:translateX(0); opacity:1}
+  .toast.t-success{border-left-color:var(--success)}
+  .toast.t-danger{border-left-color:var(--danger)}
+  .toast.t-security{border-left-color:var(--danger)}
+  .toast .t-title{font-weight:600; font-size:13px}
+  .toast .t-content{color:var(--muted); font-size:12.5px; margin-top:2px}
+  .toast .t-jump{margin-top:6px; font-size:11px; color:var(--gold); font-weight:600}
+  .toast .t-close{margin-left:auto; color:var(--muted-2); cursor:pointer; font-size:16px; line-height:1; padding:2px}
+  .toast .t-close:hover{color:var(--text)}
+  /* ---------- 设置面板 ---------- */
+  .sheet-overlay{position:fixed; inset:0; background:rgba(0,0,0,.5); opacity:0; pointer-events:none; transition:opacity .25s; z-index:60}
+  .sheet-overlay.show{opacity:1; pointer-events:auto}
+  .sheet{
+    position:fixed; top:0; right:0; height:100%; width:440px; max-width:100vw; background:var(--surface);
+    border-left:1px solid var(--border-2); transform:translateX(105%); transition:transform .28s; z-index:70;
+    display:flex; flex-direction:column;
+  }
+  .sheet.open{transform:translateX(0)}
+  .sheet-body{flex:1; overflow-y:auto; padding:6px 20px 24px}
+  .pref-group{display:flex; align-items:center; justify-content:space-between; padding:15px 2px; border-bottom:1px solid var(--border)}
+  .pref-group:last-child{border-bottom:none}
+  .pg-t{font-weight:600; font-size:13.5px}
+  .pg-s{color:var(--muted); font-size:12px; margin-top:2px}
+  .pg-lock{font-size:11px; color:var(--danger); border:1px solid rgba(239,68,68,.4); padding:1px 7px; border-radius:10px; margin-left:6px; font-weight:600}
+  .switch{position:relative; width:40px; height:22px; flex-shrink:0}
+  .switch input{opacity:0; width:0; height:0}
+  .switch .slider{position:absolute; inset:0; background:var(--surface-3); border:1px solid var(--border-2); border-radius:22px; transition:.2s; cursor:pointer}
+  .switch .slider:before{content:""; position:absolute; width:16px; height:16px; border-radius:50%; background:var(--muted-2); top:2px; left:2px; transition:.2s}
+  .switch input:checked + .slider{background:var(--gold); border-color:var(--gold)}
+  .switch input:checked + .slider:before{transform:translateX(18px); background:#1a1204}
+  .switch input:disabled + .slider{opacity:.5; cursor:not-allowed}
+  .switch input:disabled + .slider:before{background:var(--muted-2)}
+  /* ---------- 演示控制条 ---------- */
+  .demo{
+    position:fixed; left:16px; bottom:16px; z-index:30; display:flex; gap:8px; flex-wrap:wrap;
+    background:var(--surface); border:1px solid var(--border-2); border-radius:12px; padding:10px 12px; max-width:640px;
+  }
+  .demo .lbl{font-size:11px; color:var(--muted-2); width:100%; margin-bottom:2px}
+  .demo .btn{font-size:12px}
+  .demo .btn::before{content:""; display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; vertical-align:1px}
+  .demo .b-deposit::before{background:var(--success)}
+  .demo .b-withdraw::before{background:var(--gold)}
+  .demo .b-crypto::before{background:var(--purple)}
+  .demo .b-card::before{background:var(--info)}
+  .demo .b-convert::before{background:var(--cyan)}
+  .demo .b-kyc::before{background:var(--gold)}
+  .demo .b-login::before{background:var(--danger)}
+  .demo .b-empty::before{background:var(--muted-2)}
+</style>
+</head>
+<body>
+
+<!-- ======= 应用外壳 ======= -->
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">Y</div>
+      <div>YASBe <small>GLOBAL BEEZNIS</small></div>
+    </div>
+    <div class="top-actions">
+      <div class="bell-wrap" id="bell" title="通知">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="badge hide" id="badge">0</span>
+      </div>
+      <div class="avatar">YX</div>
+    </div>
+  </header>
+
+  <div class="body">
+    <aside class="sidebar" id="sidebar">
+      <div class="nav-item active" data-nav="home"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>仪表盘</div>
+      <div class="nav-item" data-nav="bank"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="4"/><line x1="14" y1="18" x2="14" y2="13"/><line x1="18" y1="18" x2="18" y2="8"/></svg>法币账户</div>
+      <div class="nav-item" data-nav="crypto"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg>加密钱包</div>
+      <div class="nav-item" data-nav="convert"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg>兑换</div>
+      <div class="nav-item" data-nav="card"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>卡片</div>
+      <div class="nav-item" data-nav="investment"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>投资</div>
+    </aside>
+
+    <main class="main" id="main">
+      <div class="ph-card">
+        <p style="margin-bottom:10px;color:var(--muted)">总资产</p>
+        <div class="big-num">$<span class="gold">10,157,985</span> <span class="unit">USD</span></div>
+      </div>
+      <div class="ph-card"><h3>原型说明</h3>
+        <p>点击右上角 <b style="color:var(--gold)">🔔</b> 打开通知中心。通知中心覆盖 <b>6 类业务</b>，每条通知都标注了：</p>
+        <div class="legend">
+          <span class="chip chip-compliance">认证</span>
+          <span class="chip chip-fiat">法币资金</span>
+          <span class="chip chip-crypto">加密资金</span>
+          <span class="chip chip-card">卡片</span>
+          <span class="chip chip-security">安全</span>
+          <span class="chip chip-convert">兑换</span>
+        </div>
+        <p style="margin-top:14px">右侧 <b style="color:var(--gold)">→ 目标模块</b> 标注了这条通知点击后的去向；<b>点击通知条目 = 标记已读 + 跳转到对应模块</b>（原型里会展示模拟页面）。<br/>
+        用右下角「模拟事件」可现场触发：Toast 提醒 + 通知落点 + 未读徽标 + 点击跳转。</p>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ======= 通知中心抽屉 ======= -->
+<div class="overlay" id="overlay"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <h2>通知中心</h2>
+    <div class="drawer-actions">
+      <button class="btn gold" onclick="openSheet()">通知设置</button>
+      <button class="btn icon" onclick="markAll()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        全部已读
+      </button>
+    </div>
+  </div>
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-f="all">全部</div>
+    <div class="tab" data-f="unread">未读</div>
+    <div class="tab" data-f="funds">资金</div>
+    <div class="tab" data-f="card">卡片</div>
+    <div class="tab" data-f="security">安全</div>
+    <div class="tab" data-f="compliance">认证</div>
+    <div class="tab" data-f="convert">兑换</div>
+  </div>
+  <div class="hint">每条通知标注<b>业务类型</b>（彩色标签）与<b>点击去向</b>（→ 模块）；点击即跳转并已读。资金/安全类同时发邮件（强制）。</div>
+  <div class="nlist" id="nlist"></div>
+  <div class="empty" id="empty">
+    <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    <div class="et">暂无通知</div>
+    <div class="es">资金到账、审核结果和安全提醒会出现在这里</div>
+  </div>
+</aside>
+
+<!-- ======= 通知设置面板 ======= -->
+<div class="sheet-overlay" id="sheetOverlay"></div>
+<aside class="sheet" id="sheet">
+  <div class="drawer-head">
+    <h2>通知设置</h2>
+    <button class="btn icon" onclick="closeSheet()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      关闭
+    </button>
+  </div>
+  <div class="sheet-body">
+    <p style="color:var(--muted); font-size:12.5px; padding:10px 0 6px">选择希望收到哪些通知。重要提醒：<b style="color:var(--gold)">资金与安全类强制开启</b>，无法关闭。</p>
+    <div class="pref-group">
+      <div><div class="pg-t">资金变动 <span class="pg-lock">强制</span></div><div class="pg-s">法币/加密到账 · 提现状态 · 卡充值 · 兑换</div></div>
+      <label class="switch"><input type="checkbox" checked disabled><span class="slider"></span></label>
+    </div>
+    <div class="pref-group">
+      <div><div class="pg-t">安全提醒 <span class="pg-lock">强制</span></div><div class="pg-s">新设备登录 · 修改密码 · 账户冻结 · 2FA 变动</div></div>
+      <label class="switch"><input type="checkbox" checked disabled><span class="slider"></span></label>
+    </div>
+    <div class="pref-group">
+      <div><div class="pg-t">认证审核</div><div class="pg-s">KYC / KYB 提交与审核结果</div></div>
+      <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+    </div>
+    <div class="pref-group">
+      <div><div class="pg-t">投资 / 代理</div><div class="pg-s">锁仓解锁 · 返佣 · 邀请成功</div></div>
+      <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+    </div>
+    <div class="pref-group">
+      <div><div class="pg-t">系统维护</div><div class="pg-s">维护通知、费率调整</div></div>
+      <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+    </div>
+    <div class="pref-group">
+      <div><div class="pg-t">营销活动</div><div class="pg-s">默认关闭，开启后才接收</div></div>
+      <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+    </div>
+  </div>
+</aside>
+
+<!-- ======= Toast 区 ======= -->
+<div class="toast-zone" id="toastZone"></div>
+
+<!-- ======= 演示控制条 ======= -->
+<div class="demo">
+  <div class="lbl">原型演示 · 模拟事件（产生 Toast + 通知 + 未读徽标；点击通知可跳转对应模块）</div>
+  <button class="btn b-deposit" onclick="sim('deposit')">💰 法币入金</button>
+  <button class="btn b-withdraw" onclick="sim('withdraw')">📤 提现完成</button>
+  <button class="btn b-crypto" onclick="sim('crypto')">₿ 加密到账</button>
+  <button class="btn b-card" onclick="sim('card')">💳 开卡成功</button>
+  <button class="btn b-convert" onclick="sim('convert')">🔁 兑换完成</button>
+  <button class="btn b-kyc" onclick="sim('kyc')">❌ KYC 驳回</button>
+  <button class="btn b-login" onclick="sim('login')">🛡️ 新设备登录</button>
+  <button class="btn b-empty" onclick="clearAll()">清空通知</button>
+</div>
+
+<script>
+/* ---------- 业务类型元信息 ---------- */
+const DOMAIN = {
+  compliance:{ label:'认证', chip:'chip-compliance' },
+  fiat:{ label:'法币资金', chip:'chip-fiat' },
+  crypto:{ label:'加密资金', chip:'chip-crypto' },
+  card:{ label:'卡片', chip:'chip-card' },
+  security:{ label:'安全', chip:'chip-security' },
+  convert:{ label:'兑换', chip:'chip-convert' },
+};
+const DOM_ICON = {
+  compliance:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+  fiat:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>',
+  crypto:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M14.5 8.5a2.5 2.5 0 0 0-2.5-1c-1.66 0-3 1.34-3 3s1.34 3 3 3 3 1.34 3 3-1.34 3-3 3a2.5 2.5 0 0 1-2.5-1"/><line x1="12" y1="6" x2="12" y2="8"/><line x1="12" y1="16" x2="12" y2="18"/></svg>',
+  card:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="6" y1="15" x2="10" y2="15"/></svg>',
+  security:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>',
+  convert:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg>',
+};
+
+/* ---------- 数据 ---------- */
+let seq = 0;
+let notifications = [
+  { id:'n17', domain:'convert', title:'币种兑换审核通过', content:'您的兑换 <b>EUR → USD 5,000</b> 已完成', time:'8月9日 15:20', read:true, channel:'dual', link:{label:'兑换页', target:'convert', title:'币种兑换', detail:'您的兑换 EUR → USD 5,000 已完成'} },
+  { id:'n16', domain:'card', title:'卡交易失败', content:'尾号 <b>8479</b> 的卡交易失败：<b class="gold">余额不足</b>', time:'8月10日 19:44', read:true, channel:'dual', link:{label:'卡片详情', target:'card', title:'卡片详情', detail:'尾号 8479 的卡交易失败：余额不足'} },
+  { id:'n15', domain:'compliance', title:'KYB 审核通过', content:'您的<b>企业认证</b>已通过，可以开企业卡了', time:'8月10日 11:05', read:true, channel:'dual', link:{label:'认证中心', target:'auth', title:'认证中心', detail:'企业认证已通过，可以开企业卡'} },
+  { id:'n14', domain:'security', title:'账户被冻结', content:'您的账户已被<b>冻结</b>，请联系客服处理', time:'8月11日 07:32', read:true, channel:'dual', forced:true, link:{label:'安全设置', target:'security', title:'安全设置', detail:'账户已被冻结，请联系客服'} },
+  { id:'n13', domain:'crypto', title:'加密提现失败', content:'您的 <b>0.1 ETH</b> 提现失败，已退回账户', time:'8月12日 08:18', read:true, channel:'dual', link:{label:'提现详情', target:'withdraw', title:'提现详情', detail:'0.1 ETH 提现失败，已退回'} },
+  { id:'n12', domain:'compliance', title:'KYC 提交成功', content:'您的 KYC 已提交，<b>审核中</b>（预计 1–2 个工作日）', time:'8月12日 10:02', read:true, channel:'inapp', link:{label:'认证中心', target:'auth', title:'认证中心', detail:'KYC 已提交，审核中'} },
+  { id:'n11', domain:'card', title:'虚拟卡开卡成功', content:'尾号 <b>8479</b> 的卡已<b class="gold">开卡成功</b>', time:'8月12日 14:26', read:true, channel:'dual', link:{label:'卡片详情', target:'card', title:'卡片详情', detail:'尾号 8479 的虚拟卡已开卡成功'} },
+  { id:'n10', domain:'crypto', title:'加密充值待审核', content:'<b>0.02 ETH</b>（Ethereum）充值审核中', time:'8月12日 20:15', read:true, channel:'dual', link:{label:'加密账户', target:'crypto', title:'加密钱包', detail:'0.02 ETH 充值审核中'} },
+  { id:'n9', domain:'security', title:'密码修改成功', content:'您的<b>登录密码</b>已于昨日修改', time:'昨天 09:15', read:true, channel:'dual', forced:true, link:{label:'安全设置', target:'security', title:'安全设置', detail:'登录密码已修改'} },
+  { id:'n8', domain:'fiat', title:'法币提现已完成', content:'您的提现 <b>211.00 USD</b> 已完成并到账', time:'昨天 10:30', read:true, channel:'dual', link:{label:'提现详情', target:'withdraw', title:'提现详情', detail:'法币提现 211.00 USD 已完成并到账'} },
+  { id:'n7', domain:'compliance', title:'KYC 审核被驳回', content:'您的 KYC 未通过：<b class="gold">护照照片模糊</b>，请修改后重新提交', time:'昨天 14:02', read:false, channel:'dual', link:{label:'认证中心', target:'auth', title:'认证中心', detail:'KYC 未通过：护照照片模糊，请修改后重新提交'} },
+  { id:'n6', domain:'fiat', title:'法币充值完成', content:'您的 <b class="gold">1,000.00 USD</b> 已到账', time:'昨天 16:20', read:false, channel:'dual', link:{label:'法币账户', target:'bank', title:'法币账户', detail:'法币充值 1,000.00 USD 已到账'} },
+  { id:'n5', domain:'convert', title:'币种兑换完成', content:'您的兑换 <b>USDT → USD 1,000</b> 已完成', time:'今天 08:05', read:false, channel:'dual', link:{label:'兑换页', target:'convert', title:'币种兑换', detail:'USDT → USD 1,000 兑换已完成'} },
+  { id:'n4', domain:'card', title:'卡充值成功', content:'尾号 <b>8479</b> 的卡已到账 <b class="gold">82.30 USD</b>', time:'今天 08:40', read:false, channel:'dual', link:{label:'卡片详情', target:'card', title:'卡片详情', detail:'尾号 8479 的卡充值到账 82.30 USD'} },
+  { id:'n3', domain:'security', title:'新设备登录提醒', content:'检测到新设备登录（<b>Chrome · 上海</b>），非本人请立即处理', time:'今天 09:12', read:false, channel:'dual', forced:true, link:{label:'安全设置', target:'security', title:'安全设置', detail:'新设备登录：Chrome · 上海'} },
+  { id:'n2', domain:'crypto', title:'加密货币充值到账', content:'<b>0.05 BTC</b>（Bitcoin）已确认到账', time:'今天 10:30', read:false, channel:'dual', link:{label:'加密账户', target:'crypto', title:'加密钱包', detail:'0.05 BTC 充值已确认到账'} },
+  { id:'n1', domain:'security', title:'首次登录提醒', content:'<b>欢迎使用 YASBe！</b> 开启您的全球支付体验', time:'8月8日 09:00', read:true, channel:'inapp', link:{label:'首页', target:'home', title:'仪表盘', detail:'欢迎使用 YASBe'} },
+];
+let currentFilter = 'all';
+const domains = ['compliance','fiat','crypto','card','security','convert'];
+
+/* ---------- 渲染 ---------- */
+const $ = id => document.getElementById(id);
+const listEl = $('nlist'), emptyEl = $('empty'), badgeEl = $('badge'), mainEl = $('main');
+
+function channelText(n){
+  let t = n.channel==='dual' ? '站内+邮件' : '仅站内';
+  if(n.forced) t = '强制·' + t;
+  return t;
+}
+function timeLabel(t){
+  if(t.startsWith('今天')) return '今天';
+  if(t.startsWith('昨天')) return '昨天';
+  return '更早';
+}
+const groups = ['今天','昨天','更早'];
+
+function render(){
+  const list = notifications.filter(n => {
+    if(currentFilter==='unread') return !n.read;
+    if(currentFilter==='funds') return n.domain==='fiat'||n.domain==='crypto';
+    if(domains.includes(currentFilter)) return n.domain===currentFilter;
+    return true;
+  });
+  emptyEl.classList.toggle('show', list.length===0);
+  listEl.innerHTML = '';
+  groups.forEach(g=>{
+    const items = list.filter(n=>timeLabel(n.time)===g);
+    if(!items.length) return;
+    listEl.innerHTML += `<div class="n-group">${g}</div>`;
+    items.forEach(n=>{
+      const d = DOMAIN[n.domain];
+      listEl.innerHTML += `
+      <div class="n-item dom-${n.domain} ${n.read?'read':'unread'}" onclick="openItem('${n.id}')">
+        <div class="n-icon"><span class="t-icon">${DOM_ICON[n.domain]}</span></div>
+        <div class="n-body">
+          <div class="n-title">${n.title}<span class="dot"></span></div>
+          <div class="n-content">${n.content}</div>
+          <div class="n-meta">${n.time} · <span class="ch ${n.forced?'forced':''}">${channelText(n)}</span></div>
+        </div>
+        <div class="n-right">
+          <span class="chip ${d.chip}">${d.label}</span>
+          <span class="jump">→ ${n.link.label}</span>
+        </div>
+      </div>`;
+    });
+  });
+  updateBadge();
+}
+
+function updateBadge(){
+  const unread = notifications.filter(n=>!n.read).length;
+  badgeEl.textContent = unread>99?'99+':unread;
+  badgeEl.classList.toggle('hide', unread===0);
+  badgeEl.style.transform = unread ? 'scale(1)' : 'scale(0)';
+}
+
+/* ---------- 抽屉 ---------- */
+function openDrawer(){ $('drawer').classList.add('open'); $('overlay').classList.add('show'); render(); }
+$('bell').onclick = openDrawer;
+$('overlay').onclick = closeDrawer;
+function closeDrawer(){ $('drawer').classList.remove('open'); $('overlay').classList.remove('show'); }
+function markAll(){ notifications.forEach(n=>n.read=true); toast({type:'success', title:'已全部标记为已读'}); render(); }
+
+/* 筛选 */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick = ()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active'); currentFilter = t.dataset.f; render();
+  };
+});
+
+/* ---------- 点击条目：标已读 + 跳转模块 ---------- */
+function openItem(id){
+  const n = notifications.find(x=>x.id===id);
+  if(n){ n.read = true; }
+  render();
+  if(n) navigate(n.link);
+}
+
+/* ---------- 模拟跳转页面（深链演示） ---------- */
+function pageHead(t, chip){
+  return `<div class="page-head">
+    <div class="p-ico" style="background:${chip.bg};color:${chip.fg}">${DOM_ICON[t.target]}</div>
+    <div><h2>${t.title} <span class="chip ${chip.cls}" style="vertical-align:2px;margin-left:6px">${chip.label}</span></h2>
+    <small>从通知跳转 · 目标模块</small></div>
+  </div>`;
+}
+const CHIP_COLOR = {
+  compliance:{cls:'chip-compliance', label:'认证'},
+  fiat:{cls:'chip-fiat', label:'法币资金'},
+  crypto:{cls:'chip-crypto', label:'加密资金'},
+  card:{cls:'chip-card', label:'卡片'},
+  security:{cls:'chip-security', label:'安全'},
+  convert:{cls:'chip-convert', label:'兑换'},
+  home:{cls:'chip-plain', label:'首页'},
+};
+const NAV_TARGET = { auth:'compliance', bank:'fiat', crypto:'crypto', convert:'convert', card:'card', security:'security', withdraw:'fiat', home:'home' };
+
+const PAGE_BODY = {
+  auth(t){ return `<div class="ph-card"><h3>个人认证 · KYC</h3>
+      <div class="row"><span class="k">审核状态</span><span class="v gold">${t.detail}</span></div>
+      <div class="row"><span class="k">提交时间</span><span class="v">2026-08-12 10:02</span></div>
+      <div class="row"><span class="k">下一步</span><span class="v">修改资料后重新提交</span></div>
+      <div style="margin-top:14px"><button class="btn gold" onclick="toast({type:'danger',title:'已进入重新提交流程',content:'（原型演示）'})">重新提交认证</button></div></div>`; },
+  bank(t){ return `<div class="ph-card"><h3>法币账户 · USD</h3>
+      <div class="row"><span class="k">账户余额</span><span class="v">$12,408.55</span></div>
+      <div class="row"><span class="k">最新入金（落点）</span><span class="v gold">+ ${t.detail}</span></div>
+      <div class="row"><span class="k">入金时间</span><span class="v">2026-08-16 16:20</span></div></div>`; },
+  withdraw(t){ return `<div class="ph-card"><h3>提现详情 · 211.00 USD</h3>
+      <div class="row"><span class="k">落点事件</span><span class="v">${t.detail}</span></div>
+      <div class="timeline">
+        <div class="tl-item done"><div class="tl-dot"></div><div class="tl-body"><div class="tl-title">提现已提交</div><div class="tl-sub">8月12日 09:12</div></div></div>
+        <div class="tl-line"></div>
+        <div class="tl-item done"><div class="tl-dot"></div><div class="tl-body"><div class="tl-title">处理中</div><div class="tl-sub">8月12日 09:13</div></div></div>
+        <div class="tl-line"></div>
+        <div class="tl-item now"><div class="tl-dot"></div><div class="tl-body"><div class="tl-title" style="color:var(--gold)">已完成 · 已到账</div><div class="tl-sub">8月13日 10:30 · 同一笔提现只发一条通知</div></div></div>
+      </div></div>`; },
+  crypto(t){ return `<div class="ph-card"><h3>加密钱包 · BTC / ETH</h3>
+      <div class="row"><span class="k">BTC 余额</span><span class="v">0.0500 BTC</span></div>
+      <div class="row"><span class="k">最新充值（落点）</span><span class="v gold">${t.detail}</span></div>
+      <div class="row"><span class="k">确认数</span><span class="v">6 / 6 已确认</span></div></div>`; },
+  card(t){ return `<div class="ph-card"><h3>卡片详情 · 尾号 8479</h3>
+      <div class="row"><span class="k">卡片状态</span><span class="v gold">已激活</span></div>
+      <div class="row"><span class="k">余额</span><span class="v">$82.30</span></div>
+      <div class="row"><span class="k">落点事件</span><span class="v">${t.detail}</span></div></div>`; },
+  security(t){ return `<div class="ph-card"><h3>安全设置</h3>
+      <div class="row"><span class="k">落点事件</span><span class="v gold">${t.detail}</span></div>
+      <div class="row"><span class="k">登录设备</span><span class="v">Chrome · 上海 / Firefox · 香港</span></div>
+      <div class="row"><span class="k">2FA</span><span class="v">已开启</span></div>
+      <div style="margin-top:14px"><button class="btn gold" onclick="toast({type:'security',title:'已进入安全中心',content:'（原型演示）'})">立即处理</button></div></div>`; },
+  convert(t){ return `<div class="ph-card"><h3>币种兑换 · 记录</h3>
+      <div class="row"><span class="k">订单号</span><span class="v">#C20260816-0081</span></div>
+      <div class="row"><span class="k">落点事件</span><span class="v gold">${t.detail}</span></div>
+      <div class="row"><span class="k">兑换时间</span><span class="v">2026-08-16 08:05</span></div></div>`; },
+  home(t){ return `<div class="ph-card"><h3>仪表盘</h3>
+      <p style="margin-bottom:10px">欢迎使用 YASBe！</p>
+      <div class="big-num">$<span class="gold">10,157,985</span> <span class="unit">USD</span></div></div>`; },
+};
+
+function navigate(link){
+  closeDrawer();
+  const chip = CHIP_COLOR[NAV_TARGET[link.target]] || CHIP_COLOR.home;
+  const chipMeta = { ...chip, bg: chip.cls==='chip-plain' ? 'var(--surface-3)' : 'rgba(243,197,72,.14)', fg: chip.cls==='chip-plain' ? 'var(--muted)' : 'var(--gold)' };
+  mainEl.innerHTML = `
+    <div class="banner">← 从通知「${link.title}」跳转而来（原型演示深链）</div>
+    ${pageHead(link, chipMeta)}
+    ${(PAGE_BODY[link.target]||PAGE_BODY.home)(link)}
+    <div style="display:flex; gap:10px; margin-top:4px">
+      <button class="btn gold" onclick="backHome()">返回仪表盘</button>
+      <button class="btn" onclick="openDrawer()">回到通知中心</button>
+    </div>`;
+  document.querySelectorAll('.nav-item').forEach(x=>{
+    x.classList.toggle('active', x.dataset.nav === (link.target==='withdraw'?'bank':link.target==='auth'?'home':link.target));
+  });
+  mainEl.scrollTop = 0;
+}
+function backHome(){ location.reload(); }
+
+/* ---------- Toast ---------- */
+function toast(o){
+  const zone = $('toastZone');
+  const el = document.createElement('div');
+  const cls = o.type==='success'?'t-success':o.type==='danger'||o.type==='security'?'t-security':'';
+  el.className = `toast ${cls}`;
+  el.innerHTML = `
+    <div style="flex:1;min-width:0" ${o.link?`onclick="navigate(${JSON.stringify(o.link)})"`:''}>
+      <div class="t-title">${o.title}</div>
+      ${o.content?`<div class="t-content">${o.content}</div>`:''}
+      ${o.link?`<div class="t-jump">→ ${o.link.label}</div>`:''}
+    </div>
+    <span class="t-close" onclick="this.parentElement.remove()">×</span>`;
+  zone.appendChild(el);
+  requestAnimationFrame(()=>el.classList.add('show'));
+  setTimeout(()=>{ el.classList.remove('show'); setTimeout(()=>el.remove(), 350); }, 5000);
+}
+
+/* ---------- 模拟事件 ---------- */
+const simMap = {
+  deposit:{ domain:'fiat', title:'法币充值到账', content:'您的 <b class="gold">1,000.00 USD</b> 已到账', channel:'dual', toast:{type:'success', title:'入金到账', content:'1,000.00 USD 已到账', link:{label:'法币账户', target:'bank', title:'法币账户', detail:'法币充值 1,000.00 USD 已到账'}} },
+  withdraw:{ domain:'fiat', title:'法币提现状态更新', content:'您的提现 <b>211.00 USD</b> → <b class="gold">已完成</b>', channel:'dual', toast:{type:'success', title:'提现已完成', content:'211.00 USD 已到账', link:{label:'提现详情', target:'withdraw', title:'提现详情', detail:'法币提现 211.00 USD 已完成'}} },
+  crypto:{ domain:'crypto', title:'加密货币充值到账', content:'<b>0.05 BTC</b>（Bitcoin）已确认到账', channel:'dual', toast:{type:'success', title:'加密到账', content:'0.05 BTC 已到账', link:{label:'加密账户', target:'crypto', title:'加密钱包', detail:'0.05 BTC 充值已到账'}} },
+  card:{ domain:'card', title:'虚拟卡开卡成功', content:'尾号 <b>8479</b> 的卡已<b class="gold">开卡成功</b>', channel:'dual', toast:{type:'success', title:'开卡成功', content:'尾号 8479 已激活', link:{label:'卡片详情', target:'card', title:'卡片详情', detail:'尾号 8479 的虚拟卡已开卡成功'}} },
+  convert:{ domain:'convert', title:'币种兑换完成', content:'您的兑换 <b>USDT → USD 1,000</b> 已完成', channel:'dual', toast:{type:'success', title:'兑换完成', content:'USDT → USD 1,000', link:{label:'兑换页', target:'convert', title:'币种兑换', detail:'USDT → USD 1,000 兑换已完成'}} },
+  kyc:{ domain:'compliance', title:'KYC 审核被驳回', content:'您的 KYC 未通过：<b class="gold">收入证明不清晰</b>，请修改后重新提交', channel:'dual', toast:{type:'danger', title:'KYC 未通过', content:'收入证明不清晰，请修改后重新提交', link:{label:'认证中心', target:'auth', title:'认证中心', detail:'KYC 未通过：收入证明不清晰'}} },
+  login:{ domain:'security', title:'新设备登录提醒', content:'检测到新设备登录（<b>Firefox · 香港</b>），非本人请立即处理', channel:'dual', forced:true, toast:{type:'security', title:'新设备登录', content:'Firefox · 香港，非本人请立即处理', link:{label:'安全设置', target:'security', title:'安全设置', detail:'新设备登录：Firefox · 香港'}} },
+};
+function sim(key){
+  const m = simMap[key];
+  notifications.unshift({ id:'n'+(++seq+100), domain:m.domain, title:m.title, content:m.content, time:'今天 '+new Date().toTimeString().slice(0,5), read:false, channel:m.channel, forced:m.forced, link:m.toast.link });
+  toast(m.toast);
+  render();
+}
+function clearAll(){ notifications = []; render(); toast({type:'success', title:'已清空（演示）'}); }
+
+/* ---------- 设置面板 ---------- */
+function openSheet(){ $('sheet').classList.add('open'); $('sheetOverlay').classList.add('show'); }
+function closeSheet(){ $('sheet').classList.remove('open'); $('sheetOverlay').classList.remove('show'); }
+$('sheetOverlay').onclick = closeSheet;
+
+render();
+</script>
+</body>
+</html>
