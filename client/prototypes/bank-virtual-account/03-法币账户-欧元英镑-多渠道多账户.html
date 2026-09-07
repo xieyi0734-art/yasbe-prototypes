@@ -316,7 +316,7 @@ select.input[multiple]{appearance:none;background-image:none;height:auto;padding
       </thead>
       <tbody id="txBody"></tbody>
     </table>
-    <div class="pag" data-i18n="pag">显示 1 - 7，共 7 条记录</div>
+    <div class="pag" id="txPag">显示 1 - 7，共 7 条记录</div>
   </div>
 </div>
 
@@ -729,6 +729,7 @@ const T = {
     arrive:'预计到账', cutoff:'当日截止', limit:'单笔限额', fee:'费用',
     refNote:'本账户需在转账附言中填写 Reference 用于入账匹配；未填写将导致延迟入账。',
     refNotNeeded:'本账户为专属账户，转账时无需填写附言/备注，系统自动匹配入账。',
+  cfPendingRef:'开户完成后将自动生成专属 IBAN / 收款账号 / Sort Code 与附言 Reference，届时可在此查看并开始接收入金。',
     // fields
     f_bankName:'收款银行', f_bankAddress:'银行地址', f_holder:'账户持有人名称', f_accountNumber:'账户号码', f_iban:'IBAN', f_bic:'SWIFT / BIC', f_sortCode:'Sort Code', f_payInRef:'附言 Reference（必填）',
     // open flow
@@ -812,6 +813,7 @@ const T = {
     r_SEPA:'SEPA Credit', r_SEPA_INSTANT:'SEPA Instant', r_SWIFT:'SWIFT', r_FPS:'Faster Payments', r_CHAPS:'CHAPS',
     arrive:'Arrival', cutoff:'Cut-off', limit:'Limit', fee:'Fees',
     refNote:'Include the Reference in the transfer memo for matching; missing it delays posting.',
+  cfPendingRef:'Your dedicated IBAN / account number / Sort Code and pay-in Reference are issued once the account is active — check back here to start receiving.',
     refNotNeeded:'Dedicated account — no memo required, funds match automatically.',
     f_bankName:'Beneficiary Bank', f_bankAddress:'Bank Address', f_holder:'Account Holder', f_accountNumber:'Account Number', f_iban:'IBAN', f_bic:'SWIFT / BIC', f_sortCode:'Sort Code', f_payInRef:'Reference (Required)',
     obChoose:'opened', accNameL:'Account name',
@@ -852,6 +854,25 @@ const T = {
 };
 function t(k){return (T[S.lang]&&T[S.lang][k]!==undefined)?T[S.lang][k]:(T.zh[k]||k);}
 function tt(k){return S.lang==='zh'?k.zh:k.en;}
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+/* 生成校验位正确的德国 IBAN（BBAN=3704 0044 0532 + 随机4位 + 00，22位） */
+function genIbanDE(){
+  const bban='370400440532'+String(Math.floor(1000+Math.random()*9000))+'00';
+  const s=bban+'DE00'; let n='';
+  for(const ch of s)n+=ch>='A'?String(ch.charCodeAt(0)-55):ch;
+  let rem=0; for(const d of n)rem=(rem*10+(+d))%97;
+  const ck=String(98-rem).padStart(2,'0');
+  return ('DE'+ck+bban).replace(/(.{4})/g,'$1 ').trim();
+}
+/* 生成校验位正确的英国 IBAN（BBAN=CLRB + sortCode + accountNumber，22位） */
+function genIbanGB(acct){
+  const bban='CLRB040510'+acct;
+  const s=bban+'GB00'; let n='';
+  for(const ch of s)n+=ch>='A'?String(ch.charCodeAt(0)-55):ch;
+  let rem=0; for(const d of n)rem=(rem*10+(+d))%97;
+  const ck=String(98-rem).padStart(2,'0');
+  return ('GB'+ck+bban).replace(/(.{4})/g,'$1 ').trim();
+}
 
 /* ================= 入金方式元数据 ================= */
 const RAILS = {
@@ -870,6 +891,11 @@ const RAIL_FIELDS = {
   FPS:      ['bankName','holder','sortCode','accountNumber','payInRef'],
   CHAPS:    ['bankName','holder','sortCode','accountNumber','payInRef']
 };
+/* 银行通道常量（顶层，供预览/激活共用，避免双份漂移） */
+const BANK_CAPS={
+  EUR:{bank:'Deutsche Kontor Privatbank AG',addr:'Südliche Münchner Str. 2, 82031 Grünwald, Germany',rails:['SEPA','SEPA_INSTANT','SWIFT'],bic:'DEKTDE7G'},
+  GBP:{bank:'ClearBank',addr:'133 Houndsditch, London EC3A 7BX, United Kingdom',rails:['FPS','CHAPS','SWIFT'],bic:'CLRBGB22'}
+};
 
 /* ================= 账户数据（示例） ================= */
 let ACCOUNTS = [
@@ -887,7 +913,7 @@ let ACCOUNTS = [
     rails:['FPS','CHAPS','SWIFT'], created:'2026-08-30' },
   { id:'a-gbp-02', currency:'GBP', name:{zh:'英镑收款账户 2',en:'GBP Account 2'}, primary:false, status:'ACTIVE',
     bal:{available:0.00, actual:0.00},
-    bank:{ bankName:'ClearBank', bankAddress:'133 Houndsditch, London EC3A 7BX, United Kingdom', holder:{zh:'XIAOMING LI',en:'XIAOMING LI'}, holderAddr:{zh:'Unit 204, 205 Place Court, North York ON M2H 0A9',en:'Unit 204, 205 Place Court, North York ON M2H 0A9'}, accountNumber:'11326195', iban:'GB59 CLRB 0405 1011 3261 95', bic:'CLRBGB22', sortCode:'040510', payInRef:'YASBE-GBP-2195' },
+    bank:{ bankName:'ClearBank', bankAddress:'133 Houndsditch, London EC3A 7BX, United Kingdom', holder:{zh:'XIAOMING LI',en:'XIAOMING LI'}, holderAddr:{zh:'Unit 204, 205 Place Court, North York ON M2H 0A9',en:'Unit 204, 205 Place Court, North York ON M2H 0A9'}, accountNumber:'11326195', iban:'GB32 CLRB 0405 1011 3261 95', bic:'CLRBGB22', sortCode:'040510', payInRef:'YASBE-GBP-2195' },
     rails:['FPS','CHAPS','SWIFT'], created:'2026-09-03' }
 ];
 const CURRENCIES = [
@@ -901,18 +927,19 @@ const ACC_ICON = {USD:'🇺🇸', EUR:'🇪🇺', GBP:'🇬🇧', HKD:'🇭🇰'
 const TX = [
   {id:'TX-20260904-0007', acc:'a-gbp-01', type:'payin', rail:'FPS',   currency:'GBP', amount:500.00, fee:0, status:'completed', date:'2026-09-04 10:15', ref:'YASBE-GBP-2194'},
   {id:'TX-20260903-0006', acc:'a-eur-01', type:'payin', rail:'SEPA_INSTANT', currency:'EUR', amount:260.00, fee:0, status:'completed', date:'2026-09-03 14:42', ref:'YASBE-EUR-0421'},
-  {id:'TX-20260902-0005', acc:'a-eur-01', type:'payout', rail:'SEPA', currency:'EUR', amount:120.00, fee:0.60, status:'completed', date:'2026-09-02 09:05', ref:'INV-2210'},
+  {id:'TX-20260902-0005', acc:'a-eur-01', type:'payout', rail:'SEPA', currency:'EUR', amount:120.00, fee:1.00, status:'completed', date:'2026-09-02 09:05', ref:'INV-2210'},
   {id:'TX-20260901-0004', acc:'a-gbp-01', type:'payout', rail:'CHAPS', currency:'GBP', amount:300.00, fee:1.50, status:'completed', date:'2026-09-01 11:30', ref:'INV-2201'},
   {id:'TX-20260831-0003', acc:'a-eur-01', type:'payin', rail:'SEPA', currency:'EUR', amount:350.75, fee:0, status:'completed', date:'2026-08-31 09:12', ref:'YASBE-EUR-0421'},
   {id:'TX-20260830-0002', acc:'a-gbp-01', type:'payin', rail:'FPS',   currency:'GBP', amount:1500.00, fee:0, status:'completed', date:'2026-08-30 14:03', ref:'YASBE-GBP-2194'},
   {id:'TX-20260829-0001', acc:'a-eur-01', type:'payout', rail:'SEPA', currency:'EUR', amount:200.00, fee:1.00, status:'failed', date:'2026-08-29 15:07', ref:'INV-2091'}
 ];
+const TX_SEED=TX.map(x=>Object.assign({},x));
 let txFilter='all';
 
 function money(v,cur){return CURSYM[cur]+Number(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function acctById(id){return ACCOUNTS.find(a=>a.id===id);}
-function accName(a){return S.lang==='zh'?a.name.zh:a.name.en;}
-function accHolder(a){return a.bank.holder[S.lang]||a.bank.holder.zh;}
+function accName(a){return esc(S.lang==='zh'?a.name.zh:a.name.en);}
+function accHolder(a){return esc(a.bank.holder[S.lang]||a.bank.holder.zh);}
 function idSuffix(a){
   if(a.currency==='EUR') return (a.bank.iban||'').replace(/\s/g,'').slice(-4);
   return (a.bank.accountNumber||'').slice(-4);
@@ -926,7 +953,7 @@ function statusChip(st){
 function renderSummary(){
   const totalUSD=ACCOUNTS.reduce((s,a)=>s+a.bal.available*(FX[a.currency]||1),0);
   const mIn=TX.filter(x=>x.type==='payin'&&x.status==='completed').reduce((s,x)=>s+x.amount*(FX[x.currency]||1),0);
-  const mOut=TX.filter(x=>x.type==='payout').reduce((s,x)=>s+x.amount*(FX[x.currency]||1),0);
+  const mOut=TX.filter(x=>x.type==='payout'&&x.status==='completed').reduce((s,x)=>s+x.amount*(FX[x.currency]||1),0);
   document.getElementById('sAccs').innerHTML=ACCOUNTS.length+' <small>'+(S.lang==='zh'?'个':'')+'</small>';
   document.getElementById('sBal').innerHTML=money(totalUSD,'USD')+' <small>'+t('sBalU')+'</small>';
   document.getElementById('sIn').innerHTML=money(mIn,'USD')+' <small>'+t('sInU')+'</small>';
@@ -1160,7 +1187,8 @@ function renderConfirm(){
   const fields=RAIL_FIELDS[a.rails[0]].filter(k=>fL[k]&&fL[k][1]).map(k=>`<div class="field"><span class="k">${fL[k][0]}</span><span class="v">${fL[k][1]}</span></div>`).join('');
   document.getElementById('cfName').value=defaultAccName(flow.cur);
   document.getElementById('cfFields').innerHTML=`<div class="sec-label" style="margin-top:0">${c.flag} ${c.code} · ${a.rails.map(r=>t('r_'+r)).join(' / ')}</div>${fields}`;
-  document.getElementById('cfRefNote').innerHTML=a.bank.payInRef?t('refNote'):t('refNotNeeded');
+  // 开户未完成：不展示收款号码/附言（ACTIVE 后才生成），仅提示生成时机
+  document.getElementById('cfRefNote').innerHTML=t('cfPendingRef');
   // 本版仅 EUR/GBP（OpenPayd 资料直开），无人工复核入口 → 恒走即时开通说明
   document.getElementById('cfNoteReview').style.display='none';
   document.getElementById('cfNoteInstant').style.display='none';
@@ -1169,18 +1197,26 @@ function renderConfirm(){
   updateObNextState();
 }
 function mockAccount(cur){
-  const CAPS={
-    EUR:{bank:'Deutsche Kontor Privatbank AG',addr:'Südliche Münchner Str. 2, 82031 Grünwald, Germany',rails:['SEPA','SEPA_INSTANT','SWIFT'],bic:'DEKTDE7G'},
-    GBP:{bank:'ClearBank',addr:'133 Houndsditch, London EC3A 7BX, United Kingdom',rails:['FPS','CHAPS','SWIFT'],bic:'CLRBGB22'}
-  };
-  const caps=CAPS[cur];
+  // 建档预览对象：开通（ACTIVE）前不含收款号码，iban/账号等在激活时才生成
+  const caps=BANK_CAPS[cur];
+  // 与开户 step2 建档信息联动（预览 / 提交共用；缺省回退示例值）
+  const gv=id=>{const el=document.getElementById(id);return el?String(el.value||'').trim():'';};
+  const subj=(flow&&flow.subject)||'INDIVIDUAL';
+  let holder='XIAOMING LI';
+  if(subj==='BUSINESS'){
+    holder=(gv('opCoName')||'ABC LTD').toUpperCase();
+  }else{
+    const fn=gv('opFname')||'XIAOMING', ln=gv('opLname')||'LI';
+    if(fn&&ln)holder=(fn+' '+ln).toUpperCase();
+  }
+  const addrParts=(subj==='BUSINESS')
+    ? [gv('opRA1'),gv('opRA2'),gv('opRCity'),gv('opRState'),gv('opRZip')].filter(Boolean)
+    : [gv('opA1'),gv('opA2'),gv('opCity'),gv('opState'),gv('opZip')].filter(Boolean);
+  const holderAddr=addrParts.length?addrParts.join(', '):'Unit 204, 205 Place Court, North York ON M2H 0A9';
   const base={
-    bankName:caps.bank, bankAddress:caps.addr, holder:{zh:'XIAOMING LI',en:'XIAOMING LI'},
-    holderAddr:{zh:'Unit 204, 205 Place Court, North York ON M2H 0A9',en:'Unit 204, 205 Place Court, North York ON M2H 0A9'},
-    accountNumber:cur==='GBP'?'11326'+String(Math.floor(100+Math.random()*900)):null,
-    iban:cur==='EUR'?'DE89 3704 0044 0532 0130 00':cur==='GBP'?'GB59 CLRB 0405 1011 3261 94':null,
-    bic:caps.bic||null, sortCode:cur==='GBP'?'040510':null,
-    payInRef:`YASBE-${cur}-${String(Math.floor(1000+Math.random()*9000))}`
+    bankName:caps.bank, bankAddress:caps.addr, holder:{zh:holder,en:holder},
+    holderAddr:{zh:holderAddr,en:holderAddr},
+    accountNumber:null, iban:null, bic:null, sortCode:null, payInRef:null
   };
   return {id:'a-'+cur.toLowerCase()+'-'+Date.now(),currency:cur,name:{zh:defaultAccName(cur),en:defaultAccName(cur)},primary:false,status:'ACTIVE',bal:{available:0,actual:0},bank:base,rails:caps.rails,created:new Date().toISOString().slice(0,10)};
 }
@@ -1264,10 +1300,6 @@ function confirmCreate(){
     close('creatingOverlay');
     const a=flow.preview||mockAccount(flow.cur);
     const subj=flow.subject||'INDIVIDUAL';
-    const holder=(subj==='BUSINESS'
-      ? document.getElementById('opCoName').value.trim()
-      : (document.getElementById('opFname').value.trim()+' '+document.getElementById('opLname').value.trim())).toUpperCase();
-    a.bank.holder={zh:holder,en:holder};
     a.holderType=subj;
     a.accountHolderId='LC-'+subj.slice(0,3)+'-'+String(Math.floor(100000+Math.random()*899999));
     a.status='PENDING'; // OpenPayd：Create Account 返回 PENDING，激活（ACTIVE）后收款信息生效
@@ -1293,6 +1325,8 @@ function renderTx(){
   else if(txFilter==='payout')rows=TX.filter(x=>x.type==='payout');
   else if(txFilter==='exchange')rows=TX.filter(x=>x.type==='exchange');
   const body=document.getElementById('txBody');
+  const pgEl=document.getElementById('txPag');
+  if(pgEl)pgEl.textContent=S.lang==='zh'?`显示 1 - ${rows.length}，共 ${rows.length} 条记录`:`Showing 1 to ${rows.length} of ${rows.length} records`;
   if(!rows.length){body.innerHTML=`<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:30px">${t('noData')}</td></tr>`;return;}
   const stCls={initiated:'t-gray',processing:'t-gray',released:'t-gray',completed:'t-green',failed:'t-red'};
   body.innerHTML=rows.map(x=>{
@@ -1306,7 +1340,7 @@ function renderTx(){
       <td class="amount r ${x.type==='payin'?'amt-plus':'amt-minus'}">${x.type==='payin'?'+':''}${money(x.amount,x.currency)}</td>
       <td class="amount r">${x.fee?money(x.fee,x.currency):'—'}</td>
       <td><span class="t-badge ${stCls[x.status]}">${t('st_'+x.status)}</span></td>
-      <td style="color:var(--muted)">${x.ref}</td>
+      <td style="color:var(--muted)">${esc(x.ref)}</td>
       <td style="color:var(--muted)">${x.date}</td>
     </tr>`;
   }).join('');
@@ -1321,8 +1355,14 @@ function open(id){document.getElementById(id).classList.add('show');}
 function close(id){document.getElementById(id).classList.remove('show');}
 let _tt;
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),2000);}
-document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>b.closest('.overlay').classList.remove('show')));
-document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('show');}));
+document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeOverlay(b.closest('.overlay'))));
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)closeOverlay(o);}));
+function closeOverlay(ov){
+  if(!ov)return;
+  ov.classList.remove('show');
+  // 从出金流程跳去「添加外部同名账户」后取消/关闭 → 返回出金流程原状态
+  if(ov.id==='eaModal'&&typeof wd!=='undefined'&&wd.fromWithdraw){ wd.fromWithdraw=false; open('wdModal'); renderWdStep(); }
+}
 
 document.getElementById('openNewBtn').addEventListener('click',()=>openFlow());
 document.addEventListener('click',e=>{
@@ -1347,6 +1387,14 @@ document.getElementById('dOpen').addEventListener('click',()=>openFlow());
 function activateLatest(){
   const p=[...ACCOUNTS].reverse().find(a=>a.status==='PENDING');
   if(!p){toast(tt({zh:'没有 PENDING（待激活）的账户',en:'No PENDING account to activate'}));return;}
+  // OpenPayd：账户开通（ACTIVE）后才生成专属收款号码
+  const caps=BANK_CAPS[p.currency];
+  const acctNum=p.currency==='GBP'?'11326'+String(Math.floor(100+Math.random()*900)):null;
+  p.bank.accountNumber=acctNum;
+  p.bank.iban=p.currency==='EUR'?genIbanDE():(p.currency==='GBP'&&acctNum?genIbanGB(acctNum):null);
+  p.bank.bic=caps?caps.bic:null;
+  p.bank.sortCode=p.currency==='GBP'?'040510':null;
+  p.bank.payInRef='YASBE-'+p.currency+'-'+String(Math.floor(1000+Math.random()*9000));
   p.status='ACTIVE';
   renderAll();
   toast(tt({zh:'已激活 '+accName(p)+'（'+p.currency+'），收款信息已生效。',en:accName(p)+' ('+p.currency+') activated. Payment details are live.'}));
@@ -1356,7 +1404,7 @@ document.getElementById('dSubject').addEventListener('change',e=>{
   const v=e.target.value;
   flow.subject=v; if(flow.step>=2){renderOpenPaydFields();updateObNextState();}
   const eaM=document.getElementById('eaModal');
-  if(eaM&&eaM.classList.contains('show')&&eaf.step>=2&&!wd.fromWithdraw){eaf.subject=v;renderEaFields(eaf.type);updateEaNext();}
+  if(eaM&&eaM.classList.contains('show')&&!wd.fromWithdraw){eaf.subject=v;if(eaf.step>=2){renderEaFields(eaf.type);updateEaNext();}}
 });
 document.getElementById('dDeposit').addEventListener('click',()=>openAcc('a-eur-01'));
 document.getElementById('dWithdraw').addEventListener('click',()=>openWithdraw('a-gbp-01'));
@@ -1366,7 +1414,7 @@ document.getElementById('dBiz').addEventListener('click',()=>{
   flow.subject='BUSINESS'; if(flow.step>=2){renderOpenPaydFields();updateObNextState();}
   if(ACCOUNTS.some(a=>a.id==='a-gbp-biz')){toast(tt({zh:'企业演示账户已存在（ABC LTD）',en:'Demo company account (ABC LTD) already exists'}));return;}
   ACCOUNTS.push({id:'a-gbp-biz',currency:'GBP',name:{zh:'公司英镑账户',en:'Company GBP Account'},holderType:'BUSINESS',accountHolderId:'LC-BUS-100201',primary:false,status:'ACTIVE',bal:{available:5000.00,actual:5000.00},
-    bank:{bankName:'ClearBank',bankAddress:'133 Houndsditch, London EC3A 7BX, United Kingdom',holder:{zh:'ABC LTD',en:'ABC LTD'},holderAddr:{zh:'1 Corporate Way, London EC2A 1BB',en:'1 Corporate Way, London EC2A 1BB'},accountNumber:'11339876',sortCode:'040510',iban:'GB59 CLRB 0405 1011 3398 76',bic:'CLRBGB22',payInRef:'YASBE-GBP-8876'},
+    bank:{bankName:'ClearBank',bankAddress:'133 Houndsditch, London EC3A 7BX, United Kingdom',holder:{zh:'ABC LTD',en:'ABC LTD'},holderAddr:{zh:'1 Corporate Way, London EC2A 1BB',en:'1 Corporate Way, London EC2A 1BB'},accountNumber:'11339876',sortCode:'040510',iban:'GB21 CLRB 0405 1011 3398 76',bic:'CLRBGB22',payInRef:'YASBE-GBP-8876'},
     rails:['FPS','CHAPS','SWIFT'],created:'2026-09-05'});
   if(!EXT_ACCOUNTS.some(e=>e.id==='ea-gbp-biz-01')){
     EXT_ACCOUNTS.push({id:'ea-gbp-biz-01',type:'gb',flag:'🇬🇧',currency:'GBP',subject:'BUSINESS',name:{zh:'ABC LTD 对公收款账户',en:'ABC LTD Corporate Account'},holder:'ABC LTD',bankName:'HSBC',last4:'8866',verified:true,default:false,created:'2026-09-05',beneficiaryId:'BNF-CORP-GBP',bankBeneficiaryId:'BBNF-CORP-GBP'});
@@ -1378,6 +1426,8 @@ document.getElementById('dCountry').addEventListener('change',e=>{S.country=e.ta
 document.getElementById('dReset').addEventListener('click',()=>{
   ACCOUNTS=ACCOUNTS.filter(a=>['a-eur-01','a-eur-02','a-gbp-01','a-gbp-02'].includes(a.id));
   EXT_ACCOUNTS=EXT_ACCOUNTS.filter(e=>['ea-eur-01','ea-gbp-01'].includes(e.id));
+  TX.length=0; TX.push.apply(TX,TX_SEED);
+  txFilter='all';
   eaf.subject='INDIVIDUAL';
   S.lang='zh';S.country='GBR';
   document.getElementById('dCountry').value='GBR';
@@ -1427,7 +1477,7 @@ function renderEa(){
     <div class="ea">
       <div class="ea-left">
         <div class="ea-name"><span class="ea-flag">${e.flag}</span><span class="nm">${accName(e)}</span>${eaSubj(e)==='BUSINESS'?`<span class="chip amber">${t('eaBizChip')}</span>`:''}${e.default?`<span class="chip green">${t('primaryTag')}</span>`:''}</div>
-        <div class="ea-idline"><b>${e.holder}</b><span class="sep">·</span>${e.bankName}<span class="sep">·</span>${e.currency} ${tt({zh:'尾号',en:'ending'})} ${e.last4}</div>
+        <div class="ea-idline"><b>${esc(e.holder)}</b><span class="sep">·</span>${esc(e.bankName)}<span class="sep">·</span>${e.currency} ${tt({zh:'尾号',en:'ending'})} ${e.last4}</div>
         <div class="ea-refs"><span>${t('eaBnf')} ${e.beneficiaryId}</span><span class="sep">·</span><span>${t('eaBankBnf')} ${e.bankBeneficiaryId}</span></div>
       </div>
       <div class="ea-right">
@@ -1436,7 +1486,7 @@ function renderEa(){
     </div>`;
   }).join('');
 }
-function openEa(subj,fromWd){ eaf.subject=subj||curSubj(); wd.fromWithdraw=!!fromWd; eaf.step=1; eaf.type=null; renderEaStep(); open('eaModal'); }
+function openEa(subj,fromWd){ eaf.subject=(typeof subj==='string')?subj:curSubj(); wd.fromWithdraw=!!fromWd; eaf.step=1; eaf.type=null; renderEaStep(); open('eaModal'); }
 function renderEaStep(){
   document.getElementById('eaSt1').className=eaf.step>=1?'step on':'step';
   document.getElementById('eaSt2').className=eaf.step>=2?'step on':'step';
@@ -1500,10 +1550,11 @@ function confirmAddEa(){
     const meta=EA_TYPES.find(x=>x.v===eaf.type);
     // 欧洲 / 英国外部同名账户：添加后进入持有人姓名核验（pending → matched），通过后方可用于出金
     const _eaH=(eaf.subject==='BUSINESS')?((bizAcc())?accHolder(bizAcc()):'ABC LTD'):SYS_USER;
+    const _eaBank=String((document.querySelector('#eaFields [data-ea="bankName"]')||{}).value||'').trim()||meta.sample;
     const ea={
       id:'ea-'+Date.now(), type:eaf.type, flag:meta.flag, currency:meta.cur, subject:eaf.subject,
       name:{zh:_eaH,en:_eaH},
-      holder:_eaH, bankName:meta.sample, last4:String(Math.floor(1000+Math.random()*9000)),
+      holder:_eaH, bankName:_eaBank, last4:String(Math.floor(1000+Math.random()*9000)),
       beneficiaryId:'BNF-'+Math.random().toString(36).slice(2,6).toUpperCase()+(eaf.type==='gb'?'-GBP':'-EUR'),
       bankBeneficiaryId:'BBNF-'+Math.random().toString(36).slice(2,6).toUpperCase()+(eaf.type==='gb'?'-GBP':'-EUR'),
       verified:false, default:false, created:new Date().toISOString().slice(0,10)
@@ -1515,7 +1566,7 @@ function confirmAddEa(){
     setTimeout(()=>{ ea.verified=true; renderAll(); toast(t('eaVerified')); },2600);
   },1500);
 }
-document.getElementById('addEaBtn').addEventListener('click',openEa);
+document.getElementById('addEaBtn').addEventListener('click',()=>openEa());
 document.getElementById('eaBack').addEventListener('click',()=>{ if(eaf.step>1){eaf.step--; renderEaStep();} });
 document.getElementById('eaNext').addEventListener('click',()=>{ if(eaf.step===1){ if(!eaf.type)return; eaf.step=2; renderEaStep(); } else { if(!eaComplete()){eaFocusErr();return;} confirmAddEa(); } });
 
@@ -1551,7 +1602,9 @@ function renderWdList(){
   const el=document.getElementById('wdList');
   const list=EXT_ACCOUNTS.filter(e=>e.currency===acc.currency&&eaSubj(e)===accSubj(acc));
   if(!list.length){
-    el.innerHTML=`<div class="wd-empty">${accSubj(acc)==='BUSINESS'?t('wdNoEaBiz'):t('wdNoEa')}</div>`;
+    const hasSameSubj=EXT_ACCOUNTS.some(e=>eaSubj(e)===accSubj(acc));
+    const msg=hasSameSubj?t('wdMismatch'):(accSubj(acc)==='BUSINESS'?t('wdNoEaBiz'):t('wdNoEa'));
+    el.innerHTML=`<div class="wd-empty">${msg}</div>`;
   }else{
     el.innerHTML=list.map(e=>{
       const sel=wd.ea===e.id;
@@ -1562,7 +1615,7 @@ function renderWdList(){
       <div class="ea ${sel?'wd-sel':''}" data-wd-ea="${e.id}" style="${boxStyle}">
         <div class="ea-left">
           <div class="ea-name"><span class="ea-flag">${e.flag}</span><span class="nm">${accName(e)}</span>${eaSubj(e)==='BUSINESS'?`<span class="chip amber">${t('eaBizChip')}</span>`:''}</div>
-          <div class="ea-idline"><b>${e.holder}</b><span class="sep">·</span>${e.bankName}<span class="sep">·</span>${e.currency} ${tt({zh:'尾号',en:'ending'})} ${e.last4}</div>
+          <div class="ea-idline"><b>${esc(e.holder)}</b><span class="sep">·</span>${esc(e.bankName)}<span class="sep">·</span>${e.currency} ${tt({zh:'尾号',en:'ending'})} ${e.last4}</div>
         </div>
         <div class="ea-right">${st}</div>
       </div>`;
@@ -1590,7 +1643,7 @@ function renderWdSum(){
   const ea=EXT_ACCOUNTS.find(e=>e.id===wd.ea);
   document.getElementById('wdSum').innerHTML=`
     <div class="field"><span class="k">${t('wdFrom')}</span><span class="v">${accName(acc)} · ${acc.currency}</span></div>
-    <div class="field"><span class="k">${t('wdTo')}</span><span class="v">${ea.flag} ${accName(ea)} · ${ea.bankName} · ${ea.currency} ${tt({zh:'尾号',en:'ending'})} ${ea.last4}</span></div>
+    <div class="field"><span class="k">${t('wdTo')}</span><span class="v">${ea.flag} ${accName(ea)} · ${esc(ea.bankName)} · ${ea.currency} ${tt({zh:'尾号',en:'ending'})} ${ea.last4}</span></div>
     <div class="field"><span class="k">${t('eaBankBnf')}</span><span class="v" style="font-family:ui-monospace,Consolas,monospace">${ea.bankBeneficiaryId}</span></div>`;
   document.getElementById('wdAvailHint').textContent=t('available')+' '+money(acc.bal.available,acc.currency);
   const rail={iban:'SEPA',gb:'FPS'}[ea.type]||'SWIFT';
@@ -1610,10 +1663,6 @@ function updateWdFee(){
 }
 document.getElementById('wdAddBtn').addEventListener('click',()=>{
   close('wdModal'); openEa(accSubj(acctById(wd.acc)),true);
-});
-document.querySelector('#eaModal [data-close]').addEventListener('click',()=>{
-  // 从出金跳去新增账户时，取消/关闭后返回出金流程
-  if(wd.fromWithdraw){ wd.fromWithdraw=false; open('wdModal'); renderWdStep(); }
 });
 document.getElementById('wdBack').addEventListener('click',()=>{ if(wd.step>1){wd.step=1; renderWdStep();} });
 document.getElementById('wdNext').addEventListener('click',()=>{

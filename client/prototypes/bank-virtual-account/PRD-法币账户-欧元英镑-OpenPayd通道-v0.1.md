@@ -15,7 +15,7 @@
 ## 1. 背景与目标
 
 ### 1.1 背景
-YASBe 通过 OpenPayd 为用户提供一条**欧元 / 英镑法币账户通道**：平台为已完成 KYB 建档的主体（个人 / 企业）开立 OpenPayd 法币账户（Account），账户 ACTIVE 后系统获得该账户专属的**收款账户信息（Payment Account）**；用户从**本人（同名）的外部银行账户**向收款账户转账完成入金，平台凭 OpenPayd 的 Pay In 到账通知在自有账本为用户入账；出金时用户只能选择**已添加且通过同名核验的外部同名账户（EA）**作为收款目的地，平台调用 OpenPayd 发款。
+YASBe 通过 OpenPayd 为用户提供一条**欧元 / 英镑法币账户通道**：平台为已完成建档的主体（个人 / 企业）开立 OpenPayd 法币账户（Account），账户 ACTIVE 后系统获得该账户专属的**收款账户信息（Payment Account）**；用户从**本人（同名）的外部银行账户**向收款账户转账完成入金，平台凭 OpenPayd 的 Pay In 到账通知在自有账本为用户入账；出金时用户只能选择**已添加且通过同名核验的外部同名账户（EA）**作为收款目的地，平台调用 OpenPayd 发款。
 
 > 一句话：**法币账户是"入金收款管道"，外部同名账户是"出金收款目的地"，平台余额是"用户可支配记账"；同名（户主=本人/本企业）是本产品在出入金两端的强约束。**
 >
@@ -28,7 +28,7 @@ YASBe 通过 OpenPayd 为用户提供一条**欧元 / 英镑法币账户通道**
 
 ### 1.3 产品目标
 - G1 开户 → 入金 → 出金 → 记录全链路对用户可理解、可操作、低摩擦；收款字段与到账/费用规则清楚。
-- G2 合规对齐：主体 KYB 建档先行（个人 / 企业双主体）；同名强约束产品化——入金来源同名核验（到账环节）、出金目的地同名（创建环节锁定 + 核验）。
+- G2 合规对齐：主体建档先行（个人 / 企业主体）；同名强约束产品化——入金来源同名核验（到账环节）、出金目的地同名（创建环节锁定 + 核验）。
 - G3 与 OpenPayd API 的字段 / 必填 / 状态逻辑**完全一致**，评审可对照 OpenPayd API 文档逐字段核对（本 PRD 附录 A 为逐字段映射）。
 
 ### 1.4 非目标（本阶段不做）
@@ -46,7 +46,7 @@ YASBe 通过 OpenPayd 为用户提供一条**欧元 / 英镑法币账户通道**
 
 | 术语 | 英文 | 说明 |
 | --- | --- | --- |
-| 法币账户 | Fiat Account / Account | 平台在 OpenPayd 为客户主体开立的指定币种（EUR / GBP）账户；账户登记在平台（Linked Client）名下，用户享有平台记账权益。对应 OpenPayd `POST /accounts` 返回的 Account Object |
+| 法币账户 | Fiat Account / Account | 平台在 OpenPayd 为客户主体开立的指定币种（EUR / GBP）账户；账户登记在平台名下，用户享有平台记账权益。对应 OpenPayd `POST /accounts` 返回的 Account Object |
 | 收款账户信息 | Payment Account / Bank Account | 法币账户 ACTIVE 后，OpenPayd 为该账户分配的专属收款账号（iban / bic / accountNumber / routingCodeEntries / payInReference 等），用户照此从自己的银行转账。对应 `GET /bank-accounts` 返回的 Payment Account Object |
 | 入金通道 / 支付类型 | Rail / Payment Type | 收款账户可接收与出金可使用的支付类型：GBP：Faster Payments / CHAPS / SWIFT；EUR：SEPA / SEPA Instant / SWIFT（原型 rails 常量，§6 M2） |
 | 附言 | Reference / payInReference | 入金时用户须在转账附言填写的参考号（`payInReference`），用于平台 / OpenPayd 匹配到账归属（收款账户字段、到账通知中的 `transactionReference`） |
@@ -63,7 +63,7 @@ YASBe 通过 OpenPayd 为用户提供一条**欧元 / 英镑法币账户通道**
 ## 3. 范围（In / Out of scope）
 
 **In scope**
-- 主体与准入：个人 / 企业双主体；开户前国别可服务性拦截；KYB 建档信息采集（开户向导第 2 步）。
+- 主体与准入：个人 / 企业主体；开户前国别可服务性拦截；建档信息采集（开户向导第 2 步）。
 - 开户：币种选择（EUR / GBP，可多账户）→ 建档信息确认 / 补齐 → 预览收款账户 → 提交（OpenPayd Create Account）→ PENDING → ACTIVE。
 - 收款账户信息展示与入金：按通道展示 Payment Account 字段、到账时效 / 截止 / 限额、附言 Reference 规则、同名引导。
 - 入金到账与上账：Pay In 到账通知 → 同名核验 → 平台入账；**非同名入金的处置流程（❓ 退款机制 OpenPayd 未确认，§12 F1）**。
@@ -83,7 +83,7 @@ YASBe 通过 OpenPayd 为用户提供一条**欧元 / 英镑法币账户通道**
 
 | 角色 | 说明 | 核心诉求 |
 | --- | --- | --- |
-| 个人用户 | 已完成个人实名（KYB）的自然人，拥有本人同名外部银行账户 | 快速开户；清楚看到收款账户怎么用、到账时效、手续费；能安全出金回自己同名账户 |
+| 个人用户 | 已完成个人实名的自然人，拥有本人同名外部银行账户 | 快速开户；清楚看到收款账户怎么用、到账时效、手续费；能安全出金回自己同名账户 |
 | 企业用户 | 已完成企业 KYB 的主体（示例 ABC LTD），拥有企业对公银行账户 | 对公账户开户 / 收款 / 出金到企业对公同名账户；主体切换后所有弹窗默认字段随之切换 |
 | 平台运营 / 审核员 | 复核 EA 同名核验人工兜底、处置非同名入金、被拒重提 | 看清核验状态与入金来源，能标记 / 推进状态（真实后台本期不做，评审用 demo 面板） |
 | 平台合规 / 风控 | 维护国别名单、同名规则口径、退款处置策略 | 同名规则可解释、可审计；退款路径清晰（待 OpenPayd 确认，§12 F1） |
@@ -95,8 +95,8 @@ YASBe 通过 OpenPayd 为用户提供一条**欧元 / 英镑法币账户通道**
 
 ### 5.1 总览
 ```
-[0 主体]  个人 / 企业 KYB 建档完成（原型预设：个人 XIAOMING LI；企业 ABC LTD）
-[1 开户]  向导：选币种(EUR/GBP) → 建档信息确认补齐(KYB) → 预览收款账户
+[0 主体]  个人 / 企业建档完成（原型预设：个人 XIAOMING LI；企业 ABC LTD）
+[1 开户]  向导：选币种(EUR/GBP) → 建档信息确认补齐 → 预览收款账户
           → 提交 POST /accounts → PENDING →(OpenPayd 推进)→ ACTIVE
           → 收款账户信息生效（GET /bank-accounts）
 [2 入金]  打开「收款账户信息」→ 选通道 → 展示收款账号/户主/附言 Reference/时效
@@ -114,7 +114,7 @@ YASBe 通过 OpenPayd 为用户提供一条**欧元 / 英镑法币账户通道**
 ```
 
 ### 5.2 关键不变量
-- **I1 先建档后开户**：仅已完成 KYB 建档的主体可开户；开户提交 = OpenPayd Create Account（返回 status=PENDING），账户 ACTIVE 后收款账户信息才生效、才可接收入金。
+- **I1 先建档后开户**：仅已完成建档的主体可开户；开户提交 = OpenPayd Create Account（返回 status=PENDING），账户 ACTIVE 后收款账户信息才生效、才可接收入金。
 - **I2 入金只进本人名下的收款账户**：收款账户户主（holder）= 主体实名；平台引导用户"仅从本人（同名）银行账户转入"；**同名来源是平台强制核验项**（OpenPayd 到账通知含 senderName，供平台比对），非同名资金不默认入账（处置 ❓）。
 - **I3 出金只到同名 EA**：可出金目标必须是与主体同名、且通过同名核验（verified）的外部账户；EA 的持有人字段（bankAccountHolderName）由系统锁定为主体实名，用户不可修改。
 - **I4 EA = Beneficiary 两层对象**：每个 EA 在 OpenPayd 侧必须先创建 Parent Beneficiary（tag=SELF），再在其下创建 Bank Beneficiary；出金请求携带的是 Bank Beneficiary 的 id。
@@ -132,9 +132,9 @@ YASBe 通过 OpenPayd 为用户提供一条**欧元 / 英镑法币账户通道**
 
 | ID | 需求 | 验收要点 | 对齐 |
 | --- | --- | --- | --- |
-| M0-1 | 双主体（个人 / 企业）贯穿全页面 | 页面存在**当前主体**（原型 `#dSubject` = INDIVIDUAL / BUSINESS），并**全局驱动**所有弹窗默认字段：开户向导第 2 步字段组（个人 vs 企业）、添加外部同名账户的锁定持有人名、出金可用 EA 范围、入金收款户主名。弹窗内不再出现主体单选（2026-09-05 已重构） | 原型 03：`dSubject` + `flow.subject` / `eaf.subject`；见 §12 已决策 D1 |
+| M0-1 | 主体（个人 / 企业）贯穿全页面 | 页面存在**当前主体**（原型 `#dSubject` = INDIVIDUAL / BUSINESS），并**全局驱动**所有弹窗默认字段：开户向导第 2 步字段组（个人 vs 企业）、添加外部同名账户的锁定持有人名、出金可用 EA 范围、入金收款户主名。 
 | M0-2 | 开户前国别可服务性拦截 | 不可服务国家 / 地区（原型示例 UNSERVED_CODES：CHN / JPN / DZA / BDI / TUN）在开户第 2 步即拦截并给出明确原因，不可继续提交；可服务国家正常放行 | 原型 03：`renderCompliancePanels` / `unservedText`；非 OpenPayd 字段，平台合规名单 |
-| M0-3 | 开户前置 KYB 建档 | 开户向导第 2 步采集的持有人资料（个人：姓名 / 证件 / 地址；企业：注册名 / 注册号 / 公司类型 / 注册地址）属于**平台 KYB 建档信息**，用于主体在 OpenPayd 环境的合规档案（Account Holder），**不是** `POST /accounts` 的请求字段 | 原型 03 step2（opIndivFields / opBizFields）｜❓ F7：Account Holder 建档与 KYB 文档上传在 OpenPayd 的接口形态不在本 spec 范围（spec 仅有 `/linkedClient`），需研发确认与 OpenPayd 的实际建档 / 审核方式 |
+| M0-3 | 开户前置建档 | 开户向导第 2 步采集的持有人资料（个人：姓名 / 证件 / 地址；企业：注册名 / 注册号 / 公司类型 / 注册地址）属于**平台建档信息**，用于主体在 OpenPayd 环境的合规档案（Account Holder），**不是** `POST /accounts` 的请求字段 | 原型 03 step2（opIndivFields / opBizFields）｜❓ F7：Account Holder 建档与文档上传在 OpenPayd 的接口形态不在本 spec 范围（spec 仅有 `/linkedClient`），需研发确认与 OpenPayd 的实际建档 / 审核方式 |
 | M0-4 | 建档信息校验规则 | 个人：名 / 姓 / 邮箱 / 地址 / 城市 / 国家必填且格式校验（邮箱格式、地址 3–35 字符、禁 PO Box / PMB）；企业：公司名 / 注册号 / 公司类型 / 公司邮箱 / 注册地址必填；行业选 OTHER 时须补充行业描述。证件（个人）为选填组 | 原型 03：VALIDATORS（opFname…opRCountry / opIndVal）；errIban / errBic / errStreet / errPobox |
 
 ### M1 开通法币账户（开户）
