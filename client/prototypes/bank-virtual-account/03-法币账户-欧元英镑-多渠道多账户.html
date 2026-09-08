@@ -105,6 +105,7 @@ tbody tr:hover{background:var(--row-hover)}
 .t-badge.t-green{background:var(--green-bg);color:var(--green-tx);border:1px solid var(--green-bd)}
 .t-badge.t-gray{background:var(--gray-bg);color:var(--gray-tx);border:1px solid var(--gray-bd)}
 .t-badge.t-red{background:var(--red-bg);color:var(--red-tx);border:1px solid var(--red-bd)}
+.t-badge.t-amber{background:var(--amber-bg);color:var(--amber-tx);border:1px solid var(--amber-bd)}
 .pag{display:flex;align-items:center;justify-content:flex-end;gap:12px;padding:12px 20px;font-size:12.5px;color:var(--muted);border-top:1px solid var(--divider)}
 /* form */
 .form-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
@@ -288,6 +289,8 @@ select.input[multiple]{appearance:none;background-image:none;height:auto;padding
     </div>
     <div id="eaList"></div>
   </div>
+
+  <div id="depPendingNote" style="display:none"></div>
 
   <div class="table-card">
     <div class="table-head">
@@ -549,7 +552,7 @@ select.input[multiple]{appearance:none;background-image:none;height:auto;padding
 
       <div id="eaStep2" style="display:none">
         <div class="sec-label" data-i18n="eaStep2L">2. 填写账户信息</div>
-        <div class="note-box" style="margin-top:2px" data-i18n="eaSameOnly">仅支持添加您本人（同名）的银行账户。账户名称与持有人由系统自动取自您的实名认证信息，不可修改。</div>
+        <div class="note-box" style="margin-top:2px" data-i18n="eaSameOnly">同名账户（持有人与您实名一致）将自动创建成功；非同名账户需上传证明文件，由运营人员审核，审核通过后创建成功，驳回则创建失败。</div>
         <div class="form-fields" id="eaFields"></div>
         <div class="note-box" id="eaVerifyNote" data-i18n="eaVerifyNote">添加后将进行持有人姓名匹配核验（通常数秒至数个工作日），核验通过前不可用于出金（接收本平台款项）。</div>
       </div>
@@ -649,6 +652,11 @@ select.input[multiple]{appearance:none;background-image:none;height:auto;padding
       <button class="dbtn" id="dDeposit" data-i18n="dDeposit">打开「收款账户信息」（欧元）</button>
       <button class="dbtn" id="dWithdraw" data-i18n="dWithdraw">打开「提现」（英镑）</button>
       <button class="dbtn" id="dWdFail" data-i18n="dWdFail">模拟提现失败（PROCESSING → FAILED）</button>
+      <button class="dbtn" id="dNonSameDep" data-i18n="dNonSameDep">模拟非同名入金到账（→ 挂账待处理）</button>
+      <button class="dbtn" id="dRvPass" data-i18n="dRvPass">运营审核通过（最新审核中 EA）</button>
+      <button class="dbtn" id="dRvReject" data-i18n="dRvReject">运营审核驳回（最新审核中 EA）</button>
+      <button class="dbtn" id="dResolveDep" data-i18n="dResolveDep">挂账入金人工放行（通过 → 入账）</button>
+      <button class="dbtn" id="dAutoRefund" data-i18n="dAutoRefund">模拟 7 天到期自动退款</button>
       <button class="dbtn" id="dEa" data-i18n="dEa">打开「添加外部同名账户」</button>
       <button class="dbtn" id="dBiz" data-i18n="dBiz">企业演示：创建 ABC LTD 公司账户（GBP £5,000 + 对公收款账户）</button>
       <button class="dbtn" id="dReset" data-i18n="dReset">重置</button>
@@ -748,27 +756,40 @@ const T = {
     // form validation messages
     errRequired:'该项为必填', errEmail:'请输入有效邮箱地址', errPhone:'请输入国际格式手机号，如 +8613800000000', errMin4:'至少 4 个字符', errAcc8:'账户号码须为 8 位数字', errSort:'Sort Code 须为 6 位数字', errIban:'IBAN 无效，请检查号码或校验位', errBic:'SWIFT / BIC 须为 8 或 11 位字母数字', errStreet:'地址须为 3–35 个字符', errPobox:'地址不允许使用邮政信箱（PO Box / PMB）',
     // 标注客户
+    depPendTitle:'非同名入金挂账待处理', depPendLead:'系统检测到一笔来自非同名账户的入金。根据平台规则，入金须来自与您同名的银行账户；如该账户确为您本人/授权账户，请添加该外部账户并上传证明，经运营审核通过后入账。',
+    depPendDeadline:'7 天内未完成添加与审核，平台将自动原路退款；您也可以随时手动撤销。',
+    depPendAdd:'去添加该外部账户', depPendCancel:'手动撤销（立即退款）', depResolved:'运营审核通过，挂账入金已入账', depCancelled:'已手动撤销，该笔入金将原路退回', depAutoRefunded:'7 天期限已到且未完成添加，平台已自动原路退款',
+    depPendingTag:'挂账（非同名，待添加证明）', eaNonSameChip:'非同名（人工审核通过）',
+    dNonSameDep:'模拟非同名入金到账（→ 挂账待处理）', dRvPass:'运营审核通过（最新审核中 EA）', dRvReject:'运营审核驳回（最新审核中 EA）', dResolveDep:'挂账入金人工放行（通过 → 入账）', dAutoRefund:'模拟 7 天到期自动退款',
     // 提现账户同名
     eaNameL:'账户名称', eaHolderL:'账户持有人', eaLocked:'（不可修改）',
-    eaSameOnly:'仅支持添加您本人（同名）的银行账户。账户名称与持有人由系统自动取自您的实名认证信息，不可修改。',
+    eaSubjRef:'系统实名（用于同名判定）', eaHolderPh:'请输入账户持有人姓名，系统将自动与您的实名比对',
+    eaSameOnly:'同名账户（持有人与您实名一致，大小写不敏感）将自动创建成功；非同名账户需上传证明文件，由运营人员审核，审核通过后创建成功，驳回则创建失败。',
+    eaSameOk:'✓ 持有人与您的实名认证一致（同名）。提交后将自动创建成功，无需人工审核。',
+    eaNonSameWarn:'⚠ 持有人与您的实名不一致（非同名）。提交后需由运营人员审核，请上传证明文件；审核通过后创建成功，驳回则创建失败。',
+    eaProofL:'证明文件（非同名账户必传）', eaProofHint:'支持 JPG / PNG / PDF，如：银行账户对账单、开户证明等。用于证明该账户归属或使用授权。',
+    eaProofBtn:'选择文件', eaProofReq:'非同名账户必须上传证明文件后才能提交',
+    eaReviewing:'运营审核中', eaReviewSubmitted:'已提交运营审核：证明文件与账户信息将交由运营人员审核，审核通过后创建成功，驳回则创建失败。',
+    eaReviewPassToast:'运营审核已通过：该外部账户创建成功（非同名，经人工审核）',
+    eaReviewRejectToast:'运营审核未通过：该外部账户创建失败，已移除。',
     // 出金
     wdTitle:'提现',
     wdStep2L:'2. 确认金额',
     wdAdd:'＋ 添加外部同名账户', wdNoEa:'暂无外部账户，请先添加您的同名银行账户。',
     wdFrom:'提现账户', wdTo:'收款账户', wdAmt:'提现金额', wdFee:'预估手续费', wdReceive:'预计到账', wdArrive:'预计到账', wdConfirm:'确认提现',
     wdRefL:'附言（Reference）', wdRefHint:'将显示在收款银行对账单，用于对方识别款项用途；建议填写发票号或订单号。',
-    wdSelTip:'请选择收款账户', wdSuccess:'提现申请已提交', wdDone:'提现已到账', wdMismatch:'币种不一致，暂不支持提现，请添加对应币种的同名账户',
+    wdSelTip:'请选择收款账户', wdSuccess:'提现申请已提交', wdDone:'提现已到账', wdMismatch:'币种不一致，暂不支持提现，请添加对应币种的同名账户', wdOnlySame:'出金仅支持选择正常状态（已核验）的外部同名账户。',
     noData:'暂无交易记录',
     // withdrawal accounts
     eaTitle:'外部同名账户', eaSub:'个人（本人）或企业（公司）名下的银行账户，可作为同名入金来源与出金收款 · 添加后按地区规则核验持有人（个人姓名 / 公司名称）',
     eaAdd:'＋ 添加外部同名账户', eaMTitle:'添加外部同名账户', eaMSub:'添加您本人（同名）名下的银行账户，用于同名入金与出金收款',
     eaStep1L:'1. 选择银行所在地区', eaStep2L:'2. 填写账户信息',
-    eaStep1Note:'外部同名账户用于同名入金与接收出金款项；添加后平台将核验持有人姓名与账户持有人是否一致，通过后方可用于出金。',
-    eaVerifyNote:'欧洲 / 英国外部账户将进行持有人匹配核验（个人核对姓名、企业核对公司名称；通常数秒至数个工作日），核验通过前不可用于出金（接收本平台款项）。',
+    eaStep1Note:'同名账户（与您实名一致）自动创建成功；非同名账户需上传证明并等待运营审核。审核通过前不可用于出金。',
+    eaVerifyNote:'同名账户自动核验通过；非同名账户转运营人工审核（见上）。核验/审核通过前不可用于出金。',
     eaBnf:'收款人', eaBankBnf:'银行收款账户',
-    eaConfirm:'确认添加', eaAdded:'外部同名账户已添加：已创建收款人档案与银行收款账户；持有人核验进行中（个人姓名 / 公司名称），核验通过后方可用于出金。', eaVerified:'持有人核验已通过，该外部同名账户现可用于出金', dEa:'打开「添加外部同名账户」',
+    eaConfirm:'确认添加', eaAddedAuto:'同名账户已自动创建成功：已创建收款人档案与银行收款账户，可直接用于同名入金与出金收款。', eaAddedReview:'非同名账户已提交运营审核：已创建收款人档案与银行收款账户，等待运营人员审核证明文件。', eaVerified:'持有人核验已通过，该外部同名账户现可用于出金', eaRejected:'运营审核未通过：账户创建失败', dEa:'打开「添加外部同名账户」',
     // status（对齐 OpenPayd 交易状态机：INITIATED → PROCESSING → RELEASED → COMPLETED / FAILED）
-    st_initiated:'已提交', st_processing:'处理中', st_released:'已汇出', st_completed:'已完成', st_failed:'失败',
+    st_initiated:'已提交', st_processing:'处理中', st_released:'已汇出', st_completed:'已完成', st_failed:'失败', st_onhold:'挂账待处理', st_refunded:'已退款', st_autoRefunded:'已自动退款',
     // type
     ty_payin:'入金', ty_payout:'提现', ty_exchange:'兑换', ty_fee:'手续费'
   },
@@ -831,23 +852,36 @@ const T = {
     // form validation messages
     errRequired:'Required', errEmail:'Enter a valid email address', errPhone:'Enter an international phone number, e.g. +8613800000000', errMin4:'At least 4 characters', errAcc8:'Account number must be 8 digits', errSort:'Sort code must be 6 digits', errIban:'Invalid IBAN — check the number or check digits', errBic:'SWIFT / BIC must be 8 or 11 alphanumeric characters', errStreet:'Address must be 3–35 characters', errPobox:'PO Box / PMB addresses are not allowed',
     eaNameL:'Account name', eaHolderL:'Account holder', eaLocked:'(locked)',
-    eaSameOnly:'Only your own (same-name) bank accounts can be added. The account name and holder are taken from your verified profile and cannot be edited.',
+    eaSubjRef:'Verified profile (basis for same-name check)', eaHolderPh:'Enter the account holder name — we auto-compare it with your verified name (case-insensitive)',
+    eaSameOnly:'Same-name accounts (holder matches your verified name, case-insensitive) are created automatically. Non-same-name accounts require proof upload and operator review — created on approval, rejected otherwise.',
+    eaSameOk:'✓ The holder matches your verified name (same-name). This account will be created automatically — no manual review needed.',
+    eaNonSameWarn:'⚠ The holder differs from your verified name (non-same-name). This requires operator review — please upload proof. The account is created on approval and fails to create if rejected.',
+    eaProofL:'Proof document (required for non-same-name)', eaProofHint:'JPG / PNG / PDF, e.g. bank statement or account opening certificate proving ownership or authorised use.',
+    eaProofBtn:'Choose file', eaProofReq:'Proof document is required before submitting a non-same-name account',
+    eaReviewing:'Under operator review', eaReviewSubmitted:'Submitted for operator review: the proof and account details are being reviewed. Created on approval, failed if rejected.',
+    eaReviewPassToast:'Operator review approved: external account created (non-same-name, manually approved)',
+    eaReviewRejectToast:'Operator review rejected: account creation failed and has been removed.',
     wdTitle:'Withdraw',
     wdStep2L:'2. Confirm amount',
     wdAdd:'＋ Add same-name account', wdNoEa:'No external account yet. Add your own bank account first.',
     wdFrom:'From', wdTo:'To', wdAmt:'Amount', wdFee:'Estimated fee', wdReceive:'You receive', wdArrive:'Estimated arrival', wdConfirm:'Confirm Withdraw',
     wdRefL:'Reference', wdRefHint:'Shown on the recipient bank statement for identification; an invoice or order number is recommended.',
-    wdSelTip:'Select a payout account', wdSuccess:'Withdrawal submitted', wdDone:'Withdrawal credited', wdMismatch:'Currency mismatch — please add a same-name account in this currency',
+    wdSelTip:'Select a payout account', wdSuccess:'Withdrawal submitted', wdDone:'Withdrawal credited', wdMismatch:'Currency mismatch — please add a same-name account in this currency', wdOnlySame:'Payouts only accept normal (verified) same-name external accounts.',
     noData:'No transactions',
+    depPendTitle:'Non-same-name deposit on hold', depPendLead:'We detected a deposit from an account not in your name. Per platform rules deposits must come from a bank account in your own name. If this account is yours (or authorised), add it as an external account and upload proof — it will be credited after operator approval.',
+    depPendDeadline:'If the account is not added and approved within 7 days, the funds are refunded automatically. You may cancel (refund) at any time.',
+    depPendAdd:'Add this external account', depPendCancel:'Cancel (refund now)', depResolved:'Operator approved — held deposit credited', depCancelled:'Cancelled — funds will be returned', depAutoRefunded:'7-day deadline passed without adding the account — funds auto-refunded',
+    depPendingTag:'On hold (non-same-name, proof needed)', eaNonSameChip:'Non-same-name (manually approved)',
+    dNonSameDep:'Simulate non-same-name deposit (→ held)', dRvPass:'Operator approve (latest EA under review)', dRvReject:'Operator reject (latest EA under review)', dResolveDep:'Release held deposit (approve → credit)', dAutoRefund:'Simulate 7-day auto-refund',
     eaTitle:'Same-Name External Accounts', eaSub:'Bank accounts held by you (individual) or your company — the funding source for same-name deposits and the destination for payouts · holder (personal name / company name) verification per regional rules after adding',
     eaAdd:'＋ Add Same-Name External Account', eaMTitle:'Add Same-Name External Account', eaMSub:'Add a bank account in your own (same) name, used for same-name deposits and payout collection',
     eaStep1L:'1. Choose bank location', eaStep2L:'2. Account details',
-    eaStep1Note:'Same-name external accounts fund deposits and receive payouts. After adding, the holder name is verified against the account holder before the account can be used for payouts.',
-    eaVerifyNote:'EU / UK external accounts go through holder matching (individuals: personal name; businesses: company name; usually seconds to a few business days). Until verified they cannot be used for payouts (receiving platform funds).',
+    eaStep1Note:'Same-name accounts (matching your verified name) are created automatically; non-same-name accounts require proof upload and operator review. Not usable for payouts until approved.',
+    eaVerifyNote:'Same-name accounts are auto-verified; non-same-name accounts go to operator review (see above). Cannot be used for payouts until verified/approved.',
     eaBnf:'Beneficiary', eaBankBnf:'Bank beneficiary',
-    eaConfirm:'Add Account', eaAdded:'Same-name external account added: beneficiary and bank beneficiary created. Holder verification (personal name / company name) in progress; usable for payouts once verified.', eaVerified:'Holder verified — this same-name external account is now available for payouts.', dEa:'Open "Add Same-Name External Account"',
+    eaConfirm:'Add Account', eaAddedAuto:'Same-name account created automatically: beneficiary and bank beneficiary created — ready for same-name deposits and payout collection.', eaAddedReview:'Non-same-name account submitted for operator review: beneficiary and bank beneficiary created, awaiting operator approval of the proof.', eaVerified:'Holder verified — this same-name external account is now available for payouts.', eaRejected:'Operator review rejected: account creation failed', dEa:'Open "Add Same-Name External Account"',
     // status (OpenPayd state machine: INITIATED → PROCESSING → RELEASED → COMPLETED / FAILED)
-    st_initiated:'Initiated', st_processing:'Processing', st_released:'Released', st_completed:'Completed', st_failed:'Failed',
+    st_initiated:'Initiated', st_processing:'Processing', st_released:'Released', st_completed:'Completed', st_failed:'Failed', st_onhold:'On hold', st_refunded:'Refunded', st_autoRefunded:'Auto-refunded',
     // type
     ty_payin:'Deposit', ty_payout:'Withdraw', ty_exchange:'Exchange', ty_fee:'Fee'
   }
@@ -1282,7 +1316,15 @@ const EA_RULES={
 function eaFieldErr(k){const el=document.querySelector('#eaFields [data-ea="'+k+'"]');if(!el)return null; const fn=EA_RULES[k];return fn?fn(el):null;}
 function eaComplete(){return (EA_TYPE_FIELDS[eaf.type]||[]).every(k=>eaFieldErr(k)===null);}
 function bindEaValidators(){document.querySelectorAll('#eaFields [data-ea]').forEach(el=>{const box=document.createElement('div');box.className='err-msg';box.setAttribute('data-ea-err',el.getAttribute('data-ea')); el.parentNode.appendChild(box); const upd=()=>{const k=el.getAttribute('data-ea'); if(!(EA_TYPE_FIELDS[eaf.type]||[]).includes(k)){box.style.display='none';el.classList.remove('invalid');return;} const err=eaFieldErr(k); box.textContent=err||'';box.style.display=err?'block':'none'; el.classList.toggle('invalid',!!err); updateEaNext();}; el.addEventListener('blur',upd); el.addEventListener('input',upd); el.addEventListener('change',upd);});}
-function updateEaNext(){const b=document.getElementById('eaNext');if(!b)return; b.disabled=eaf.step===2?!eaComplete():!eaf.type;}
+function updateEaNext(){
+  const b=document.getElementById('eaNext'); if(!b)return;
+  if(eaf.step===2){
+    const fieldsOk=eaComplete();
+    const holderVal=eaf.holder||'';
+    const gate=fieldsOk&&(holderVal&&eaf.sameName===false?!!eaf.proof:true);
+    b.disabled=!gate;
+  } else b.disabled=!eaf.type;
+}
 function eaFocusErr(){for(const k of (EA_TYPE_FIELDS[eaf.type]||[])){const el=document.querySelector('#eaFields [data-ea="'+k+'"]');if(!el)continue; const err=eaFieldErr(k); if(err!==null){const box=document.querySelector('#eaFields [data-ea-err="'+k+'"]'); if(box){box.textContent=err;box.style.display='block';} el.classList.add('invalid');if(el.focus)el.focus();return;}}}
 document.getElementById('agreeBox').addEventListener('change',updateObNextState);
 ['input','change'].forEach(ev=>document.getElementById('openPaydFields').addEventListener(ev,()=>{ updateObNextState(); }));
@@ -1328,7 +1370,7 @@ function renderTx(){
   const pgEl=document.getElementById('txPag');
   if(pgEl)pgEl.textContent=S.lang==='zh'?`显示 1 - ${rows.length}，共 ${rows.length} 条记录`:`Showing 1 to ${rows.length} of ${rows.length} records`;
   if(!rows.length){body.innerHTML=`<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:30px">${t('noData')}</td></tr>`;return;}
-  const stCls={initiated:'t-gray',processing:'t-gray',released:'t-gray',completed:'t-green',failed:'t-red'};
+  const stCls={initiated:'t-gray',processing:'t-gray',released:'t-gray',completed:'t-green',failed:'t-red',onhold:'t-amber',refunded:'t-gray',autoRefunded:'t-gray'};
   body.innerHTML=rows.map(x=>{
     const a=acctById(x.acc);
     return `<tr>
@@ -1379,7 +1421,7 @@ function applyI18n(){
 document.getElementById('langBtn').addEventListener('click',()=>{S.lang=S.lang==='zh'?'en':'zh';applyI18n();renderAll();});
 document.getElementById('themeBtn').addEventListener('click',()=>{const c=document.documentElement.getAttribute('data-theme');document.documentElement.setAttribute('data-theme',c==='dark'?'light':'dark');});
 
-function renderAll(){renderSummary();renderGroups();renderEa();renderTx();}
+function renderAll(){renderSummary();renderGroups();renderEa();renderTx();renderDepPending();}
 
 /* ================= DEMO ================= */
 document.getElementById('demoHead').addEventListener('click',()=>{document.getElementById('demoPanel').classList.toggle('collapsed');document.getElementById('demoArrow').textContent=document.getElementById('demoPanel').classList.contains('collapsed')?'▸':'▾';});
@@ -1428,7 +1470,7 @@ document.getElementById('dReset').addEventListener('click',()=>{
   EXT_ACCOUNTS=EXT_ACCOUNTS.filter(e=>['ea-eur-01','ea-gbp-01'].includes(e.id));
   TX.length=0; TX.push.apply(TX,TX_SEED);
   txFilter='all';
-  eaf.subject='INDIVIDUAL';
+  eaf.subject='INDIVIDUAL'; eaf.holder=''; eaf.sameName=null; eaf.proof='';
   S.lang='zh';S.country='GBR';
   document.getElementById('dCountry').value='GBR';
   document.getElementById('dSubject').value='INDIVIDUAL'; if(flow.cur)flow.subject='INDIVIDUAL';
@@ -1467,12 +1509,21 @@ let EXT_ACCOUNTS = [
   {id:'ea-gbp-01', type:'gb', flag:'🇬🇧', currency:'GBP', name:{zh:'英镑收款账户',en:'My GBP Account'}, subject:'INDIVIDUAL', holder:'XIAOMING LI', bankName:'Barclays', last4:'2194', verified:true, default:false, created:'2026-08-25', beneficiaryId:'BNF-9K3M-GBP', bankBeneficiaryId:'BBNF-5R8W-GBP'}
 ];
 function curSubj(){const d=document.getElementById('dSubject');return (d&&d.value)==='BUSINESS'?'BUSINESS':'INDIVIDUAL';}
-const eaf = { step:1, type:null, subject:'INDIVIDUAL' };
+const eaf = { step:1, type:null, subject:'INDIVIDUAL', holder:'', sameName:null, proof:'' };
+/* 同名判定：大小写不敏感 + 忽略空格（平台规则：用户输入外部账户持有人，与主体实名比对） */
+function normName(s){return String(s==null?'':s).toUpperCase().replace(/\s+/g,'');}
+function subjectRealName(){ const biz=bizAcc(); const b=eaf.subject==='BUSINESS';
+  return (b&&biz)?accHolder(biz):(b?'ABC LTD':SYS_USER); }
+function checkSameName(v){ eaf.holder=String(v==null?'':v).trim(); eaf.sameName=normName(eaf.holder)===normName(subjectRealName()); }
 function renderEa(){
   const el=document.getElementById('eaList');
   if(!EXT_ACCOUNTS.length){ el.innerHTML=`<div class="ea-empty">${tt({zh:'还没有外部同名账户。添加个人本人或企业（公司）同名的银行账户，用于同名入金与出金收款。',en:'No same-name external accounts yet. Add a bank account in your own (individual) or company name to fund deposits and receive payouts.'})}</div>`; return; }
   el.innerHTML=EXT_ACCOUNTS.map(e=>{
-    const st=e.verified?{c:'green',l:tt({zh:'已核验',en:'Verified'})}:{c:'amber',l:tt({zh:'核验中',en:'Verifying'})};
+    let st;
+    if(e.review) st={c:'amber',l:tt({zh:'运营审核中',en:'Reviewing'})};
+    else if(e.verified&&e.sameName!==false) st={c:'green',l:tt({zh:'已核验 · 同名',en:'Verified · Same-name'})};
+    else if(e.verified) st={c:'gray',l:tt({zh:'已核验 · 非同名（仅入金来源）',en:'Verified · Non-same-name (deposit source only)'})};
+    else st={c:'amber',l:tt({zh:'核验中',en:'Verifying'})};
     return `
     <div class="ea">
       <div class="ea-left">
@@ -1516,55 +1567,96 @@ function renderEaFields(type){
   const subjIsBiz=eaf.subject==='BUSINESS';
   const subjName=(subjIsBiz&&biz)?accHolder(biz):(subjIsBiz?'ABC LTD':SYS_USER);
   const subjTag=subjIsBiz?(S.lang==='zh'?'企业':'Business'):(S.lang==='zh'?'个人':'Individual');
-  const subjCtrl=`
+  // 同名判定区（实时）：绿 = 同名自动成功；琥珀 = 非同名需证明 + 运营审核
+  const judge=()=>{
+    const v=(document.getElementById('eaHolder')||{}).value||'';
+    checkSameName(v);
+    const jEl=document.getElementById('eaJudge');
+    if(!jEl)return;
+    if(!eaf.holder){ jEl.innerHTML=''; jEl.className=''; }
+    else if(eaf.sameName){ jEl.className='note-box'; jEl.innerHTML=t('eaSameOk'); }
+    else { jEl.className='note-box'; jEl.style.border='1px solid var(--amber-bd)'; jEl.style.background='var(--amber-bg)'; jEl.innerHTML=t('eaNonSameWarn'); }
+    const pEl=document.getElementById('eaProofWrap');
+    if(pEl)pEl.style.display=(eaf.holder&&!eaf.sameName)?'':'none';
+    updateEaNext();
+  };
+  const headBlock=`
     <div style="grid-column:1/-1">
       <label class="lbl">${t('eaSubjL')}</label>
       <input class="input" value="${subjName} · ${subjTag}" readonly>
-    </div>`;
-  const roBlock=`
-    ${subjCtrl}
-    <div style="grid-column:1/-1">
-      <label class="lbl">${t('eaNameL')} <span class="lbl-note">${t('eaLocked')}</span></label>
-      <input class="input" id="eaRoName" value="${subjName}" readonly>
+      <div class="helper" style="color:var(--muted)">${t('eaSubjRef')}</div>
     </div>
     <div style="grid-column:1/-1">
-      <label class="lbl">${t('eaHolderL')} <span class="lbl-note">${t('eaLocked')}</span></label>
-      <input class="input" id="eaRoHolder" value="${subjName} · ${subjTag}" readonly>
+      <label class="lbl"><span class="req">*</span>${t('eaHolderL')}</label>
+      <input class="input" id="eaHolder" value="${subjName}" placeholder="${t('eaHolderPh')}" autocomplete="off">
+      <div class="helper" style="color:var(--muted)">${t('eaSameOnly')}</div>
+    </div>
+    <div style="grid-column:1/-1" id="eaJudge"></div>
+    <div style="grid-column:1/-1" id="eaProofWrap" style="display:none">
+      <div class="kf-box" style="margin-top:2px">
+        <div class="sec-label" style="margin:0 0 4px">${t('eaProofL')}</div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <label class="btn btn-ghost btn-sm" style="cursor:pointer;margin:0">${t('eaProofBtn')}
+            <input type="file" id="eaProof" accept=".jpg,.jpeg,.png,.pdf" style="display:none">
+          </label>
+          <span id="eaProofName" style="font-size:12.5px;color:var(--muted)"></span>
+        </div>
+        <div class="helper" style="color:var(--muted);margin-top:6px">${t('eaProofHint')}</div>
+      </div>
     </div>`;
-  document.getElementById('eaFields').innerHTML=roBlock+keys.map(k=>{
+  document.getElementById('eaFields').innerHTML=headBlock+keys.map(k=>{
     const f=EA_FIELDS[k];
     const opts=(f.ph?`<option value="">${f.ph[S.lang]}</option>`:'')+(f.opts?f.opts.map(o=>`<option value="${o.v}">${o[S.lang]}</option>`).join(''):'');
     const input=f.type==='select'?`<select class="input" id="${k}" data-ea="${k}">${opts}</select>`:`<input class="input" id="${k}" data-ea="${k}" placeholder="${(f.ph&&f.ph[S.lang])||''}">`;
     return `<div style="grid-column:${EA_SPAN[k]||'auto'}"><label class="lbl">${f.k[S.lang]}${f.req?'<span class="req">*</span>':''}</label>${input}</div>`;
   }).join('');
   bindEaValidators();
+  const hEl=document.getElementById('eaHolder');
+  if(hEl){ hEl.addEventListener('input',judge); judge(); }
+  const pfEl=document.getElementById('eaProof');
+  if(pfEl){ pfEl.addEventListener('change',()=>{ eaf.proof=(pfEl.files&&pfEl.files[0])?pfEl.files[0].name:''; const nEl=document.getElementById('eaProofName'); if(nEl)nEl.textContent=eaf.proof; }); }
   updateEaNext();
 }
 function confirmAddEa(){
+  const holderVal=String((document.getElementById('eaHolder')||{}).value||'').trim();
+  checkSameName(holderVal);
+  const same=eaf.sameName;
+  // 同名：自动创建成功；非同名：必须已上传证明 → 转运营审核（review）
+  if(!same&&!eaf.proof){ toast(t('eaProofReq')); return; }
   close('eaModal');
   open('creatingOverlay');
-  document.getElementById('crTitle').textContent=tt({zh:'正在核验您的外部同名账户…',en:'Verifying your same-name external account…'});
-  document.getElementById('crDesc').textContent=tt({zh:'通常只需几秒钟，请稍候',en:'This usually takes a few seconds'});
+  document.getElementById('crTitle').textContent= same
+    ? tt({zh:'正在自动创建您的同名账户…',en:'Auto-creating your same-name account…'})
+    : tt({zh:'正在提交运营审核…',en:'Submitting for operator review…'});
+  document.getElementById('crDesc').textContent= same
+    ? tt({zh:'同名判定通过，无需人工审核',en:'Same-name check passed — no manual review'})
+    : tt({zh:'证明文件已随账户信息提交',en:'Proof document submitted with the account details'});
   setTimeout(()=>{
     close('creatingOverlay');
     const meta=EA_TYPES.find(x=>x.v===eaf.type);
-    // 欧洲 / 英国外部同名账户：添加后进入持有人姓名核验（pending → matched），通过后方可用于出金
-    const _eaH=(eaf.subject==='BUSINESS')?((bizAcc())?accHolder(bizAcc()):'ABC LTD'):SYS_USER;
+    const holderName=eaf.holder||subjectRealName();
     const _eaBank=String((document.querySelector('#eaFields [data-ea="bankName"]')||{}).value||'').trim()||meta.sample;
     const ea={
       id:'ea-'+Date.now(), type:eaf.type, flag:meta.flag, currency:meta.cur, subject:eaf.subject,
-      name:{zh:_eaH,en:_eaH},
-      holder:_eaH, bankName:_eaBank, last4:String(Math.floor(1000+Math.random()*9000)),
+      name:{zh:holderName,en:holderName},
+      holder:holderName, bankName:_eaBank, last4:String(Math.floor(1000+Math.random()*9000)),
       beneficiaryId:'BNF-'+Math.random().toString(36).slice(2,6).toUpperCase()+(eaf.type==='gb'?'-GBP':'-EUR'),
       bankBeneficiaryId:'BBNF-'+Math.random().toString(36).slice(2,6).toUpperCase()+(eaf.type==='gb'?'-GBP':'-EUR'),
-      verified:false, default:false, created:new Date().toISOString().slice(0,10)
+      sameName:same, verified:same, review:!same, proof:!same?(eaf.proof||''):'', default:false, created:new Date().toISOString().slice(0,10)
     };
     EXT_ACCOUNTS.push(ea);
     renderAll();
     if(wd.fromWithdraw){ wd.fromWithdraw=false; open('wdModal'); renderWdStep(); }
-    toast(t('eaAdded'));
-    setTimeout(()=>{ ea.verified=true; renderAll(); toast(t('eaVerified')); },2600);
+    if(same) toast(t('eaAddedAuto'));
+    else toast(t('eaAddedReview'));
   },1500);
+}
+/* demo：运营审核通过 / 驳回最新审核中（review）的 EA */
+function reviewLatestEa(pass){
+  const ea=[...EXT_ACCOUNTS].reverse().find(x=>x.review);
+  if(!ea){toast(tt({zh:'当前没有「运营审核中」的外部账户',en:'No external account under operator review'}));return;}
+  if(pass){ ea.review=false; ea.verified=true; renderAll(); toast(t('eaReviewPassToast')); }
+  else { EXT_ACCOUNTS=EXT_ACCOUNTS.filter(x=>x.id!==ea.id); renderAll(); toast(t('eaReviewRejectToast')); }
 }
 document.getElementById('addEaBtn').addEventListener('click',()=>openEa());
 document.getElementById('eaBack').addEventListener('click',()=>{ if(eaf.step>1){eaf.step--; renderEaStep();} });
@@ -1600,19 +1692,22 @@ function renderWdStep(){
 function renderWdList(){
   const acc=acctById(wd.acc);
   const el=document.getElementById('wdList');
-  const list=EXT_ACCOUNTS.filter(e=>e.currency===acc.currency&&eaSubj(e)===accSubj(acc));
+  // 出金候选：币种 + 主体一致 + 状态正常（同名且已核验）；非同名账户（即使人工审核通过）与运营审核中不可选 —— 出金仅限同名（平台强制规则）
+  const subjList=EXT_ACCOUNTS.filter(e=>e.currency===acc.currency&&eaSubj(e)===accSubj(acc));
+  const list=subjList.filter(e=>e.verified&&e.sameName!==false);
+  const havePending=subjList.some(e=>e.review||!e.verified);
+  const note=document.getElementById('wdEaNoteTxt');
+  if(note&&havePending) note.textContent=tt({zh:'出金仅支持选择正常状态（已核验）的同名外部账户；运营审核中 / 非同名账户不可用于出金。',en:'Payouts only accept normal (verified) SAME-NAME external accounts; accounts under operator review or non-same-name accounts cannot be used.'});
   if(!list.length){
-    const hasSameSubj=EXT_ACCOUNTS.some(e=>eaSubj(e)===accSubj(acc));
-    const msg=hasSameSubj?t('wdMismatch'):(accSubj(acc)==='BUSINESS'?t('wdNoEaBiz'):t('wdNoEa'));
+    const hasSameSubj=subjList.length>0;
+    const msg=hasSameSubj?tt({zh:'暂无可用的同名外部账户（非同名账户不可用于出金，审核中账户请等待结果）。',en:'No usable same-name external account yet (non-same-name accounts cannot receive payouts; pending accounts await review).'}):(accSubj(acc)==='BUSINESS'?t('wdNoEaBiz'):t('wdNoEa'));
     el.innerHTML=`<div class="wd-empty">${msg}</div>`;
   }else{
     el.innerHTML=list.map(e=>{
       const sel=wd.ea===e.id;
-      const ok=e.verified;
-      const st=ok?`<span class="chip green">${tt({zh:'已核验',en:'Verified'})}</span>`:`<span class="chip amber">${tt({zh:'核验中 · 通过前不可用',en:'Verifying'})}</span>`;
-      const boxStyle=ok?'cursor:pointer':'cursor:not-allowed;opacity:.6';
+      const st=`<span class="chip green">${tt({zh:'已核验',en:'Verified'})}</span>`;
       return `
-      <div class="ea ${sel?'wd-sel':''}" data-wd-ea="${e.id}" style="${boxStyle}">
+      <div class="ea ${sel?'wd-sel':''}" data-wd-ea="${e.id}" style="cursor:pointer">
         <div class="ea-left">
           <div class="ea-name"><span class="ea-flag">${e.flag}</span><span class="nm">${accName(e)}</span>${eaSubj(e)==='BUSINESS'?`<span class="chip amber">${t('eaBizChip')}</span>`:''}</div>
           <div class="ea-idline"><b>${esc(e.holder)}</b><span class="sep">·</span>${esc(e.bankName)}<span class="sep">·</span>${e.currency} ${tt({zh:'尾号',en:'ending'})} ${e.last4}</div>
@@ -1622,7 +1717,7 @@ function renderWdList(){
     }).join('');
     el.querySelectorAll('[data-wd-ea]').forEach(r=>r.addEventListener('click',()=>{
       const e=EXT_ACCOUNTS.find(x=>x.id===r.getAttribute('data-wd-ea'));
-      if(e&&e.verified){ wd.ea=e.id; renderWdList(); }
+      if(e&&e.verified&&e.sameName!==false){ wd.ea=e.id; renderWdList(); }
     }));
   }
   updateWdNext();
@@ -1712,6 +1807,71 @@ function failLatestWithdraw(){
   toast(tt({zh:'已模拟提现失败，资金已退回 '+accName(acc),en:'Withdrawal failed — funds returned to '+accName(acc)}));
 }
 document.getElementById('dWdFail').addEventListener('click',failLatestWithdraw);
+
+/* ============ 同名规则：挂账入金（非同名来源） ============ */
+/* 演示按钮：模拟一笔来自非同名账户的入金到账 → 不自动入账，进入挂账待处理（不计可用余额） */
+document.getElementById('dNonSameDep').addEventListener('click',()=>{
+  const acc=acctById('a-eur-01')||ACCOUNTS.find(a=>a.currency==='EUR');
+  if(!acc){toast(tt({zh:'没有可用的欧元账户',en:'No EUR account available'}));return;}
+  const now=new Date();
+  const tx={
+    id:'TX-'+now.toISOString().slice(0,10).replace(/-/g,'')+'-'+String(Math.floor(1000+Math.random()*9000)),
+    acc:acc.id, type:'payin', rail:'SEPA', currency:acc.currency, amount:300.00, fee:0, status:'onhold',
+    sender:'JANE DOE', date:now.toISOString().slice(0,16).replace('T',' '), ref:'NON-SAME-'+String(Math.floor(100+Math.random()*900))
+  };
+  TX.unshift(tx);
+  renderAll();
+  toast(tt({zh:'已模拟一笔来自非同名账户的入金（EUR 300.00）→ 挂账待处理',en:'Simulated a deposit from a non-same-name account (EUR 300.00) — held for review'}));
+});
+/* 演示按钮：运营审核通过，挂账入金入账（计入可用余额） */
+document.getElementById('dResolveDep').addEventListener('click',()=>{
+  const tx=TX.find(x=>x.type==='payin'&&x.status==='onhold');
+  if(!tx){toast(tt({zh:'当前没有挂账待处理的入金',en:'No held deposit right now'}));return;}
+  tx.status='completed';
+  const acc=acctById(tx.acc); if(acc){acc.bal.available+=tx.amount; acc.bal.actual+=tx.amount;}
+  renderAll(); toast(t('depResolved'));
+});
+/* 演示按钮：模拟 7 天到期未添加外部账户 → 平台自动原路退款 */
+document.getElementById('dAutoRefund').addEventListener('click',()=>{
+  const tx=TX.find(x=>x.type==='payin'&&x.status==='onhold');
+  if(!tx){toast(tt({zh:'当前没有挂账待处理的入金',en:'No held deposit right now'}));return;}
+  tx.status='autoRefunded';
+  renderAll(); toast(t('depAutoRefunded'));
+});
+/* 渲染挂账提示条（EA 区上方）：存在 onhold 入金时展示 + 引导添加外部账户 / 手动撤销 */
+function renderDepPending(){
+  const wrap=document.getElementById('depPendingNote');
+  if(!wrap)return;
+  const held=TX.filter(x=>x.type==='payin'&&x.status==='onhold');
+  if(!held.length){wrap.style.display='none';wrap.innerHTML='';return;}
+  const rows=held.map(x=>{
+    const a=acctById(x.acc);
+    return `<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:9px 0;border-top:1px solid var(--gray-bd)">
+      <div style="font-size:12.5px">${t('ty_payin')} <b>${money(x.amount,x.currency)}</b><span class="sep">·</span>${a?accName(a):''}<span class="sep">·</span>${tt({zh:'打款方',en:'Sender'})}: <b>${esc(x.sender||'')}</b><span class="sep">·</span>${x.date}<span class="chip amber" style="margin-left:8px">${t('depPendingTag')}</span></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-accent btn-sm dep-add" data-tx="${x.id}">${t('depPendAdd')}</button>
+        <button class="btn btn-ghost btn-sm dep-cancel" data-tx="${x.id}">${t('depPendCancel')}</button>
+      </div>
+    </div>`;
+  }).join('');
+  wrap.style.display='';
+  wrap.innerHTML=`<div class="notice amber" style="margin-top:14px">
+    <b>${t('depPendTitle')}</b> — ${t('depPendLead')} ${t('depPendDeadline')}
+    ${rows}
+  </div>`;
+  wrap.querySelectorAll('.dep-add').forEach(b=>b.addEventListener('click',()=>{
+    openEa(); toast(tt({zh:'请按同名/非同名规则添加该外部账户并上传证明',en:'Add this external account and upload proof per the same-name rule'}));
+  }));
+  wrap.querySelectorAll('.dep-cancel').forEach(b=>b.addEventListener('click',()=>{
+    const id=b.getAttribute('data-tx'); const tx=TX.find(x=>x.id===id);
+    if(tx)tx.status='refunded';
+    renderAll(); toast(t('depCancelled'));
+  }));
+}
+
+/* demo：运营审核通过 / 驳回（绑定按钮） */
+document.getElementById('dRvPass').addEventListener('click',()=>reviewLatestEa(true));
+document.getElementById('dRvReject').addEventListener('click',()=>reviewLatestEa(false));
 
 /* init */
 renderAll();
