@@ -23,9 +23,15 @@
 | 我的资料 | 客户资料弹窗（11） | 2026-07-08 | [11-Client-Profile-Modal.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/client-profile/11-Client-Profile-Modal.html) |
 | 加密货币归集设置 | Crypto 归集配置（19） | 2026-07-08 | [19-Crypto-Collection-Settings.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/crypto/19-Crypto-Collection-Settings.html) |
 | 客户详情 · 卡片 Tab | 客户卡片视图（01） | 2026-07-08 | [01-Customer-Detail-Cards-Tab.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/customer/01-Customer-Detail-Cards-Tab.html) |
+| 客户详情 · 法币 Tab | 客户法币账户 + 出入金记录 | 2026-09-08 | [02-Customer-Detail-Fiat-Tab.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/customer/02-Customer-Detail-Fiat-Tab.html) |
 | 客户详情 · 推荐 Tab | 客户推荐视图（10） | 2026-07-08 | [10-Customer-Detail-Referrals-Tab.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/customer/10-Customer-Detail-Referrals-Tab.html) |
 | 客户详情 · 推荐 Tab v2 | 推荐视图（代理版） | 2026-08-03 | [10-Customer-Detail-Referrals-Tab-v2.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/customer/10-Customer-Detail-Referrals-Tab-v2.html) |
 | 分销配置 | 分销规则配置（09） | 2026-07-08 | [09-Distribution-Config.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/distribution/09-Distribution-Config.html) |
+| 法币 · 交易审核 | 出入金待审队列（入金/出金，审批/拒绝） | 2026-09-08 | [01-Fiat-Review-Queue.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/fiat/01-Fiat-Review-Queue.html) |
+| 法币 · 交易记录 | 出入金全量流水（10 列 + Review 入口） | 2026-09-08 | [02-Fiat-Transaction-List.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/fiat/02-Fiat-Transaction-List.html) |
+| 法币 · 资金总览 | 平台级资金视图（逐币种对账闭环） | 2026-09-08 | [03-Fiat-Treasury-Overview.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/fiat/03-Fiat-Treasury-Overview.html) |
+| 法币 · 收款账户 | 平台收款账户 + 上游 KYB | 2026-09-08 | [04-Fiat-Bank-Accounts.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/fiat/04-Fiat-Bank-Accounts.html) |
+| 法币 · 币种设置 | 币种费率两档（≤50k / >50k） | 2026-09-08 | [05-Fiat-Currency-Settings.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/fiat/05-Fiat-Currency-Settings.html) |
 | 风控规则管理 | 风控规则配置（01） | 2026-07-08 | [01-Risk-Rule-Management.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/risk-control/01-Risk-Rule-Management.html) |
 | 风控事件列表 | 风控事件（02） | 2026-07-08 | [02-Risk-Event-List.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/risk-control/02-Risk-Event-List.html) |
 | 卡片交易流水 | 交易流水列表（17） | 2026-07-08 | [17-Card-Transaction-List.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/transaction/17-Card-Transaction-List.html) |

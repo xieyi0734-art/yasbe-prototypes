@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>交易记录 - YASBee 管理端</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;color:#1D2129;background:#F3F4F6;line-height:1.5}
+.sidebar{width:260px;background:#1D2129;color:#fff;height:100vh;position:fixed;left:0;top:0;overflow-y:auto}
+.sidebar-header{padding:20px;font-size:20px;font-weight:700;color:#E59303;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-item{display:flex;align-items:center;gap:12px;padding:12px 20px;color:#9CA3AF;font-size:14px;cursor:pointer;transition:all .15s}
+.sidebar-item:hover{color:#fff;background:rgba(255,255,255,.05)}
+.sidebar-item.active{color:#E59303;background:rgba(229,147,3,.1);border-right:3px solid #E59303}
+.sidebar-label{padding:8px 20px 4px;font-size:11px;color:#6B7280;text-transform:uppercase;letter-spacing:1px}
+.main{margin-left:260px;padding:32px}
+.stat-card{background:#fff;border-radius:12px;border:1px solid #E5E7EB;padding:20px}
+.stat-value{font-size:25px;font-weight:700}
+.stat-label{font-size:13px;color:#86909C;margin-bottom:4px}
+.badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:500}
+.badge-ok{background:#DCFCE7;color:#166534}
+.badge-fail{background:#FEE2E2;color:#991B1B}
+.badge-pending{background:#FEF9C3;color:#854D0E}
+.badge-cancel{background:#F3F4F6;color:#4B5563}
+.badge-reviewed{background:#DBEAFE;color:#1E40AF}
+.btn-primary{background:#E59303;color:#fff;border:none;border-radius:8px;padding:6px 16px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-primary:hover{background:#d48402}
+.btn-outline{background:#fff;color:#4B5563;border:1px solid #D1D5DB;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-outline:hover{border-color:#E59303;color:#E59303}
+.btn-text{background:none;border:none;color:#E59303;font-size:13px;font-weight:500;cursor:pointer;padding:4px 8px}
+.btn-text:hover{color:#d48402}
+.btn-danger{background:#DC2626;color:#fff;border:none;border-radius:8px;padding:8px 20px;font-size:14px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-danger:hover{background:#b91c1c}
+.btn-danger-outline{background:#fff;color:#DC2626;border:1px solid #FECACA;border-radius:8px;padding:8px 20px;font-size:14px;font-weight:500;cursor:pointer}
+.btn-danger-outline:hover{background:#FEF2F2}
+.filter-input{border:1px solid #D1D5DB;border-radius:8px;padding:8px 12px;font-size:14px;outline:none;width:220px}
+.filter-input:focus{border-color:#E59303;box-shadow:0 0 0 2px rgba(229,147,3,.15)}
+.filter-select{border:1px solid #D1D5DB;border-radius:8px;padding:8px 12px;font-size:14px;outline:none;cursor:pointer;background:#fff}
+.filter-select:focus{border-color:#E59303;box-shadow:0 0 0 2px rgba(229,147,3,.15)}
+.table-wrap{background:#fff;border-radius:12px;border:1px solid #E5E7EB}
+.table-scroll{overflow-x:auto;border-radius:12px}
+table{width:100%;border-collapse:collapse;min-width:1150px}
+th{text-align:left;padding:10px 12px;font-size:12px;font-weight:500;color:#6B7280;border-bottom:1px solid #E5E7EB;background:#F9FAFB;white-space:nowrap}
+td{padding:10px 12px;font-size:13px;border-bottom:1px solid #F3F4F6;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#F9FAFB}
+.mono{font-family:SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
+.tag-deposit{background:#DCFCE7;color:#166534}
+.tag-withdraw{background:#EFF6FF;color:#1D4ED8}
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 20px 16px}
+.page-btn{padding:6px 12px;border:1px solid #D1D5DB;border-radius:6px;background:#fff;cursor:pointer;font-size:13px;color:#4B5563}
+.page-btn:hover{border-color:#E59303;color:#E59303}
+.page-btn.active{border-color:#E59303;background:#E59303;color:#fff}
+.table-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px 0}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;overflow-y:auto}
+.modal-overlay.active{display:flex;align-items:center;justify-content:center}
+.modal{background:#fff;border-radius:16px;padding:28px 32px;width:720px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.15);margin:24px auto}
+.modal-title{font-size:18px;font-weight:600}
+.detail-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #F3F4F6;font-size:13px}
+.detail-row:last-child{border-bottom:none}
+.detail-row .k{color:#86909C}
+.detail-row .v{font-weight:500;text-align:right}
+.section-block{margin-bottom:18px}
+.section-block:last-child{margin-bottom:0}
+.section-head{font-size:14px;font-weight:600;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #E5E7EB}
+.status-strip{display:flex;align-items:center;gap:10px;margin-bottom:16px;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:10px;padding:10px 14px;font-size:13px}
+.status-strip .k{color:#86909C}
+.form-label{display:block;font-size:13px;color:#4B5563;margin-bottom:4px;font-weight:500}
+.form-input{width:100%;border:1px solid #D1D5DB;border-radius:8px;padding:9px 12px;font-size:14px;outline:none;background:#F9FAFB}
+.form-input:focus{border-color:#E59303;box-shadow:0 0 0 2px rgba(229,147,3,.15)}
+.upload-box{border:1px dashed #D1D5DB;border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;background:#F9FAFB;font-size:13px}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+<div class="sidebar-header">YASBee 管理后台</div>
+<div class="sidebar-label">主菜单</div>
+<div class="sidebar-item" style="color:#fff;"><span>🪪</span> 客户管理 ▾</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📈 概览</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">✅ 认证</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📋 客户列表</div>
+<div class="sidebar-item" style="color:#fff;"><span>💰</span> 法币管理 ▾</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📥 交易审核</div>
+<div class="sidebar-item active" style="padding-left:36px;font-size:13px;">📋 交易记录</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">🏦 资金总览</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">🏢 收款账户</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">💱 币种设置</div>
+<div class="sidebar-item"><span>₿</span> 加密货币</div>
+<div class="sidebar-item"><span>🔄</span> 兑换管理</div>
+<div class="sidebar-label">渠道</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📡 上游渠道</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">🃏 卡片服务</div>
+<div class="sidebar-item"><span>💳</span> 卡片管理</div>
+<div class="sidebar-item"><span>📈</span> 投资</div>
+<div class="sidebar-item"><span>⚙️</span> 系统管理</div>
+<div class="sidebar-item"><span>📋</span> 我的任务</div>
+</div>
+
+<div class="main">
+
+<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;">
+<div>
+<h1 style="font-size:24px;font-weight:700;">交易记录</h1>
+<p style="font-size:13px;color:#86909C;margin-top:4px;">法币出入金交易（Deposits &amp; Withdrawals），PROCESSING 状态需审核</p>
+</div>
+</div>
+
+<!-- Stats Row -->
+<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;">
+<div class="stat-card">
+<div class="stat-label">总交易</div>
+<div class="stat-value">125</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">本月入金</div>
+<div class="stat-value" style="color:#166534;">$48,620.50</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">本月出金</div>
+<div class="stat-value" style="color:#1D4ED8;">-$32,150.00</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">待审核 (PROCESSING)</div>
+<div class="stat-value" style="color:#854D0E;">12</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">本月手续费</div>
+<div class="stat-value">$1,240.00</div>
+</div>
+</div>
+
+<!-- Filters -->
+<div style="background:#fff;border-radius:12px;border:1px solid #E5E7EB;padding:16px 20px;margin-bottom:20px;">
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+<select class="filter-select" style="width:150px;" onchange="filterTable()">
+<option value="all">全部类型</option>
+<option>Deposit</option>
+<option>Withdrawal</option>
+</select>
+<select class="filter-select" style="width:160px;" onchange="filterTable()">
+<option value="all">All Statuses</option>
+<option>PROCESSING</option>
+<option>COMPLETED</option>
+<option>REJECTED</option>
+<option>FAILED</option>
+</select>
+<select class="filter-select" style="width:140px;" onchange="filterTable()">
+<option value="all">全部币种</option>
+<option>USD</option>
+<option>EUR</option>
+<option>GBP</option>
+</select>
+<input class="filter-input" placeholder="Search by ID or Customer" oninput="filterTable()">
+<div style="margin-left:auto;display:flex;gap:8px;">
+<button class="btn-outline" onclick="alert('导出 CSV (原型)')">📥 导出 CSV</button>
+</div>
+</div>
+</div>
+
+<!-- Table -->
+<div class="table-wrap">
+<div class="table-header">
+<h3 style="font-size:15px;font-weight:600;">交易记录</h3>
+<span style="font-size:13px;color:#86909C;" id="recCount">125 transactions available</span>
+</div>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Customer ID</th>
+<th>Customer Name</th>
+<th>Type</th>
+<th>Currency</th>
+<th>Amount</th>
+<th>Status</th>
+<th>Reviewer</th>
+<th>Date</th>
+<th style="width:130px;">Actions</th>
+</tr>
+</thead>
+<tbody>
+<tr data-type="Deposit" data-status="PROCESSING" data-ccy="USD" data-search="FIAT-01M1X8EZEFSNNJDJ1B07MVFR61 C-WAEJ4T8G tz">
+<td><span class="mono" style="font-size:12px;">FIAT-01M1X8EZEFSNNJDJ1B07MVFR61</span></td>
+<td><span class="mono">C-WAEJ4T8G</span></td>
+<td>tz</td>
+<td><span class="tag tag-deposit">Deposit</span></td>
+<td>USD</td>
+<td style="font-weight:600;">$20.50</td>
+<td><span class="badge badge-pending">PROCESSING</span></td>
+<td>张天佑</td>
+<td>2026-09-07 14:20:30</td>
+<td><button class="btn-primary" onclick="review(this,'deposit')">Review</button></td>
+</tr>
+<tr data-type="Withdrawal" data-status="PROCESSING" data-ccy="USD" data-search="FIAT-01KZZMZ89J2R0HZNH38VXD42D8 C-WAEJ4T8G tz">
+<td><span class="mono" style="font-size:12px;">FIAT-01KZZMZ89J2R0HZNH38VXD42D8</span></td>
+<td><span class="mono">C-WAEJ4T8G</span></td>
+<td>tz</td>
+<td><span class="tag tag-withdraw">Withdrawal</span></td>
+<td>USD</td>
+<td style="font-weight:600;">$850.00</td>
+<td><span class="badge badge-pending">PROCESSING</span></td>
+<td>张天佑</td>
+<td>2026-09-07 10:03:44</td>
+<td><button class="btn-primary" onclick="review(this,'withdraw')">Review</button></td>
+</tr>
+<tr data-type="Deposit" data-status="COMPLETED" data-ccy="EUR" data-search="FIAT-01J9XW7PLQK2MZNAB4C8D0E5F6 C-8QX2S0LC cai">
+<td><span class="mono" style="font-size:12px;">FIAT-01J9XW7PLQK2MZNAB4C8D0E5F6</span></td>
+<td><span class="mono">C-8QX2S0LC</span></td>
+<td>cai</td>
+<td><span class="tag tag-deposit">Deposit</span></td>
+<td>EUR</td>
+<td style="font-weight:600;">€1,800.00</td>
+<td><span class="badge badge-ok">COMPLETED</span></td>
+<td>System</td>
+<td>2026-09-07 09:15:02</td>
+<td><button class="btn-text" style="cursor:default;color:#9CA3AF;" disabled>详情</button></td>
+</tr>
+<tr data-type="Withdrawal" data-status="COMPLETED" data-ccy="GBP" data-search="FIAT-01H8VY6UQJ3LZNXBC9D1E2F3G4 C-SSC119MO 123">
+<td><span class="mono" style="font-size:12px;">FIAT-01H8VY6UQJ3LZNXBC9D1E2F3G4</span></td>
+<td><span class="mono">C-SSC119MO</span></td>
+<td>123</td>
+<td><span class="tag tag-withdraw">Withdrawal</span></td>
+<td>GBP</td>
+<td style="font-weight:600;">£500.00</td>
+<td><span class="badge badge-ok">COMPLETED</span></td>
+<td>System</td>
+<td>2026-09-06 16:42:18</td>
+<td><button class="btn-text" style="cursor:default;color:#9CA3AF;" disabled>详情</button></td>
+</tr>
+<tr data-type="Deposit" data-status="PROCESSING" data-ccy="USD" data-search="FIAT-01G7U5T4RSI2MYPODA0E1F2C3B4 C-FWCHT9TS zdz">
+<td><span class="mono" style="font-size:12px;">FIAT-01G7U5T4RSI2MYPODA0E1F2C3B4</span></td>
+<td><span class="mono">C-FWCHT9TS</span></td>
+<td>zdz</td>
+<td><span class="tag tag-deposit">Deposit</span></td>
+<td>USD</td>
+<td style="font-weight:600;">$5,000.00</td>
+<td><span class="badge badge-pending">PROCESSING</span></td>
+<td>李慧</td>
+<td>2026-09-06 11:30:55</td>
+<td><button class="btn-primary" onclick="review(this,'deposit')">Review</button></td>
+</tr>
+<tr data-type="Withdrawal" data-status="REJECTED" data-ccy="USD" data-search="FIAT-01F6T3S2RQH1OLXNBC9E8D7C6A5 C-T2GSF2TC ZHANG SAN">
+<td><span class="mono" style="font-size:12px;">FIAT-01F6T3S2RQH1OLXNBC9E8D7C6A5</span></td>
+<td><span class="mono">C-T2GSF2TC</span></td>
+<td>ZHANG SAN</td>
+<td><span class="tag tag-withdraw">Withdrawal</span></td>
+<td>USD</td>
+<td style="font-weight:600;">$1,200.00</td>
+<td><span class="badge badge-fail">REJECTED</span></td>
+<td>李慧</td>
+<td>2026-09-05 15:08:40</td>
+<td><button class="btn-text" style="cursor:default;color:#9CA3AF;" disabled>详情</button></td>
+</tr>
+<tr data-type="Deposit" data-status="COMPLETED" data-ccy="USD" data-search="FIAT-01E5R2Q1POG0NKMVAZ9Y8X7W6V5 C-KAA4K9A8 yuis">
+<td><span class="mono" style="font-size:12px;">FIAT-01E5R2Q1POG0NKMVAZ9Y8X7W6V5</span></td>
+<td><span class="mono">C-KAA4K9A8</span></td>
+<td>yuis</td>
+<td><span class="tag tag-deposit">Deposit</span></td>
+<td>USD</td>
+<td style="font-weight:600;">$10,000.00</td>
+<td><span class="badge badge-ok">COMPLETED</span></td>
+<td>System</td>
+<td>2026-09-04 13:22:31</td>
+<td><button class="btn-text" style="cursor:default;color:#9CA3AF;" disabled>详情</button></td>
+</tr>
+<tr data-type="Withdrawal" data-status="PROCESSING" data-ccy="EUR" data-search="FIAT-01D4Q1P0ONFMLJUIZ8Y7X6W5V4U3 C-Y8FCT8G0 fdrt">
+<td><span class="mono" style="font-size:12px;">FIAT-01D4Q1P0ONFMLJUIZ8Y7X6W5V4U3</span></td>
+<td><span class="mono">C-Y8FCT8G0</span></td>
+<td>fdrt</td>
+<td><span class="tag tag-withdraw">Withdrawal</span></td>
+<td>EUR</td>
+<td style="font-weight:600;">€320.00</td>
+<td><span class="badge badge-pending">PROCESSING</span></td>
+<td>张天佑</td>
+<td>2026-09-03 09:45:12</td>
+<td><button class="btn-primary" onclick="review(this,'withdraw')">Review</button></td>
+</tr>
+<tr data-type="Deposit" data-status="COMPLETED" data-ccy="GBP" data-search="FIAT-01C3O0N2MDLKHTGZ9X8W7V6U5T4S3 C-PJVTAFWG qing liang">
+<td><span class="mono" style="font-size:12px;">FIAT-01C3O0N2MDLKHTGZ9X8W7V6U5T4S3</span></td>
+<td><span class="mono">C-PJVTAFWG</span></td>
+<td>qing liang</td>
+<td><span class="tag tag-deposit">Deposit</span></td>
+<td>GBP</td>
+<td style="font-weight:600;">£2,000.00</td>
+<td><span class="badge badge-ok">COMPLETED</span></td>
+<td>System</td>
+<td>2026-09-02 17:36:09</td>
+<td><button class="btn-text" style="cursor:default;color:#9CA3AF;" disabled>详情</button></td>
+</tr>
+<tr data-type="Withdrawal" data-status="FAILED" data-ccy="USD" data-search="FIAT-01B2N1M0LCKJGSFZ8X7W6V5U4T3S2R C-F1XMCW74 kakaluote">
+<td><span class="mono" style="font-size:12px;">FIAT-01B2N1M0LCKJGSFZ8X7W6V5U4T3S2R</span></td>
+<td><span class="mono">C-F1XMCW74</span></td>
+<td>kakaluote</td>
+<td><span class="tag tag-withdraw">Withdrawal</span></td>
+<td>USD</td>
+<td style="font-weight:600;">$400.00</td>
+<td><span class="badge badge-fail">FAILED</span></td>
+<td>System</td>
+<td>2026-09-01 08:19:47</td>
+<td><button class="btn-text" style="cursor:default;color:#9CA3AF;" disabled>详情</button></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="pagination">
+<div style="font-size:13px;color:#86909C;">Showing 1 to 10 of 125 records</div>
+<div style="display:flex;gap:4px;">
+<button class="page-btn">‹</button>
+<button class="page-btn active">1</button>
+<button class="page-btn">2</button>
+<button class="page-btn">3</button>
+<button class="page-btn">4</button>
+<button class="page-btn">5</button>
+<button class="page-btn" style="cursor:default;border:none;color:#86909C;">•••</button>
+<button class="page-btn">13</button>
+<button class="page-btn">›</button>
+</div>
+</div>
+</div>
+
+</div>
+
+<!-- Modal: Deposit Review -->
+<div class="modal-overlay" id="depositReviewModal">
+<div class="modal">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+<div class="modal-title">Fiat Transaction Details</div>
+<span style="font-size:24px;cursor:pointer;color:#86909C;" onclick="closeModal('depositReviewModal')">✕</span>
+</div>
+<div class="status-strip">
+<span class="k">Status:</span><span class="badge badge-pending">PROCESSING</span>
+<span class="k" style="margin-left:16px;">Currency:</span><b>USD</b>
+<span class="k" style="margin-left:16px;">Type:</span><span class="tag tag-deposit">Deposit</span>
+</div>
+<div class="section-block">
+<div class="section-head">Sender Information</div>
+<div class="detail-row"><span class="k">Sender Name</span><span class="v">CHEN WEI</span></div>
+<div class="detail-row"><span class="k">Sending Bank</span><span class="v">Industrial and Commercial Bank of China</span></div>
+<div class="detail-row"><span class="k">Sending Account</span><span class="v mono">6217****8341</span></div>
+</div>
+<div class="section-block">
+<div class="section-head">Receiver Information</div>
+<div class="detail-row"><span class="k">Receiver Name</span><span class="v">Apex Markets Inc</span></div>
+<div class="detail-row"><span class="k">Receiving Account</span><span class="v mono">US21****8214</span></div>
+</div>
+<div class="section-block">
+<div class="section-head">Transaction Details</div>
+<div class="detail-row"><span class="k">Transaction ID</span><span class="v mono">FIAT-01M1X8EZEFSNNJDJ1B07MVFR61</span></div>
+<div class="detail-row"><span class="k">Date &amp; Time</span><span class="v">2026-09-07 14:20:30</span></div>
+<div class="detail-row"><span class="k">Principal Amount</span><span class="v">$20.50 USD</span></div>
+<div class="detail-row"><span class="k">Fees</span><span class="v">$0.00 USD</span></div>
+<div class="detail-row"><span class="k">Posted Amount</span><span class="v" style="font-weight:700;">$20.50 USD</span></div>
+<div class="detail-row"><span class="k">Reference</span><span class="v mono">DEP-20260907-1842</span></div>
+<div class="detail-row"><span class="k">Notes</span><span class="v" style="color:#9CA3AF;">----</span></div>
+</div>
+<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px;padding-top:16px;border-top:1px solid #E5E7EB;">
+<button class="btn-outline" onclick="closeModal('depositReviewModal')">Close</button>
+<button class="btn-danger-outline" onclick="actReview(this,'depositReviewModal','REJECTED')">Reject</button>
+<button class="btn-primary" onclick="actReview(this,'depositReviewModal','COMPLETED')">Approve</button>
+</div>
+</div>
+</div>
+
+<!-- Modal: Withdrawal Review -->
+<div class="modal-overlay" id="withdrawReviewModal">
+<div class="modal">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+<div class="modal-title">Withdraw Fiat Review</div>
+<span style="font-size:24px;cursor:pointer;color:#86909C;" onclick="closeModal('withdrawReviewModal')">✕</span>
+</div>
+<div class="status-strip">
+<span class="k">Currency:</span><b>USD</b>
+<span class="k" style="margin-left:16px;">Amount:</span><b>$850.00</b>
+<span class="k" style="margin-left:16px;">Transfer Method:</span><b>Fedwire</b>
+</div>
+<div style="margin-bottom:16px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;padding:10px 14px;font-size:13px;">
+<span style="color:#854D0E;font-weight:600;">Available Balance (USD): $10,092,667.15</span>
+</div>
+<div class="section-block">
+<div class="section-head">Beneficiary Information</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+<div>
+<label class="form-label">Beneficiary Name *</label>
+<input class="form-input" value="CHEN WEI">
+</div>
+<div>
+<label class="form-label">Account Number *</label>
+<input class="form-input" value="6217****8341">
+</div>
+</div>
+<div style="margin-bottom:14px;">
+<label class="form-label">Transfer Purpose *</label>
+<input class="form-input" value="Personal transfer">
+</div>
+<div>
+<label class="form-label">Supporting Document (Mandatory)</label>
+<div class="upload-box">
+<span>📄 file_5823270466551914376.pdf</span>
+<button class="btn-text" onclick="alert('预览文档 (原型)')">View Document</button>
+</div>
+</div>
+</div>
+<div class="section-block">
+<div class="section-head">Transaction Details</div>
+<div class="detail-row"><span class="k">Transaction ID</span><span class="v mono">FIAT-01KZZMZ89J2R0HZNH38VXD42D8</span></div>
+<div class="detail-row"><span class="k">Date &amp; Time</span><span class="v">2026-09-07 10:03:44</span></div>
+<div class="detail-row"><span class="k">Principal Amount</span><span class="v">$850.00 USD</span></div>
+<div class="detail-row"><span class="k">Fees</span><span class="v">$0.00 USD</span></div>
+<div class="detail-row"><span class="k">Posted Amount</span><span class="v" style="font-weight:700;">$850.00 USD</span></div>
+</div>
+<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px;padding-top:16px;border-top:1px solid #E5E7EB;">
+<button class="btn-outline" onclick="closeModal('withdrawReviewModal')">Close</button>
+<button class="btn-danger-outline" onclick="actReview(this,'withdrawReviewModal','REJECTED')">Reject</button>
+<button class="btn-primary" onclick="actReview(this,'withdrawReviewModal','COMPLETED')">Approve</button>
+</div>
+</div>
+</div>
+
+<script>
+var currentRow=null;
+function review(btn,type){
+currentRow=btn.closest('tr');
+var id=(type==='deposit')?'depositReviewModal':'withdrawReviewModal';
+document.getElementById(id).classList.add('active');
+}
+function actReview(btn,modalId,newStatus){
+var statusCell=currentRow.querySelector('td:nth-child(7) .badge');
+statusCell.className='badge '+(newStatus==='COMPLETED'?'badge-ok':'badge-fail');
+statusCell.textContent=newStatus;
+currentRow.setAttribute('data-status',newStatus);
+currentRow.querySelector('td:last-child').innerHTML='<button class="btn-text" style="cursor:default;color:#9CA3AF;" disabled>详情</button>';
+closeModal(modalId);
+var msg=(newStatus==='COMPLETED')?'✅ 已通过 (Approve)':'❌ 已拒绝 (Reject)';
+alert(msg+' 交易已更新 (原型)');
+currentRow=null;
+}
+function openModal(id){document.getElementById(id).classList.add('active')}
+function closeModal(id){document.getElementById(id).classList.remove('active')}
+document.addEventListener('click',function(e){if(e.target.classList.contains('modal-overlay')&&e.target.classList.contains('active')){e.target.classList.remove('active')}});
+function filterTable(){
+var sels=document.querySelectorAll('.filter-select');
+var type=sels[0].value,status=sels[1].value,ccy=sels[2].value;
+var search=document.querySelector('.filter-input').value.toLowerCase();
+var rows=document.querySelectorAll('tbody tr');
+var visible=0;
+rows.forEach(function(r){
+var ok=(type=='all'||r.getAttribute('data-type')==type)
+&&(status=='all'||r.getAttribute('data-status')==status)
+&&(ccy=='all'||r.getAttribute('data-ccy')==ccy)
+&&(!search||r.getAttribute('data-search').toLowerCase().indexOf(search)>=0);
+r.style.display=ok?'':'none';
+if(ok) visible++;
+});
+document.getElementById('recCount').textContent=visible+' transactions available';
+}
+</script>
+</body>
+</html>

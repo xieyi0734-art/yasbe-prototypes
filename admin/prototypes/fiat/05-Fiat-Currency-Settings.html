@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>币种设置 - YASBee 管理端</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;color:#1D2129;background:#F3F4F6;line-height:1.5}
+.sidebar{width:260px;background:#1D2129;color:#fff;height:100vh;position:fixed;left:0;top:0;overflow-y:auto}
+.sidebar-header{padding:20px;font-size:20px;font-weight:700;color:#E59303;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-item{display:flex;align-items:center;gap:12px;padding:12px 20px;color:#9CA3AF;font-size:14px;cursor:pointer;transition:all .15s}
+.sidebar-item:hover{color:#fff;background:rgba(255,255,255,.05)}
+.sidebar-item.active{color:#E59303;background:rgba(229,147,3,.1);border-right:3px solid #E59303}
+.sidebar-label{padding:8px 20px 4px;font-size:11px;color:#6B7280;text-transform:uppercase;letter-spacing:1px}
+.main{margin-left:260px;padding:32px}
+.sec-card{background:#fff;border-radius:12px;border:1px solid #E5E7EB;margin-bottom:16px;overflow:hidden}
+.sec-head{display:flex;justify-content:space-between;align-items:center;padding:18px 24px;border-bottom:1px solid #E5E7EB;background:#F9FAFB}
+.sec-title{font-size:16px;font-weight:700;display:flex;align-items:center;gap:10px}
+.sec-body{padding:20px 24px}
+.badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:500}
+.badge-ok{background:#DCFCE7;color:#166534}
+.badge-warn{background:#FEF9C3;color:#854D0E}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:9px 12px;font-size:12px;font-weight:500;color:#6B7280;border-bottom:1px solid #E5E7EB;background:#F9FAFB;white-space:nowrap}
+td{padding:10px 12px;font-size:13px;border-bottom:1px solid #F3F4F6}
+tr:last-child td{border-bottom:none}
+.mono{font-family:SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+.tier{display:inline-flex;align-items:center;background:#F3F4F6;border:1px solid #E5E7EB;border-radius:6px;padding:2px 8px;font-size:11px;color:#4B5563}
+.toggle{position:relative;width:40px;height:22px;background:#D1D5DB;border-radius:20px;cursor:pointer;transition:background .2s;display:inline-block;vertical-align:middle}
+.toggle.on{background:#E59303}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform .2s}
+.toggle.on::after{transform:translateX(18px)}
+.btn-outline{background:#fff;color:#4B5563;border:1px solid #D1D5DB;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:500;cursor:pointer}
+.btn-outline:hover{border-color:#E59303;color:#E59303}
+.edit-link{background:none;border:none;color:#E59303;font-size:13px;font-weight:500;cursor:pointer;padding:0}
+.edit-link:hover{text-decoration:underline}
+.note{font-size:12px;color:#86909C;background:#F9FAFB;border:1px dashed #E5E7EB;border-radius:8px;padding:10px 14px;margin-top:4px;line-height:1.7}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+<div class="sidebar-header">YASBee 管理后台</div>
+<div class="sidebar-label">主菜单</div>
+<div class="sidebar-item"><span>🪪</span> 客户管理 ▾</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📈 概览</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">✅ 认证</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📋 客户列表</div>
+<div class="sidebar-item" style="color:#fff;"><span>💰</span> 法币管理 ▾</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📥 交易审核</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📋 交易记录</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">🏦 资金总览</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">🏢 收款账户</div>
+<div class="sidebar-item active" style="padding-left:36px;font-size:13px;">💱 币种设置</div>
+<div class="sidebar-item"><span>₿</span> 加密货币</div>
+<div class="sidebar-item"><span>🔄</span> 兑换管理</div>
+<div class="sidebar-label">渠道</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📡 上游渠道</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">🃏 卡片服务</div>
+<div class="sidebar-item"><span>💳</span> 卡片管理</div>
+<div class="sidebar-item"><span>📈</span> 投资</div>
+<div class="sidebar-item"><span>⚙️</span> 系统管理</div>
+<div class="sidebar-item"><span>📋</span> 我的任务</div>
+</div>
+
+<div class="main">
+
+<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;">
+<div>
+<h1 style="font-size:24px;font-weight:700;">币种设置</h1>
+<p style="font-size:13px;color:#86909C;margin-top:4px;">法币产品规则 — 费率按单笔金额两档计（≤50,000 / >50,000），配置即时生效</p>
+</div>
+<button class="btn-outline" onclick="showToast('开通新币种需先配置上游收款账户(模拟)')">+ 开通币种</button>
+</div>
+
+<!-- USD -->
+<div class="sec-card">
+<div class="sec-head">
+<div class="sec-title"><span style="background:#E5E7EB;border-radius:8px;padding:2px 10px;font-size:14px;">$</span> USD <span style="font-size:12px;font-weight:400;color:#86909C;">美元 · Fedwire</span></div>
+<div style="display:flex;align-items:center;gap:12px;">
+<span class="badge badge-ok">ENABLED</span>
+<div class="toggle on" onclick="this.classList.toggle('on');showToast(this.classList.contains('on')?'USD 已启用':'USD 已停用(模拟)')"></div>
+</div>
+</div>
+<div class="sec-body">
+<table>
+<thead>
+<tr><th>费用类型</th><th>金额档位</th><th>费率</th><th>固定费用</th><th style="text-align:right;">操作</th></tr>
+</thead>
+<tbody>
+<tr>
+<td style="font-weight:600;">入金 Deposit Fee</td>
+<td><span class="tier">≤ 50,000</span></td>
+<td class="mono">0.50%</td>
+<td class="mono">$0.00</td>
+<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+</tr>
+<tr>
+<td style="font-weight:600;">入金 Deposit Fee</td>
+<td><span class="tier">&gt; 50,000</span></td>
+<td class="mono">0.30%</td>
+<td class="mono">$0.00</td>
+<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+</tr>
+<tr>
+<td style="font-weight:600;">出金 Withdrawal Fee</td>
+<td><span class="tier">≤ 50,000</span></td>
+<td class="mono">0.50%</td>
+<td class="mono">$25.00</td>
+<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+</tr>
+<tr>
+<td style="font-weight:600;">出金 Withdrawal Fee</td>
+<td><span class="tier">&gt; 50,000</span></td>
+<td class="mono">0.30%</td>
+<td class="mono">$25.00</td>
+<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+</tr>
+</tbody>
+</table>
+<div style="font-size:12px;color:#86909C;margin-top:14px;border-top:1px solid #F3F4F6;padding-top:12px;">
+限额规则：单笔入金下限 $100，单笔出金上限 $100,000；客户每日累计出金上限 $250,000。收款账户：<span class="mono">VA-US-8821 · Apex Markets Inc</span>
+</div>
+</div>
+</div>
+
+<!-- EUR -->
+<div class="sec-card">
+<div class="sec-head">
+<div class="sec-title"><span style="background:#E5E7EB;border-radius:8px;padding:2px 10px;font-size:14px;">€</span> EUR <span style="font-size:12px;font-weight:400;color:#86909C;">欧元 · SEPA</span></div>
+<div style="display:flex;align-items:center;gap:12px;">
+<span class="badge badge-ok">ENABLED</span>
+<div class="toggle on" onclick="this.classList.toggle('on');showToast(this.classList.contains('on')?'EUR 已启用':'EUR 已停用(模拟)')"></div>
+</div>
+</div>
+<div class="sec-body">
+<table>
+<thead>
+<tr><th>费用类型</th><th>金额档位</th><th>费率</th><th>固定费用</th><th style="text-align:right;">操作</th></tr>
+</thead>
+<tbody>
+<tr>
+<td style="font-weight:600;">入金 Deposit Fee</td>
+<td><span class="tier">≤ 50,000</span></td>
+<td class="mono">0.50%</td>
+<td class="mono">€0.00</td>
+<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+</tr>
+<tr>
+<td style="font-weight:600;">入金 Deposit Fee</td>
+<td><span class="tier">&gt; 50,000</span></td>
+<td class="mono">0.30%</td>
+<td class="mono">€0.00</td>
+<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+</tr>
+<tr>
+<td style="font-weight:600;">出金 Withdrawal Fee</td>
+<td><span class="tier">≤ 50,000</span></td>
+<td class="mono">0.50%</td>
+<td class="mono">€15.00</td>
+<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+</tr>
+<tr>
+<td style="font-weight:600;">出金 Withdrawal Fee</td>
+<td><span class="tier">&gt; 50,000</span></td>
+<td class="mono">0.30%</td>
+<td class="mono">€15.00</td>
+<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+</tr>
+</tbody>
+</table>
+<div style="font-size:12px;color:#86909C;margin-top:14px;border-top:1px solid #F3F4F6;padding-top:12px;">
+限额规则：单笔入金下限 €100，单笔出金上限 €100,000；客户每日累计出金上限 €250,000。收款账户：<span class="mono">int.acc-77F3K · Banking Circle</span>
+</div>
+</div>
+</div>
+
+<!-- GBP -->
+<div class="sec-card">
+<div class="sec-head">
+<div class="sec-title"><span style="background:#E5E7EB;border-radius:8px;padding:2px 10px;font-size:14px;">£</span> GBP <span style="font-size:12px;font-weight:400;color:#86909C;">英镑 · FPS / CHAPS / SWIFT</span></div>
+<div style="display:flex;align-items:center;gap:12px;">
+<span class="badge badge-ok">ENABLED</span>
+<div class="toggle on" onclick="this.classList.toggle('on');showToast(this.classList.contains('on')?'GBP 已启用':'GBP 已停用(模拟)')"></div>
+</div>
+</div>
+<div class="sec-body">
+<table>
+<thead>
+<tr><th>费用类型</th><th>金额档位</th><th>费率</th><th>固定费用</th><th style="text-align:right;">操作</th></tr>
+</thead>
+<tbody>
+<tr>
+<td style="font-weight:600;">入金 Deposit Fee</td>
+<td><span class="tier">≤ 50,000</span></td>
+<td class="mono">0.50%</td>
+<td class="mono">£0.00</td>
+<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+</tr>
+<tr>
+<td style="font-weight:600;">入金 Deposit Fee</td>
+<td><span class="tier">&gt; 50,000</span></td>
+<td class="mono">0.30%</td>
+<td class="mono">£0.00</td>
+<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+</tr>
+<tr>
+<td style="font-weight:600;">出金 Withdrawal Fee</td>
+<td><span class="tier">≤ 50,000</span></td>
+<td class="mono">0.50%</td>
+<td class="mono">£20.00</td>
+<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+</tr>
+<tr>
+<td style="font-weight:600;">出金 Withdrawal Fee</td>
+<td><span class="tier">&gt; 50,000</span></td>
+<td class="mono">0.30%</td>
+<td class="mono">£20.00</td>
+<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+</tr>
+</tbody>
+</table>
+<div style="font-size:12px;color:#86909C;margin-top:14px;border-top:1px solid #F3F4F6;padding-top:12px;">
+限额规则：单笔入金下限 £100，单笔出金上限 £100,000；客户每日累计出金上限 £250,000。收款账户：<span class="mono">GB-VA-2214 · Clear Junction</span>
+</div>
+</div>
+</div>
+
+<div class="note">
+<strong>说明：</strong>金额档位阈值 50,000 与两档结构为线上系统实测口径（Currency Settings）；<b>费率/固定费用/限额数值为演示占位</b>，定版前需按线上配置核对。费用由 C 端展示口径（入金/出金手续费）与后台配置同源。
+</div>
+
+</div>
+
+<div id="toast" style="position:fixed;right:24px;bottom:24px;background:#1D2129;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;z-index:2000;opacity:0;transform:translateY(10px);transition:all .25s;pointer-events:none;"></div>
+
+<script>
+var toastEl = document.getElementById('toast');
+function showToast(msg) {
+  toastEl.textContent = msg;
+  toastEl.style.opacity = '1';
+  toastEl.style.transform = 'translateY(0)';
+  clearTimeout(toastEl._h);
+  toastEl._h = setTimeout(function(){ toastEl.style.opacity = '0'; toastEl.style.transform = 'translateY(10px)'; }, 2400);
+}
+</script>
+</body>
+</html>

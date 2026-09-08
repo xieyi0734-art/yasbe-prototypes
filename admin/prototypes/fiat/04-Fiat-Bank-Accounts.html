@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>收款账户 - YASBee 管理端</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;color:#1D2129;background:#F3F4F6;line-height:1.5}
+.sidebar{width:260px;background:#1D2129;color:#fff;height:100vh;position:fixed;left:0;top:0;overflow-y:auto}
+.sidebar-header{padding:20px;font-size:20px;font-weight:700;color:#E59303;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-item{display:flex;align-items:center;gap:12px;padding:12px 20px;color:#9CA3AF;font-size:14px;cursor:pointer;transition:all .15s}
+.sidebar-item:hover{color:#fff;background:rgba(255,255,255,.05)}
+.sidebar-item.active{color:#E59303;background:rgba(229,147,3,.1);border-right:3px solid #E59303}
+.sidebar-label{padding:8px 20px 4px;font-size:11px;color:#6B7280;text-transform:uppercase;letter-spacing:1px}
+.main{margin-left:260px;padding:32px}
+.stat-card{background:#fff;border-radius:12px;border:1px solid #E5E7EB;padding:20px}
+.stat-value{font-size:25px;font-weight:700}
+.stat-label{font-size:13px;color:#86909C;margin-bottom:4px}
+.badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:500}
+.badge-ok{background:#DCFCE7;color:#166534}
+.table-wrap{background:#fff;border-radius:12px;border:1px solid #E5E7EB}
+.table-scroll{overflow-x:auto;border-radius:12px}
+table{width:100%;border-collapse:collapse;min-width:980px}
+th{text-align:left;padding:10px 12px;font-size:12px;font-weight:500;color:#6B7280;border-bottom:1px solid #E5E7EB;background:#F9FAFB;white-space:nowrap}
+td{padding:10px 12px;font-size:13px;border-bottom:1px solid #F3F4F6;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#F9FAFB}
+tr.rowlink{cursor:pointer}
+.mono{font-family:SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+.link-btn{background:none;border:none;color:#E59303;font-size:13px;font-weight:500;cursor:pointer;padding:0}
+.link-btn:hover{text-decoration:underline}
+.scheme-tag{display:inline-flex;flex-wrap:wrap;gap:4px}
+.scheme-tag span{background:#F3F4F6;border:1px solid #E5E7EB;border-radius:4px;padding:1px 7px;font-size:11px;color:#4B5563}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;overflow-y:auto}
+.modal-overlay.active{display:flex;align-items:center;justify-content:center}
+.modal{background:#fff;border-radius:16px;padding:28px 32px;width:680px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.15);margin:24px auto}
+.modal-title{font-size:18px;font-weight:600}
+.detail-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #F3F4F6;font-size:13px}
+.detail-row:last-child{border-bottom:none}
+.detail-row .k{color:#86909C}
+.detail-row .v{font-weight:500;text-align:right}
+.section-head{font-size:14px;font-weight:600;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #E5E7EB}
+.btn-primary{background:#E59303;color:#fff;border:none;border-radius:8px;padding:8px 20px;font-size:14px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-primary:hover{background:#d48402}
+.btn-outline{background:#fff;color:#4B5563;border:1px solid #D1D5DB;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:500;cursor:pointer}
+.btn-outline:hover{border-color:#E59303;color:#E59303}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+<div class="sidebar-header">YASBee 管理后台</div>
+<div class="sidebar-label">主菜单</div>
+<div class="sidebar-item"><span>🪪</span> 客户管理 ▾</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📈 概览</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">✅ 认证</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📋 客户列表</div>
+<div class="sidebar-item" style="color:#fff;"><span>💰</span> 法币管理 ▾</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📥 交易审核</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📋 交易记录</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">🏦 资金总览</div>
+<div class="sidebar-item active" style="padding-left:36px;font-size:13px;">🏢 收款账户</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">💱 币种设置</div>
+<div class="sidebar-item"><span>₿</span> 加密货币</div>
+<div class="sidebar-item"><span>🔄</span> 兑换管理</div>
+<div class="sidebar-label">渠道</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📡 上游渠道</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">🃏 卡片服务</div>
+<div class="sidebar-item"><span>💳</span> 卡片管理</div>
+<div class="sidebar-item"><span>📈</span> 投资</div>
+<div class="sidebar-item"><span>⚙️</span> 系统管理</div>
+<div class="sidebar-item"><span>📋</span> 我的任务</div>
+</div>
+
+<div class="main">
+
+<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;">
+<div>
+<h1 style="font-size:24px;font-weight:700;">收款账户</h1>
+<p style="font-size:13px;color:#86909C;margin-top:4px;">平台法币收款账户（与上游清算行开立）— 每账户对应一个清算网络；余额与流水见资金总览</p>
+</div>
+<button class="btn-outline" onclick="showToast('新增收款账户需先完成上游渠道 KYB(模拟)')">+ 新增收款账户</button>
+</div>
+
+<!-- Stats Row -->
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+<div class="stat-card"><div class="stat-label">收款账户总数</div><div class="stat-value">3</div></div>
+<div class="stat-card"><div class="stat-label">覆盖币种</div><div class="stat-value">3</div></div>
+<div class="stat-card"><div class="stat-label">活跃账户</div><div class="stat-value" style="color:#166534;">3</div></div>
+<div class="stat-card"><div class="stat-label">上游渠道</div><div class="stat-value">3</div></div>
+</div>
+
+<div class="table-wrap">
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>账户名称</th>
+<th>开户银行</th>
+<th>币种</th>
+<th>清算网络</th>
+<th>账户编号</th>
+<th>状态</th>
+<th>创建时间</th>
+<th style="text-align:right;">操作</th>
+</tr>
+</thead>
+<tbody>
+<tr class="rowlink" onclick="openDetail('USD')">
+<td style="font-weight:600;">Apex Markets Inc</td>
+<td>Clear Bank</td>
+<td><b>USD</b></td>
+<td><div class="scheme-tag"><span>Fedwire</span><span>Local USD</span></div></td>
+<td class="mono">VA-US-8821</td>
+<td><span class="badge badge-ok">ACTIVE</span></td>
+<td>2026-05-12 10:24</td>
+<td style="text-align:right;"><button class="link-btn" onclick="event.stopPropagation();openDetail('USD')">明细</button></td>
+</tr>
+<tr class="rowlink" onclick="openDetail('EUR')">
+<td style="font-weight:600;">Banking Circle</td>
+<td>Clear Bank</td>
+<td><b>EUR</b></td>
+<td><div class="scheme-tag"><span>SEPA</span><span>Local EUR</span></div></td>
+<td class="mono">int.acc-77F3K</td>
+<td><span class="badge badge-ok">ACTIVE</span></td>
+<td>2026-05-12 10:31</td>
+<td style="text-align:right;"><button class="link-btn" onclick="event.stopPropagation();openDetail('EUR')">明细</button></td>
+</tr>
+<tr class="rowlink" onclick="openDetail('GBP')">
+<td style="font-weight:600;">Clear Junction</td>
+<td>Clear Bank</td>
+<td><b>GBP</b></td>
+<td><div class="scheme-tag"><span>FPS</span><span>CHAPS</span><span>SWIFT</span></div></td>
+<td class="mono">GB-VA-2214</td>
+<td><span class="badge badge-ok">ACTIVE</span></td>
+<td>2026-05-12 10:38</td>
+<td style="text-align:right;"><button class="link-btn" onclick="event.stopPropagation();openDetail('GBP')">明细</button></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div style="font-size:12px;color:#86909C;background:#F9FAFB;border:1px dashed #E5E7EB;border-radius:8px;padding:10px 14px;margin-top:16px;line-height:1.7;">
+字段口径基于 OpenPayd Payment Account（/accounts）：Account ID / Bank Name / Provider / Currency / Scheme / Support MCCY / Status。每账户对应一条<b>上游 KYB</b>（机构级），账户停用不影响历史流水查询。演示数据，账户余额与当日流水见「资金总览」。
+</div>
+
+</div>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="detailModal">
+<div class="modal">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+<div class="modal-title" id="dmTitle">收款账户明细</div>
+<span class="badge badge-ok">ACTIVE</span>
+</div>
+<div class="section-head">Account</div>
+<div class="detail-row"><span class="k">Account Name</span><span class="v" id="dmName"></span></div>
+<div class="detail-row"><span class="k">Account ID</span><span class="v mono" id="dmId"></span></div>
+<div class="detail-row"><span class="k">Bank Name</span><span class="v">Clear Bank</span></div>
+<div class="detail-row"><span class="k">Provider</span><span class="v mono" id="dmProvider"></span></div>
+<div class="detail-row"><span class="k">Currency</span><span class="v" id="dmCcy"></span></div>
+<div class="detail-row"><span class="k">Scheme</span><span class="v" id="dmScheme"></span></div>
+<div class="detail-row"><span class="k">Support MCCY</span><span class="v" id="dmMccy"></span></div>
+<div class="section-head" style="margin-top:14px;">Upstream KYB</div>
+<div class="detail-row"><span class="k">上游渠道主体</span><span class="v" id="dmEntity"></span></div>
+<div class="detail-row"><span class="k">KYB 状态</span><span class="v" style="color:#166534;">Approved</span></div>
+<div class="section-head" style="margin-top:14px;">Balance</div>
+<div class="detail-row"><span class="k">Actual Balance</span><span class="v" id="dmBal"></span></div>
+<div class="detail-row"><span class="k">Available Balance</span><span class="v" id="dmAvail"></span></div>
+<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px;">
+<button class="btn-outline" onclick="showToast('停用账户需二次确认且不可逆(模拟)')">停用账户</button>
+<button class="btn-primary" onclick="document.getElementById('detailModal').classList.remove('active')">关闭</button>
+</div>
+</div>
+</div>
+
+<div id="toast" style="position:fixed;right:24px;bottom:24px;background:#1D2129;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;z-index:2000;opacity:0;transform:translateY(10px);transition:all .25s;pointer-events:none;"></div>
+
+<script>
+var ACCS = {
+  USD: {name:'Apex Markets Inc', id:'VA-US-8821', provider:'APEX', scheme:'Fedwire / Local USD', mccy:'USD', entity:'Apex Markets Inc (US)', bal:'$923,410.00', avail:'$923,410.00'},
+  EUR: {name:'Banking Circle', id:'int.acc-77F3K', provider:'BANKINGCIRCLE', scheme:'SEPA / Local EUR', mccy:'EUR', entity:'Banking Circle S.A.', bal:'€251,820.00', avail:'€251,820.00'},
+  GBP: {name:'Clear Junction', id:'GB-VA-2214', provider:'CLEARJUNCTION', scheme:'FPS / CHAPS / SWIFT', mccy:'GBP', entity:'Clear Junction Ltd (UK)', bal:'£97,460.00', avail:'£97,460.00'}
+};
+function openDetail(ccy) {
+  var a = ACCS[ccy];
+  document.getElementById('dmTitle').textContent = ccy + ' 收款账户明细';
+  document.getElementById('dmName').textContent = a.name;
+  document.getElementById('dmId').textContent = a.id;
+  document.getElementById('dmProvider').textContent = a.provider;
+  document.getElementById('dmCcy').textContent = a.ccy || a.mccy;
+  document.getElementById('dmScheme').textContent = a.scheme;
+  document.getElementById('dmMccy').textContent = a.mccy;
+  document.getElementById('dmEntity').textContent = a.entity;
+  document.getElementById('dmBal').textContent = a.bal;
+  document.getElementById('dmAvail').textContent = a.avail;
+  document.getElementById('detailModal').classList.add('active');
+}
+var toastEl = document.getElementById('toast');
+function showToast(msg) {
+  toastEl.textContent = msg;
+  toastEl.style.opacity = '1';
+  toastEl.style.transform = 'translateY(0)';
+  clearTimeout(toastEl._h);
+  toastEl._h = setTimeout(function(){ toastEl.style.opacity = '0'; toastEl.style.transform = 'translateY(10px)'; }, 2400);
+}
+document.getElementById('detailModal').addEventListener('click', function(e){ if (e.target === this) this.classList.remove('active'); });
+</script>
+</body>
+</html>

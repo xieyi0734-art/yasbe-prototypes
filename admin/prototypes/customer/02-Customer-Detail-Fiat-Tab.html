@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>客户详情 - 法币模块 - YASBee 管理端</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;color:#1D2129;background:#F3F4F6;line-height:1.5}
+.sidebar{width:260px;background:#1D2129;color:#fff;height:100vh;position:fixed;left:0;top:0;overflow-y:auto}
+.sidebar-header{padding:20px;font-size:20px;font-weight:700;color:#E59303;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-item{display:flex;align-items:center;gap:12px;padding:12px 20px;color:#9CA3AF;font-size:14px;cursor:pointer;transition:all .15s}
+.sidebar-item:hover{color:#fff;background:rgba(255,255,255,.05)}
+.sidebar-item.active{color:#E59303;background:rgba(229,147,3,.1);border-right:3px solid #E59303}
+.sidebar-label{padding:8px 20px 4px;font-size:11px;color:#6B7280;text-transform:uppercase;letter-spacing:1px}
+.main{margin-left:260px;padding:32px}
+.stat-card{background:#fff;border-radius:12px;border:1px solid #E5E7EB;padding:20px}
+.stat-value{font-size:25px;font-weight:700}
+.stat-label{font-size:13px;color:#86909C;margin-bottom:4px}
+.badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:500}
+.badge-active{background:#DCFCE7;color:#166534}
+.badge-frozen{background:#FEF9C3;color:#854D0E}
+.badge-closed{background:#FCE7F3;color:#9D174D}
+.badge-ok{background:#DCFCE7;color:#166534}
+.badge-fail{background:#FEE2E2;color:#991B1B}
+.badge-pending{background:#FEF9C3;color:#854D0E}
+.btn-primary{background:#E59303;color:#fff;border:none;border-radius:8px;padding:8px 20px;font-size:14px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-primary:hover{background:#d48402}
+.btn-outline{background:#fff;color:#4B5563;border:1px solid #D1D5DB;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-outline:hover{border-color:#E59303;color:#E59303}
+.btn-text{background:none;border:none;color:#E59303;font-size:13px;font-weight:500;cursor:pointer;padding:4px 8px}
+.btn-text:hover{color:#d48402}
+.btn-danger{background:#DC2626;color:#fff;border:none;border-radius:8px;padding:8px 20px;font-size:14px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-danger:hover{background:#b91c1c}
+.filter-input{border:1px solid #D1D5DB;border-radius:8px;padding:8px 12px;font-size:14px;outline:none}
+.filter-input:focus{border-color:#E59303;box-shadow:0 0 0 2px rgba(229,147,3,.15)}
+.filter-select{border:1px solid #D1D5DB;border-radius:8px;padding:8px 12px;font-size:14px;outline:none;cursor:pointer;background:#fff}
+.filter-select:focus{border-color:#E59303;box-shadow:0 0 0 2px rgba(229,147,3,.15)}
+.table-wrap{background:#fff;border-radius:12px;border:1px solid #E5E7EB}
+.table-scroll{overflow-x:auto;border-radius:12px}
+table{width:100%;border-collapse:collapse;min-width:900px}
+th{text-align:left;padding:10px 12px;font-size:12px;font-weight:500;color:#6B7280;border-bottom:1px solid #E5E7EB;background:#F9FAFB;white-space:nowrap}
+td{padding:10px 12px;font-size:13px;border-bottom:1px solid #F3F4F6;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#F9FAFB}
+.mono{font-family:SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
+.tag-deposit{background:#DCFCE7;color:#166534}
+.tag-withdraw{background:#EFF6FF;color:#1D4ED8}
+.pagination{display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding:12px 0}
+.page-btn{padding:6px 12px;border:1px solid #D1D5DB;border-radius:6px;background:#fff;cursor:pointer;font-size:13px;color:#4B5563}
+.page-btn:hover{border-color:#E59303;color:#E59303}
+.page-btn.active{border-color:#E59303;background:#E59303;color:#fff}
+.table-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px 0}
+.breadcrumb{font-size:14px;color:#86909C;margin-bottom:8px}
+.breadcrumb span{color:#1D2129;font-weight:500}
+.card{background:#fff;border-radius:12px;border:1px solid #E5E7EB;padding:20px;margin-bottom:20px}
+.section-title{font-size:16px;font-weight:600;color:#1D2129;margin-bottom:4px}
+.section-sub{font-size:13px;color:#86909C;margin-bottom:16px}
+.info-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+.info-item .k{font-size:12px;color:#86909C;margin-bottom:2px}
+.info-item .v{font-size:15px;font-weight:600}
+.balance-card{border-radius:12px;border:1px solid #E5E7EB;padding:18px 20px;background:linear-gradient(135deg,#fff,#FDF9F0)}
+.balance-card .ccy{font-size:13px;font-weight:700;color:#1D2129}
+.balance-card .bal{font-size:24px;font-weight:700;margin:8px 0 2px}
+.balance-card .sub{font-size:12px;color:#86909C}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;overflow-y:auto}
+.modal-overlay.active{display:flex;align-items:center;justify-content:center}
+.modal{background:#fff;border-radius:16px;padding:28px 32px;width:720px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.15);margin:24px auto}
+.modal-title{font-size:18px;font-weight:600}
+.detail-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #F3F4F6;font-size:13px}
+.detail-row:last-child{border-bottom:none}
+.detail-row .k{color:#86909C}
+.detail-row .v{font-weight:500;text-align:right}
+.section-block{margin-bottom:20px}
+.section-block:last-child{margin-bottom:0}
+.section-head{font-size:14px;font-weight:600;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #E5E7EB}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+<div class="sidebar-header">YASBee 管理后台</div>
+<div class="sidebar-label">主菜单</div>
+<div class="sidebar-item" style="color:#fff;"><span>🪪</span> 客户管理 ▾</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📈 概览</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">✅ 认证</div>
+<div class="sidebar-item active" style="padding-left:36px;font-size:13px;">📋 客户列表</div>
+<div class="sidebar-item" style="color:#fff;"><span>💰</span> 法币管理 ▾</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📒 账务列表</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📋 交易记录</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">🏦 银行账户</div>
+<div class="sidebar-item"><span>₿</span> 加密货币</div>
+<div class="sidebar-item"><span>🔄</span> 兑换管理</div>
+<div class="sidebar-label">渠道</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📡 上游渠道</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">🃏 卡片服务</div>
+<div class="sidebar-item"><span>💳</span> 卡片管理</div>
+<div class="sidebar-item"><span>📈</span> 投资</div>
+<div class="sidebar-item"><span>⚙️</span> 系统管理</div>
+<div class="sidebar-item"><span>📋</span> 我的任务</div>
+</div>
+
+<div class="main">
+
+<div class="breadcrumb">客户管理 / 客户列表 / <span>客户详情 - 法币</span></div>
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+<h1 style="font-size:24px;font-weight:700;">客户详情</h1>
+</div>
+
+<!-- 客户信息 -->
+<div class="card">
+<div class="section-title">客户信息</div>
+<div style="margin-top:14px;" class="info-grid">
+<div class="info-item"><div class="k">Customer ID</div><div class="v mono">C-WAEJ4T8G</div></div>
+<div class="info-item"><div class="k">客户名称</div><div class="v">tz (个人客户)</div></div>
+<div class="info-item"><div class="k">邮箱</div><div class="v">tz@example.com</div></div>
+<div class="info-item"><div class="k">KYB 状态</div><div class="v"><span class="badge badge-ok">Approved</span></div></div>
+<div class="info-item"><div class="k">账户持有人</div><div class="v mono">ACH-20260901-0008</div></div>
+</div>
+</div>
+
+<!-- 法币账户余额总览 -->
+<div class="card">
+<div class="section-title">法币账户余额</div>
+<div class="section-sub">账户持有人持有的各币种法币账务余额（OpenPayd Account）</div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+<div class="balance-card">
+<div style="display:flex;justify-content:space-between;align-items:center;">
+<div class="ccy">USD · 美元</div>
+<span class="badge badge-ok">ACTIVE</span>
+</div>
+<div class="bal">$12,480.50</div>
+<div class="sub">可用余额 $12,480.50 · 账户 VA-US-8821</div>
+</div>
+<div class="balance-card">
+<div style="display:flex;justify-content:space-between;align-items:center;">
+<div class="ccy">EUR · 欧元</div>
+<span class="badge badge-ok">ACTIVE</span>
+</div>
+<div class="bal">€3,205.75</div>
+<div class="sub">可用余额 €3,205.75 · 账户 VA-EU-3357</div>
+</div>
+<div class="balance-card">
+<div style="display:flex;justify-content:space-between;align-items:center;">
+<div class="ccy">GBP · 英镑</div>
+<span class="badge badge-pending">PENDING</span>
+</div>
+<div class="bal">£0.00</div>
+<div class="sub">待激活 · 账户 VA-GB-7712</div>
+</div>
+</div>
+</div>
+
+<!-- 法币账户明细 -->
+<div class="table-wrap" style="margin-bottom:20px;">
+<div class="table-header">
+<h3 style="font-size:15px;font-weight:600;">法币账户</h3>
+</div>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>账户</th>
+<th>币种</th>
+<th>账面余额</th>
+<th>可用余额</th>
+<th>状态</th>
+<th>开户时间</th>
+<th style="width:110px;">操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><div style="font-weight:600;">USD Account</div><div class="mono" style="font-size:12px;color:#86909C;">VA-US-8821 · int.acc-77F3K</div></td>
+<td>USD</td>
+<td style="font-weight:600;">$12,480.50</td>
+<td style="font-weight:600;">$12,480.50</td>
+<td><span class="badge badge-ok">ACTIVE</span></td>
+<td>2026-05-12 09:24</td>
+<td><button class="btn-text" onclick="openDetail('txnModal')">交易明细</button></td>
+</tr>
+<tr>
+<td><div style="font-weight:600;">EUR Account</div><div class="mono" style="font-size:12px;color:#86909C;">VA-EU-3357 · int.acc-91AB2</div></td>
+<td>EUR</td>
+<td style="font-weight:600;">€3,205.75</td>
+<td style="font-weight:600;">€3,205.75</td>
+<td><span class="badge badge-ok">ACTIVE</span></td>
+<td>2026-05-12 09:24</td>
+<td><button class="btn-text" onclick="openDetail('txnModal')">交易明细</button></td>
+</tr>
+<tr>
+<td><div style="font-weight:600;">GBP Account</div><div class="mono" style="font-size:12px;color:#86909C;">VA-GB-7712 · int.acc-05C9P</div></td>
+<td>GBP</td>
+<td style="font-weight:600;">£0.00</td>
+<td style="font-weight:600;">£0.00</td>
+<td><span class="badge badge-pending">PENDING</span></td>
+<td>2026-09-01 10:02</td>
+<td><button class="btn-text" onclick="openDetail('txnModal')">交易明细</button></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- 出入金交易记录 -->
+<div class="table-wrap">
+<div class="table-header">
+<h3 style="font-size:15px;font-weight:600;">出入金交易记录</h3>
+<button class="btn-outline" onclick="alert('导出 CSV')">📥 导出 CSV</button>
+</div>
+<div style="display:flex;gap:10px;align-items:center;padding:14px 20px;flex-wrap:wrap;">
+<select class="filter-select" style="width:140px;" onchange="filterTx()">
+<option value="all">全部类型</option>
+<option>Deposit</option>
+<option>Withdrawal</option>
+</select>
+<select class="filter-select" style="width:140px;" onchange="filterTx()">
+<option value="all">全部状态</option>
+<option>COMPLETED</option>
+<option>PROCESSING</option>
+<option>FAILED</option>
+</select>
+</div>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>交易编号</th>
+<th>日期</th>
+<th>类型</th>
+<th>币种</th>
+<th>金额</th>
+<th>手续费</th>
+<th>交易后余额</th>
+<th>状态</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody>
+<tr data-type="Deposit" data-status="COMPLETED">
+<td><span class="mono">FT-20260907-1842</span></td>
+<td>2026-09-07 14:20:30</td>
+<td><span class="tag tag-deposit">Deposit</span></td>
+<td>USD</td>
+<td style="font-weight:600;color:#166534;">+$20.50</td>
+<td>$0.00</td>
+<td>$12,480.50</td>
+<td><span class="badge badge-ok">COMPLETED</span></td>
+<td><button class="btn-text" onclick="openDetail('depositModal')">详情</button></td>
+</tr>
+<tr data-type="Deposit" data-status="COMPLETED">
+<td><span class="mono">FT-20260905-0931</span></td>
+<td>2026-09-05 09:12:05</td>
+<td><span class="tag tag-deposit">Deposit</span></td>
+<td>USD</td>
+<td style="font-weight:600;color:#166534;">+$5,000.00</td>
+<td>$20.00</td>
+<td>$12,460.00</td>
+<td><span class="badge badge-ok">COMPLETED</span></td>
+<td><button class="btn-text" onclick="openDetail('depositModal')">详情</button></td>
+</tr>
+<tr data-type="Deposit" data-status="COMPLETED">
+<td><span class="mono">FT-20260902-1405</span></td>
+<td>2026-09-02 11:47:22</td>
+<td><span class="tag tag-deposit">Deposit</span></td>
+<td>EUR</td>
+<td style="font-weight:600;color:#166534;">+€1,800.00</td>
+<td>€0.00</td>
+<td>€3,205.75</td>
+<td><span class="badge badge-ok">COMPLETED</span></td>
+<td><button class="btn-text" onclick="openDetail('depositModal')">详情</button></td>
+</tr>
+<tr data-type="Withdrawal" data-status="PROCESSING">
+<td><span class="mono">FT-20260907-0712</span></td>
+<td>2026-09-07 10:03:44</td>
+<td><span class="tag tag-withdraw">Withdrawal</span></td>
+<td>USD</td>
+<td style="font-weight:600;color:#1D4ED8;">-$850.00</td>
+<td>$0.00</td>
+<td>$12,480.50</td>
+<td><span class="badge badge-pending">PROCESSING</span></td>
+<td><button class="btn-text" onclick="openDetail('withdrawModal')">详情</button></td>
+</tr>
+<tr data-type="Withdrawal" data-status="COMPLETED">
+<td><span class="mono">FT-20260901-0218</span></td>
+<td>2026-09-01 15:26:10</td>
+<td><span class="tag tag-withdraw">Withdrawal</span></td>
+<td>USD</td>
+<td style="font-weight:600;color:#1D4ED8;">-$1,200.00</td>
+<td>$0.00</td>
+<td>$13,330.50</td>
+<td><span class="badge badge-ok">COMPLETED</span></td>
+<td><button class="btn-text" onclick="openDetail('withdrawModal')">详情</button></td>
+</tr>
+<tr data-type="Withdrawal" data-status="FAILED">
+<td><span class="mono">FT-20260828-1643</span></td>
+<td>2026-08-28 18:09:37</td>
+<td><span class="tag tag-withdraw">Withdrawal</span></td>
+<td>EUR</td>
+<td style="font-weight:600;color:#1D4ED8;">-$400.00</td>
+<td>€0.00</td>
+<td>€3,205.75</td>
+<td><span class="badge badge-fail">FAILED</span></td>
+<td><button class="btn-text" onclick="openDetail('withdrawModal')">详情</button></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="pagination" style="padding:0 20px 16px;">
+<div style="font-size:13px;color:#86909C;">显示 1-6 条，共 6 条</div>
+</div>
+</div>
+
+</div>
+
+<!-- Modal: 入金详情 -->
+<div class="modal-overlay" id="depositModal">
+<div class="modal">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+<div class="modal-title">入金详情 (Deposit)</div>
+<span style="font-size:24px;cursor:pointer;color:#86909C;" onclick="closeModal('depositModal')">✕</span>
+</div>
+<div class="section-block">
+<div class="section-head">汇款方 (Sender)</div>
+<div class="detail-row"><span class="k">Sender Name</span><span class="v">CHEN WEI</span></div>
+<div class="detail-row"><span class="k">Sender Account</span><span class="v mono">6217****8341</span></div>
+<div class="detail-row"><span class="k">Sender Bank</span><span class="v">Industrial and Commercial Bank of China</span></div>
+<div class="detail-row"><span class="k">Sender BIC</span><span class="v mono">ICBKCNBJ</span></div>
+</div>
+<div class="section-block">
+<div class="section-head">收款方 (Beneficiary)</div>
+<div class="detail-row"><span class="k">Beneficiary Account Holder</span><span class="v">Apex Markets Inc</span></div>
+<div class="detail-row"><span class="k">Payment Account (IBAN)</span><span class="v mono">US21****8214</span></div>
+<div class="detail-row"><span class="k">Payment Type</span><span class="v">Fedwire</span></div>
+</div>
+<div class="section-block">
+<div class="section-head">交易详情 (Transaction Details)</div>
+<div class="detail-row"><span class="k">Transaction ID</span><span class="v mono">FIAT-01M1X8EZEFSNNJDJ1B07MVFR61</span></div>
+<div class="detail-row"><span class="k">Reference</span><span class="v mono">DEP-20260907-1842</span></div>
+<div class="detail-row"><span class="k">Date &amp; Time</span><span class="v">2026-09-07 14:20:30</span></div>
+<div class="detail-row"><span class="k">Principal Amount</span><span class="v">$20.50 USD</span></div>
+<div class="detail-row"><span class="k">Fees</span><span class="v">$0.00 USD</span></div>
+<div class="detail-row"><span class="k">Posted Amount</span><span class="v" style="font-weight:700;">$20.50 USD</span></div>
+<div class="detail-row"><span class="k">Status</span><span class="v"><span class="badge badge-ok">COMPLETED</span></span></div>
+</div>
+<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;">
+<button class="btn-outline" onclick="closeModal('depositModal')">关闭</button>
+</div>
+</div>
+</div>
+
+<!-- Modal: 出金详情 -->
+<div class="modal-overlay" id="withdrawModal">
+<div class="modal">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+<div class="modal-title">出金详情 (Withdrawal)</div>
+<span style="font-size:24px;cursor:pointer;color:#86909C;" onclick="closeModal('withdrawModal')">✕</span>
+</div>
+<div class="section-block">
+<div class="section-head">收款方 (Beneficiary)</div>
+<div class="detail-row"><span class="k">Beneficiary Name</span><span class="v">CHEN WEI</span></div>
+<div class="detail-row"><span class="k">Account Number</span><span class="v mono">6217****8341</span></div>
+<div class="detail-row"><span class="k">Transfer Purpose</span><span class="v">Personal transfer</span></div>
+<div class="detail-row"><span class="k">Supporting Document</span><span class="v">file_5823270466551914376.pdf <span class="btn-text" onclick="alert('预览文档 (原型)')">查看</span></span></div>
+</div>
+<div class="section-block">
+<div class="section-head">交易详情 (Transaction Details)</div>
+<div class="detail-row"><span class="k">Transaction ID</span><span class="v mono">FIAT-01KZZMZ89J2R0HZNH38VXD42D8</span></div>
+<div class="detail-row"><span class="k">Reference</span><span class="v mono">WDL-20260907-0712</span></div>
+<div class="detail-row"><span class="k">Date &amp; Time</span><span class="v">2026-09-07 10:03:44</span></div>
+<div class="detail-row"><span class="k">Principal Amount</span><span class="v">$850.00 USD</span></div>
+<div class="detail-row"><span class="k">Fees</span><span class="v">$0.00 USD</span></div>
+<div class="detail-row"><span class="k">Posted Amount</span><span class="v" style="font-weight:700;">$850.00 USD</span></div>
+<div class="detail-row"><span class="k">Transfer Method</span><span class="v">Fedwire</span></div>
+<div class="detail-row"><span class="k">Status</span><span class="v"><span class="badge badge-pending">PROCESSING</span></span></div>
+</div>
+<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;">
+<button class="btn-outline" onclick="closeModal('withdrawModal')">关闭</button>
+</div>
+</div>
+</div>
+
+<script>
+function openDetail(id){document.getElementById(id).classList.add('active')}
+function closeModal(id){document.getElementById(id).classList.remove('active')}
+document.addEventListener('click',function(e){if(e.target.classList.contains('modal-overlay')&&e.target.classList.contains('active')){e.target.classList.remove('active')}});
+function filterTx(){
+var type=document.querySelectorAll('.filter-select')[0].value;
+var status=document.querySelectorAll('.filter-select')[1].value;
+var rows=document.querySelectorAll('tbody tr');
+var visible=0;
+rows.forEach(function(r){
+var t=r.getAttribute('data-type');
+var s=r.getAttribute('data-status');
+var ok=(type=='all'||t==type)&&(status=='all'||s==status);
+r.style.display=ok?'':'none';
+if(ok) visible++;
+});
+document.querySelector('.pagination div').textContent='显示 1-'+visible+' 条，共 '+visible+' 条';
+}
+</script>
+</body>
+</html>

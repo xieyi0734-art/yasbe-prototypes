@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>资金总览 - YASBee 管理端</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;color:#1D2129;background:#F3F4F6;line-height:1.5}
+.sidebar{width:260px;background:#1D2129;color:#fff;height:100vh;position:fixed;left:0;top:0;overflow-y:auto}
+.sidebar-header{padding:20px;font-size:20px;font-weight:700;color:#E59303;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-item{display:flex;align-items:center;gap:12px;padding:12px 20px;color:#9CA3AF;font-size:14px;cursor:pointer;transition:all .15s}
+.sidebar-item:hover{color:#fff;background:rgba(255,255,255,.05)}
+.sidebar-item.active{color:#E59303;background:rgba(229,147,3,.1);border-right:3px solid #E59303}
+.sidebar-label{padding:8px 20px 4px;font-size:11px;color:#6B7280;text-transform:uppercase;letter-spacing:1px}
+.main{margin-left:260px;padding:32px}
+.stat-card{background:#fff;border-radius:12px;border:1px solid #E5E7EB;padding:20px}
+.stat-value{font-size:25px;font-weight:700}
+.stat-label{font-size:13px;color:#86909C;margin-bottom:4px}
+.sec-card{background:#fff;border-radius:12px;border:1px solid #E5E7EB;margin-bottom:20px;overflow:hidden}
+.ccy-card{background:#fff;border-radius:12px;border:1px solid #E5E7EB;margin-bottom:16px;overflow:hidden}
+.ccy-head{display:flex;justify-content:space-between;align-items:center;padding:18px 24px;border-bottom:1px solid #E5E7EB;background:#F9FAFB}
+.ccy-name{font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px}
+.ccy-body{padding:20px 24px}
+.ledger{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:18px}
+.ledger-item{background:#F9FAFB;border:1px solid #E5E7EB;border-radius:10px;padding:14px 16px}
+.ledger-item .k{font-size:12px;color:#86909C}
+.ledger-item .v{font-size:20px;font-weight:700;margin-top:4px}
+.badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:500}
+.badge-ok{background:#DCFCE7;color:#166534}
+.badge-pending{background:#FEF9C3;color:#854D0E}
+.acct-row{display:grid;grid-template-columns:2fr 1.2fr 1fr 1fr 1fr auto;gap:12px;align-items:center;padding:12px 16px;border:1px solid #E5E7EB;border-radius:10px;margin-bottom:10px}
+.acct-row:last-child{margin-bottom:0}
+.acct-row:hover{border-color:#E59303;cursor:pointer}
+.acct-name{font-weight:600;font-size:14px}
+.acct-sub{font-size:12px;color:#86909C;margin-top:2px}
+.num{text-align:right;font-weight:600}
+.num .sub{display:block;font-size:11px;color:#86909C;font-weight:400}
+.btn-primary{background:#E59303;color:#fff;border:none;border-radius:8px;padding:6px 16px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-primary:hover{background:#d48402}
+.mono{font-family:SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;overflow-y:auto}
+.modal-overlay.active{display:flex;align-items:center;justify-content:center}
+.modal{background:#fff;border-radius:16px;padding:28px 32px;width:680px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.15);margin:24px auto}
+.modal-title{font-size:18px;font-weight:600}
+.detail-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #F3F4F6;font-size:13px}
+.detail-row:last-child{border-bottom:none}
+.detail-row .k{color:#86909C}
+.detail-row .v{font-weight:500;text-align:right}
+.section-head{font-size:14px;font-weight:600;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #E5E7EB}
+.note{font-size:12px;color:#86909C;background:#F9FAFB;border:1px dashed #E5E7EB;border-radius:8px;padding:10px 14px;margin-top:16px;line-height:1.7}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+<div class="sidebar-header">YASBee 管理后台</div>
+<div class="sidebar-label">主菜单</div>
+<div class="sidebar-item"><span>🪪</span> 客户管理 ▾</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📈 概览</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">✅ 认证</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📋 客户列表</div>
+<div class="sidebar-item" style="color:#fff;"><span>💰</span> 法币管理 ▾</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📥 交易审核</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📋 交易记录</div>
+<div class="sidebar-item active" style="padding-left:36px;font-size:13px;">🏦 资金总览</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">🏢 收款账户</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">💱 币种设置</div>
+<div class="sidebar-item"><span>₿</span> 加密货币</div>
+<div class="sidebar-item"><span>🔄</span> 兑换管理</div>
+<div class="sidebar-label">渠道</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📡 上游渠道</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">🃏 卡片服务</div>
+<div class="sidebar-item"><span>💳</span> 卡片管理</div>
+<div class="sidebar-item"><span>📈</span> 投资</div>
+<div class="sidebar-item"><span>⚙️</span> 系统管理</div>
+<div class="sidebar-item"><span>📋</span> 我的任务</div>
+</div>
+
+<div class="main">
+
+<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;">
+<div>
+<h1 style="font-size:24px;font-weight:700;">资金总览</h1>
+<p style="font-size:13px;color:#86909C;margin-top:4px;">平台级资金视图 — 客户总存款与收款账户余额逐币种核对，对账闭环</p>
+</div>
+<a class="btn-primary" style="text-decoration:none;" href="02-Fiat-Transaction-List.html">查看交易记录 →</a>
+</div>
+
+<!-- Stats Row -->
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+<div class="stat-card">
+<div class="stat-label">客户总资产（法币）</div>
+<div class="stat-value">$1,272,690</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">审核中冻结（出金）</div>
+<div class="stat-value" style="color:#854D0E;">$14,300</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">客户可用余额合计</div>
+<div class="stat-value" style="color:#166534;">$1,258,390</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">今日净入金</div>
+<div class="stat-value" style="color:#166534;">$86,210</div>
+</div>
+</div>
+
+<!-- USD -->
+<div class="ccy-card">
+<div class="ccy-head">
+<div class="ccy-name"><span style="background:#E5E7EB;border-radius:8px;padding:4px 10px;font-size:15px;">$</span> USD <span style="font-size:12px;font-weight:400;color:#86909C;">美元 · Fedwire</span></div>
+<span class="badge badge-ok">对账一致</span>
+</div>
+<div class="ccy-body">
+<div class="ledger">
+<div class="ledger-item"><div class="k">客户总存款</div><div class="v">$923,410.00</div></div>
+<div class="ledger-item"><div class="k">审核中冻结</div><div class="v" style="color:#854D0E;">$9,800.00</div></div>
+<div class="ledger-item"><div class="k">客户可用余额</div><div class="v" style="color:#166534;">$913,610.00</div></div>
+</div>
+<div class="section-head">平台收款账户 <span style="font-weight:400;color:#86909C;font-size:12px;">点击查看账户明细</span></div>
+<div class="acct-row" onclick="openAcct('USD')">
+<div><div class="acct-name">Apex Markets Inc</div><div class="acct-sub mono">VA-US-8821 · Clear Bank</div></div>
+<div style="font-size:12px;color:#86909C;">Fedwire<br>Local USD</div>
+<div class="num">$923,410.00<span class="sub">账户余额</span></div>
+<div class="num">+$212,500.00<span class="sub">今日入</span></div>
+<div class="num" style="color:#DC2626;">-$118,900.00<span class="sub">今日出</span></div>
+<div><span class="badge badge-ok">ACTIVE</span></div>
+</div>
+<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px;">
+<button class="btn-primary" onclick="showToast('跳转:USD 出入金交易明细(模拟)')" style="background:#fff;color:#E59303;border:1px solid #E59303;">USD 交易明细</button>
+</div>
+</div>
+</div>
+
+<!-- EUR -->
+<div class="ccy-card">
+<div class="ccy-head">
+<div class="ccy-name"><span style="background:#E5E7EB;border-radius:8px;padding:4px 10px;font-size:15px;">€</span> EUR <span style="font-size:12px;font-weight:400;color:#86909C;">欧元 · SEPA</span></div>
+<span class="badge badge-ok">对账一致</span>
+</div>
+<div class="ccy-body">
+<div class="ledger">
+<div class="ledger-item"><div class="k">客户总存款</div><div class="v">€251,820.00</div></div>
+<div class="ledger-item"><div class="k">审核中冻结</div><div class="v" style="color:#854D0E;">€3,500.00</div></div>
+<div class="ledger-item"><div class="k">客户可用余额</div><div class="v" style="color:#166534;">€248,320.00</div></div>
+</div>
+<div class="section-head">平台收款账户 <span style="font-weight:400;color:#86909C;font-size:12px;">点击查看账户明细</span></div>
+<div class="acct-row" onclick="openAcct('EUR')">
+<div><div class="acct-name">Banking Circle</div><div class="acct-sub mono">int.acc-77F3K · Clear Bank</div></div>
+<div style="font-size:12px;color:#86909C;">SEPA<br>Local EUR</div>
+<div class="num">€251,820.00<span class="sub">账户余额</span></div>
+<div class="num">+€64,300.00<span class="sub">今日入</span></div>
+<div class="num" style="color:#DC2626;">-€21,050.00<span class="sub">今日出</span></div>
+<div><span class="badge badge-ok">ACTIVE</span></div>
+</div>
+<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px;">
+<button class="btn-primary" onclick="showToast('跳转:EUR 出入金交易明细(模拟)')" style="background:#fff;color:#E59303;border:1px solid #E59303;">EUR 交易明细</button>
+</div>
+</div>
+</div>
+
+<!-- GBP -->
+<div class="ccy-card">
+<div class="ccy-head">
+<div class="ccy-name"><span style="background:#E5E7EB;border-radius:8px;padding:4px 10px;font-size:15px;">£</span> GBP <span style="font-size:12px;font-weight:400;color:#86909C;">英镑 · FPS / CHAPS / SWIFT</span></div>
+<span class="badge badge-ok">对账一致</span>
+</div>
+<div class="ccy-body">
+<div class="ledger">
+<div class="ledger-item"><div class="k">客户总存款</div><div class="v">£97,460.00</div></div>
+<div class="ledger-item"><div class="k">审核中冻结</div><div class="v" style="color:#854D0E;">£1,000.00</div></div>
+<div class="ledger-item"><div class="k">客户可用余额</div><div class="v" style="color:#166534;">£96,460.00</div></div>
+</div>
+<div class="section-head">平台收款账户 <span style="font-weight:400;color:#86909C;font-size:12px;">点击查看账户明细</span></div>
+<div class="acct-row" onclick="openAcct('GBP')">
+<div><div class="acct-name">Clear Junction</div><div class="acct-sub mono">GB-VA-2214 · Clear Bank</div></div>
+<div style="font-size:12px;color:#86909C;">FPS / CHAPS / SWIFT<br>Local GBP</div>
+<div class="num">£97,460.00<span class="sub">账户余额</span></div>
+<div class="num">+£18,900.00<span class="sub">今日入</span></div>
+<div class="num" style="color:#DC2626;">-£7,400.00<span class="sub">今日出</span></div>
+<div><span class="badge badge-ok">ACTIVE</span></div>
+</div>
+<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px;">
+<button class="btn-primary" onclick="showToast('跳转:GBP 出入金交易明细(模拟)')" style="background:#fff;color:#E59303;border:1px solid #E59303;">GBP 交易明细</button>
+</div>
+</div>
+</div>
+
+<div class="note">
+<strong>对账说明：</strong>「客户总存款」为该币种全部客户法币账户账面余额合计（由法币账本 ledger 汇总），「平台收款账户余额」为上游清算行到账口径。两值应一致；差异来源通常为<b>处理中出入金</b>（计入冻结列，结算后入账）。金额为演示数据，字段口径基于 OpenPayd 法币账本（/accounts + /transactions）设计。
+</div>
+
+</div>
+
+<!-- Account Detail Modal -->
+<div class="modal-overlay" id="acctModal">
+<div class="modal">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+<div class="modal-title" id="amTitle">收款账户明细</div>
+<span class="badge badge-ok" id="amStatus">ACTIVE</span>
+</div>
+<div class="section-head">Account</div>
+<div class="detail-row"><span class="k">Account Name</span><span class="v" id="amName"></span></div>
+<div class="detail-row"><span class="k">Account ID</span><span class="v mono" id="amId"></span></div>
+<div class="detail-row"><span class="k">Bank Name</span><span class="v">Clear Bank</span></div>
+<div class="detail-row"><span class="k">Provider</span><span class="v" id="amProvider"></span></div>
+<div class="detail-row"><span class="k">Currency</span><span class="v" id="amCcy"></span></div>
+<div class="detail-row"><span class="k">Scheme / Network</span><span class="v" id="amScheme"></span></div>
+<div class="detail-row"><span class="k">Support MCCY</span><span class="v" id="amMccy">USD</span></div>
+<div class="section-head" style="margin-top:14px;">Balance</div>
+<div class="detail-row"><span class="k">Actual Balance</span><span class="v" id="amBal"></span></div>
+<div class="detail-row"><span class="k">Available Balance</span><span class="v" id="amAvail"></span></div>
+<div style="display:flex;justify-content:flex-end;margin-top:20px;">
+<button class="btn-primary" onclick="document.getElementById('acctModal').classList.remove('active')">关闭</button>
+</div>
+</div>
+</div>
+
+<div id="toast" style="position:fixed;right:24px;bottom:24px;background:#1D2129;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;z-index:2000;opacity:0;transform:translateY(10px);transition:all .25s;pointer-events:none;"></div>
+
+<script>
+var ACCTS = {
+  USD: {name:'Apex Markets Inc', id:'VA-US-8821', provider:'APEX', scheme:'Fedwire / Local USD', ccy:'USD', bal:'$923,410.00', avail:'$923,410.00'},
+  EUR: {name:'Banking Circle', id:'int.acc-77F3K', provider:'BANKINGCIRCLE', scheme:'SEPA / Local EUR', ccy:'EUR', bal:'€251,820.00', avail:'€251,820.00'},
+  GBP: {name:'Clear Junction', id:'GB-VA-2214', provider:'CLEARJUNCTION', scheme:'FPS / CHAPS / SWIFT', ccy:'GBP', bal:'£97,460.00', avail:'£97,460.00'}
+};
+function openAcct(ccy) {
+  var a = ACCTS[ccy];
+  document.getElementById('amTitle').textContent = ccy + ' 收款账户明细';
+  document.getElementById('amName').textContent = a.name;
+  document.getElementById('amId').textContent = a.id;
+  document.getElementById('amProvider').textContent = a.provider;
+  document.getElementById('amCcy').textContent = a.ccy;
+  document.getElementById('amScheme').textContent = a.scheme;
+  document.getElementById('amBal').textContent = a.bal;
+  document.getElementById('amAvail').textContent = a.avail;
+  document.getElementById('acctModal').classList.add('active');
+}
+var toastEl = document.getElementById('toast');
+function showToast(msg) {
+  toastEl.textContent = msg;
+  toastEl.style.opacity = '1';
+  toastEl.style.transform = 'translateY(0)';
+  clearTimeout(toastEl._h);
+  toastEl._h = setTimeout(function(){ toastEl.style.opacity = '0'; toastEl.style.transform = 'translateY(10px)'; }, 2400);
+}
+document.getElementById('acctModal').addEventListener('click', function(e){ if (e.target === this) this.classList.remove('active'); });
+</script>
+</body>
+</html>

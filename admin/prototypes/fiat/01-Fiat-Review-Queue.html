@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>交易审核 - YASBee 管理端</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;color:#1D2129;background:#F3F4F6;line-height:1.5}
+.sidebar{width:260px;background:#1D2129;color:#fff;height:100vh;position:fixed;left:0;top:0;overflow-y:auto}
+.sidebar-header{padding:20px;font-size:20px;font-weight:700;color:#E59303;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-item{display:flex;align-items:center;gap:12px;padding:12px 20px;color:#9CA3AF;font-size:14px;cursor:pointer;transition:all .15s}
+.sidebar-item:hover{color:#fff;background:rgba(255,255,255,.05)}
+.sidebar-item.active{color:#E59303;background:rgba(229,147,3,.1);border-right:3px solid #E59303}
+.sidebar-label{padding:8px 20px 4px;font-size:11px;color:#6B7280;text-transform:uppercase;letter-spacing:1px}
+.main{margin-left:260px;padding:32px}
+.stat-card{background:#fff;border-radius:12px;border:1px solid #E5E7EB;padding:20px}
+.stat-value{font-size:25px;font-weight:700}
+.stat-label{font-size:13px;color:#86909C;margin-bottom:4px}
+.badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:500}
+.badge-pending{background:#FEF9C3;color:#854D0E}
+.btn-primary{background:#E59303;color:#fff;border:none;border-radius:8px;padding:6px 16px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-primary:hover{background:#d48402}
+.btn-danger{background:#DC2626;color:#fff;border:none;border-radius:8px;padding:8px 20px;font-size:14px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-danger:hover{background:#b91c1c}
+.btn-danger-outline{background:#fff;color:#DC2626;border:1px solid #FECACA;border-radius:8px;padding:8px 20px;font-size:14px;font-weight:500;cursor:pointer}
+.btn-danger-outline:hover{background:#FEF2F2}
+.btn-outline{background:#fff;color:#4B5563;border:1px solid #D1D5DB;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-outline:hover{border-color:#E59303;color:#E59303}
+.table-wrap{background:#fff;border-radius:12px;border:1px solid #E5E7EB}
+.table-scroll{overflow-x:auto;border-radius:12px}
+table{width:100%;border-collapse:collapse;min-width:1080px}
+th{text-align:left;padding:10px 12px;font-size:12px;font-weight:500;color:#6B7280;border-bottom:1px solid #E5E7EB;background:#F9FAFB;white-space:nowrap}
+td{padding:10px 12px;font-size:13px;border-bottom:1px solid #F3F4F6;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#F9FAFB}
+.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;margin-left:6px}
+.tag-risk{background:#FEE2E2;color:#991B1B}
+.tag-info{background:#DBEAFE;color:#1E40AF}
+.tag-ok{background:#DCFCE7;color:#166534}
+.sec-card{background:#fff;border-radius:12px;border:1px solid #E5E7EB;margin-bottom:20px;overflow:hidden}
+.sec-head{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid #E5E7EB}
+.sec-title{font-size:16px;font-weight:600}
+.sec-sub{font-size:12px;color:#86909C;margin-top:2px}
+.sec-count{font-size:13px;color:#166534;background:#DCFCE7;border-radius:20px;padding:2px 12px;font-weight:600}
+.queue-empty{padding:36px;text-align:center;color:#9CA3AF;font-size:14px}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;overflow-y:auto}
+.modal-overlay.active{display:flex;align-items:center;justify-content:center}
+.modal{background:#fff;border-radius:16px;padding:28px 32px;width:720px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.15);margin:24px auto}
+.modal-title{font-size:18px;font-weight:600}
+.detail-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #F3F4F6;font-size:13px}
+.detail-row:last-child{border-bottom:none}
+.detail-row .k{color:#86909C}
+.detail-row .v{font-weight:500;text-align:right}
+.section-block{margin-bottom:18px}
+.section-block:last-child{margin-bottom:0}
+.section-head{font-size:14px;font-weight:600;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #E5E7EB}
+.status-strip{display:flex;align-items:center;gap:10px;margin-bottom:16px;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:10px;padding:10px 14px;font-size:13px}
+.status-strip .k{color:#86909C}
+.form-label{display:block;font-size:13px;color:#4B5563;margin-bottom:4px;font-weight:500}
+.form-textarea{width:100%;border:1px solid #D1D5DB;border-radius:8px;padding:9px 12px;font-size:14px;outline:none;resize:vertical;min-height:64px;font-family:inherit}
+.form-textarea:focus{border-color:#E59303;box-shadow:0 0 0 2px rgba(229,147,3,.15)}
+.reject-box{display:none;margin-top:12px;background:#FEF2F2;border:1px solid #FECACA;border-radius:10px;padding:14px}
+.mono{font-family:SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+.toast{position:fixed;right:24px;bottom:24px;background:#1D2129;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;z-index:2000;opacity:0;transform:translateY(10px);transition:all .25s;pointer-events:none;max-width:420px}
+.toast.show{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+<div class="sidebar-header">YASBee 管理后台</div>
+<div class="sidebar-label">主菜单</div>
+<div class="sidebar-item"><span>🪪</span> 客户管理 ▾</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📈 概览</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">✅ 认证</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📋 客户列表</div>
+<div class="sidebar-item" style="color:#fff;"><span>💰</span> 法币管理 ▾</div>
+<div class="sidebar-item active" style="padding-left:36px;font-size:13px;">📥 交易审核</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📋 交易记录</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">🏦 资金总览</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">🏢 收款账户</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">💱 币种设置</div>
+<div class="sidebar-item"><span>₿</span> 加密货币</div>
+<div class="sidebar-item"><span>🔄</span> 兑换管理</div>
+<div class="sidebar-label">渠道</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📡 上游渠道</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">🃏 卡片服务</div>
+<div class="sidebar-item"><span>💳</span> 卡片管理</div>
+<div class="sidebar-item"><span>📈</span> 投资</div>
+<div class="sidebar-item"><span>⚙️</span> 系统管理</div>
+<div class="sidebar-item"><span>📋</span> 我的任务</div>
+</div>
+
+<div class="main">
+
+<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;">
+<div>
+<h1 style="font-size:24px;font-weight:700;">交易审核</h1>
+<p style="font-size:13px;color:#86909C;margin-top:4px;">待办队列（PROCESSING）— 仅展示需要处理的出入金单；审批后自动移出队列，可在交易记录查看历史</p>
+</div>
+</div>
+
+<!-- Stats Row -->
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+<div class="stat-card">
+<div class="stat-label">待审入金</div>
+<div class="stat-value" id="stDeposit" style="color:#166534;">5</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">待审出金</div>
+<div class="stat-value" id="stWithdraw" style="color:#1D4ED8;">4</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">今日已审核</div>
+<div class="stat-value">23</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">队列平均处理时长</div>
+<div class="stat-value" style="color:#854D0E;">18 min</div>
+</div>
+</div>
+
+<!-- Deposit Queue -->
+<div class="sec-card">
+<div class="sec-head">
+<div>
+<div class="sec-title">入金待审队列 <span class="tag tag-ok" style="margin-left:8px;">Deposit</span></div>
+<div class="sec-sub">核对打款人信息与金额 — 批准后资金计入客户账户余额</div>
+</div>
+<span class="sec-count" id="cntDeposit">5 单待审</span>
+</div>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>交易 ID</th>
+<th>客户</th>
+<th>币种</th>
+<th>金额</th>
+<th>打款人 Sender</th>
+<th>发款银行</th>
+<th>提交时间</th>
+<th style="text-align:right;">操作</th>
+</tr>
+</thead>
+<tbody id="tbDeposit">
+<tr>
+<td class="mono">FIAT-01M1X8EZEFSNNJDJ1B07MVFR61</td>
+<td><span style="font-weight:500;">tz</span><div class="mono" style="font-size:11px;color:#86909C;">C-WAEJ4T8G</div></td>
+<td>USD</td>
+<td>$20.50</td>
+<td>John Smith</td>
+<td>Clear Bank</td>
+<td>2026-09-08 09:12:05</td>
+<td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'deposit')">审核</button></td>
+</tr>
+<tr>
+<td class="mono">FIAT-09WQ2XC4VBNM7KJ2L8PA0SD3F5</td>
+<td><span style="font-weight:500;">cai</span><div class="mono" style="font-size:11px;color:#86909C;">C-8QX2S0LC</div></td>
+<td>EUR</td>
+<td>€1,250.00</td>
+<td>Cai Consulting SARL</td>
+<td>Banking Circle</td>
+<td>2026-09-08 09:03:41</td>
+<td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'deposit')">审核</button></td>
+</tr>
+<tr>
+<td class="mono">FIAT-08HJ3K5L9QWERTY2U4I6O8P0A1</td>
+<td><span style="font-weight:500;">123</span><div class="mono" style="font-size:11px;color:#86909C;">C-SSC119MO</div></td>
+<td>GBP</td>
+<td>£3,400.00</td>
+<td>Peter Zhang</td>
+<td>Clear Junction</td>
+<td>2026-09-08 08:47:22</td>
+<td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'deposit')">审核</button></td>
+</tr>
+<tr>
+<td class="mono">FIAT-07ZXCV6BNM5QAZ4WSX3EDC2RFV</td>
+<td><span style="font-weight:500;">zdz</span><div class="mono" style="font-size:11px;color:#86909C;">C-FWCHT9TS</div></td>
+<td>USD</td>
+<td>$80,000.00<span class="tag tag-risk">大额</span></td>
+<td>Nova Trade LLC</td>
+<td>Apex Markets Inc</td>
+<td>2026-09-08 08:31:09</td>
+<td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'deposit')">审核</button></td>
+</tr>
+<tr>
+<td class="mono">FIAT-06POI9UYT8REW7QAZ1ZXC2VBN3</td>
+<td><span style="font-weight:500;">yoneco41</span><div class="mono" style="font-size:11px;color:#86909C;">C-KL2MNP9Q</div></td>
+<td>USD</td>
+<td>$5,120.00</td>
+<td>Ling Huang</td>
+<td>Apex Markets Inc</td>
+<td>2026-09-08 07:58:30</td>
+<td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'deposit')">审核</button></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- Withdrawal Queue -->
+<div class="sec-card">
+<div class="sec-head">
+<div>
+<div class="sec-title">出金待审队列 <span class="tag" style="margin-left:8px;background:#EFF6FF;color:#1D4ED8;">Withdrawal</span></div>
+<div class="sec-sub">核对受益人信息、转账用途与单据 — 批准后提交上游汇款</div>
+</div>
+<span class="sec-count" id="cntWithdraw" style="color:#1D4ED8;background:#EFF6FF;">4 单待审</span>
+</div>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>交易 ID</th>
+<th>客户</th>
+<th>币种</th>
+<th>金额</th>
+<th>受益人 Beneficiary</th>
+<th>转账用途</th>
+<th>单据</th>
+<th>提交时间</th>
+<th style="text-align:right;">操作</th>
+</tr>
+</thead>
+<tbody id="tbWithdraw">
+<tr>
+<td class="mono">FIAT-05MNB4VCX5ZAQ6WSX7EDC8RFV9</td>
+<td><span style="font-weight:500;">cai</span><div class="mono" style="font-size:11px;color:#86909C;">C-8QX2S0LC</div></td>
+<td>EUR</td>
+<td>€2,300.00</td>
+<td>Cai Consulting SARL</td>
+<td>Invoice #2026-0891</td>
+<td><span class="tag tag-ok">已传</span></td>
+<td>2026-09-08 09:20:15</td>
+<td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'withdraw')">审核</button></td>
+</tr>
+<tr>
+<td class="mono">FIAT-04TGBN4YH5UJM6IK7OL8P0QAZ9</td>
+<td><span style="font-weight:500;">123</span><div class="mono" style="font-size:11px;color:#86909C;">C-SSC119MO</div></td>
+<td>GBP</td>
+<td>£1,150.00</td>
+<td>123 Trading Ltd</td>
+<td>Supplier Payment</td>
+<td><span class="tag tag-ok">已传</span></td>
+<td>2026-09-08 09:01:47</td>
+<td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'withdraw')">审核</button></td>
+</tr>
+<tr>
+<td class="mono">FIAT-03WSX2EDC3RFV4TGBN5YHNU6JM</td>
+<td><span style="font-weight:500;">tz</span><div class="mono" style="font-size:11px;color:#86909C;">C-WAEJ4T8G</div></td>
+<td>USD</td>
+<td>$500.00</td>
+<td>Wang Xiaoming</td>
+<td>Personal Remittance</td>
+<td><span class="tag tag-risk">缺单据</span></td>
+<td>2026-09-08 08:52:33</td>
+<td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'withdraw')">审核</button></td>
+</tr>
+<tr>
+<td class="mono">FIAT-02QAZ1WSX2EDC3RFV4TGBN5YHU6</td>
+<td><span style="font-weight:500;">lisa</span><div class="mono" style="font-size:11px;color:#86909C;">C-77A3B9ZX</div></td>
+<td>USD</td>
+<td>$12,000.00<span class="tag tag-risk">首笔出金</span></td>
+<td>Lisa Chen</td>
+<td>Tuition Fee</td>
+<td><span class="tag tag-ok">已传</span></td>
+<td>2026-09-08 08:44:18</td>
+<td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'withdraw')">审核</button></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+<!-- Deposit Review Modal -->
+<div class="modal-overlay" id="depositModal">
+<div class="modal">
+<div class="status-strip">
+<span class="badge badge-pending">PROCESSING</span>
+<span style="font-weight:600;" id="dTitle">入金审核 · 存款到账核对</span>
+<span style="margin-left:auto;font-size:13px;color:#86909C;" id="dTid"></span>
+</div>
+<div class="section-block">
+<div class="section-head">Sender Information <span style="font-weight:400;color:#86909C;font-size:12px;">打款人 — 需与客户 KYB 记录一致</span></div>
+<div class="detail-row"><span class="k">Sender Name</span><span class="v" id="dSender"></span></div>
+<div class="detail-row"><span class="k">Sending Bank</span><span class="v" id="dBank"></span></div>
+<div class="detail-row"><span class="k">Sending Account</span><span class="v mono" style="color:#86909C;">•••• •••• 3F2K</span></div>
+</div>
+<div class="section-block">
+<div class="section-head">Transaction Details</div>
+<div class="detail-row"><span class="k">Transaction ID</span><span class="v mono" id="dTid2"></span></div>
+<div class="detail-row"><span class="k">Customer</span><span class="v" id="dCust"></span></div>
+<div class="detail-row"><span class="k">Date &amp; Time</span><span class="v" id="dTime"></span></div>
+<div class="detail-row"><span class="k">Currency</span><span class="v" id="dCcy"></span></div>
+<div class="detail-row"><span class="k">Principal Amount</span><span class="v" id="dAmt"></span></div>
+<div class="detail-row"><span class="k">Fees</span><span class="v">$0.00</span></div>
+<div class="detail-row"><span class="k">Posted Amount</span><span class="v" id="dPost"></span></div>
+<div class="detail-row"><span class="k">Reference</span><span class="v mono">DEP-8821-0930</span></div>
+</div>
+<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px;">
+<button class="btn-danger-outline" onclick="startReject()">拒绝 Reject</button>
+<button class="btn-primary" onclick="approveDeposit()">批准 Approve</button>
+</div>
+<div class="reject-box" id="rejectBoxDep">
+<label class="form-label">拒绝理由（必填，将记录在审核日志中）</label>
+<textarea class="form-textarea" id="rejectReasonDep" placeholder="例如：打款人名称与客户 KYB 记录不一致，请补充证明"></textarea>
+<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:10px;">
+<button class="btn-outline" onclick="cancelReject()">取消</button>
+<button class="btn-danger" onclick="confirmReject('deposit')">确认拒绝</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Withdrawal Review Modal -->
+<div class="modal-overlay" id="withdrawModal">
+<div class="modal">
+<div class="status-strip">
+<span class="badge badge-pending">PROCESSING</span>
+<span style="font-weight:600;">出金审核 · 受益人信息与合规检查</span>
+<span style="margin-left:auto;font-size:13px;color:#86909C;" id="wTid"></span>
+</div>
+<div class="section-block">
+<div class="section-head">Available Balance</div>
+<div class="detail-row"><span class="k">客户可用余额</span><span class="v" id="wBal" style="font-size:16px;"></span></div>
+</div>
+<div class="section-block">
+<div class="section-head">Beneficiary Information <span style="font-weight:400;color:#DC2626;font-size:12px;">* 必填校验项</span></div>
+<div class="detail-row"><span class="k">Beneficiary Name *</span><span class="v" id="wBen"></span></div>
+<div class="detail-row"><span class="k">Account Number *</span><span class="v mono" id="wAcc"></span></div>
+<div class="detail-row"><span class="k">Transfer Purpose *</span><span class="v" id="wPur"></span></div>
+<div class="detail-row"><span class="k">Supporting Document *</span><span class="v" id="wDoc"></span></div>
+</div>
+<div class="section-block">
+<div class="section-head">Transaction Details</div>
+<div class="detail-row"><span class="k">Transaction ID</span><span class="v mono" id="wTid2"></span></div>
+<div class="detail-row"><span class="k">Customer</span><span class="v" id="wCust"></span></div>
+<div class="detail-row"><span class="k">Date &amp; Time</span><span class="v" id="wTime"></span></div>
+<div class="detail-row"><span class="k">Currency</span><span class="v" id="wCcy"></span></div>
+<div class="detail-row"><span class="k">Amount</span><span class="v" id="wAmt"></span></div>
+<div class="detail-row"><span class="k">Transfer Method</span><span class="v">Fedwire / SEPA / FPS</span></div>
+</div>
+<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px;">
+<button class="btn-danger-outline" onclick="startReject()">拒绝 Reject</button>
+<button class="btn-primary" onclick="approveWithdraw()">批准 Approve</button>
+</div>
+<div class="reject-box" id="rejectBoxWd">
+<label class="form-label">拒绝理由（必填，将记录在审核日志中）</label>
+<textarea class="form-textarea" id="rejectReasonWd" placeholder="例如：缺少用途证明文件，请补充后重新提交"></textarea>
+<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:10px;">
+<button class="btn-outline" onclick="cancelReject()">取消</button>
+<button class="btn-danger" onclick="confirmReject('withdraw')">确认拒绝</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var curTr = null, curType = null;
+
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._h);
+  t._h = setTimeout(function(){ t.classList.remove('show'); }, 2600);
+}
+
+function openReview(btn, type) {
+  curType = type;
+  curTr = btn.closest('tr');
+  var cells = curTr.cells;
+  var isDep = type === 'deposit';
+  var idx = 0;
+  if (isDep) {
+    document.getElementById('dTid').textContent = cells[0].textContent;
+    document.getElementById('dTid2').textContent = cells[0].textContent;
+    document.getElementById('dCust').textContent = cells[1].textContent.trim();
+    document.getElementById('dCcy').textContent = cells[2].textContent.trim();
+    document.getElementById('dAmt').textContent = cells[3].textContent.trim().split(' ')[0];
+    document.getElementById('dPost').textContent = cells[3].textContent.trim().split(' ')[0];
+    document.getElementById('dSender').textContent = cells[4].textContent.trim();
+    document.getElementById('dBank').textContent = cells[5].textContent.trim();
+    document.getElementById('dTime').textContent = cells[6].textContent.trim();
+    document.getElementById('dTitle').textContent = '入金审核 · 存款到账核对';
+    document.getElementById('depositModal').classList.add('active');
+  } else {
+    document.getElementById('wTid').textContent = cells[0].textContent;
+    document.getElementById('wTid2').textContent = cells[0].textContent;
+    document.getElementById('wCust').textContent = cells[1].textContent.trim();
+    document.getElementById('wCcy').textContent = cells[2].textContent.trim();
+    document.getElementById('wAmt').textContent = cells[3].textContent.trim().split(' ')[0];
+    document.getElementById('wBen').textContent = cells[4].textContent.trim();
+    document.getElementById('wPur').textContent = cells[5].textContent.trim();
+    document.getElementById('wAcc').textContent = '•••• •••• 7H21';
+    var doc = cells[6].textContent.trim();
+    document.getElementById('wDoc').textContent = doc === '已传' ? 'invoice-2026-0891.pdf 已上传' : '未上传（缺单据）';
+    document.getElementById('wDoc').style.color = doc === '已传' ? '#166534' : '#DC2626';
+    document.getElementById('wTime').textContent = cells[7].textContent.trim();
+    document.getElementById('withdrawModal').classList.add('active');
+  }
+  hideReject();
+}
+
+function hideReject() {
+  document.getElementById('rejectBoxDep').style.display = 'none';
+  document.getElementById('rejectBoxWd').style.display = 'none';
+}
+
+function startReject() {
+  if (curType === 'deposit') {
+    document.getElementById('rejectBoxDep').style.display = 'block';
+  } else {
+    document.getElementById('rejectBoxWd').style.display = 'block';
+  }
+}
+
+function cancelReject() {
+  hideReject();
+}
+
+function closeAll() {
+  document.getElementById('depositModal').classList.remove('active');
+  document.getElementById('withdrawModal').classList.remove('active');
+  hideReject();
+}
+
+function approveDeposit() {
+  var amt = curTr.cells[3].textContent.trim().split(' ')[0];
+  showToast('已批准 ' + curTr.cells[0].textContent + ' — ' + amt + ' 已计入客户账户余额');
+  closeAll(); removeRow(curTr, 'deposit');
+}
+function approveWithdraw() {
+  var amt = curTr.cells[3].textContent.trim().split(' ')[0];
+  showToast('已批准 ' + curTr.cells[0].textContent + ' — ' + amt + ' 已提交上游汇款');
+  closeAll(); removeRow(curTr, 'withdraw');
+}
+function confirmReject(type) {
+  var boxId = type === 'deposit' ? 'rejectReasonDep' : 'rejectReasonWd';
+  var reason = document.getElementById(boxId).value.trim();
+  if (!reason) { showToast('请填写拒绝理由后再提交'); return; }
+  showToast('已拒绝 ' + curTr.cells[0].textContent + ' — 理由已记入审核日志');
+  closeAll(); removeRow(curTr, type);
+}
+function removeRow(tr, type) {
+  tr.remove();
+  var t = type === 'deposit' ? 'tbDeposit' : 'tbWithdraw';
+  var n = document.querySelectorAll('#' + t + ' tr').length;
+  var isDep = type === 'deposit';
+  document.getElementById(isDep ? 'stDeposit' : 'stWithdraw').textContent = n;
+  document.getElementById(isDep ? 'cntDeposit' : 'cntWithdraw').textContent = n + ' 单待审';
+  if (n === 0) {
+    var empty = '<tr><td colspan="8"><div class="queue-empty">🎉 队列已清空 — 所有 ' + (isDep ? '入金' : '出金') + ' 待办均已处理</div></td></tr>';
+    document.getElementById(t).innerHTML = empty;
+  }
+}
+</script>
+</body>
+</html>
