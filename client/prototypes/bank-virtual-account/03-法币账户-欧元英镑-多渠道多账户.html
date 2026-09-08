@@ -787,7 +787,7 @@ const T = {
     eaStep1Note:'同名账户（与您实名一致）自动创建成功；非同名账户需上传证明并等待运营审核。审核通过前不可用于出金。',
     eaVerifyNote:'同名账户自动核验通过；非同名账户转运营人工审核（见上）。核验/审核通过前不可用于出金。',
     eaBnf:'收款人', eaBankBnf:'银行收款账户',
-    eaConfirm:'确认添加', eaAddedAuto:'同名账户已自动创建成功：已创建收款人档案与银行收款账户，可直接用于同名入金与出金收款。', eaAddedReview:'非同名账户已提交运营审核：已创建收款人档案与银行收款账户，等待运营人员审核证明文件。', eaVerified:'持有人核验已通过，该外部同名账户现可用于出金', eaRejected:'运营审核未通过：账户创建失败', dEa:'打开「添加外部同名账户」',
+    eaConfirm:'确认添加', eaAddedAuto:'同名账户已自动创建成功：已创建收款人档案与银行收款账户，可直接用于同名入金与出金收款。', eaAddedReview:'非同名账户已提交运营审核：运营审核通过后才会创建收款人档案与银行收款账户；驳回则创建失败。', eaVerified:'持有人核验已通过，该外部同名账户现可用于出金', eaRejected:'运营审核未通过：账户创建失败', dEa:'打开「添加外部同名账户」',
     // status（对齐 OpenPayd 交易状态机：INITIATED → PROCESSING → RELEASED → COMPLETED / FAILED）
     st_initiated:'已提交', st_processing:'处理中', st_released:'已汇出', st_completed:'已完成', st_failed:'失败', st_onhold:'挂账待处理', st_refunded:'已退款', st_autoRefunded:'已自动退款',
     // type
@@ -879,7 +879,7 @@ const T = {
     eaStep1Note:'Same-name accounts (matching your verified name) are created automatically; non-same-name accounts require proof upload and operator review. Not usable for payouts until approved.',
     eaVerifyNote:'Same-name accounts are auto-verified; non-same-name accounts go to operator review (see above). Cannot be used for payouts until verified/approved.',
     eaBnf:'Beneficiary', eaBankBnf:'Bank beneficiary',
-    eaConfirm:'Add Account', eaAddedAuto:'Same-name account created automatically: beneficiary and bank beneficiary created — ready for same-name deposits and payout collection.', eaAddedReview:'Non-same-name account submitted for operator review: beneficiary and bank beneficiary created, awaiting operator approval of the proof.', eaVerified:'Holder verified — this same-name external account is now available for payouts.', eaRejected:'Operator review rejected: account creation failed', dEa:'Open "Add Same-Name External Account"',
+    eaConfirm:'Add Account', eaAddedAuto:'Same-name account created automatically: beneficiary and bank beneficiary created — ready for same-name deposits and payout collection.', eaAddedReview:'Non-same-name account submitted for operator review: beneficiary and bank beneficiary are created once the operator approves; creation fails if rejected.', eaVerified:'Holder verified — this same-name external account is now available for payouts.', eaRejected:'Operator review rejected: account creation failed', dEa:'Open "Add Same-Name External Account"',
     // status (OpenPayd state machine: INITIATED → PROCESSING → RELEASED → COMPLETED / FAILED)
     st_initiated:'Initiated', st_processing:'Processing', st_released:'Released', st_completed:'Completed', st_failed:'Failed', st_onhold:'On hold', st_refunded:'Refunded', st_autoRefunded:'Auto-refunded',
     // type
@@ -1529,7 +1529,7 @@ function renderEa(){
       <div class="ea-left">
         <div class="ea-name"><span class="ea-flag">${e.flag}</span><span class="nm">${accName(e)}</span>${eaSubj(e)==='BUSINESS'?`<span class="chip amber">${t('eaBizChip')}</span>`:''}${e.default?`<span class="chip green">${t('primaryTag')}</span>`:''}</div>
         <div class="ea-idline"><b>${esc(e.holder)}</b><span class="sep">·</span>${esc(e.bankName)}<span class="sep">·</span>${e.currency} ${tt({zh:'尾号',en:'ending'})} ${e.last4}</div>
-        <div class="ea-refs"><span>${t('eaBnf')} ${e.beneficiaryId}</span><span class="sep">·</span><span>${t('eaBankBnf')} ${e.bankBeneficiaryId}</span></div>
+        <div class="ea-refs">${e.review?tt({zh:'审核通过后生成收款人档案与银行收款账户',en:'Beneficiary & bank beneficiary created after approval'}):`<span>${t('eaBnf')} ${e.beneficiaryId}</span><span class="sep">·</span><span>${t('eaBankBnf')} ${e.bankBeneficiaryId}</span>`}</div>
       </div>
       <div class="ea-right">
         <span class="chip ${st.c}">${st.l}</span>
@@ -1574,7 +1574,7 @@ function renderEaFields(type){
     const jEl=document.getElementById('eaJudge');
     if(!jEl)return;
     if(!eaf.holder){ jEl.innerHTML=''; jEl.className=''; }
-    else if(eaf.sameName){ jEl.className='note-box'; jEl.innerHTML=t('eaSameOk'); }
+    else if(eaf.sameName){ jEl.className='note-box'; jEl.style.border=''; jEl.style.background=''; jEl.innerHTML=t('eaSameOk'); }
     else { jEl.className='note-box'; jEl.style.border='1px solid var(--amber-bd)'; jEl.style.background='var(--amber-bg)'; jEl.innerHTML=t('eaNonSameWarn'); }
     const pEl=document.getElementById('eaProofWrap');
     if(pEl)pEl.style.display=(eaf.holder&&!eaf.sameName)?'':'none';

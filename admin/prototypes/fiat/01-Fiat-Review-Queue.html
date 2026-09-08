@@ -156,7 +156,7 @@ tr:hover td{background:#F9FAFB}
 <td>$20.50</td>
 <td>John Smith</td>
 <td>Clear Bank</td>
-<td><span class="tag tag-risk">非同名 · 挂账</span></td>
+<td><span class="tag tag-risk">非同名 · 已补证</span></td>
 <td>2026-09-08 09:12:05</td>
 <td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'deposit')">复核</button></td>
 </tr>
@@ -167,7 +167,7 @@ tr:hover td{background:#F9FAFB}
 <td>€1,250.00</td>
 <td>Belmont Trading SARL</td>
 <td>Banking Circle</td>
-<td><span class="tag tag-risk">非同名 · 挂账</span></td>
+<td><span class="tag tag-risk">非同名 · 已补证</span></td>
 <td>2026-09-08 09:03:41</td>
 <td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'deposit')">复核</button></td>
 </tr>
@@ -178,7 +178,7 @@ tr:hover td{background:#F9FAFB}
 <td>£3,400.00</td>
 <td>Peter Zhang</td>
 <td>Clear Junction</td>
-<td><span class="tag tag-amber">非同名 · 挂账第 5 天（临近自动退款）</span></td>
+<td><span class="tag tag-amber">非同名 · 已补证 · 第 5 天</span></td>
 <td>2026-09-08 08:47:22</td>
 <td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'deposit')">复核</button></td>
 </tr>
@@ -189,7 +189,7 @@ tr:hover td{background:#F9FAFB}
 <td>$80,000.00<span class="tag tag-risk">大额</span></td>
 <td>Nova Trade LLC</td>
 <td>Apex Markets Inc</td>
-<td><span class="tag tag-risk">非同名 · 挂账</span></td>
+<td><span class="tag tag-risk">非同名 · 已补证</span></td>
 <td>2026-09-08 08:31:09</td>
 <td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'deposit')">复核</button></td>
 </tr>
@@ -200,7 +200,7 @@ tr:hover td{background:#F9FAFB}
 <td>$5,120.00</td>
 <td>Ling Huang</td>
 <td>Apex Markets Inc</td>
-<td><span class="tag tag-amber">非同名 · 挂账第 3 天</span></td>
+<td><span class="tag tag-amber">非同名 · 已补证 · 第 3 天</span></td>
 <td>2026-09-08 07:58:30</td>
 <td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'deposit')">复核</button></td>
 </tr>
@@ -235,7 +235,7 @@ tr:hover td{background:#F9FAFB}
 </tr>
 </thead>
 <tbody id="tbWithdraw">
-<tr data-ea="ea-eur-cai" data-ea-name="Cai Consulting SARL" data-ea-state="verified">
+<tr data-ea="ea-eur-cai" data-ea-name="Cai Consulting SARL" data-ea-state="verified" data-bal="€28,400.00">
 <td class="mono">FIAT-05MNB4VCX5ZAQ6WSX7EDC8RFV9</td>
 <td><span style="font-weight:500;">cai</span><div class="mono" style="font-size:11px;color:#86909C;">C-8QX2S0LC</div></td>
 <td>EUR</td>
@@ -247,7 +247,7 @@ tr:hover td{background:#F9FAFB}
 <td>2026-09-08 09:20:15</td>
 <td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'withdraw')">审核</button></td>
 </tr>
-<tr data-ea="ea-gbp-123" data-ea-name="123 Trading Ltd" data-ea-state="verified">
+<tr data-ea="ea-gbp-123" data-ea-name="123 Trading Ltd" data-ea-state="verified" data-bal="£9,860.00">
 <td class="mono">FIAT-04TGBN4YH5UJM6IK7OL8P0QAZ9</td>
 <td><span style="font-weight:500;">123</span><div class="mono" style="font-size:11px;color:#86909C;">C-SSC119MO</div></td>
 <td>GBP</td>
@@ -259,7 +259,7 @@ tr:hover td{background:#F9FAFB}
 <td>2026-09-08 09:01:47</td>
 <td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'withdraw')">审核</button></td>
 </tr>
-<tr data-ea="ea-usd-wxm" data-ea-name="Wang Xiaoming" data-ea-state="verified">
+<tr data-ea="ea-usd-wxm" data-ea-name="Wang Xiaoming" data-ea-state="verified" data-bal="$4,215.50">
 <td class="mono">FIAT-03WSX2EDC3RFV4TGBN5YHNU6JM</td>
 <td><span style="font-weight:500;">tz</span><div class="mono" style="font-size:11px;color:#86909C;">C-WAEJ4T8G</div></td>
 <td>USD</td>
@@ -271,7 +271,7 @@ tr:hover td{background:#F9FAFB}
 <td>2026-09-08 08:52:33</td>
 <td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'withdraw')">审核</button></td>
 </tr>
-<tr data-ea="ea-usd-lisa" data-ea-name="Lisa Chen" data-ea-state="verified">
+<tr data-ea="ea-usd-lisa" data-ea-name="Lisa Chen" data-ea-state="verified" data-bal="$45,000.00">
 <td class="mono">FIAT-02QAZ1WSX2EDC3RFV4TGBN5YHU6</td>
 <td><span style="font-weight:500;">lisa</span><div class="mono" style="font-size:11px;color:#86909C;">C-77A3B9ZX</div></td>
 <td>USD</td>
@@ -378,7 +378,7 @@ tr:hover td{background:#F9FAFB}
 <div class="section-block">
 <div class="section-head">客户补证 <span style="font-weight:400;color:#86909C;font-size:12px;">非同名入金须添加该外部账户并上传证明</span></div>
 <div class="detail-row"><span class="k">证明文件</span><span class="v" id="dProof" style="color:#1E40AF;">—</span></div>
-<div class="detail-row" style="background:#F9FAFB;"><span class="k" style="color:#6B7280;">7 天未添加/未通过 → 平台自动退款；客户也可手动撤销</span><span class="v" style="font-weight:400;">⏱</span></div>
+<div class="detail-row" style="background:#F9FAFB;"><span class="k" style="color:#6B7280;">客户已在 7 天内添加账户并上传证明 → 自动退款已停表；本单复核：批准=解除挂账入账 / 拒绝=原路退款</span><span class="v" style="font-weight:400;">⏱</span></div>
 </div>
 <div class="section-block">
 <div class="section-head">Transaction Details</div>
@@ -542,12 +542,14 @@ function openReview(btn, type) {
     document.getElementById('dJudge').textContent = '✗ 非同名（系统比对：与 KYB 主体不一致）';
     document.getElementById('dPath').textContent = '客户已添加外部账户并上传证明 → 批准=解除挂账计入余额 / 拒绝=原路退款';
     document.getElementById('dHold').textContent = hold;
-    document.getElementById('dDays').textContent = '第 ' + days + ' 天（超过 7 天未通过 → 平台自动退款）';
+    document.getElementById('dDays').textContent = '第 ' + days + ' 天（已补证 · 复核中；7 天自动退款仅适用于未补证单，本单已停表）';
     document.getElementById('dProof').textContent = proof + '  📎 预览';
     document.getElementById('depositModal').classList.add('active');
   } else {
     var ea = curTr.getAttribute('data-ea') || '—';
     var eaName = curTr.getAttribute('data-ea-name') || '';
+    var bal = curTr.getAttribute('data-bal') || '—';
+    document.getElementById('wBal').textContent = bal;
     document.getElementById('wTid').textContent = cells[0].textContent;
     document.getElementById('wTid2').textContent = cells[0].textContent;
     document.getElementById('wCust').textContent = cellText(curTr, 1);
@@ -617,6 +619,8 @@ function approveDeposit() {
   closeAll(); removeRow(curTr, 'deposit');
 }
 function approveWithdraw() {
+  var docCell = curTr.cells[7].textContent.trim();
+  if (docCell.indexOf('缺') >= 0) { showToast('该出金单缺少支持单据（Supporting Document 为必填项），不能批准 — 请拒绝并告知客户补充后重新提交'); return; }
   var amt = cleanAmt(curTr.cells[3]);
   showToast('已批准 ' + curTr.cells[0].textContent + ' — ' + amt + ' 已提交上游汇款（同名已核验受益人）');
   closeAll(); removeRow(curTr, 'withdraw');
