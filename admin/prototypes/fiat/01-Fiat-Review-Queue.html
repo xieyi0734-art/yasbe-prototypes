@@ -38,6 +38,9 @@ tr:hover td{background:#F9FAFB}
 .tag-risk{background:#FEE2E2;color:#991B1B}
 .tag-info{background:#DBEAFE;color:#1E40AF}
 .tag-ok{background:#DCFCE7;color:#166534}
+.tag-amber{background:#FEF3C7;color:#92400E}
+.tag-gray{background:#F3F4F6;color:#4B5563}
+.tag-purple{background:#EDE9FE;color:#5B21B6}
 .sec-card{background:#fff;border-radius:12px;border:1px solid #E5E7EB;margin-bottom:20px;overflow:hidden}
 .sec-head{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid #E5E7EB}
 .sec-title{font-size:16px;font-weight:600}
@@ -97,36 +100,36 @@ tr:hover td{background:#F9FAFB}
 <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;">
 <div>
 <h1 style="font-size:24px;font-weight:700;">交易审核</h1>
-<p style="font-size:13px;color:#86909C;margin-top:4px;">待办队列（PROCESSING）— 仅展示需要处理的出入金单；审批后自动移出队列，可在交易记录查看历史</p>
+<p style="font-size:13px;color:#86909C;margin-top:4px;">待办队列（PROCESSING）— 同名规则已由系统自动执行（同名入金自动入账、出金仅可选同名已核验外部账户）；人工仅需处理三线：非同名入金挂账复核、出金合规终审、非同名外部账户（EA）添加审核。审批后自动移出队列，可在交易记录查看历史</p>
 </div>
 </div>
 
 <!-- Stats Row -->
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
 <div class="stat-card">
-<div class="stat-label">待审入金</div>
+<div class="stat-label">待审入金（非同名挂账复核）</div>
 <div class="stat-value" id="stDeposit" style="color:#166534;">5</div>
 </div>
 <div class="stat-card">
-<div class="stat-label">待审出金</div>
+<div class="stat-label">待审出金（同名已核验受益人）</div>
 <div class="stat-value" id="stWithdraw" style="color:#1D4ED8;">4</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">待审 EA 添加（非同名证明审核）</div>
+<div class="stat-value" id="stEaAdd" style="color:#92400E;">3</div>
 </div>
 <div class="stat-card">
 <div class="stat-label">今日已审核</div>
 <div class="stat-value">23</div>
 </div>
-<div class="stat-card">
-<div class="stat-label">队列平均处理时长</div>
-<div class="stat-value" style="color:#854D0E;">18 min</div>
-</div>
 </div>
 
-<!-- Deposit Queue -->
+<!-- Deposit Queue (non-same-name hold review) -->
 <div class="sec-card">
 <div class="sec-head">
 <div>
-<div class="sec-title">入金待审队列 <span class="tag tag-ok" style="margin-left:8px;">Deposit</span></div>
-<div class="sec-sub">核对打款人信息与金额 — 批准后资金计入客户账户余额</div>
+<div class="sec-title">入金待审队列 · 非同名挂账复核 <span class="tag tag-ok" style="margin-left:8px;">Deposit</span></div>
+<div class="sec-sub">同名入金已由系统自动入账（不进入队列）；此处仅为<b>非同名挂账</b>单 — 客户已按提示添加该外部账户并上传证明，批准=挂账解除入账 / 拒绝=原路退款</div>
 </div>
 <span class="sec-count" id="cntDeposit">5 单待审</span>
 </div>
@@ -140,60 +143,66 @@ tr:hover td{background:#F9FAFB}
 <th>金额</th>
 <th>打款人 Sender</th>
 <th>发款银行</th>
+<th>同名判定</th>
 <th>提交时间</th>
 <th style="text-align:right;">操作</th>
 </tr>
 </thead>
 <tbody id="tbDeposit">
-<tr>
+<tr data-proof="bank-statement-johnsmith-0908.pdf" data-days="2" data-hold="FIAT-HOLD-011" data-subj="TZ INTERNATIONAL LTD">
 <td class="mono">FIAT-01M1X8EZEFSNNJDJ1B07MVFR61</td>
 <td><span style="font-weight:500;">tz</span><div class="mono" style="font-size:11px;color:#86909C;">C-WAEJ4T8G</div></td>
 <td>USD</td>
 <td>$20.50</td>
 <td>John Smith</td>
 <td>Clear Bank</td>
+<td><span class="tag tag-risk">非同名 · 挂账</span></td>
 <td>2026-09-08 09:12:05</td>
-<td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'deposit')">审核</button></td>
+<td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'deposit')">复核</button></td>
 </tr>
-<tr>
+<tr data-proof="ownership-confirmation-cai.pdf" data-days="1" data-hold="FIAT-HOLD-012" data-subj="CAI CONSULTING SARL">
 <td class="mono">FIAT-09WQ2XC4VBNM7KJ2L8PA0SD3F5</td>
 <td><span style="font-weight:500;">cai</span><div class="mono" style="font-size:11px;color:#86909C;">C-8QX2S0LC</div></td>
 <td>EUR</td>
 <td>€1,250.00</td>
-<td>Cai Consulting SARL</td>
+<td>Belmont Trading SARL</td>
 <td>Banking Circle</td>
+<td><span class="tag tag-risk">非同名 · 挂账</span></td>
 <td>2026-09-08 09:03:41</td>
-<td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'deposit')">审核</button></td>
+<td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'deposit')">复核</button></td>
 </tr>
-<tr>
+<tr data-proof="statement-123trading-2201.pdf" data-days="5" data-hold="FIAT-HOLD-009" data-subj="123 TRADING LTD">
 <td class="mono">FIAT-08HJ3K5L9QWERTY2U4I6O8P0A1</td>
 <td><span style="font-weight:500;">123</span><div class="mono" style="font-size:11px;color:#86909C;">C-SSC119MO</div></td>
 <td>GBP</td>
 <td>£3,400.00</td>
 <td>Peter Zhang</td>
 <td>Clear Junction</td>
+<td><span class="tag tag-amber">非同名 · 挂账第 5 天（临近自动退款）</span></td>
 <td>2026-09-08 08:47:22</td>
-<td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'deposit')">审核</button></td>
+<td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'deposit')">复核</button></td>
 </tr>
-<tr>
+<tr data-proof="trade-contract-novatrade.pdf" data-days="1" data-hold="FIAT-HOLD-013" data-subj="WANG XIAOMING">
 <td class="mono">FIAT-07ZXCV6BNM5QAZ4WSX3EDC2RFV</td>
 <td><span style="font-weight:500;">zdz</span><div class="mono" style="font-size:11px;color:#86909C;">C-FWCHT9TS</div></td>
 <td>USD</td>
 <td>$80,000.00<span class="tag tag-risk">大额</span></td>
 <td>Nova Trade LLC</td>
 <td>Apex Markets Inc</td>
+<td><span class="tag tag-risk">非同名 · 挂账</span></td>
 <td>2026-09-08 08:31:09</td>
-<td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'deposit')">审核</button></td>
+<td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'deposit')">复核</button></td>
 </tr>
-<tr>
+<tr data-proof="statement-linghuang-2208.pdf" data-days="3" data-hold="FIAT-HOLD-010" data-subj="YONECO GLOBAL LIMITED">
 <td class="mono">FIAT-06POI9UYT8REW7QAZ1ZXC2VBN3</td>
 <td><span style="font-weight:500;">yoneco41</span><div class="mono" style="font-size:11px;color:#86909C;">C-KL2MNP9Q</div></td>
 <td>USD</td>
 <td>$5,120.00</td>
 <td>Ling Huang</td>
 <td>Apex Markets Inc</td>
+<td><span class="tag tag-amber">非同名 · 挂账第 3 天</span></td>
 <td>2026-09-08 07:58:30</td>
-<td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'deposit')">审核</button></td>
+<td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'deposit')">复核</button></td>
 </tr>
 </tbody>
 </table>
@@ -204,8 +213,8 @@ tr:hover td{background:#F9FAFB}
 <div class="sec-card">
 <div class="sec-head">
 <div>
-<div class="sec-title">出金待审队列 <span class="tag" style="margin-left:8px;background:#EFF6FF;color:#1D4ED8;">Withdrawal</span></div>
-<div class="sec-sub">核对受益人信息、转账用途与单据 — 批准后提交上游汇款</div>
+<div class="sec-title">出金待审队列 · 合规终审 <span class="tag" style="margin-left:8px;background:#EFF6FF;color:#1D4ED8;">Withdrawal</span></div>
+<div class="sec-sub">出金目标<b>仅限正常状态（已核验）的同名外部账户</b>，系统已按该规则过滤并校验资金；此处为受益人信息与合规单据终审 — 批准后提交上游汇款</div>
 </div>
 <span class="sec-count" id="cntWithdraw" style="color:#1D4ED8;background:#EFF6FF;">4 单待审</span>
 </div>
@@ -218,6 +227,7 @@ tr:hover td{background:#F9FAFB}
 <th>币种</th>
 <th>金额</th>
 <th>受益人 Beneficiary</th>
+<th>同名核验</th>
 <th>转账用途</th>
 <th>单据</th>
 <th>提交时间</th>
@@ -225,45 +235,49 @@ tr:hover td{background:#F9FAFB}
 </tr>
 </thead>
 <tbody id="tbWithdraw">
-<tr>
+<tr data-ea="ea-eur-cai" data-ea-name="Cai Consulting SARL" data-ea-state="verified">
 <td class="mono">FIAT-05MNB4VCX5ZAQ6WSX7EDC8RFV9</td>
 <td><span style="font-weight:500;">cai</span><div class="mono" style="font-size:11px;color:#86909C;">C-8QX2S0LC</div></td>
 <td>EUR</td>
 <td>€2,300.00</td>
 <td>Cai Consulting SARL</td>
+<td><span class="tag tag-ok">同名 · 已核验</span></td>
 <td>Invoice #2026-0891</td>
 <td><span class="tag tag-ok">已传</span></td>
 <td>2026-09-08 09:20:15</td>
 <td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'withdraw')">审核</button></td>
 </tr>
-<tr>
+<tr data-ea="ea-gbp-123" data-ea-name="123 Trading Ltd" data-ea-state="verified">
 <td class="mono">FIAT-04TGBN4YH5UJM6IK7OL8P0QAZ9</td>
 <td><span style="font-weight:500;">123</span><div class="mono" style="font-size:11px;color:#86909C;">C-SSC119MO</div></td>
 <td>GBP</td>
 <td>£1,150.00</td>
 <td>123 Trading Ltd</td>
+<td><span class="tag tag-ok">同名 · 已核验</span></td>
 <td>Supplier Payment</td>
 <td><span class="tag tag-ok">已传</span></td>
 <td>2026-09-08 09:01:47</td>
 <td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'withdraw')">审核</button></td>
 </tr>
-<tr>
+<tr data-ea="ea-usd-wxm" data-ea-name="Wang Xiaoming" data-ea-state="verified">
 <td class="mono">FIAT-03WSX2EDC3RFV4TGBN5YHNU6JM</td>
 <td><span style="font-weight:500;">tz</span><div class="mono" style="font-size:11px;color:#86909C;">C-WAEJ4T8G</div></td>
 <td>USD</td>
 <td>$500.00</td>
 <td>Wang Xiaoming</td>
+<td><span class="tag tag-ok">同名 · 已核验</span></td>
 <td>Personal Remittance</td>
 <td><span class="tag tag-risk">缺单据</span></td>
 <td>2026-09-08 08:52:33</td>
 <td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'withdraw')">审核</button></td>
 </tr>
-<tr>
+<tr data-ea="ea-usd-lisa" data-ea-name="Lisa Chen" data-ea-state="verified">
 <td class="mono">FIAT-02QAZ1WSX2EDC3RFV4TGBN5YHU6</td>
 <td><span style="font-weight:500;">lisa</span><div class="mono" style="font-size:11px;color:#86909C;">C-77A3B9ZX</div></td>
 <td>USD</td>
 <td>$12,000.00<span class="tag tag-risk">首笔出金</span></td>
 <td>Lisa Chen</td>
+<td><span class="tag tag-ok">同名 · 已核验</span></td>
 <td>Tuition Fee</td>
 <td><span class="tag tag-ok">已传</span></td>
 <td>2026-09-08 08:44:18</td>
@@ -274,21 +288,97 @@ tr:hover td{background:#F9FAFB}
 </div>
 </div>
 
+<!-- EA Add Review Queue (new: non-same-name external account application) -->
+<div class="sec-card">
+<div class="sec-head">
+<div>
+<div class="sec-title">EA 添加审核队列 <span class="tag tag-purple" style="margin-left:8px;">External Account</span></div>
+<div class="sec-sub">客户添加外部账户时系统自动判定同名：同名=自动创建成功（不进队列）；此处仅为<b>非同名申请</b> — 客户须上传证明文件，同意=账户创建成功（标记仅入金来源）/ 驳回=账户创建失败</div>
+</div>
+<span class="sec-count" id="cntEaAdd" style="color:#5B21B6;background:#EDE9FE;">3 单待审</span>
+</div>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>申请 ID</th>
+<th>客户</th>
+<th>币种</th>
+<th>持有人（客户输入）</th>
+<th>同名判定</th>
+<th>主体实名</th>
+<th>证明文件</th>
+<th>提交时间</th>
+<th style="text-align:right;">操作</th>
+</tr>
+</thead>
+<tbody id="tbEaAdd">
+<tr data-ea-name="WANG XIAOMING" data-subj="tz" data-proof="ownership-declaration-wxm.pdf" data-acc="4821">
+<td class="mono">EA-ADD-20260908-003</td>
+<td><span style="font-weight:500;">tz</span><div class="mono" style="font-size:11px;color:#86909C;">C-WAEJ4T8G</div></td>
+<td>USD</td>
+<td>Wang Xiaoming</td>
+<td><span class="tag tag-risk">非同名</span></td>
+<td><span class="mono" style="font-size:12px;">TZ INTERNATIONAL LTD</span></td>
+<td><span class="tag tag-ok">已传</span></td>
+<td>2026-09-08 09:31:02</td>
+<td style="text-align:right;"><button class="btn-primary" onclick="openEaReview(this)">审核</button></td>
+</tr>
+<tr data-ea-name="YONECO TRADING CO" data-subj="123" data-proof="kyb-affiliate-agreement-yoneco.pdf" data-acc="77F3">
+<td class="mono">EA-ADD-20260908-002</td>
+<td><span style="font-weight:500;">123</span><div class="mono" style="font-size:11px;color:#86909C;">C-SSC119MO</div></td>
+<td>GBP</td>
+<td>Yoneco Trading Co</td>
+<td><span class="tag tag-risk">非同名</span></td>
+<td><span class="mono" style="font-size:12px;">123 TRADING LTD</span></td>
+<td><span class="tag tag-ok">已传</span></td>
+<td>2026-09-08 09:02:47</td>
+<td style="text-align:right;"><button class="btn-primary" onclick="openEaReview(this)">审核</button></td>
+</tr>
+<tr data-ea-name="LING HUANG" data-subj="yoneco41" data-proof="bank-statement-linghuang-2208.pdf" data-acc="2214">
+<td class="mono">EA-ADD-20260908-001</td>
+<td><span style="font-weight:500;">yoneco41</span><div class="mono" style="font-size:11px;color:#86909C;">C-KL2MNP9Q</div></td>
+<td>USD</td>
+<td>Ling Huang</td>
+<td><span class="tag tag-risk">非同名</span></td>
+<td><span class="mono" style="font-size:12px;">YONECO GLOBAL LIMITED</span></td>
+<td><span class="tag tag-ok">已传</span></td>
+<td>2026-09-08 08:20:11</td>
+<td style="text-align:right;"><button class="btn-primary" onclick="openEaReview(this)">审核</button></td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 
-<!-- Deposit Review Modal -->
+</div>
+
+<!-- Deposit Review Modal (non-same-name hold review) -->
 <div class="modal-overlay" id="depositModal">
 <div class="modal">
 <div class="status-strip">
 <span class="badge badge-pending">PROCESSING</span>
-<span style="font-weight:600;" id="dTitle">入金审核 · 存款到账核对</span>
+<span style="font-weight:600;" id="dTitle">入金复核 · 非同名挂账单</span>
 <span style="margin-left:auto;font-size:13px;color:#86909C;" id="dTid"></span>
 </div>
 <div class="section-block">
-<div class="section-head">Sender Information <span style="font-weight:400;color:#86909C;font-size:12px;">打款人 — 需与客户 KYB 记录一致</span></div>
-<div class="detail-row"><span class="k">Sender Name</span><span class="v" id="dSender"></span></div>
-<div class="detail-row"><span class="k">Sending Bank</span><span class="v" id="dBank"></span></div>
-<div class="detail-row"><span class="k">Sending Account</span><span class="v mono" style="color:#86909C;">•••• •••• 3F2K</span></div>
+<div class="section-head">同名判定 <span style="font-weight:400;color:#86909C;font-size:12px;">系统自动比对（大小写不敏感）</span></div>
+<div class="detail-row"><span class="k">打款人 Sender</span><span class="v" id="dSender"></span></div>
+<div class="detail-row"><span class="k">发款银行</span><span class="v" id="dBank"></span></div>
+<div class="detail-row"><span class="k">客户 KYB 主体实名</span><span class="v" id="dKyb"></span></div>
+<div class="detail-row"><span class="k">判定结果</span><span class="v" style="color:#DC2626;" id="dJudge"></span></div>
+<div class="detail-row"><span class="k">处置路径</span><span class="v" id="dPath"></span></div>
+</div>
+<div class="section-block">
+<div class="section-head">挂账信息</div>
+<div class="detail-row"><span class="k">挂账单号</span><span class="v mono" id="dHold"></span></div>
+<div class="detail-row"><span class="k">已挂账</span><span class="v" id="dDays"></span></div>
+<div class="detail-row"><span class="k">资金状态</span><span class="v" style="color:#92400E;">挂账待处理 — 未计入可用余额</span></div>
+</div>
+<div class="section-block">
+<div class="section-head">客户补证 <span style="font-weight:400;color:#86909C;font-size:12px;">非同名入金须添加该外部账户并上传证明</span></div>
+<div class="detail-row"><span class="k">证明文件</span><span class="v" id="dProof" style="color:#1E40AF;">—</span></div>
+<div class="detail-row" style="background:#F9FAFB;"><span class="k" style="color:#6B7280;">7 天未添加/未通过 → 平台自动退款；客户也可手动撤销</span><span class="v" style="font-weight:400;">⏱</span></div>
 </div>
 <div class="section-block">
 <div class="section-head">Transaction Details</div>
@@ -302,12 +392,12 @@ tr:hover td{background:#F9FAFB}
 <div class="detail-row"><span class="k">Reference</span><span class="v mono">DEP-8821-0930</span></div>
 </div>
 <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px;">
-<button class="btn-danger-outline" onclick="startReject()">拒绝 Reject</button>
-<button class="btn-primary" onclick="approveDeposit()">批准 Approve</button>
+<button class="btn-danger-outline" onclick="startReject()">拒绝并退款 Reject</button>
+<button class="btn-primary" onclick="approveDeposit()">批准入账 Approve</button>
 </div>
 <div class="reject-box" id="rejectBoxDep">
-<label class="form-label">拒绝理由（必填，将记录在审核日志中）</label>
-<textarea class="form-textarea" id="rejectReasonDep" placeholder="例如：打款人名称与客户 KYB 记录不一致，请补充证明"></textarea>
+<label class="form-label">拒绝理由（必填，将记录在审核日志中；资金将原路退回）</label>
+<textarea class="form-textarea" id="rejectReasonDep" placeholder="例如：证明文件与打款人不符，驳回并原路退款"></textarea>
 <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:10px;">
 <button class="btn-outline" onclick="cancelReject()">取消</button>
 <button class="btn-danger" onclick="confirmReject('deposit')">确认拒绝</button>
@@ -327,6 +417,11 @@ tr:hover td{background:#F9FAFB}
 <div class="section-block">
 <div class="section-head">Available Balance</div>
 <div class="detail-row"><span class="k">客户可用余额</span><span class="v" id="wBal" style="font-size:16px;"></span></div>
+</div>
+<div class="section-block">
+<div class="section-head">同名账户核验 <span style="font-weight:400;color:#86909C;font-size:12px;">出金目标仅限正常状态（已核验）的同名外部账户</span></div>
+<div class="detail-row"><span class="k">目标外部账户</span><span class="v mono" id="wEa"></span></div>
+<div class="detail-row"><span class="k">同名核验</span><span class="v" id="wEaState" style="color:#166534;">✓ 同名 · 已核验（可出金）</span></div>
 </div>
 <div class="section-block">
 <div class="section-head">Beneficiary Information <span style="font-weight:400;color:#DC2626;font-size:12px;">* 必填校验项</span></div>
@@ -359,6 +454,51 @@ tr:hover td{background:#F9FAFB}
 </div>
 </div>
 
+<!-- EA Add Review Modal -->
+<div class="modal-overlay" id="eaModal">
+<div class="modal">
+<div class="status-strip">
+<span class="badge badge-pending">PROCESSING</span>
+<span style="font-weight:600;">EA 添加审核 · 非同名外部账户</span>
+<span style="margin-left:auto;font-size:13px;color:#86909C;" id="eaTid"></span>
+</div>
+<div class="section-block">
+<div class="section-head">申请人 / 主体</div>
+<div class="detail-row"><span class="k">客户</span><span class="v" id="eaCust"></span></div>
+<div class="detail-row"><span class="k">KYB 主体实名</span><span class="v mono" id="eaSubj"></span></div>
+</div>
+<div class="section-block">
+<div class="section-head">同名判定 <span style="font-weight:400;color:#86909C;font-size:12px;">系统自动比对（大小写 / 空格不敏感）</span></div>
+<div class="detail-row"><span class="k">持有人（客户输入）</span><span class="v" id="eaHolder"></span></div>
+<div class="detail-row"><span class="k">判定结果</span><span class="v" style="color:#DC2626;" id="eaJudge"></span></div>
+<div class="detail-row"><span class="k">创建路径</span><span class="v" id="eaPath"></span></div>
+</div>
+<div class="section-block">
+<div class="section-head">账户信息</div>
+<div class="detail-row"><span class="k">币种</span><span class="v" id="eaCcy"></span></div>
+<div class="detail-row"><span class="k">开户银行</span><span class="v" id="eaBank"></span></div>
+<div class="detail-row"><span class="k">账号</span><span class="v mono" style="color:#86909C;" id="eaAcc"></span></div>
+</div>
+<div class="section-block">
+<div class="section-head">证明文件 <span style="font-weight:400;color:#86909C;font-size:12px;">非同名添加须上传（可点击预览）</span></div>
+<div class="detail-row"><span class="k">证明文件</span><span class="v" id="eaProof" style="color:#1E40AF;"></span></div>
+<div class="detail-row" style="background:#F9FAFB;"><span class="k" style="color:#6B7280;">同意=账户创建成功（标记「非同名 · 仅入金来源」）；驳回=账户创建失败，客户可重新提交</span><span class="v" style="font-weight:400;">ℹ️</span></div>
+</div>
+<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px;">
+<button class="btn-danger-outline" onclick="startEaReject()">驳回 Reject</button>
+<button class="btn-primary" onclick="approveEa()">同意创建 Approve</button>
+</div>
+<div class="reject-box" id="rejectBoxEa">
+<label class="form-label">驳回理由（必填，将记录在审核日志中；账户将创建失败）</label>
+<textarea class="form-textarea" id="rejectReasonEa" placeholder="例如：证明文件无法证明账户归属，驳回创建申请"></textarea>
+<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:10px;">
+<button class="btn-outline" onclick="cancelReject()">取消</button>
+<button class="btn-danger" onclick="confirmEaReject()">确认驳回</button>
+</div>
+</div>
+</div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -369,95 +509,150 @@ function showToast(msg) {
   t.textContent = msg;
   t.classList.add('show');
   clearTimeout(t._h);
-  t._h = setTimeout(function(){ t.classList.remove('show'); }, 2600);
+  t._h = setTimeout(function(){ t.classList.remove('show'); }, 3200);
 }
+
+function cleanAmt(cell) {
+  var t = cell.textContent.replace(/大额|首笔出金|\s/g, '');
+  return t;
+}
+function cellText(tr, idx) { return tr.cells[idx].textContent.trim(); }
 
 function openReview(btn, type) {
   curType = type;
   curTr = btn.closest('tr');
   var cells = curTr.cells;
   var isDep = type === 'deposit';
-  var idx = 0;
   if (isDep) {
+    var subj = curTr.getAttribute('data-subj') || '—';
+    var days = curTr.getAttribute('data-days') || '—';
+    var proof = curTr.getAttribute('data-proof') || '—';
+    var hold = curTr.getAttribute('data-hold') || '—';
     document.getElementById('dTid').textContent = cells[0].textContent;
     document.getElementById('dTid2').textContent = cells[0].textContent;
-    document.getElementById('dCust').textContent = cells[1].textContent.trim();
-    document.getElementById('dCcy').textContent = cells[2].textContent.trim();
-    document.getElementById('dAmt').textContent = cells[3].textContent.trim().split(' ')[0];
-    document.getElementById('dPost').textContent = cells[3].textContent.trim().split(' ')[0];
-    document.getElementById('dSender').textContent = cells[4].textContent.trim();
-    document.getElementById('dBank').textContent = cells[5].textContent.trim();
-    document.getElementById('dTime').textContent = cells[6].textContent.trim();
-    document.getElementById('dTitle').textContent = '入金审核 · 存款到账核对';
+    document.getElementById('dCust').textContent = cellText(curTr, 1);
+    document.getElementById('dCcy').textContent = cellText(curTr, 2);
+    document.getElementById('dAmt').textContent = cleanAmt(cells[3]);
+    document.getElementById('dPost').textContent = cleanAmt(cells[3]);
+    document.getElementById('dSender').textContent = cellText(curTr, 4);
+    document.getElementById('dBank').textContent = cellText(curTr, 5);
+    document.getElementById('dTime').textContent = cellText(curTr, 7);
+    document.getElementById('dTitle').textContent = '入金复核 · 非同名挂账单';
+    document.getElementById('dKyb').textContent = subj;
+    document.getElementById('dJudge').textContent = '✗ 非同名（系统比对：与 KYB 主体不一致）';
+    document.getElementById('dPath').textContent = '客户已添加外部账户并上传证明 → 批准=解除挂账计入余额 / 拒绝=原路退款';
+    document.getElementById('dHold').textContent = hold;
+    document.getElementById('dDays').textContent = '第 ' + days + ' 天（超过 7 天未通过 → 平台自动退款）';
+    document.getElementById('dProof').textContent = proof + '  📎 预览';
     document.getElementById('depositModal').classList.add('active');
   } else {
+    var ea = curTr.getAttribute('data-ea') || '—';
+    var eaName = curTr.getAttribute('data-ea-name') || '';
     document.getElementById('wTid').textContent = cells[0].textContent;
     document.getElementById('wTid2').textContent = cells[0].textContent;
-    document.getElementById('wCust').textContent = cells[1].textContent.trim();
-    document.getElementById('wCcy').textContent = cells[2].textContent.trim();
-    document.getElementById('wAmt').textContent = cells[3].textContent.trim().split(' ')[0];
-    document.getElementById('wBen').textContent = cells[4].textContent.trim();
-    document.getElementById('wPur').textContent = cells[5].textContent.trim();
-    document.getElementById('wAcc').textContent = '•••• •••• 7H21';
-    var doc = cells[6].textContent.trim();
+    document.getElementById('wCust').textContent = cellText(curTr, 1);
+    document.getElementById('wCcy').textContent = cellText(curTr, 2);
+    document.getElementById('wAmt').textContent = cleanAmt(cells[3]);
+    document.getElementById('wBen').textContent = cellText(curTr, 4);
+    document.getElementById('wEa').textContent = ea + (eaName ? ' · ' + eaName : '');
+    document.getElementById('wEaState').textContent = '✓ 同名 · 已核验（正常状态，可出金）';
+    document.getElementById('wEaState').style.color = '#166534';
+    document.getElementById('wPur').textContent = cellText(curTr, 6);
+    var doc = cellText(curTr, 7);
     document.getElementById('wDoc').textContent = doc === '已传' ? 'invoice-2026-0891.pdf 已上传' : '未上传（缺单据）';
     document.getElementById('wDoc').style.color = doc === '已传' ? '#166534' : '#DC2626';
-    document.getElementById('wTime').textContent = cells[7].textContent.trim();
+    document.getElementById('wTime').textContent = cellText(curTr, 8);
     document.getElementById('withdrawModal').classList.add('active');
   }
+  hideReject();
+}
+
+function openEaReview(btn) {
+  curType = 'ea';
+  curTr = btn.closest('tr');
+  var cells = curTr.cells;
+  var holder = cellText(curTr, 3);
+  var subjRaw = cellText(curTr, 5).replace(/\s+/g, ' ');
+  var banks = { 'USD': 'Apex Markets Inc', 'EUR': 'Banking Circle', 'GBP': 'Clear Junction' };
+  var ccy = cellText(curTr, 2);
+  document.getElementById('eaTid').textContent = cells[0].textContent;
+  document.getElementById('eaCust').textContent = cellText(curTr, 1);
+  document.getElementById('eaSubj').textContent = subjRaw;
+  document.getElementById('eaHolder').textContent = holder;
+  document.getElementById('eaJudge').textContent = '✗ 非同名（持有人 ≠ KYB 主体，大小写/空格不敏感比对）';
+  document.getElementById('eaPath').textContent = '需运营人工审核证明 → 同意=创建成功（非同名 · 仅入金来源）/ 驳回=创建失败';
+  document.getElementById('eaCcy').textContent = ccy;
+  document.getElementById('eaBank').textContent = banks[ccy] || '—';
+  document.getElementById('eaAcc').textContent = '•••• •••• ' + (curTr.getAttribute('data-acc') || '0000');
+  document.getElementById('eaProof').textContent = (curTr.getAttribute('data-proof') || '—') + '  📎 预览';
+  document.getElementById('eaModal').classList.add('active');
   hideReject();
 }
 
 function hideReject() {
   document.getElementById('rejectBoxDep').style.display = 'none';
   document.getElementById('rejectBoxWd').style.display = 'none';
+  document.getElementById('rejectBoxEa').style.display = 'none';
 }
 
 function startReject() {
-  if (curType === 'deposit') {
-    document.getElementById('rejectBoxDep').style.display = 'block';
-  } else {
-    document.getElementById('rejectBoxWd').style.display = 'block';
-  }
+  if (curType === 'deposit') { document.getElementById('rejectBoxDep').style.display = 'block'; }
+  else if (curType === 'ea') { document.getElementById('rejectBoxEa').style.display = 'block'; }
+  else { document.getElementById('rejectBoxWd').style.display = 'block'; }
 }
+function startEaReject() { startReject(); }
 
-function cancelReject() {
-  hideReject();
-}
+function cancelReject() { hideReject(); }
 
 function closeAll() {
   document.getElementById('depositModal').classList.remove('active');
   document.getElementById('withdrawModal').classList.remove('active');
+  document.getElementById('eaModal').classList.remove('active');
   hideReject();
 }
 
 function approveDeposit() {
-  var amt = curTr.cells[3].textContent.trim().split(' ')[0];
-  showToast('已批准 ' + curTr.cells[0].textContent + ' — ' + amt + ' 已计入客户账户余额');
+  var amt = cleanAmt(curTr.cells[3]);
+  showToast('已批准 ' + curTr.cells[0].textContent + ' — ' + amt + ' 挂账解除，已计入客户账户余额');
   closeAll(); removeRow(curTr, 'deposit');
 }
 function approveWithdraw() {
-  var amt = curTr.cells[3].textContent.trim().split(' ')[0];
-  showToast('已批准 ' + curTr.cells[0].textContent + ' — ' + amt + ' 已提交上游汇款');
+  var amt = cleanAmt(curTr.cells[3]);
+  showToast('已批准 ' + curTr.cells[0].textContent + ' — ' + amt + ' 已提交上游汇款（同名已核验受益人）');
   closeAll(); removeRow(curTr, 'withdraw');
 }
 function confirmReject(type) {
   var boxId = type === 'deposit' ? 'rejectReasonDep' : 'rejectReasonWd';
   var reason = document.getElementById(boxId).value.trim();
   if (!reason) { showToast('请填写拒绝理由后再提交'); return; }
-  showToast('已拒绝 ' + curTr.cells[0].textContent + ' — 理由已记入审核日志');
+  if (type === 'deposit') {
+    showToast('已拒绝 ' + curTr.cells[0].textContent + ' — 挂账资金将原路退回，理由已记入审核日志');
+  } else {
+    showToast('已拒绝 ' + curTr.cells[0].textContent + ' — 理由已记入审核日志');
+  }
   closeAll(); removeRow(curTr, type);
+}
+function approveEa() {
+  showToast('已同意 ' + curTr.cells[0].textContent + ' — 外部账户创建成功（非同名 · 仅入金来源）');
+  closeAll(); removeRow(curTr, 'ea');
+}
+function confirmEaReject() {
+  var reason = document.getElementById('rejectReasonEa').value.trim();
+  if (!reason) { showToast('请填写驳回理由后再提交'); return; }
+  showToast('已驳回 ' + curTr.cells[0].textContent + ' — 外部账户创建失败，客户可重新提交');
+  closeAll(); removeRow(curTr, 'ea');
 }
 function removeRow(tr, type) {
   tr.remove();
-  var t = type === 'deposit' ? 'tbDeposit' : 'tbWithdraw';
-  var n = document.querySelectorAll('#' + t + ' tr').length;
-  var isDep = type === 'deposit';
-  document.getElementById(isDep ? 'stDeposit' : 'stWithdraw').textContent = n;
-  document.getElementById(isDep ? 'cntDeposit' : 'cntWithdraw').textContent = n + ' 单待审';
+  var map = { deposit: ['tbDeposit', 'stDeposit', 'cntDeposit', '入金'], withdraw: ['tbWithdraw', 'stWithdraw', 'cntWithdraw', '出金'], ea: ['tbEaAdd', 'stEaAdd', 'cntEaAdd', 'EA 添加'] };
+  var m = map[type];
+  var t = document.getElementById(m[0]);
+  var n = t.querySelectorAll('tr').length;
+  document.getElementById(m[1]).textContent = n;
+  document.getElementById(m[2]).textContent = n + ' 单待审';
   if (n === 0) {
-    var empty = '<tr><td colspan="8"><div class="queue-empty">🎉 队列已清空 — 所有 ' + (isDep ? '入金' : '出金') + ' 待办均已处理</div></td></tr>';
-    document.getElementById(t).innerHTML = empty;
+    var empty = '<tr><td colspan="10"><div class="queue-empty">🎉 队列已清空 — 所有 ' + m[3] + ' 待办均已处理</div></td></tr>';
+    t.innerHTML = empty;
   }
 }
 </script>

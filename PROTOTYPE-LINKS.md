@@ -27,7 +27,7 @@
 | 客户详情 · 推荐 Tab | 客户推荐视图（10） | 2026-07-08 | [10-Customer-Detail-Referrals-Tab.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/customer/10-Customer-Detail-Referrals-Tab.html) |
 | 客户详情 · 推荐 Tab v2 | 推荐视图（代理版） | 2026-08-03 | [10-Customer-Detail-Referrals-Tab-v2.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/customer/10-Customer-Detail-Referrals-Tab-v2.html) |
 | 分销配置 | 分销规则配置（09） | 2026-07-08 | [09-Distribution-Config.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/distribution/09-Distribution-Config.html) |
-| 法币 · 交易审核 | 出入金待审队列（入金/出金，审批/拒绝） | 2026-09-08 | [01-Fiat-Review-Queue.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/fiat/01-Fiat-Review-Queue.html) |
+| 法币 · 交易审核 | 三队列:入金非同名挂账复核 / 出金同名已核验受益人终审 / EA 非同名添加审核(同意=创建成功·仅入金来源,驳回=失败) | 2026-09-08 | [01-Fiat-Review-Queue.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/fiat/01-Fiat-Review-Queue.html) |
 | 法币 · 交易记录 | 出入金全量流水（10 列 + Review 入口） | 2026-09-08 | [02-Fiat-Transaction-List.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/fiat/02-Fiat-Transaction-List.html) |
 | 法币 · 资金总览 | 平台级资金视图（逐币种对账闭环） | 2026-09-08 | [03-Fiat-Treasury-Overview.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/fiat/03-Fiat-Treasury-Overview.html) |
 | 法币 · 收款账户 | 平台收款账户 + 上游 KYB | 2026-09-08 | [04-Fiat-Bank-Accounts.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/fiat/04-Fiat-Bank-Accounts.html) |
