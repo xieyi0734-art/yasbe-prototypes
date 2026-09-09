@@ -757,9 +757,9 @@ const T = {
     errRequired:'该项为必填', errEmail:'请输入有效邮箱地址', errPhone:'请输入国际格式手机号，如 +8613800000000', errMin4:'至少 4 个字符', errAcc8:'账户号码须为 8 位数字', errSort:'Sort Code 须为 6 位数字', errIban:'IBAN 无效，请检查号码或校验位', errBic:'SWIFT / BIC 须为 8 或 11 位字母数字', errStreet:'地址须为 3–35 个字符', errPobox:'地址不允许使用邮政信箱（PO Box / PMB）',
     // 标注客户
     depPendTitle:'非同名入金挂账待处理', depPendLead:'系统检测到一笔来自非同名账户的入金。根据平台规则，入金须来自与您同名的银行账户；如该账户确为您本人/授权账户，请添加该外部账户并上传证明，经运营审核通过后入账。',
-    depPendDeadline:'7 天内未完成添加与审核，平台将自动原路退款；您也可以随时手动撤销。',
+    depPendDeadline:'7 天内未完成添加与证明，平台将自动原路退款（已补证单自动退款停表，等待运营复核）；您也可以随时手动撤销。',
     depPendAdd:'去添加该外部账户', depPendCancel:'手动撤销（立即退款）', depResolved:'运营审核通过，挂账入金已入账', depCancelled:'已手动撤销，该笔入金将原路退回', depAutoRefunded:'7 天期限已到且未完成添加，平台已自动原路退款',
-    depPendingTag:'挂账（非同名，待添加证明）', eaNonSameChip:'非同名（人工审核通过）',
+    depPendingTag:'挂账（非同名，待添加证明）', depProofTag:'已补证 · 等待运营复核', eaNonSameChip:'非同名（人工审核通过）',
     dNonSameDep:'模拟非同名入金到账（→ 挂账待处理）', dRvPass:'运营审核通过（最新审核中 EA）', dRvReject:'运营审核驳回（最新审核中 EA）', dResolveDep:'挂账入金人工放行（通过 → 入账）', dAutoRefund:'模拟 7 天到期自动退款',
     // 提现账户同名
     eaNameL:'账户名称', eaHolderL:'账户持有人', eaLocked:'（不可修改）',
@@ -869,9 +869,9 @@ const T = {
     wdSelTip:'Select a payout account', wdSuccess:'Withdrawal submitted', wdDone:'Withdrawal credited', wdMismatch:'Currency mismatch — please add a same-name account in this currency', wdOnlySame:'Payouts only accept normal (verified) same-name external accounts.',
     noData:'No transactions',
     depPendTitle:'Non-same-name deposit on hold', depPendLead:'We detected a deposit from an account not in your name. Per platform rules deposits must come from a bank account in your own name. If this account is yours (or authorised), add it as an external account and upload proof — it will be credited after operator approval.',
-    depPendDeadline:'If the account is not added and approved within 7 days, the funds are refunded automatically. You may cancel (refund) at any time.',
+    depPendDeadline:'If the account is not added and proven within 7 days, the funds are auto-refunded (proof-submitted holds are paused and await operator review). You may cancel (refund) at any time.',
     depPendAdd:'Add this external account', depPendCancel:'Cancel (refund now)', depResolved:'Operator approved — held deposit credited', depCancelled:'Cancelled — funds will be returned', depAutoRefunded:'7-day deadline passed without adding the account — funds auto-refunded',
-    depPendingTag:'On hold (non-same-name, proof needed)', eaNonSameChip:'Non-same-name (manually approved)',
+    depPendingTag:'On hold (non-same-name, proof needed)', depProofTag:'Proof submitted · awaiting operator review', eaNonSameChip:'Non-same-name (manually approved)',
     dNonSameDep:'Simulate non-same-name deposit (→ held)', dRvPass:'Operator approve (latest EA under review)', dRvReject:'Operator reject (latest EA under review)', dResolveDep:'Release held deposit (approve → credit)', dAutoRefund:'Simulate 7-day auto-refund',
     eaTitle:'Same-Name External Accounts', eaSub:'Bank accounts held by you (individual) or your company — the funding source for same-name deposits and the destination for payouts · holder (personal name / company name) verification per regional rules after adding',
     eaAdd:'＋ Add Same-Name External Account', eaMTitle:'Add Same-Name External Account', eaMSub:'Add a bank account in your own (same) name, used for same-name deposits and payout collection',
@@ -1402,6 +1402,8 @@ document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{
 function closeOverlay(ov){
   if(!ov)return;
   ov.classList.remove('show');
+  // 从挂账提示条进入 EA 向导后取消 → 放弃本次补证（挂账仍为待补证态）
+  if(ov.id==='eaModal'){ pendingDepTxId=null; }
   // 从出金流程跳去「添加外部同名账户」后取消/关闭 → 返回出金流程原状态
   if(ov.id==='eaModal'&&typeof wd!=='undefined'&&wd.fromWithdraw){ wd.fromWithdraw=false; open('wdModal'); renderWdStep(); }
 }
@@ -1510,6 +1512,7 @@ let EXT_ACCOUNTS = [
 ];
 function curSubj(){const d=document.getElementById('dSubject');return (d&&d.value)==='BUSINESS'?'BUSINESS':'INDIVIDUAL';}
 const eaf = { step:1, type:null, subject:'INDIVIDUAL', holder:'', sameName:null, proof:'' };
+let pendingDepTxId = null; // 挂账提示条「去添加该外部账户」进入 EA 向导时记录的目标挂账 TX；提交补证成功后标记该 TX 已补证
 /* 同名判定：大小写不敏感 + 忽略空格（平台规则：用户输入外部账户持有人，与主体实名比对） */
 function normName(s){return String(s==null?'':s).toUpperCase().replace(/\s+/g,'');}
 function subjectRealName(){ const biz=bizAcc(); const b=eaf.subject==='BUSINESS';
@@ -1636,6 +1639,7 @@ function confirmAddEa(){
     const meta=EA_TYPES.find(x=>x.v===eaf.type);
     const holderName=eaf.holder||subjectRealName();
     const _eaBank=String((document.querySelector('#eaFields [data-ea="bankName"]')||{}).value||'').trim()||meta.sample;
+    const depTxId=pendingDepTxId; // 挂账补证上下文（若有）
     const ea={
       id:'ea-'+Date.now(), type:eaf.type, flag:meta.flag, currency:meta.cur, subject:eaf.subject,
       name:{zh:holderName,en:holderName},
@@ -1645,13 +1649,25 @@ function confirmAddEa(){
       sameName:same, verified:same, review:!same, proof:!same?(eaf.proof||''):'', default:false, created:new Date().toISOString().slice(0,10)
     };
     EXT_ACCOUNTS.push(ea);
+    let depMsg=null;
+    // 从挂账提示条「去添加该外部账户」进入时：非同名 EA（含证明）提交成功 = 该挂账已补证（停表，等待入金复核放行）
+    if(depTxId){
+      const dt=TX.find(x=>x.id===depTxId&&x.status==='onhold');
+      if(dt){
+        if(!same){ dt.proofSubmitted=true; depMsg=tt({zh:'已提交外部账户与证明 — 该挂账进入运营复核，自动退款已停表',en:'External account + proof submitted — this hold now awaits operator review (auto-refund paused)'}); }
+        else { depMsg=tt({zh:'同名账户已自动创建；如需为该笔非同名入金补证，请添加打款方账户并上传证明',en:'Same-name account created automatically. To prove this non-same-name deposit, add the sender\'s external account and upload proof.'}); }
+      }
+      pendingDepTxId=null;
+    }
     renderAll();
     if(wd.fromWithdraw){ wd.fromWithdraw=false; open('wdModal'); renderWdStep(); }
-    if(same) toast(t('eaAddedAuto'));
+    if(depMsg) toast(depMsg);
+    else if(same) toast(t('eaAddedAuto'));
     else toast(t('eaAddedReview'));
   },1500);
 }
-/* demo：运营审核通过 / 驳回最新审核中（review）的 EA */
+/* demo：运营审核通过 / 驳回最新审核中（review）的 EA —— 仅作用于 EA 建档本身；
+   挂账放行由入金复核独立完成（dResolveDep），EA 审核与入金复核解耦（PRD M3-5 / A 端 01 三队列） */
 function reviewLatestEa(pass){
   const ea=[...EXT_ACCOUNTS].reverse().find(x=>x.review);
   if(!ea){toast(tt({zh:'当前没有「运营审核中」的外部账户',en:'No external account under operator review'}));return;}
@@ -1816,29 +1832,39 @@ document.getElementById('dNonSameDep').addEventListener('click',()=>{
   const now=new Date();
   const tx={
     id:'TX-'+now.toISOString().slice(0,10).replace(/-/g,'')+'-'+String(Math.floor(1000+Math.random()*9000)),
-    acc:acc.id, type:'payin', rail:'SEPA', currency:acc.currency, amount:300.00, fee:0, status:'onhold',
+    acc:acc.id, type:'payin', rail:'SEPA', currency:acc.currency, amount:300.00, fee:0, status:'onhold', proofSubmitted:false,
     sender:'JANE DOE', date:now.toISOString().slice(0,16).replace('T',' '), ref:'NON-SAME-'+String(Math.floor(100+Math.random()*900))
   };
   TX.unshift(tx);
   renderAll();
   toast(tt({zh:'已模拟一笔来自非同名账户的入金（EUR 300.00）→ 挂账待处理',en:'Simulated a deposit from a non-same-name account (EUR 300.00) — held for review'}));
 });
-/* 演示按钮：运营审核通过，挂账入金入账（计入可用余额） */
+/* 演示按钮：运营审核通过，挂账入金入账（计入可用余额）— 仅限「已补证」挂账（客户已添加外部账户并上传证明） */
 document.getElementById('dResolveDep').addEventListener('click',()=>{
-  const tx=TX.find(x=>x.type==='payin'&&x.status==='onhold');
-  if(!tx){toast(tt({zh:'当前没有挂账待处理的入金',en:'No held deposit right now'}));return;}
+  const tx=TX.find(x=>x.type==='payin'&&x.status==='onhold'&&x.proofSubmitted);
+  if(!tx){
+    const unproved=TX.find(x=>x.type==='payin'&&x.status==='onhold'&&!x.proofSubmitted);
+    if(unproved){ toast(tt({zh:'该挂账尚未补证 — 客户须先添加该外部账户并上传证明，运营复核通过后方可放行入账',en:'This hold has no proof yet — the customer must add the external account and upload proof before it can be released'})); return; }
+    toast(tt({zh:'当前没有已补证待放行的挂账入金',en:'No proof-submitted held deposit to release right now'})); return;
+  }
   tx.status='completed';
   const acc=acctById(tx.acc); if(acc){acc.bal.available+=tx.amount; acc.bal.actual+=tx.amount;}
   renderAll(); toast(t('depResolved'));
 });
-/* 演示按钮：模拟 7 天到期未添加外部账户 → 平台自动原路退款 */
+/* 演示按钮：模拟 7 天到期未添加外部账户 → 平台自动原路退款（仅未补证单；已补证单已停表） */
 document.getElementById('dAutoRefund').addEventListener('click',()=>{
-  const tx=TX.find(x=>x.type==='payin'&&x.status==='onhold');
-  if(!tx){toast(tt({zh:'当前没有挂账待处理的入金',en:'No held deposit right now'}));return;}
+  const tx=TX.find(x=>x.type==='payin'&&x.status==='onhold'&&!x.proofSubmitted);
+  if(!tx){
+    const proved=TX.find(x=>x.type==='payin'&&x.status==='onhold'&&x.proofSubmitted);
+    if(proved){ toast(tt({zh:'该挂账已补证 — 自动退款已停表，等待运营复核',en:'Proof already submitted — the 7-day auto-refund is paused, awaiting operator review'})); return; }
+    toast(tt({zh:'当前没有挂账待处理的入金',en:'No held deposit right now'})); return;
+  }
   tx.status='autoRefunded';
   renderAll(); toast(t('depAutoRefunded'));
 });
 /* 渲染挂账提示条（EA 区上方）：存在 onhold 入金时展示 + 引导添加外部账户 / 手动撤销 */
+/* 两态：未补证（proofSubmitted=false）= 可「去添加该外部账户」，7 天自动退款倒计时；
+        已补证（proofSubmitted=true）= 已提交证明 → 停表，等待运营复核放行/驳回（A 端入金复核队列） */
 function renderDepPending(){
   const wrap=document.getElementById('depPendingNote');
   if(!wrap)return;
@@ -1846,12 +1872,17 @@ function renderDepPending(){
   if(!held.length){wrap.style.display='none';wrap.innerHTML='';return;}
   const rows=held.map(x=>{
     const a=acctById(x.acc);
+    const tagHtml=x.proofSubmitted
+      ? `<span class="chip green" style="margin-left:8px">${t('depProofTag')}</span>`
+      : `<span class="chip amber" style="margin-left:8px">${t('depPendingTag')}</span>`;
+    const btns=x.proofSubmitted
+      ? `<span class="mono" style="font-size:11px;color:var(--muted)">⏱ 自动退款已停表</span>
+         <button class="btn btn-ghost btn-sm dep-cancel" data-tx="${x.id}">${t('depPendCancel')}</button>`
+      : `<button class="btn btn-accent btn-sm dep-add" data-tx="${x.id}">${t('depPendAdd')}</button>
+         <button class="btn btn-ghost btn-sm dep-cancel" data-tx="${x.id}">${t('depPendCancel')}</button>`;
     return `<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:9px 0;border-top:1px solid var(--gray-bd)">
-      <div style="font-size:12.5px">${t('ty_payin')} <b>${money(x.amount,x.currency)}</b><span class="sep">·</span>${a?accName(a):''}<span class="sep">·</span>${tt({zh:'打款方',en:'Sender'})}: <b>${esc(x.sender||'')}</b><span class="sep">·</span>${x.date}<span class="chip amber" style="margin-left:8px">${t('depPendingTag')}</span></div>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-accent btn-sm dep-add" data-tx="${x.id}">${t('depPendAdd')}</button>
-        <button class="btn btn-ghost btn-sm dep-cancel" data-tx="${x.id}">${t('depPendCancel')}</button>
-      </div>
+      <div style="font-size:12.5px">${t('ty_payin')} <b>${money(x.amount,x.currency)}</b><span class="sep">·</span>${a?accName(a):''}<span class="sep">·</span>${tt({zh:'打款方',en:'Sender'})}: <b>${esc(x.sender||'')}</b><span class="sep">·</span>${x.date}${tagHtml}</div>
+      <div style="display:flex;gap:8px;align-items:center">${btns}</div>
     </div>`;
   }).join('');
   wrap.style.display='';
@@ -1860,7 +1891,10 @@ function renderDepPending(){
     ${rows}
   </div>`;
   wrap.querySelectorAll('.dep-add').forEach(b=>b.addEventListener('click',()=>{
-    openEa(); toast(tt({zh:'请按同名/非同名规则添加该外部账户并上传证明',en:'Add this external account and upload proof per the same-name rule'}));
+    pendingDepTxId=b.getAttribute('data-tx');
+    const _tx=TX.find(x=>x.id===pendingDepTxId);
+    openEa();
+    toast(_tx?tt({zh:'请添加打款方「'+(esc(_tx.sender)||'')+'」名下的该外部账户并上传证明（非同名 → 运营审核）',en:'Add the external account held by sender "'+(esc(_tx.sender)||'')+'" and upload proof (non-same-name → operator review)'}):tt({zh:'请按同名/非同名规则添加该外部账户并上传证明',en:'Add this external account and upload proof per the same-name rule'}));
   }));
   wrap.querySelectorAll('.dep-cancel').forEach(b=>b.addEventListener('click',()=>{
     const id=b.getAttribute('data-tx'); const tx=TX.find(x=>x.id===id);
