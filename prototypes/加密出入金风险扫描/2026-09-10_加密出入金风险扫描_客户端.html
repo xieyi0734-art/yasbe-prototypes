@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crypto Transactions — YASBee</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#FFCA00; --gold-dim:rgba(255,202,0,.12); --gold-mid:rgba(255,202,0,.2);
+  --bg:#191b1f; --header:#2c2c2c; --card:#1f2128; --card-2:#23262e;
+  --border:rgba(255,255,255,.08); --border-2:rgba(255,255,255,.05);
+  --text:#ffffff; --text-muted:#a0a0b0; --text-dim:#848493; --text-faint:#5f5f6e;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased;font-size:14px}
+.app{display:flex;min-height:100vh}
+
+/* Sidebar */
+.sidebar{width:232px;background:var(--header);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;border-right:1px solid var(--border)}
+.sidebar-header{padding:20px 20px 16px;border-bottom:1px solid var(--border)}
+.sidebar-header .logo{font-size:20px;font-weight:700;color:var(--text);text-decoration:none;letter-spacing:-.3px}
+.sidebar-header .logo span{color:var(--gold)}
+.sidebar-nav{padding:12px 10px;flex:1;display:flex;flex-direction:column;gap:2px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;font-size:14px;font-weight:500;color:var(--text-dim);cursor:pointer;transition:all .15s;text-decoration:none}
+.nav-item:hover{background:var(--gold-dim);color:var(--text)}
+.nav-item.active{background:var(--gold-mid);color:var(--gold);font-weight:600}
+.nav-item .nav-icon{width:20px;height:20px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.sidebar-footer{padding:16px 20px;border-top:1px solid var(--border);font-size:12px;color:var(--text-faint)}
+
+/* Main */
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{height:60px;background:var(--header);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;flex-shrink:0}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar-left h1{font-size:18px;font-weight:600}
+.topbar-right{display:flex;align-items:center;gap:14px}
+.notif-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-dim);transition:all .15s;position:relative}
+.notif-btn:hover{background:var(--gold-dim);color:var(--gold)}
+.notif-btn .dot{position:absolute;top:8px;right:9px;width:7px;height:7px;background:#ea4335;border-radius:50%;border:2px solid var(--header)}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--gold);color:#191b1f;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+.content{padding:24px 28px;flex:1;overflow-y:auto}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
+.stat-card .stat-label{font-size:12px;color:var(--text-dim);margin-bottom:6px}
+.stat-card .stat-value{font-size:24px;font-weight:700;letter-spacing:-.5px}
+.stat-card .stat-sub{font-size:12px;color:var(--text-muted);margin-top:3px}
+.stat-card .stat-value .currency{font-size:15px;font-weight:500;color:var(--text-dim)}
+
+/* Tabs */
+.tab-bar{display:flex;gap:0;margin-bottom:20px;border-bottom:1px solid var(--border)}
+.tab-btn{padding:11px 22px;font-size:14px;font-weight:500;color:var(--text-dim);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab-btn .tab-badge{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11px;background:var(--card-2);color:var(--text-dim);margin-left:6px;font-weight:400}
+.tab-btn.active .tab-badge{background:var(--gold-mid);color:var(--gold)}
+
+/* Notice banner */
+.notice{display:flex;align-items:center;gap:10px;background:var(--gold-dim);border:1px solid var(--gold-mid);border-radius:10px;padding:11px 14px;font-size:12.5px;color:#ffd95e;margin-bottom:16px}
+.notice svg{flex-shrink:0}
+
+/* Filters */
+.filter-bar{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.filter-group{display:flex;align-items:center;gap:6px}
+.filter-group label{font-size:13px;color:var(--text-dim);white-space:nowrap}
+.filter-input,.filter-select{padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card);color:var(--text);outline:none;transition:border .15s;font-family:inherit}
+.filter-input:focus,.filter-select:focus{border-color:var(--gold)}
+.search-wrap{position:relative;flex:1;min-width:180px}
+.search-wrap input{width:100%;padding:8px 12px 8px 34px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card);color:var(--text);outline:none;transition:border .15s}
+.search-wrap input:focus{border-color:var(--gold)}
+.search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-faint)}
+.spacer{flex:1}
+.btn{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px;font-family:inherit;border:1px solid var(--border);background:transparent;color:var(--text-dim)}
+.btn:hover{background:var(--gold-dim);border-color:var(--gold);color:var(--text)}
+
+/* Table */
+.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.table-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead{background:var(--card-2)}
+th{padding:11px 16px;text-align:left;font-size:11px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:13px 16px;border-bottom:1px solid var(--border-2);white-space:nowrap;color:var(--text);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:rgba(255,202,0,.03)}
+.tx-id{font-family:'SF Mono','Cascadia Code',Consolas,monospace;font-size:12px;color:#4da3ff;cursor:pointer}
+.amount{font-weight:600;font-family:'SF Mono','Cascadia Code',Consolas,monospace;font-size:13px}
+.amount.positive{color:#34d399}
+.amount.negative{color:#f87171}
+.addr{font-family:'SF Mono','Cascadia Code',Consolas,monospace;font-size:12px;color:var(--text-dim);display:inline-block;max-width:140px;overflow:hidden;text-overflow:ellipsis;vertical-align:bottom}
+.status-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;font-size:11.5px;font-weight:500}
+.status-completed{background:rgba(52,168,83,.15);color:#4ade80}
+.status-pending-review{background:rgba(255,202,0,.15);color:#ffd95e}
+.status-refunded{background:rgba(77,163,255,.15);color:#7cc0ff}
+.status-failed{background:rgba(234,67,53,.15);color:#fda4a4}
+.type-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:500}
+.type-income{background:rgba(52,211,153,.15);color:#34d399}
+.type-expense{background:rgba(248,113,113,.15);color:#f87171}
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--border);font-size:13px;color:var(--text-dim)}
+.pag-btns{display:flex;gap:4px}
+.pag-btn{width:32px;height:32px;border-radius:6px;border:1px solid var(--border);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:var(--text-dim);transition:all .15s}
+.pag-btn:hover{background:var(--gold-dim);border-color:var(--gold);color:var(--text)}
+.pag-btn.active{background:var(--gold);color:#191b1f;border-color:var(--gold)}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(3px);z-index:1000;display:none;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:14px;width:460px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.5);display:flex;flex-direction:column;overflow:hidden}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px 22px 0}
+.modal-header h3{font-size:17px;font-weight:600}
+.modal-close{width:30px;height:30px;border-radius:50%;border:none;background:var(--card-2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-dim);font-size:16px}
+.modal-close:hover{color:var(--text)}
+.modal-body{padding:18px 22px 22px}
+.detail-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border-2);font-size:13px}
+.detail-row:last-child{border-bottom:none}
+.detail-row .k{color:var(--text-dim)}
+.detail-row .v{font-weight:500;text-align:right}
+.review-box{margin-top:14px;background:var(--gold-dim);border:1px solid var(--gold-mid);border-radius:10px;padding:13px 14px;font-size:12.5px;color:#ffd95e;line-height:1.6}
+.review-box .shield{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:#FFCA00;margin-bottom:4px}
+.modal-footer{display:flex;justify-content:flex-end;padding:0 22px 20px;gap:10px}
+.btn-gold{background:var(--gold);color:#191b1f;border:none;font-weight:600}
+.btn-gold:hover{opacity:.9;border:none}
+
+@media(max-width:768px){.sidebar{display:none}.stats{grid-template-columns:1fr}.filter-bar{flex-direction:column;align-items:stretch}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-header"><a href="#" class="logo">YAS<span>Bee</span></a></div>
+  <div class="sidebar-nav">
+    <a href="#" class="nav-item"><span class="nav-icon">◧</span>Dashboard</a>
+    <a href="#" class="nav-item active"><span class="nav-icon">☰</span>Statement</a>
+    <a href="#" class="nav-item"><span class="nav-icon">▤</span>Cards</a>
+    <a href="#" class="nav-item"><span class="nav-icon">⇄</span>Transfers</a>
+    <a href="#" class="nav-item"><span class="nav-icon">◔</span>Analytics</a>
+  </div>
+  <div class="sidebar-footer">© 2026 YASBee</div>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left"><h1>Statement</h1></div>
+    <div class="topbar-right">
+      <button class="notif-btn">🔔<div class="dot"></div></button>
+      <div class="avatar">DX</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="stats">
+      <div class="stat-card"><div class="stat-label">Total Balance</div><div class="stat-value">$24,830.50 <span class="currency">USD</span></div><div class="stat-sub">+$1,240 this month</div></div>
+      <div class="stat-card"><div class="stat-label">Monthly Income</div><div class="stat-value">$8,420.00</div><div class="stat-sub">+12.4% from last month</div></div>
+      <div class="stat-card"><div class="stat-label">Monthly Expenses</div><div class="stat-value">$3,180.75</div><div class="stat-sub">+3.2% from last month</div></div>
+    </div>
+
+    <div class="tab-bar">
+      <button class="tab-btn">Fiat <span class="tab-badge">10</span></button>
+      <button class="tab-btn active">Crypto <span class="tab-badge">7</span></button>
+      <button class="tab-btn">Card Records <span class="tab-badge">10</span></button>
+      <button class="tab-btn">Rewards <span class="tab-badge">6</span></button>
+    </div>
+
+    <div class="notice">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <span>For your security, crypto deposits and withdrawals may be subject to compliance screening. Flagged transactions enter a review queue before being credited or sent.</span>
+    </div>
+
+    <div class="filter-bar">
+      <div class="filter-group"><label>From</label><input type="date" class="filter-input" value="2026-08-01"></div>
+      <div class="filter-group"><label>To</label><input type="date" class="filter-input" value="2026-09-10"></div>
+      <div class="filter-group"><label>Status</label>
+        <select class="filter-select">
+          <option>All</option><option>Completed</option><option>Pending Review</option><option>Refunded</option><option>Failed</option>
+        </select>
+      </div>
+      <div class="search-wrap">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search transactions...">
+      </div>
+      <div class="spacer"></div>
+      <button class="btn">⭳ Export</button>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Type</th>
+              <th>Asset</th>
+              <th>Network</th>
+              <th>Amount</th>
+              <th>Counterparty Wallet</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="tx-id">CRYP-0901</span></td>
+              <td><span class="type-badge type-income">↓ Income</span></td>
+              <td>BTC</td><td>Bitcoin</td>
+              <td><span class="amount positive">+0.0420 BTC</span></td>
+              <td><span class="addr">bc1qk2…x7f9a</span></td>
+              <td><span class="status-badge status-pending-review">⏳ Pending Review</span></td>
+              <td>2026-09-10 09:41</td>
+            </tr>
+            <tr>
+              <td><span class="tx-id">CRYP-0902</span></td>
+              <td><span class="type-badge type-expense">↑ Expense</span></td>
+              <td>USDT</td><td>TRON</td>
+              <td><span class="amount negative">-5,000.00 USDT</span></td>
+              <td><span class="addr">TQx3…9k2p1</span></td>
+              <td><span class="status-badge status-pending-review">⏳ Pending Review</span></td>
+              <td>2026-09-10 09:18</td>
+            </tr>
+            <tr>
+              <td><span class="tx-id">CRYP-0903</span></td>
+              <td><span class="type-badge type-income">↓ Income</span></td>
+              <td>ETH</td><td>Ethereum</td>
+              <td><span class="amount positive">+0.8500 ETH</span></td>
+              <td><span class="addr">0x3f2a…c81d</span></td>
+              <td><span class="status-badge status-completed">✓ Completed</span></td>
+              <td>2026-09-09 14:30</td>
+            </tr>
+            <tr>
+              <td><span class="tx-id">CRYP-0904</span></td>
+              <td><span class="type-badge type-expense">↑ Expense</span></td>
+              <td>USDC</td><td>Ethereum</td>
+              <td><span class="amount negative">-1,200.00 USDC</span></td>
+              <td><span class="addr">0x8b1e…44f2</span></td>
+              <td><span class="status-badge status-completed">✓ Completed</span></td>
+              <td>2026-09-08 10:15</td>
+            </tr>
+            <tr>
+              <td><span class="tx-id">CRYP-0905</span></td>
+              <td><span class="type-badge type-income">↓ Income</span></td>
+              <td>BTC</td><td>Bitcoin</td>
+              <td><span class="amount positive">+0.0150 BTC</span></td>
+              <td><span class="addr">bc1q9d…a2c7e</span></td>
+              <td><span class="status-badge status-refunded">↩ Refunded</span></td>
+              <td>2026-09-07 22:05</td>
+            </tr>
+            <tr>
+              <td><span class="tx-id">CRYP-0906</span></td>
+              <td><span class="type-badge type-expense">↑ Expense</span></td>
+              <td>ETH</td><td>Ethereum</td>
+              <td><span class="amount negative">-0.3200 ETH</span></td>
+              <td><span class="addr">0x7c4d…e09a</span></td>
+              <td><span class="status-badge status-failed">✕ Failed</span></td>
+              <td>2026-09-06 08:47</td>
+            </tr>
+            <tr>
+              <td><span class="tx-id">CRYP-0907</span></td>
+              <td><span class="type-badge type-income">↓ Income</span></td>
+              <td>SOL</td><td>Solana</td>
+              <td><span class="amount positive">+12.50 SOL</span></td>
+              <td><span class="addr">7fRk…mN4s</span></td>
+              <td><span class="status-badge status-completed">✓ Completed</span></td>
+              <td>2026-09-05 16:20</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <span>Showing 1–7 of 7</span>
+        <div class="pag-btns"><button class="pag-btn" disabled>‹</button><button class="pag-btn active">1</button><button class="pag-btn" disabled>›</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Pending Review detail modal -->
+<div class="modal-overlay" id="reviewModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Transaction Details</h3>
+      <button class="modal-close" onclick="closeReview()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-row"><span class="k">Transaction ID</span><span class="v tx-id">CRYP-0901</span></div>
+      <div class="detail-row"><span class="k">Type</span><span class="v">Income (Deposit)</span></div>
+      <div class="detail-row"><span class="k">Asset / Network</span><span class="v">BTC · Bitcoin</span></div>
+      <div class="detail-row"><span class="k">Amount</span><span class="v" style="color:#34d399">+0.0420 BTC</span></div>
+      <div class="detail-row"><span class="k">Counterparty Wallet</span><span class="v addr">bc1qk2…x7f9a</span></div>
+      <div class="detail-row"><span class="k">Status</span><span class="v"><span class="status-badge status-pending-review">⏳ Pending Review</span></span></div>
+      <div class="detail-row"><span class="k">Date</span><span class="v">2026-09-10 09:41</span></div>
+      <div class="review-box">
+        <div class="shield">🛡 Under Compliance Review</div>
+        Your transaction is undergoing routine compliance screening. Funds are temporarily held and will be credited once the review is complete. No further action is required from you at this time.
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-gold" onclick="closeReview()">Got it</button></div>
+  </div>
+</div>
+
+<script>
+// Demo: clicking a Pending Review row opens the detail modal
+document.querySelectorAll('tbody tr').forEach(function(row){
+  row.addEventListener('click', function(){
+    var statusCell = row.querySelector('.status-badge');
+    if(statusCell && statusCell.classList.contains('status-pending-review')){
+      document.getElementById('reviewModal').classList.add('open');
+    }
+  });
+});
+document.querySelectorAll('.tx-id').forEach(function(el){
+  el.addEventListener('click', function(e){
+    e.stopPropagation();
+    var row = el.closest('tr');
+    var statusCell = row.querySelector('.status-badge');
+    if(statusCell && statusCell.classList.contains('status-pending-review')){
+      document.getElementById('reviewModal').classList.add('open');
+    }
+  });
+});
+function closeReview(){ document.getElementById('reviewModal').classList.remove('open'); }
+document.getElementById('reviewModal').addEventListener('click', function(e){ if(e.target===this) closeReview(); });
+</script>
+</body>
+</html>

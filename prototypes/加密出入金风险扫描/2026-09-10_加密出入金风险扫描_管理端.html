@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>加密货币 · 交易审核 — YASBee 管理端</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue","PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased;color:#1D2129;background:#F3F4F6;line-height:1.5;font-size:14px}
+.sidebar{width:260px;background:#1D2129;color:#fff;height:100vh;position:fixed;left:0;top:0;overflow-y:auto}
+.sidebar-header{padding:20px;font-size:20px;font-weight:700;color:#E59303;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-item{display:flex;align-items:center;gap:12px;padding:12px 20px;color:#9CA3AF;font-size:14px;cursor:pointer;transition:all .15s}
+.sidebar-item:hover{color:#fff;background:rgba(255,255,255,.05)}
+.sidebar-item.active{color:#E59303;background:rgba(229,147,3,.1);border-right:3px solid #E59303}
+.sidebar-item.sub{padding-left:36px;font-size:13px}
+.sidebar-label{padding:8px 20px 4px;font-size:11px;color:#6B7280;text-transform:uppercase;letter-spacing:1px}
+.main{margin-left:260px;padding:32px}
+h1{font-size:24px;font-weight:700}
+.subtitle{font-size:13px;color:#86909C;margin-top:4px;line-height:1.6}
+.stat-card{background:#fff;border-radius:12px;border:1px solid #E5E7EB;padding:20px}
+.stat-value{font-size:25px;font-weight:700}
+.stat-label{font-size:13px;color:#86909C;margin-bottom:4px}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:500;white-space:nowrap}
+.badge-pending{background:#FEF3C7;color:#92400E}
+.btn-primary{background:#E59303;color:#fff;border:none;border-radius:8px;padding:6px 16px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-primary:hover{background:#d48402}
+.btn-danger{background:#DC2626;color:#fff;border:none;border-radius:8px;padding:8px 20px;font-size:14px;font-weight:500;cursor:pointer}
+.btn-danger:hover{background:#b91c1c}
+.btn-danger-outline{background:#fff;color:#DC2626;border:1px solid #FECACA;border-radius:8px;padding:8px 20px;font-size:14px;font-weight:500;cursor:pointer}
+.btn-danger-outline:hover{background:#FEF2F2}
+.btn-outline{background:#fff;color:#4B5563;border:1px solid #D1D5DB;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:500;cursor:pointer}
+.btn-outline:hover{border-color:#E59303;color:#E59303}
+.table-wrap{background:#fff;border-radius:12px;border:1px solid #E5E7EB}
+.table-scroll{overflow-x:auto;border-radius:12px}
+table{width:100%;border-collapse:collapse;min-width:1000px}
+th{text-align:left;padding:10px 12px;font-size:12px;font-weight:500;color:#6B7280;border-bottom:1px solid #E5E7EB;background:#F9FAFB;white-space:nowrap}
+td{padding:10px 12px;font-size:13px;border-bottom:1px solid #F3F4F6;white-space:nowrap;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#F9FAFB}
+.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
+.tag-critical{background:#7F1D1D;color:#FEE2E2}
+.tag-high{background:#FEE2E2;color:#991B1B}
+.tag-medium{background:#FEF3C7;color:#92400E}
+.tag-ok{background:#DCFCE7;color:#166534}
+.tag-blue{background:#DBEAFE;color:#1E40AF}
+.mono{font-family:SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px}
+.muted{color:#86909C;font-size:12px}
+.sec-card{background:#fff;border-radius:12px;border:1px solid #E5E7EB;margin-bottom:20px;overflow:hidden}
+.sec-head{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid #E5E7EB}
+.sec-title{font-size:16px;font-weight:600}
+.sec-sub{font-size:12px;color:#86909C;margin-top:2px;line-height:1.5}
+.sec-count{font-size:13px;color:#166534;background:#DCFCE7;border-radius:20px;padding:2px 12px;font-weight:600}
+.sec-count.blue{color:#1D4ED8;background:#EFF6FF}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;overflow-y:auto}
+.modal-overlay.active{display:flex;align-items:flex-start;justify-content:center}
+.modal{background:#fff;border-radius:16px;padding:28px 32px;width:760px;max-width:94vw;box-shadow:0 20px 60px rgba(0,0,0,.15);margin:40px auto}
+.modal-title{font-size:18px;font-weight:600}
+.status-strip{display:flex;align-items:center;gap:10px;margin-bottom:16px;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:10px;padding:10px 14px;font-size:13px}
+.status-strip .k{color:#86909C}
+.detail-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #F3F4F6;font-size:13px}
+.detail-row:last-child{border-bottom:none}
+.detail-row .k{color:#86909C}
+.detail-row .v{font-weight:500;text-align:right}
+.section-block{margin-bottom:18px}
+.section-block:last-child{margin-bottom:0}
+.section-head{font-size:14px;font-weight:600;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #E5E7EB;display:flex;align-items:center;gap:8px}
+.risk-banner{border-radius:10px;padding:12px 14px;font-size:12.5px;line-height:1.7;margin-bottom:12px}
+.risk-banner.critical{background:#FEF2F2;color:#991B1B;border:1px solid #FECACA}
+.risk-banner.high{background:#FEF2F2;color:#991B1B;border:1px solid #FECACA}
+.risk-banner.medium{background:#FFFBEB;color:#92400E;border:1px solid #FDE68A}
+.risk-banner b{color:inherit}
+table.alerts{width:100%;border-collapse:collapse;min-width:0}
+table.alerts th{text-align:left;padding:8px 12px;font-size:11.5px;font-weight:600;color:#6B7280;background:#F9FAFB;border-bottom:1px solid #E5E7EB;white-space:nowrap}
+table.alerts td{padding:9px 12px;font-size:12.5px;border-bottom:1px solid #F3F4F6}
+table.alerts tr:last-child td{border-bottom:none}
+.form-label{display:block;font-size:13px;color:#4B5563;margin-bottom:4px;font-weight:500}
+.form-textarea{width:100%;border:1px solid #D1D5DB;border-radius:8px;padding:9px 12px;font-size:14px;outline:none;resize:vertical;min-height:64px;font-family:inherit}
+.form-textarea:focus{border-color:#E59303;box-shadow:0 0 0 2px rgba(229,147,3,.15)}
+.reject-box{display:none;margin-top:12px;background:#FEF2F2;border:1px solid #FECACA;border-radius:10px;padding:14px}
+.toast{position:fixed;right:24px;bottom:24px;background:#1D2129;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;z-index:2000;opacity:0;transform:translateY(10px);transition:all .25s;pointer-events:none;max-width:420px}
+.toast.show{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-header">YASBee 管理后台</div>
+  <div class="sidebar-label">主菜单</div>
+  <div class="sidebar-item"><span>🪪</span> 客户管理 ▾</div>
+  <div class="sidebar-item sub">📈 概览</div>
+  <div class="sidebar-item sub">✅ 认证</div>
+  <div class="sidebar-item sub">📋 客户列表</div>
+  <div class="sidebar-item"><span>💰</span> 法币管理 ▾</div>
+  <div class="sidebar-item sub">📥 交易审核</div>
+  <div class="sidebar-item sub">📋 交易记录</div>
+  <div class="sidebar-item sub">🏦 资金总览</div>
+  <div class="sidebar-item sub">🏢 收款账户</div>
+  <div class="sidebar-item sub">💱 币种设置</div>
+  <div class="sidebar-item" style="color:#fff;"><span>₿</span> 加密货币 ▾</div>
+  <div class="sidebar-item sub active">📥 交易审核</div>
+  <div class="sidebar-item sub">📋 交易记录</div>
+  <div class="sidebar-item sub">🏦 归集设置</div>
+  <div class="sidebar-item"><span>🔄</span> 兑换管理</div>
+  <div class="sidebar-item"><span>💳</span> 卡片管理</div>
+  <div class="sidebar-item"><span>📈</span> 投资</div>
+  <div class="sidebar-item"><span>⚙️</span> 系统管理</div>
+  <div class="sidebar-item"><span>📋</span> 我的任务</div>
+</div>
+
+<div class="main">
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;">
+    <div>
+      <h1>交易审核</h1>
+      <p class="subtitle">待办队列（风控命中）— 加密出入金在入账/出账前对「对方钱包」执行 Merkle Science 风险扫描，命中风险告警的订单不自动入账/出金，统一进入 pending 由运营人工审核。<br>入金拒绝 = 原路退款；出金拒绝 = 出金失败。审批后自动移出队列，可在交易记录查看历史。</p>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+    <div class="stat-card"><div class="stat-label">待审入金（风控命中）</div><div class="stat-value" id="stDeposit" style="color:#166534;">5</div></div>
+    <div class="stat-card"><div class="stat-label">待审出金（风控命中）</div><div class="stat-value" id="stWithdraw" style="color:#1D4ED8;">4</div></div>
+    <div class="stat-card"><div class="stat-label">高风险 / 严重风险</div><div class="stat-value" style="color:#DC2626;">4</div></div>
+    <div class="stat-card"><div class="stat-label">今日已审核</div><div class="stat-value">17</div></div>
+  </div>
+
+  <!-- Deposit risk queue -->
+  <div class="sec-card">
+    <div class="sec-head">
+      <div>
+        <div class="sec-title">入金待审队列 · 风控命中 <span class="tag tag-ok" style="margin-left:8px;">Deposit</span></div>
+        <div class="sec-sub">入金交易确认后扫描<b>发送方钱包</b>，命中风险告警 → 挂账待处理（不计入可用余额）。批准 = 入账 / 拒绝 = 原路退款</div>
+      </div>
+      <span class="sec-count" id="cntDeposit">5 单待审</span>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>交易 ID</th>
+            <th>客户</th>
+            <th>币种 · 链</th>
+            <th>金额</th>
+            <th>对方钱包（发送方）</th>
+            <th>风险等级</th>
+            <th>命中摘要</th>
+            <th>提交时间</th>
+            <th style="text-align:right;">操作</th>
+          </tr>
+        </thead>
+        <tbody id="tbDeposit"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Withdrawal risk queue -->
+  <div class="sec-card">
+    <div class="sec-head">
+      <div>
+        <div class="sec-title">出金待审队列 · 风控命中 <span class="tag tag-blue" style="margin-left:8px;">Withdrawal</span></div>
+        <div class="sec-sub">出金提交后扫描<b>接收方钱包</b>，命中风险告警 → 暂缓出金。批准 = 放行出金 / 拒绝 = 出金失败（资金退回可用余额）</div>
+      </div>
+      <span class="sec-count blue" id="cntWithdraw">4 单待审</span>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>交易 ID</th>
+            <th>客户</th>
+            <th>币种 · 链</th>
+            <th>金额</th>
+            <th>对方钱包（接收方）</th>
+            <th>风险等级</th>
+            <th>命中摘要</th>
+            <th>提交时间</th>
+            <th style="text-align:right;">操作</th>
+          </tr>
+        </thead>
+        <tbody id="tbWithdraw"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Review modal -->
+<div class="modal-overlay" id="reviewModal">
+  <div class="modal">
+    <div class="status-strip">
+      <span class="badge badge-pending">PENDING</span>
+      <span style="font-weight:600;" id="mTitle">入金审核 · 风控命中</span>
+      <span style="margin-left:auto;font-size:13px;color:#86909C;" id="mTid"></span>
+    </div>
+
+    <div class="section-block">
+      <div class="section-head">Merkle Science 风险扫描结果</div>
+      <div id="mRiskBanner" class="risk-banner"></div>
+      <div class="detail-row"><span class="k">风险等级</span><span class="v" id="mRiskLevel"></span></div>
+      <div class="detail-row"><span class="k">筛查对象</span><span class="v mono" id="mWallet"></span></div>
+      <div class="detail-row"><span class="k">筛查类型</span><span class="v" id="mScreening"></span></div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-head">命中告警明细</div>
+      <table class="alerts">
+        <thead><tr><th>风险类别</th><th>匹配详情</th><th>置信度</th><th>来源</th></tr></thead>
+        <tbody id="mAlerts"></tbody>
+      </table>
+    </div>
+
+    <div class="section-block">
+      <div class="section-head">资金状态</div>
+      <div class="detail-row"><span class="k">资金状态</span><span class="v" style="color:#92400E;">挂账待处理 — 未计入可用余额</span></div>
+      <div class="detail-row" style="background:#F9FAFB;"><span class="k" style="color:#6B7280;">处置路径</span><span class="v" id="mPath" style="font-weight:400;color:#6B7280;"></span></div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-head">Transaction Details</div>
+      <div class="detail-row"><span class="k">Transaction ID</span><span class="v mono" id="mTid2"></span></div>
+      <div class="detail-row"><span class="k">Customer</span><span class="v" id="mCust"></span></div>
+      <div class="detail-row"><span class="k">Date &amp; Time</span><span class="v" id="mTime"></span></div>
+      <div class="detail-row"><span class="k">Currency · Network</span><span class="v" id="mCcy"></span></div>
+      <div class="detail-row"><span class="k">Amount</span><span class="v" id="mAmt"></span></div>
+      <div class="detail-row"><span class="k">Tx Hash</span><span class="v mono" id="mTx"></span></div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px;">
+      <button class="btn-danger-outline" onclick="startReject()">拒绝 Reject</button>
+      <button class="btn-primary" id="mApproveBtn" onclick="approve()">批准 Approve</button>
+    </div>
+    <div class="reject-box" id="rejectBox">
+      <label class="form-label">拒绝理由（必填，将记录在审核日志中）</label>
+      <textarea class="form-textarea" id="rejectReason"></textarea>
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:10px;">
+        <button class="btn-outline" onclick="cancelReject()">取消</button>
+        <button class="btn-danger" onclick="confirmReject()">确认拒绝</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var DEPOSITS = [
+  {
+    id:'CRYP-DEP-0909', cust:'lisa', ccy:'BTC · Bitcoin', amt:'0.0420 BTC', wallet:'bc1qk2…x7f9a', risk:'高风险', riskKey:'high',
+    summary:'混币器（Tornado Cash）· 直接来源', time:'2026-09-10 09:41:08', tx:'9f2a…c81d',
+    banner:'该发送方钱包直接暴露于混币器（Tornado Cash）资金流，且间接关联暗网市场交易，风险评分偏高。',
+    alerts:[
+      {cat:'混币器（Mixer）', detail:'Tornado Cash 关联地址', conf:'高 92%', src:'直接'},
+      {cat:'暗网市场', detail:'间接资金流关联', conf:'中 68%', src:'间接'}
+    ]
+  },
+  {
+    id:'CRYP-DEP-0908', cust:'tz', ccy:'USDT · TRON', amt:'12,500.00 USDT', wallet:'TQx3…9k2p1', risk:'中风险', riskKey:'medium',
+    summary:'高风险交易所关联', time:'2026-09-10 08:55:17', tx:'7d4b…e02f',
+    banner:'该发送方钱包与已标记的高风险交易所存在资金往来，建议复核资金来源。',
+    alerts:[
+      {cat:'高风险交易所', detail:'与未持牌交易所资金往来', conf:'中 71%', src:'直接'}
+    ]
+  },
+  {
+    id:'CRYP-DEP-0907', cust:'cai', ccy:'ETH · Ethereum', amt:'0.8500 ETH', wallet:'0x3f2a…c81d', risk:'高风险', riskKey:'high',
+    summary:'被盗资金（Stolen Funds）关联', time:'2026-09-09 15:30:44', tx:'3a9c…7b1e',
+    banner:'该发送方钱包被标记为与被盗资金（黑客攻击所得）相关的地址。',
+    alerts:[
+      {cat:'被盗资金', detail:'2026 黑客攻击资金流地址', conf:'高 88%', src:'直接'}
+    ]
+  },
+  {
+    id:'CRYP-DEP-0906', cust:'123', ccy:'BTC · Bitcoin', amt:'1.8000 BTC', wallet:'bc1q9d…a2c7e', risk:'严重风险', riskKey:'critical',
+    summary:'制裁名单（SDN）命中', time:'2026-09-08 11:20:51', tx:'5f1a…90cd',
+    banner:'该发送方钱包命中制裁名单（OFAC SDN），为最高优先级拦截对象。',
+    alerts:[
+      {cat:'制裁名单（SDN）', detail:'OFAC SDN 关联地址', conf:'高 96%', src:'直接'}
+    ]
+  },
+  {
+    id:'CRYP-DEP-0905', cust:'yoneco41', ccy:'USDT · ERC-20', amt:'900.00 USDT', wallet:'0x8b1e…44f2', risk:'中风险', riskKey:'medium',
+    summary:'勒索软件关联', time:'2026-09-07 19:02:33', tx:'6e7d…12ab',
+    banner:'该发送方钱包疑似与勒索软件收款地址存在关联，建议复核。',
+    alerts:[
+      {cat:'勒索软件', detail:'勒索团伙收款地址关联', conf:'中 66%', src:'间接'}
+    ]
+  }
+];
+
+var WITHDRAWALS = [
+  {
+    id:'CRYP-WD-0909', cust:'lisa', ccy:'USDT · TRON', amt:'50,000.00 USDT', wallet:'TXk7…m3q8d', risk:'高风险', riskKey:'high',
+    summary:'制裁名单（SDN）命中', time:'2026-09-10 09:28:19', tx:'—',
+    banner:'该接收方钱包命中制裁名单（OFAC SDN），出金将面临合规风险。',
+    alerts:[
+      {cat:'制裁名单（SDN）', detail:'OFAC SDN 关联地址', conf:'高 95%', src:'直接'}
+    ]
+  },
+  {
+    id:'CRYP-WD-0908', cust:'tz', ccy:'ETH · Ethereum', amt:'3.2000 ETH', wallet:'0x7c4d…e09a', risk:'中风险', riskKey:'medium',
+    summary:'高风险交易所关联', time:'2026-09-10 08:12:40', tx:'—',
+    banner:'该接收方钱包与高风险交易所存在资金往来，建议复核收款用途。',
+    alerts:[
+      {cat:'高风险交易所', detail:'与未持牌交易所资金往来', conf:'中 73%', src:'直接'}
+    ]
+  },
+  {
+    id:'CRYP-WD-0907', cust:'123', ccy:'BTC · Bitcoin', amt:'22.0000 BTC', wallet:'bc1qm4…n8v2x', risk:'严重风险', riskKey:'critical',
+    summary:'暗网市场关联', time:'2026-09-07 14:45:06', tx:'—',
+    banner:'该接收方钱包被标记为暗网市场收款地址，为最高优先级拦截对象。',
+    alerts:[
+      {cat:'暗网市场', detail:'暗网交易平台收款地址', conf:'高 90%', src:'直接'}
+    ]
+  },
+  {
+    id:'CRYP-WD-0906', cust:'cai', ccy:'USDC · Ethereum', amt:'1,500.00 USDC', wallet:'0x5a2c…f7d1', risk:'中风险', riskKey:'medium',
+    summary:'欺诈（Scam）关联', time:'2026-09-06 09:55:22', tx:'—',
+    banner:'该接收方钱包疑似与诈骗活动关联，建议复核收款用途。',
+    alerts:[
+      {cat:'欺诈（Scam）', detail:'诈骗资金归集地址关联', conf:'中 62%', src:'间接'}
+    ]
+  }
+];
+
+var current = null;
+var currentType = '';
+
+function riskTag(key, label){
+  var cls = key === 'critical' ? 'tag-critical' : key === 'high' ? 'tag-high' : 'tag-medium';
+  return '<span class="tag '+cls+'">'+label+'</span>';
+}
+
+function renderDeposit(){
+  var html = '';
+  DEPOSITS.forEach(function(d){
+    html += '<tr>'
+      + '<td class="mono">'+d.id+'</td>'
+      + '<td><span style="font-weight:500;">'+d.cust+'</span></td>'
+      + '<td>'+d.ccy+'</td>'
+      + '<td>'+d.amt+'</td>'
+      + '<td class="mono muted">'+d.wallet+'</td>'
+      + '<td>'+riskTag(d.riskKey, d.risk)+'</td>'
+      + '<td class="muted">'+d.summary+'</td>'
+      + '<td>'+d.time+'</td>'
+      + '<td style="text-align:right;"><button class="btn-primary" onclick="openReview(\'deposit\',\''+d.id+'\')">复核</button></td>'
+      + '</tr>';
+  });
+  document.getElementById('tbDeposit').innerHTML = html;
+}
+
+function renderWithdraw(){
+  var html = '';
+  WITHDRAWALS.forEach(function(d){
+    html += '<tr>'
+      + '<td class="mono">'+d.id+'</td>'
+      + '<td><span style="font-weight:500;">'+d.cust+'</span></td>'
+      + '<td>'+d.ccy+'</td>'
+      + '<td>'+d.amt+'</td>'
+      + '<td class="mono muted">'+d.wallet+'</td>'
+      + '<td>'+riskTag(d.riskKey, d.risk)+'</td>'
+      + '<td class="muted">'+d.summary+'</td>'
+      + '<td>'+d.time+'</td>'
+      + '<td style="text-align:right;"><button class="btn-primary" onclick="openReview(\'withdraw\',\''+d.id+'\')">审核</button></td>'
+      + '</tr>';
+  });
+  document.getElementById('tbWithdraw').innerHTML = html;
+}
+
+function openReview(type, id){
+  currentType = type;
+  var arr = type === 'deposit' ? DEPOSITS : WITHDRAWALS;
+  current = arr.find(function(d){ return d.id === id; });
+
+  document.getElementById('mTitle').textContent = type === 'deposit' ? '入金审核 · 风控命中' : '出金审核 · 风控命中';
+  document.getElementById('mTid').textContent = current.id;
+  document.getElementById('mTid2').textContent = current.id;
+  document.getElementById('mCust').textContent = current.cust;
+  document.getElementById('mTime').textContent = current.time;
+  document.getElementById('mCcy').textContent = current.ccy;
+  document.getElementById('mAmt').textContent = current.amt;
+  document.getElementById('mTx').textContent = current.tx;
+  document.getElementById('mWallet').textContent = current.wallet;
+  document.getElementById('mScreening').textContent = type === 'deposit' ? '发送方钱包（入金来源）' : '接收方钱包（出金目的）';
+  document.getElementById('mRiskLevel').innerHTML = riskTag(current.riskKey, current.risk);
+
+  var banner = document.getElementById('mRiskBanner');
+  banner.className = 'risk-banner ' + current.riskKey;
+  banner.innerHTML = '<b>Merkle Science 命中：</b>' + current.banner;
+
+  var alertHtml = '';
+  current.alerts.forEach(function(a){
+    alertHtml += '<tr><td>'+a.cat+'</td><td class="mono">'+a.detail+'</td><td>'+a.conf+'</td><td>'+a.src+'</td></tr>';
+  });
+  document.getElementById('mAlerts').innerHTML = alertHtml;
+
+  document.getElementById('mApproveBtn').textContent = type === 'deposit' ? '批准入账 Approve' : '批准放行 Approve';
+  document.getElementById('mPath').textContent = type === 'deposit'
+    ? '批准 = 解除挂账入账 / 拒绝 = 原路退款'
+    : '批准 = 放行出金 / 拒绝 = 出金失败（资金退回可用余额）';
+
+  document.getElementById('rejectBox').style.display = 'none';
+  document.getElementById('rejectReason').value = '';
+  document.getElementById('reviewModal').classList.add('active');
+}
+
+function closeReview(){ document.getElementById('reviewModal').classList.remove('active'); }
+
+function startReject(){ document.getElementById('rejectBox').style.display = 'block'; }
+function cancelReject(){ document.getElementById('rejectBox').style.display = 'none'; document.getElementById('rejectReason').value=''; }
+
+function approve(){
+  var msg = currentType === 'deposit' ? '已批准入账，订单已入账并回写 Merkle resolve' : '已批准放行，出金已提交链上并回写 Merkle resolve';
+  closeReview();
+  removeRow(currentType, current.id);
+  toast(msg);
+}
+
+function confirmReject(){
+  var reason = document.getElementById('rejectReason').value.trim();
+  if(!reason){ toast('请填写拒绝理由'); return; }
+  var msg = currentType === 'deposit' ? '已拒绝，资金原路退款并回写 Merkle resolve' : '已拒绝，出金失败（资金退回可用余额）并回写 Merkle resolve';
+  closeReview();
+  removeRow(currentType, current.id);
+  toast(msg);
+}
+
+function removeRow(type, id){
+  if(type === 'deposit'){
+    DEPOSITS = DEPOSITS.filter(function(d){ return d.id !== id; });
+    document.getElementById('stDeposit').textContent = DEPOSITS.length;
+    document.getElementById('cntDeposit').textContent = DEPOSITS.length + ' 单待审';
+    renderDeposit();
+  } else {
+    WITHDRAWALS = WITHDRAWALS.filter(function(d){ return d.id !== id; });
+    document.getElementById('stWithdraw').textContent = WITHDRAWALS.length;
+    document.getElementById('cntWithdraw').textContent = WITHDRAWALS.length + ' 单待审';
+    renderWithdraw();
+  }
+}
+
+function toast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 3000);
+}
+
+renderDeposit();
+renderWithdraw();
+</script>
+</body>
+</html>
