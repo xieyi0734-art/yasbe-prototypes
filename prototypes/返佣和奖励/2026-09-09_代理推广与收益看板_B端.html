@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>代理推广与收益看板 | YASBee</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif;background:#f0f2f5;color:#1a1a2e;font-size:14px;display:flex;min-height:100vh}
+/* ===== Sidebar ===== */
+.sidebar{width:220px;flex-shrink:0;background:#1a1a2e;min-height:100vh;display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100}
+.sidebar-logo{padding:20px 16px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.06)}
+.sidebar-logo .logo-mark{width:30px;height:30px;border-radius:8px;background:#f59f00;color:#1a1a2e;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px}
+.sidebar-logo .logo-text{font-size:15px;font-weight:700;color:#fff}
+.sidebar-nav{flex:1;padding:12px 8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;color:#8e9ab4;font-size:13.5px;transition:all .15s}
+.nav-item:hover{background:#2a2a4e;color:#fff}
+.nav-item.active{background:rgba(255,255,255,.1);color:#fff9c4;font-weight:600}
+.nav-item .icon{font-size:16px;width:22px;text-align:center}
+.nav-label{padding:10px 12px 4px;font-size:10.5px;color:#5a6680;text-transform:uppercase;letter-spacing:1px}
+.sidebar-footer{padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:10px}
+.sidebar-footer .avatar{width:32px;height:32px;border-radius:50%;background:#f59f00;color:#1a1a2e;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+.sidebar-footer .u-name{font-size:12.5px;color:#fff}
+.sidebar-footer .u-mail{font-size:11px;color:#8e9ab4}
+/* ===== Main ===== */
+.main{flex:1;min-width:0;margin-left:220px}
+.top-header{background:#1a2536;padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:90}
+.top-header h1{font-size:18px;font-weight:700;color:#fff}
+.top-header-right{display:flex;align-items:center;gap:14px;font-size:13px;color:rgba(255,255,255,.65)}
+.content{padding:24px 28px}
+/* identity strip */
+.agent-strip{background:linear-gradient(90deg,#1a1a2e,#2a2a4e);border-radius:14px;padding:22px 24px;color:#fff;display:flex;align-items:center;gap:16px;margin-bottom:22px}
+.agent-strip .avatar-lg{width:52px;height:52px;border-radius:50%;background:#f59f00;color:#1a1a2e;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800}
+.agent-strip .a-name{font-size:18px;font-weight:700}
+.agent-strip .a-id{font-size:12px;color:#8e9ab4;margin-top:2px}
+.agent-strip .a-level{margin-left:8px;background:rgba(245,159,0,.15);border:1px solid rgba(245,159,0,.4);color:#ffd479;font-size:11px;font-weight:600;padding:2px 10px;border-radius:12px}
+.agent-strip .share-btn{margin-left:auto;background:#f59f00;color:#1a1a2e;border:none;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .15s}
+.agent-strip .share-btn:hover{opacity:.85}
+/* stat cards */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px}
+.stat-card{background:#fff;border-radius:12px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.stat-card .stat-label{font-size:12px;color:#888;margin-bottom:6px}
+.stat-card .stat-value{font-size:24px;font-weight:800;color:#1a1a2e}
+.stat-card .stat-sub{font-size:12px;color:#aaa;margin-top:4px}
+.stat-card .stat-value.gold{color:#b45309}
+.stat-card .stat-value.green{color:#16a34a}
+/* ===== Panels ===== */
+.panel{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:22px}
+.panel-head{padding:18px 22px;border-bottom:1px solid #eef0f3;display:flex;align-items:center;justify-content:space-between}
+.panel-head h3{font-size:15px;font-weight:700}
+.panel-body{padding:20px 22px}
+.two-col{display:grid;grid-template-columns:1.6fr 1fr;gap:22px}
+/* link box */
+.link-box{display:flex;align-items:center;gap:10px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px}
+.link-box .link{flex:1;font-size:13px;color:#4b5563;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.btn{border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:all .15s}
+.btn-gold{background:#f59f00;color:#1a1a2e}
+.btn-gold:hover{opacity:.85}
+.btn-outline{background:#fff;border:1px solid #e5e7eb;color:#4b5563}
+.btn-outline:hover{border-color:#f59f00;color:#b45309}
+.qr-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;padding:16px}
+.qr{width:120px;height:120px;background:repeating-conic-gradient(#1a1a2e 0% 25%,#fff 0% 50%) 0 0/20px 20px;border-radius:8px;padding:6px;background-clip:content-box;box-shadow:inset 0 0 0 6px #fff,inset 0 0 0 8px #1a1a2e}
+.qr-wrap .qr-cap{font-size:12px;color:#888}
+.copy-tip{font-size:11px;color:#16a34a;display:none}
+/* funnel */
+.funnel{display:flex;gap:10px;margin-top:14px}
+.funnel-step{flex:1;text-align:center;background:#faf9f7;border:1px solid #f0ede8;border-radius:8px;padding:10px 6px}
+.funnel-step .n{font-size:18px;font-weight:800;color:#1a1a2e}
+.funnel-step .l{font-size:11px;color:#999;margin-top:2px}
+.funnel-arrow{align-self:center;color:#ccc;font-weight:700}
+/* ===== table ===== */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{background:#faf9f7;text-align:left;padding:11px 16px;font-size:12px;color:#888;font-weight:600;border-bottom:1px solid #f0ede8;white-space:nowrap}
+tbody td{padding:12px 16px;border-bottom:1px solid #f5f6f8;white-space:nowrap}
+tbody tr:hover{background:#faf9f7}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:500}
+.badge.green{background:#f0fdf4;color:#16a34a}
+.badge.amber{background:#fffbeb;color:#d97706}
+.badge.red{background:#fef2f2;color:#dc2626}
+.badge.gray{background:#f3f4f6;color:#6b7280}
+.amt-pos{color:#16a34a;font-weight:600}
+.amt-neg{color:#dc2626;font-weight:600}
+.type-tag{font-size:11px;padding:2px 8px;border-radius:4px}
+.type-tag.vc{background:#eef2ff;color:#4f46e5}
+.type-tag.pc{background:#fef9c3;color:#a16207}
+.filter-bar{display:flex;gap:10px;align-items:center}
+.filter-bar select,.filter-bar input{border:1px solid #e5e7eb;border-radius:6px;padding:7px 10px;font-size:12.5px;color:#333;background:#fff;font-family:inherit;outline:none}
+/* rule card */
+.rule-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.rule-item{background:#faf9f7;border:1px solid #f0ede8;border-radius:8px;padding:12px 14px}
+.rule-item .r-title{font-size:12.5px;font-weight:700;margin-bottom:6px}
+.rule-item .r-line{font-size:12px;color:#666;line-height:1.8}
+.rule-item .r-line b{color:#b45309}
+@media(max-width:1000px){
+  .stat-grid{grid-template-columns:1fr 1fr}
+  .two-col{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-logo"><div class="logo-mark">Y</div><div class="logo-text">YASBee</div></div>
+  <div class="sidebar-nav">
+    <div class="nav-item"><span class="icon">📊</span><span>仪表盘</span></div>
+    <div class="nav-item"><span class="icon">🏦</span><span>银行账户</span></div>
+    <div class="nav-item"><span class="icon">₿</span><span>加密货币钱包</span></div>
+    <div class="nav-item"><span class="icon">💳</span><span>卡片</span></div>
+    <div class="nav-label">代理中心</div>
+    <div class="nav-item active"><span class="icon">📣</span><span>推广与收益</span></div>
+    <div class="nav-item"><span class="icon">⭐</span><span>我的积分</span></div>
+    <div class="nav-item"><span class="icon">👥</span><span>我的客户</span></div>
+    <div class="nav-label">账户</div>
+    <div class="nav-item"><span class="icon">📄</span><span>协议与规则</span></div>
+    <div class="nav-item"><span class="icon">⚙️</span><span>设置</span></div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="avatar">A</div>
+    <div><div class="u-name">Alex Chen</div><div class="u-mail">AG-8842</div></div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="top-header">
+    <h1>推广与收益</h1>
+    <div class="top-header-right"><span>上次更新 刚刚</span></div>
+  </div>
+
+  <div class="content">
+    <!-- 身份条 -->
+    <div class="agent-strip">
+      <div class="avatar-lg">A</div>
+      <div>
+        <div style="display:flex;align-items:center">
+          <span class="a-name">Alex Chen</span>
+          <span class="a-level">⭐ 认证代理</span>
+        </div>
+        <div class="a-id">代理编号 AG-8842 · 绑定收益账户 YASBE-USD-8842</div>
+      </div>
+      <button class="share-btn" onclick="share()">📣 分享邀请链接</button>
+    </div>
+
+    <!-- 统计卡 -->
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">累计邀请人数</div>
+        <div class="stat-value">128</div>
+        <div class="stat-sub">有效开卡 63 · 点击 412</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">累计现金返现</div>
+        <div class="stat-value gold">$325.30</div>
+        <div class="stat-sub">开卡返现 + 充值返佣 · 含 Clawback 追回</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">累计获得积分</div>
+        <div class="stat-value green">560.0</div>
+        <div class="stat-sub">开卡积分 400 · 充值积分 160.0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">下级累计充值</div>
+        <div class="stat-value">$18,420</div>
+        <div class="stat-sub">预计将得返佣 $55.26</div>
+      </div>
+    </div>
+
+    <!-- 邀请工具 -->
+    <div class="panel">
+      <div class="panel-head"><h3>🔗 邀请工具</h3><span style="font-size:12px;color:#999">客户通过您的链接开卡即绑定您为邀请人，关系终身有效</span></div>
+      <div class="panel-body">
+        <div class="two-col">
+          <div>
+            <div class="link-box">
+              <span style="font-size:15px">🔗</span>
+              <span class="link" id="linkText">https://customer.beeznis.com/card-apply?agent=AG-8842</span>
+              <button class="btn btn-outline" onclick="copyLink()">复制</button>
+              <button class="btn btn-gold" onclick="regenerate()">重新生成</button>
+            </div>
+            <div class="copy-tip" id="copyTip">✅ 链接已复制</div>
+            <div class="funnel">
+              <div class="funnel-step"><div class="n">412</div><div class="l">点击</div></div>
+              <div class="funnel-arrow">→</div>
+              <div class="funnel-step"><div class="n">96</div><div class="l">注册</div></div>
+              <div class="funnel-arrow">→</div>
+              <div class="funnel-step"><div class="n">63</div><div class="l">有效开卡</div></div>
+              <div class="funnel-arrow">→</div>
+              <div class="funnel-step"><div class="n">15.3%</div><div class="l">开卡转化率</div></div>
+            </div>
+          </div>
+          <div class="qr-wrap">
+            <div class="qr"></div>
+            <div class="qr-cap">邀请二维码 · 客户扫码即达开卡页</div>
+            <button class="btn btn-outline" onclick="share()">下载二维码</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 收益明细 -->
+    <div class="panel">
+      <div class="panel-head">
+        <h3>💰 收益明细流水</h3>
+        <div class="filter-bar">
+          <select>
+            <option>全部类型</option>
+            <option>开卡返现</option>
+            <option>充值返佣</option>
+            <option>开卡积分</option>
+            <option>充值积分</option>
+            <option>Clawback 撤回</option>
+          </select>
+          <select><option>最近 30 天</option><option>本月</option><option>全部</option></select>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>时间</th><th>事件</th><th>下级客户</th><th>卡种</th><th>现金返现</th><th>积分</th><th>说明</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>2026-09-08 10:22</td>
+              <td><span class="badge green">邀请开卡返现</span></td>
+              <td>Marco L.***</td>
+              <td><span class="type-tag pc">实体卡</span></td>
+              <td class="amt-pos">+$100.00</td>
+              <td class="amt-pos">+10.0</td>
+              <td>开卡费 $150 扣费成功</td>
+            </tr>
+            <tr>
+              <td>2026-09-08 14:03</td>
+              <td><span class="badge green">充值返佣</span></td>
+              <td>Marco L.***</td>
+              <td><span class="type-tag vc">虚拟卡</span></td>
+              <td class="amt-pos">+$0.30</td>
+              <td class="amt-pos">+2.0</td>
+              <td>充值 $100 × 0.30% · 积分 $100×0.02</td>
+            </tr>
+            <tr>
+              <td>2026-09-07 09:15</td>
+              <td><span class="badge green">充值返佣</span></td>
+              <td>Ada W.***</td>
+              <td><span class="type-tag vc">虚拟卡</span></td>
+              <td class="amt-pos">+$1.50</td>
+              <td class="amt-pos">+10.0</td>
+              <td>充值 $500 × 0.30% · 积分 $500×0.02</td>
+            </tr>
+            <tr>
+              <td>2026-09-06 18:40</td>
+              <td><span class="badge amber">邀请开卡返现</span></td>
+              <td>Kevin T.***</td>
+              <td><span class="type-tag vc">虚拟卡</span></td>
+              <td class="amt-pos">+$5.00</td>
+              <td class="amt-pos">+5.0</td>
+              <td>开卡费 $6 扣费成功</td>
+            </tr>
+            <tr>
+              <td>2026-09-05 11:02</td>
+              <td><span class="badge red">Clawback 撤回</span></td>
+              <td>Kevin T.***</td>
+              <td><span class="type-tag vc">虚拟卡</span></td>
+              <td class="amt-neg">-$5.00</td>
+              <td class="amt-neg">-5.0</td>
+              <td>客户退回开卡费，系统自动追回</td>
+            </tr>
+            <tr>
+              <td>2026-09-03 16:28</td>
+              <td><span class="badge green">充值返佣</span></td>
+              <td>Ada W.***</td>
+              <td><span class="type-tag pc">实体卡</span></td>
+              <td class="amt-pos">+$7.35</td>
+              <td class="amt-pos">+49.0</td>
+              <td>充值 $2,450 × 0.30% · 积分 $2,450×0.02</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 激励规则 -->
+    <div class="panel">
+      <div class="panel-head"><h3>📜 当前激励规则</h3><span style="font-size:12px;color:#999">规则变更前已产生的收益不受影响</span></div>
+      <div class="panel-body">
+        <div class="rule-cols">
+          <div class="rule-item">
+            <div class="r-title">💳 虚拟卡</div>
+            <div class="r-line">客户邀请价 <b>$6</b>(原价 $10)<br>邀请返现 <b>$5</b>/单 · 您获 <b>5 积分</b>,客户获 5 积分</div>
+          </div>
+          <div class="rule-item">
+            <div class="r-title">💳 实体卡</div>
+            <div class="r-line">客户邀请价 <b>$150</b>(原价 $200 包邮)<br>邀请返现 <b>$100</b>/单 · 您获 <b>10 积分</b>,客户获 10 积分</div>
+          </div>
+          <div class="rule-item">
+            <div class="r-title">🔁 充值返佣(通用)</div>
+            <div class="r-line">下级客户每充值 $100,您获现金返佣 <b>$0.30</b>(0.30%)<br>充值积分:客户每 $10 得 1 分,您按比例获 <b>0.2 分</b></div>
+          </div>
+          <div class="rule-item">
+            <div class="r-title">⚠️ Clawback 追回</div>
+            <div class="r-line">客户退回开卡费时,已发返现与双方积分将自动撤回<br>余额不足部分记为负值,后续收益优先抵扣</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function copyLink(){
+  var tip = document.getElementById('copyTip');
+  tip.style.display = 'block';
+  setTimeout(function(){ tip.style.display = 'none'; }, 2000);
+}
+function regenerate(){
+  if(confirm('重新生成后旧链接将失效,确定继续?')){
+    var l = document.getElementById('linkText');
+    var newId = 'AG-8842-' + Math.random().toString(36).slice(2,7).toUpperCase();
+    l.textContent = 'https://customer.beeznis.com/card-apply?agent=' + newId;
+    alert('新邀请链接已生成: ' + l.textContent);
+  }
+}
+function share(){
+  alert('分享面板(演示):复制链接/下载二维码/分享到社交媒体');
+}
+</script>
+</body>
+</html>

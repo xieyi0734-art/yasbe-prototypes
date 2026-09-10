@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rewards · YASBee Cash &amp; Points | YASBee</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif;
+  background:#191b1f;color:#fff;min-height:100vh;font-size:14px;line-height:1.5;
+}
+/* ===== Topbar ===== */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  background:#2c2c2c;border-bottom:1px solid rgba(255,255,255,.06);
+  padding:0 28px;min-height:60px;position:sticky;top:0;z-index:50;
+}
+.brand{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:700;letter-spacing:.3px}
+.brand .mark{width:22px;height:22px;border-radius:7px;background:#FFCA00;color:#1F2329;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.top-right{display:flex;align-items:center;gap:12px;font-size:13px;color:rgba(255,255,255,.75);flex-wrap:wrap}
+.token-pill{
+  display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:6px 14px;white-space:nowrap;
+}
+.token-pill.cash{background:rgba(255,202,0,.12);border:1px solid rgba(255,202,0,.35)}
+.token-pill.cash .t-name{color:#FFCA00}
+.token-pill.points{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14)}
+.token-pill.points .t-name{color:rgba(255,255,255,.78)}
+.token-pill .t-name{font-weight:800;font-size:13px;letter-spacing:.2px}
+.token-pill .t-val{font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
+.token-pill .t-unit{font-size:11px;color:rgba(255,255,255,.55);font-weight:600}
+.top-right .avatar{width:30px;height:30px;border-radius:50%;background:#FFCA00;color:#000;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+/* ===== Layout ===== */
+.container{max-width:1160px;margin:0 auto;padding:28px 24px 80px}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.ph-left{min-width:0}
+.page-head h1{font-size:24px;font-weight:700}
+.page-head p{color:rgba(255,255,255,.5);font-size:13px;margin-top:4px}
+.page-head p .p{color:#FFCA00;font-weight:600}
+.page-head p .n{color:rgba(255,255,255,.78);font-weight:600}
+/* ===== Stats bar ===== */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+.stat-card{background:#1f2128;border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:14px 16px}
+.stat-card .s-label{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:6px}
+.stat-card .s-value{font-size:22px;font-weight:700;letter-spacing:-.2px;font-variant-numeric:tabular-nums}
+.stat-card .s-value.gold{color:#FFCA00}
+.stat-card .s-value.gray{color:#94a3b8}
+.stat-card .s-value .unit{font-size:13px;font-weight:600;color:rgba(255,255,255,.45);margin-left:4px}
+.stat-card .s-sub{font-size:11.5px;color:rgba(255,255,255,.38);margin-top:6px}
+/* ===== Table ===== */
+.table-card{background:#1f2128;border:1px solid rgba(255,255,255,.10);border-radius:16px;overflow:hidden}
+/* 表头：仅标题 + 计数（类型切换已上移到页面顶部标题行） */
+.tbl-head{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  padding:18px 14px 0;
+}
+.tbl-title{display:flex;align-items:baseline;gap:9px;font-size:15px;font-weight:700}
+.tbl-title .tbl-hint{font-size:12px;font-weight:400;color:rgba(255,255,255,.42);font-variant-numeric:tabular-nums}
+.ts-seg{display:inline-flex;gap:3px;padding:3px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09)}
+.ts-btn{
+  appearance:none;font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.2px;
+  color:rgba(255,255,255,.6);background:transparent;border:0;border-radius:8px;
+  padding:7px 16px;cursor:pointer;transition:all .15s;white-space:nowrap;
+}
+.ts-btn:hover{color:#fff}
+.ts-btn.active{background:#FFCA00;color:#000}
+.ts-btn.active:hover{color:#000}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{
+  text-align:left;padding:10px 14px;font-size:12px;
+  color:rgba(255,255,255,.45);font-weight:500;
+  border-bottom:1px solid rgba(255,255,255,.10);white-space:nowrap;
+}
+tbody td{padding:13px 14px;border-bottom:1px solid rgba(255,255,255,.08);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:rgba(255,255,255,.02)}
+/* asset / business cell */
+.biz-cell{display:flex;align-items:center;gap:12px}
+.biz-ico{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10)}
+.biz-name{font-size:13.5px;font-weight:600}
+.biz-name .code{font-size:11.5px;font-weight:600;color:rgba(255,255,255,.4);margin-left:4px;letter-spacing:.2px}
+.biz-sub{font-size:11.5px;color:rgba(255,255,255,.42);margin-top:3px;display:flex;align-items:center;gap:6px}
+.tag-src{font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:5px;white-space:nowrap}
+.tag-src.purchase{background:rgba(255,202,0,.14);color:#FFCA00;border:1px solid rgba(255,202,0,.28)}
+.tag-src.airdrop{background:rgba(255,255,255,.07);color:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.16)}
+/* amount */
+.amt{font-size:14px;font-weight:700;color:#fff;white-space:nowrap;font-variant-numeric:tabular-nums}
+.amt.gold{color:#FFCA00}
+.num{font-size:13.5px;color:rgba(255,255,255,.85);white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:600}
+.num.dim{color:rgba(255,255,255,.45);font-weight:500}
+/* status */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;font-size:11.5px;font-weight:500;white-space:nowrap}
+.badge.done{background:rgba(74,222,128,.12);color:#4ade80;border:1px solid rgba(74,222,128,.22)}
+.badge.pending{background:rgba(255,202,0,.1);color:#FFCA00;border:1px solid rgba(255,202,0,.25)}
+.badge.wait{background:rgba(148,163,184,.12);color:#94a3b8;border:1px solid rgba(148,163,184,.25)}
+.time-cell{color:rgba(255,255,255,.55);font-size:12.5px;white-space:nowrap;font-variant-numeric:tabular-nums}
+/* ===== Empty state ===== */
+.empty{display:none;text-align:center;padding:56px 20px;color:rgba(255,255,255,.4);font-size:13.5px}
+.empty .big{font-size:30px;margin-bottom:10px}
+/* ===== Pagination ===== */
+.pager{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  padding:14px 18px;border-top:1px solid rgba(255,255,255,.07)}
+.pager .info{font-size:12.5px;color:rgba(255,255,255,.45);font-variant-numeric:tabular-nums}
+.pager .pages{display:flex;align-items:center;gap:6px}
+.pg{
+  min-width:32px;height:32px;padding:0 10px;border-radius:8px;cursor:pointer;font-family:inherit;
+  border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);
+  color:rgba(255,255,255,.7);font-size:12.5px;display:inline-flex;align-items:center;justify-content:center;
+  transition:all .15s;font-variant-numeric:tabular-nums;
+}
+.pg:hover:not(:disabled):not(.active){border-color:rgba(255,202,0,.45);color:#fff}
+.pg.active{background:#FFCA00;border-color:#FFCA00;color:#000;font-weight:700}
+.pg:disabled{opacity:.35;cursor:not-allowed}
+@media(max-width:900px){
+  .stats-row{grid-template-columns:1fr 1fr}
+  .topbar{padding:10px 18px}
+  .table-card{overflow-x:auto}
+  table{min-width:860px}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="mark">Y</span>YASBee</div>
+  <div class="top-right">
+    <span class="token-pill cash"><span class="t-name">YASBee Cash</span><span class="t-val" id="pillCash">1,286.4</span><span class="t-unit">持有</span></span>
+    <span class="token-pill points"><span class="t-name">YASBee Points</span><span class="t-val" id="pillPoints">0.0</span><span class="t-unit">累计到账</span></span>
+    <span class="avatar">A</span>
+  </div>
+</div>
+
+<div class="container">
+  <div class="page-head">
+    <div class="ph-left">
+      <h1>Rewards</h1>
+      <p>购买与空投赠送获得 <span class="p">YASBee Cash</span>；开卡、卡充值、币兑获得 <span class="n">YASBee Points</span> 奖励。</p>
+    </div>
+    <div class="ts-seg" id="tsSeg">
+      <button type="button" class="ts-btn active" data-g="cash">YASBee Cash</button>
+      <button type="button" class="ts-btn" data-g="points">YASBee Points</button>
+    </div>
+  </div>
+
+  <!-- 统计条：随下方表格的类型切换联动 -->
+  <div class="stats-row" id="statsRow"></div>
+
+  <!-- 奖励明细：单张表 + 类型切换（Cash / Points） + 分页 -->
+  <div class="table-card">
+    <div class="tbl-head">
+      <div class="tbl-title">奖励明细<span class="tbl-hint" id="tblHint">共 0 笔</span></div>
+    </div>
+    <table>
+      <thead id="tblHead"></thead>
+      <tbody id="tblBody"></tbody>
+    </table>
+    <div class="empty" id="tblEmpty"><div class="big">💰</div>暂无记录</div>
+    <div class="pager" id="tblPager"></div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   Rewards 页 = 单张表 + 类型切换（Cash / Points）
+     · YASBee Cash   —— 购买 / 空投赠送 获得的资产
+                        字段对齐现网客户端「奖励」页奖励详情表：
+                        资产 / 持有数量 / 单价 / 持有价值 / 锁仓信息(月) / 交易日期
+     · YASBee Points —— 开卡 / 卡充值 / 币兑 产生的奖励（原 yasbee+ 奖励记录）
+   切换控件位于页面顶部标题行右侧，统辖统计条与表格；两类型各自记忆页码；统计条随切换联动现算。
+   分页文案对齐现网：显示第 X 到 Y 条，共 N 条记录
+   ========================================================= */
+
+/* ---- YASBee Cash：购入 rewards + 空投赠送（含锁仓月数） ---- */
+var CASH = [
+  {k:'airdrop', ico:'🎁', name:'YASBee Cash', code:'yasbee+', src:'空投赠送', detail:'空投活动发放',
+   qty:50.0,  price:10.00, cliff:0, st:'pending', stTxt:'发放中', time:'2026-09-08 11:05:00'},
+  {k:'airdrop', ico:'🎁', name:'YASBee Cash', code:'yasbee+', src:'空投赠送', detail:'社区活动空投',
+   qty:106.4, price:10.00, cliff:0, st:'done',    stTxt:'已入账', time:'2026-08-10 16:45:29'},
+  {k:'purchase', ico:'🛒', name:'YASBee Cash', code:'yasbee+', src:'购买', detail:'USD 2,000.00',
+   qty:200.0, price:10.00, cliff:6, st:'done',    stTxt:'已入账', time:'2026-07-08 09:20:47'},
+  {k:'airdrop', ico:'🎁', name:'YASBee Cash', code:'yasbee+', src:'空投赠送', detail:'首次持仓空投',
+   qty:180.0, price:10.00, cliff:0, st:'done',    stTxt:'已入账', time:'2026-06-01 12:00:00'},
+  {k:'purchase', ico:'🛒', name:'YASBee Cash', code:'yasbee+', src:'购买', detail:'USDT 3,000.00',
+   qty:300.0, price:10.00, cliff:6, st:'done',    stTxt:'已入账', time:'2026-05-15 14:32:11'},
+  {k:'purchase', ico:'🛒', name:'YASBee Cash', code:'yasbee+', src:'购买', detail:'USD 5,000.00',
+   qty:500.0, price:10.00, cliff:6, st:'done',    stTxt:'已入账', time:'2026-04-02 10:15:00'}
+];
+
+var POINTS = [
+  {k:'open',  ico:'💳', name:'开卡 · 实体卡', desc:'尾号 8842',               amt:10.0, st:'done',    stTxt:'已入账', time:'2026-09-06 14:22:08'},
+  {k:'topup', ico:'➕', name:'卡充值',        desc:'尾号 8842 · USD 500.00',  amt:50.0, st:'done',    stTxt:'已入账', time:'2026-09-05 09:41:33'},
+  {k:'swap',  ico:'⇄',  name:'币兑',          desc:'USDT → USD 2,000.00',     amt:20.0, st:'done',    stTxt:'已入账', time:'2026-09-04 16:05:19'},
+  {k:'open',  ico:'💳', name:'开卡 · 虚拟卡', desc:'尾号 3091',               amt:10.0, st:'done',    stTxt:'已入账', time:'2026-09-02 11:17:45'},
+  {k:'topup', ico:'➕', name:'卡充值',        desc:'尾号 3091 · USD 300.00',  amt:30.0, st:'done',    stTxt:'已入账', time:'2026-09-01 20:58:02'},
+  {k:'swap',  ico:'⇄',  name:'币兑',          desc:'BTC → USDT 0.02',         amt:12.0, st:'pending', stTxt:'处理中', time:'2026-08-31 10:12:26'},
+  {k:'topup', ico:'➕', name:'卡充值',        desc:'尾号 8842 · USD 200.00',  amt:20.0, st:'done',    stTxt:'已入账', time:'2026-08-28 15:36:51'},
+  {k:'open',  ico:'💳', name:'开卡 · 虚拟卡', desc:'尾号 5560',               amt:10.0, st:'done',    stTxt:'已入账', time:'2026-08-20 13:44:17'},
+  {k:'swap',  ico:'⇄',  name:'币兑',          desc:'USDT → USD 1,000.00',     amt:10.0, st:'wait',    stTxt:'待入账', time:'2026-08-19 09:30:00'}
+];
+
+/* ---- 列定义：切换时整表换列 ---- */
+var COLS = {
+  cash:   [{t:'资产'}, {t:'持有数量',a:1}, {t:'单价',a:1}, {t:'持有价值',a:1}, {t:'锁仓信息(月)',a:1}, {t:'交易日期',a:1}],
+  points: [{t:'业务类型'}, {t:'业务信息'}, {t:'奖励 (YASBee Points)',a:1}, {t:'状态',a:1}, {t:'时间',a:1}]
+};
+var EMPTY = {
+  cash:   {ico:'💰', txt:'暂无 YASBee Cash 记录'},
+  points: {ico:'🎁', txt:'暂无 YASBee Points 记录'}
+};
+
+var SIZE = 5;
+var PAGE = {cash:1, points:1};
+var GROUP = 'cash';
+
+function stCls(s){ return s === 'done' ? 'done' : (s === 'pending' ? 'pending' : 'wait'); }
+function fmt(n, d){ return Number(n).toLocaleString('en-US', {minimumFractionDigits:d, maximumFractionDigits:d}); }
+function rowsOf(g){ return g === 'cash' ? CASH : POINTS; }
+
+/* ---- Cash 行：资产 / 持有数量 / 单价 / 持有价值 / 锁仓信息(月) / 交易日期 ---- */
+function cashRowHtml(r){
+  var badge = r.st === 'done' ? '' : ' <span class="badge '+stCls(r.st)+'">'+r.stTxt+'</span>';
+  return '<td><div class="biz-cell"><div class="biz-ico '+r.k+'">'+r.ico+'</div>'+
+         '<div><div class="biz-name">'+r.name+'<span class="code">'+r.code+'</span></div>'+
+         '<div class="biz-sub"><span class="tag-src '+r.k+'">'+r.src+'</span>'+r.detail+'</div></div></div></td>'+
+         '<td style="text-align:right"><span class="num">'+fmt(r.qty,1)+'</span></td>'+
+         '<td style="text-align:right"><span class="num dim">$'+fmt(r.price,2)+'</span></td>'+
+         '<td style="text-align:right"><span class="amt">$'+fmt(r.qty*r.price,2)+'</span></td>'+
+         '<td style="text-align:right"><span class="num dim">'+r.cliff+'</span></td>'+
+         '<td style="text-align:right"><span class="time-cell">'+r.time+'</span>'+badge+'</td>';
+}
+
+/* ---- Points 行：业务类型 / 业务信息 / 奖励 / 状态 / 时间 ---- */
+function ptsRowHtml(r){
+  return '<td><div class="biz-cell"><div class="biz-ico '+r.k+'">'+r.ico+'</div>'+
+         '<div class="biz-name">'+r.name+'</div></div></td>'+
+         '<td style="color:rgba(255,255,255,.6);font-size:12.5px">'+r.desc+'</td>'+
+         '<td style="text-align:right"><span class="amt gold">+'+fmt(r.amt,1)+'</span></td>'+
+         '<td style="text-align:right"><span class="badge '+stCls(r.st)+'">'+r.stTxt+'</span></td>'+
+         '<td style="text-align:right"><span class="time-cell">'+r.time+'</span></td>';
+}
+
+/* ---- 表头：随类型换列 ---- */
+function renderHead(){
+  document.getElementById('tblHead').innerHTML = '<tr>' + COLS[GROUP].map(function(c){
+    return '<th' + (c.a ? ' style="text-align:right"' : '') + '>' + c.t + '</th>';
+  }).join('') + '</tr>';
+}
+
+/* ---- 表体：当前类型 + 当前页 ---- */
+function renderBody(){
+  var data = rowsOf(GROUP);
+  var pages = Math.max(1, Math.ceil(data.length / SIZE));
+  PAGE[GROUP] = Math.min(PAGE[GROUP], pages);
+  var page = PAGE[GROUP];
+  var rows = data.slice((page - 1) * SIZE, (page - 1) * SIZE + SIZE);
+  var html = '';
+  rows.forEach(function(r){
+    html += '<tr>' + (GROUP === 'cash' ? cashRowHtml(r) : ptsRowHtml(r)) + '</tr>';
+  });
+  document.getElementById('tblBody').innerHTML = html;
+  var em = document.getElementById('tblEmpty');
+  em.innerHTML = '<div class="big">' + EMPTY[GROUP].ico + '</div>' + EMPTY[GROUP].txt;
+  em.style.display = data.length ? 'none' : 'block';
+  document.getElementById('tblHint').textContent = '共 ' + data.length + ' 笔';
+}
+
+/* ---- 分页（单个，作用于当前类型） ---- */
+function renderPager(){
+  var g = GROUP, total = rowsOf(g).length;
+  var pages = Math.max(1, Math.ceil(total / SIZE));
+  var page  = Math.min(PAGE[g], pages);
+  PAGE[g] = page;
+  var from = total ? (page - 1) * SIZE + 1 : 0;
+  var to   = Math.min(page * SIZE, total);
+  var btns = '<button class="pg" data-p="'+(page-1)+'"'+(page <= 1 ? ' disabled' : '')+'>‹</button>';
+  for (var i = 1; i <= pages; i++){
+    btns += '<button class="pg'+(i === page ? ' active' : '')+'" data-p="'+i+'">'+i+'</button>';
+  }
+  btns += '<button class="pg" data-p="'+(page+1)+'"'+(page >= pages ? ' disabled' : '')+'>›</button>';
+
+  var el = document.getElementById('tblPager');
+  el.innerHTML = '<div class="info">显示第 '+from+' 到 '+to+' 条，共 '+total+' 条记录</div>'+
+                 '<div class="pages">'+btns+'</div>';
+  el.querySelectorAll('.pg').forEach(function(b){
+    b.onclick = function(){ PAGE[g] = parseInt(b.getAttribute('data-p'), 10); render(); };
+  });
+}
+
+/* ---- 统计卡：一律由 CASH / POINTS 现算，不写死，避免与列表漂移 ---- */
+function sumOf(data, pred){ return data.filter(pred).reduce(function(a,b){ return a + (b.qty !== undefined ? b.qty : b.amt); }, 0); }
+function isDone(r){ return r.st === 'done'; }
+function byKind(k){ return function(r){ return r.k === k; }; }
+function isPend(r){ return r.st !== 'done'; }
+
+function statsFor(g){
+  if (g === 'cash'){
+    var airDone = function(r){ return byKind('airdrop')(r) && isDone(r); };
+    return [
+      {label:'当前持有',     val:fmt(sumOf(CASH, isDone), 1),                    cls:'gold', unit:'YASBee Cash',
+       sub:'已入账 ' + CASH.filter(isDone).length + ' 笔'},
+      {label:'累计购买',     val:fmt(sumOf(CASH, byKind('purchase')), 1),        cls:'',     unit:'YASBee Cash',
+       sub:CASH.filter(byKind('purchase')).length + ' 笔'},
+      {label:'累计空投赠送', val:fmt(sumOf(CASH, airDone), 1),                   cls:'',     unit:'YASBee Cash',
+       sub:CASH.filter(airDone).length + ' 笔'},
+      {label:'待入账',       val:fmt(sumOf(CASH, isPend), 1),                    cls:'gray', unit:'YASBee Cash',
+       sub:CASH.filter(isPend).length + ' 笔发放中'}
+    ];
+  }
+  /* 「本月」取数据中最近的月份，随数据走而非写死当前月 */
+  var m = POINTS.map(function(r){ return r.time.slice(0,7); }).sort().pop();
+  var inMonth = function(r){ return r.time.slice(0,7) === m; };
+  return [
+    {label:'累计获得', val:fmt(sumOf(POINTS, isDone), 1),        cls:'gold', unit:'YASBee Points',
+     sub:'已入账 ' + POINTS.filter(isDone).length + ' 笔'},
+    {label:'本月新增', val:fmt(sumOf(POINTS, inMonth), 1),       cls:'',     unit:'YASBee Points',
+     sub:m + ' · ' + POINTS.filter(inMonth).length + ' 笔'},
+    {label:'开卡奖励', val:fmt(sumOf(POINTS, byKind('open')), 1), cls:'',    unit:'YASBee Points',
+     sub:'累计 ' + POINTS.filter(byKind('open')).length + ' 张卡'},
+    {label:'待入账',   val:fmt(sumOf(POINTS, isPend), 1),        cls:'gray', unit:'YASBee Points',
+     sub:POINTS.filter(isPend).length + ' 笔处理中 / 待入账'}
+  ];
+}
+
+function renderStats(){
+  document.getElementById('statsRow').innerHTML = statsFor(GROUP).map(function(c){
+    var unit = c.unit ? '<span class="unit">' + c.unit + '</span>' : '';
+    return '<div class="stat-card">' +
+             '<div class="s-label">' + c.label + '</div>' +
+             '<div class="s-value' + (c.cls ? ' ' + c.cls : '') + '"><span>' + c.val + '</span>' + unit + '</div>' +
+             '<div class="s-sub">' + c.sub + '</div>' +
+           '</div>';
+  }).join('');
+}
+
+function render(){
+  renderStats();
+  renderHead();
+  renderBody();
+  renderPager();
+
+  /* topbar pill = 已入账合计 */
+  document.getElementById('pillCash').textContent   = fmt(sumOf(CASH, isDone), 1);
+  document.getElementById('pillPoints').textContent = fmt(sumOf(POINTS, isDone), 1);
+}
+
+/* ---- 类型切换 ---- */
+document.getElementById('tsSeg').addEventListener('click', function(e){
+  var btn = e.target.closest ? e.target.closest('.ts-btn') : null;
+  if (!btn) return;
+  var g = btn.getAttribute('data-g');
+  if (g === GROUP) return;
+  GROUP = g;
+  this.querySelectorAll('.ts-btn').forEach(function(b){ b.classList.toggle('active', b === btn); });
+  render();
+});
+
+render();
+</script>
+</body>
+</html>

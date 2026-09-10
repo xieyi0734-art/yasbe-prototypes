@@ -6,14 +6,29 @@
 
 ---
 
+## 0. 原型命名与存放规范（2026-09-10 起）
+
+> 新建原型必须遵守。**2026-09-10 已按本规范把「返佣与奖励」相关 8 个原型从 `admin/prototypes/distribution`、`admin/prototypes/card-type`、`client/prototypes/card-apply`、`client/prototypes/card-management` 统一归集到 `prototypes/返佣和奖励/`**（详见第 8 节）；**其余存量文件不动**。
+
+- **命名格式**：`YYYY-MM-DD_<业务>_<端别>.html`
+  - 例：`2026-09-10_卡种维度奖励配置_管理端.html`
+  - 例：`2026-09-10_开卡返佣记录_客户端.html`
+  - 端别取值：`管理端` / `客户端` / `B端` / `代币官网`
+- **存放位置**：全部统一收在**仓库根 `prototypes/`** 一个目录下 ——
+  - **文件夹按「需求」划分，文件夹名不含端别**（例：`prototypes/返佣和奖励/`）；同需求的管理端 / 客户端 / B 端原型放同一文件夹，不再按端别拆目录
+  - **原型文件名区分端别**（`管理端` / `客户端` / `B端` / `代币官网`）
+  - 时间维度由文件名的 `YYYY-MM-DD` 前缀承载，同文件夹内按文件名排序即为时间序
+- **登记**：新增后在本文件对应业务分组登记（原型名称 / 功能 / 最后更新 / 链接）
+- **存量为何不动**：改名会打断大量内部 `.html` 互链，且 GitHub Pages 上已部署的旧路径会 404。除本次「返佣与奖励」8 个原型外，旧文件继续留在 `admin/prototypes/*`、`client/prototypes/*`
+- **本次迁移的内链处理**：移动文件的相对链接已按新位置重新相对化（含指向未移动文件 `08-Card-Type-Management.html` 的链接）；反向引用 `admin/prototypes/index.html`、根 `index.html` 已同步更新
+
+---
+
 ## 1. 🛠️ 管理端 · Card 模块（admin/prototypes/）
 
 | 原型名称 | 功能 | 最后更新 | 链接 |
 |---|---|---|---|
 | 卡务管理（卡类型） | 卡产品类型管理（08） | 2026-08-10 | [08-Card-Type-Management.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/card-type/08-Card-Type-Management.html) |
-| 卡片代理管理 | 代理配置与卡片返佣比例（09） | 2026-08-10 | [09-Card-Agent-Management.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/card-type/09-Card-Agent-Management.html) |
-| 返佣记录 | 待结算返佣 + 发起结算操作 | 2026-08-11 | [10-Card-Rebate-Records.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/card-type/10-Card-Rebate-Records.html) |
-| 结算记录 | 已结算台账（无结算操作） | 2026-08-10 | [10-Card-Settlement-Records.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/card-type/10-Card-Settlement-Records.html) |
 | 卡片管理 | 卡片列表管理（03） | 2026-07-08 | [03-Card-Management.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/card-management/03-Card-Management.html) |
 | 卡片详情 | 单卡详情（02） | 2026-07-08 | [02-Card-Detail.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/card-management/02-Card-Detail.html) |
 | 卡片介绍 | 卡片产品介绍页（12） | 2026-07-08 | [12-Card-Introduction.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/card-intro/12-Card-Introduction.html) |
@@ -26,7 +41,6 @@
 | 客户详情 · 法币 Tab | 客户法币账户 + 出入金记录 | 2026-09-08 | [02-Customer-Detail-Fiat-Tab.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/customer/02-Customer-Detail-Fiat-Tab.html) |
 | 客户详情 · 推荐 Tab | 客户推荐视图（10） | 2026-07-08 | [10-Customer-Detail-Referrals-Tab.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/customer/10-Customer-Detail-Referrals-Tab.html) |
 | 客户详情 · 推荐 Tab v2 | 推荐视图（代理版） | 2026-08-03 | [10-Customer-Detail-Referrals-Tab-v2.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/customer/10-Customer-Detail-Referrals-Tab-v2.html) |
-| 分销配置 | 分销规则配置（09） | 2026-07-08 | [09-Distribution-Config.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/distribution/09-Distribution-Config.html) |
 | 法币 · 交易审核 | 三队列:入金非同名挂账复核 / 出金同名已核验受益人终审 / EA 非同名添加审核(同意=创建成功·仅入金来源,驳回=失败) | 2026-09-08 | [01-Fiat-Review-Queue.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/fiat/01-Fiat-Review-Queue.html) |
 | 法币 · 交易记录 | 出入金全量流水（10 列 + Review 入口） | 2026-09-08 | [02-Fiat-Transaction-List.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/fiat/02-Fiat-Transaction-List.html) |
 | 法币 · 资金总览 | 平台级资金视图（逐币种对账闭环） | 2026-09-08 | [03-Fiat-Treasury-Overview.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/fiat/03-Fiat-Treasury-Overview.html) |
@@ -144,6 +158,19 @@
 | 出金 2FA 合并 | Withdraw 2FA 合并版 | 2026-07-08 | [Withdraw-2FA-Combined.html](https://xieyi0734-art.github.io/yasbe-prototypes/Withdraw-2FA-Combined.html) |
 | 登录（根） | CYRO Sign In | 2026-07-24 | [signin.html](https://xieyi0734-art.github.io/yasbe-prototypes/signin.html) |
 | 注册（根） | CYRO Sign Up | 2026-07-24 | [signup.html](https://xieyi0734-art.github.io/yasbe-prototypes/signup.html) |
+
+## 8. 🎁 返佣与奖励（`prototypes/返佣和奖励/` · 2026-09-10 归集）
+
+| 原型名称 | 功能 | 最后更新 | 链接 |
+|---|---|---|---|
+| 分销返佣配置 | 分销返点规则配置（一级分销） | 2026-07-08 | [2026-07-08_分销返佣配置_管理端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/2026-07-08_分销返佣配置_管理端.html) |
+| YASBee Points 奖励记录与规则设置 | 客户维度奖励场景（开卡/卡充值/币兑）+ 代理返佣设置（下级开卡/充值/币兑）+ 奖励记录 | 2026-09-10 | [2026-09-10_YASBee-Points奖励记录与规则设置_管理端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/2026-09-10_YASBee-Points奖励记录与规则设置_管理端.html) |
+| yasbee+ 用户奖励设置 | 卡种维度奖励比例（开卡/卡充值 × 实体/虚拟） | 2026-09-10 | [2026-09-10_yasbee+用户奖励设置_管理端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/2026-09-10_yasbee+用户奖励设置_管理端.html) |
+| 卡片代理返佣配置 | 代理配置 + 卡片返佣比例（按卡产品） | 2026-08-10 | [2026-08-10_卡片代理返佣配置_管理端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/2026-08-10_卡片代理返佣配置_管理端.html) |
+| 返佣记录 | 待结算返佣 + 发起结算操作 | 2026-08-11 | [2026-08-11_返佣记录_管理端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/2026-08-11_返佣记录_管理端.html) |
+| 结算记录 | 已结算台账（无结算操作） | 2026-08-10 | [2026-08-10_结算记录_管理端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/2026-08-10_结算记录_管理端.html) |
+| Rewards · YASBee Cash & Points（C 端） | 双表：YASBee Cash（购买 / 空投赠送）+ YASBee Points（开卡 / 卡充值 / 币兑奖励） | 2026-09-09 | [2026-09-09_yasbee+奖励记录_客户端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/2026-09-09_yasbee+奖励记录_客户端.html) |
+| 代理推广与收益看板（B 端） | B 端代理推广与收益看板 | 2026-09-09 | [2026-09-09_代理推广与收益看板_B端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/2026-09-09_代理推广与收益看板_B端.html) |
 
 ---
 

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>yasbee+ 用户奖励设置 | YASBee Admin</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif;background:#f0f2f5;color:#1d2129;font-size:14px;display:flex;min-height:100vh}
+/* ===== Sidebar ===== */
+.sidebar{width:240px;background:#1d2129;color:#fff;display:flex;flex-direction:column;flex-shrink:0;position:fixed;left:0;top:0;bottom:0;z-index:100;overflow-y:auto}
+.sidebar-header{padding:20px;font-size:18px;font-weight:700;color:#E59303;border-bottom:1px solid rgba(255,255,255,.08)}
+.sidebar-label{padding:14px 20px 4px;font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:1px}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:11px 20px;color:#9ca3af;font-size:13.5px;cursor:pointer;transition:all .15s;text-decoration:none}
+.sidebar-item:hover{color:#fff;background:rgba(255,255,255,.05)}
+.sidebar-item.active{color:#E59303;background:rgba(229,147,3,.1);border-right:3px solid #E59303;font-weight:600}
+.sidebar-item .icon{width:20px;text-align:center}
+.sidebar-footer{margin-top:auto;padding:16px 20px;border-top:1px solid rgba(255,255,255,.06);font-size:12px;color:#6b7280}
+/* ===== Main ===== */
+.main{flex:1;margin-left:240px;min-width:0}
+.header{background:#fff;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e8eb;position:sticky;top:0;z-index:50}
+.crumb{font-size:12px;color:#86909c}
+.crumb b{color:#1d2129;font-weight:600}
+.header-right{font-size:13px;color:#86909c}
+.content{padding:24px}
+.page-title h1{font-size:20px;font-weight:700;margin-bottom:4px}
+.page-sub{font-size:12.5px;color:#86909c;margin-bottom:20px;line-height:1.6}
+/* ===== Cards & grid ===== */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat-card{background:#fff;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.05);padding:16px 18px}
+.stat-card .s-label{font-size:11.5px;color:#86909c;margin-bottom:6px}
+.stat-card .s-value{font-size:22px;font-weight:700;letter-spacing:-.3px}
+.stat-card .s-value.gold{color:#E59303}
+.stat-card .s-sub{font-size:11px;color:#aaa;margin-top:4px;line-height:1.5}
+.card{background:#fff;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.05);overflow:hidden;margin-bottom:18px}
+.card-header{padding:15px 20px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center}
+.card-header h2{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}
+.card-header .hint{font-size:12px;color:#86909c;font-weight:400}
+.card-body{padding:20px}
+/* ===== Buttons ===== */
+.btn{display:inline-flex;align-items:center;gap:6px;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .15s}
+.btn-primary{background:#E59303;color:#fff}
+.btn-primary:hover{background:#c87e02}
+.btn-outline{background:#fff;border:1px solid #e5e8eb;color:#4e5969}
+.btn-outline:hover{border-color:#E59303;color:#E59303}
+.btn-sm{padding:5px 12px;font-size:12.5px;border-radius:6px}
+/* ===== Switch ===== */
+.switch{position:relative;width:42px;height:22px;background:#d9d9d9;border-radius:20px;cursor:pointer;transition:background .2s;flex-shrink:0;display:inline-block}
+.switch::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.switch.on{background:#E59303}
+.switch.on::after{left:22px}
+/* ===== Scenario rows ===== */
+.scn{display:flex;gap:16px;padding:18px 0;border-bottom:1px solid #f2f3f5}
+.scn:last-child{border-bottom:none;padding-bottom:0}
+.scn .icon-wrap{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.scn .info{flex:1;min-width:0}
+.scn .info h3{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+.scn .info .desc{font-size:12px;color:#86909c;margin-top:3px}
+.scn .right{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.scn .right .enabled-tag{font-size:11px;color:#86909c}
+/* 卡种标签 */
+.ctype{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;padding:3px 10px;border-radius:6px;white-space:nowrap}
+.ctype.phys{background:#E6F4FF;color:#0958D9}
+.ctype.virt{background:#F4F0FF;color:#7C3AED}
+.ctype.none{background:#f2f3f5;color:#86909c;font-weight:500}
+/* token chip */
+.tchip{display:inline-flex;align-items:center;gap:5px;background:#FFF7E6;border:1px solid #FFE7BA;color:#D46B08;border-radius:999px;padding:2px 10px;font-size:11.5px;font-weight:700}
+.tchip.u{background:#E6F4FF;border-color:#BAE0FF;color:#0958D9}
+/* 配置表（卡种维度） */
+.cfg-tbl{width:100%;border-collapse:collapse;margin-top:14px;font-size:12.5px}
+.cfg-tbl th{background:#fafafa;text-align:left;padding:9px 12px;font-size:11px;color:#86909c;font-weight:600;border-bottom:1px solid #f0f0f0;white-space:nowrap}
+.cfg-tbl td{padding:11px 12px;border-bottom:1px solid #f5f5f5;vertical-align:middle}
+.cfg-tbl tr:last-child td{border-bottom:none}
+.tbl-input{padding:6px 9px;border:1px solid #d1d5db;border-radius:6px;font-size:12.5px;font-family:inherit;outline:none;width:100%;max-width:150px;background:#fff;color:#1d2129}
+.tbl-input:focus{border-color:#E59303;box-shadow:0 0 0 3px rgba(229,147,3,.08)}
+.tbl-input.sel{max-width:170px}
+.inline-suffix{display:flex;align-items:center;gap:6px}
+.inline-suffix .suffix{font-size:12px;color:#4e5969;font-weight:600;white-space:nowrap}
+.note{font-size:11.5px;color:#aaa;margin-top:10px;line-height:1.6}
+/* preview mini table */
+.mini-tbl{width:100%;border-collapse:collapse;margin-top:4px;font-size:12.5px}
+.mini-tbl th{background:#fafafa;text-align:left;padding:8px 12px;font-size:11px;color:#86909c;font-weight:600;border-bottom:1px solid #f0f0f0;white-space:nowrap}
+.mini-tbl td{padding:9px 12px;border-bottom:1px solid #f5f5f5}
+.mini-tbl tr:last-child td{border-bottom:none}
+.alert{border-radius:8px;padding:12px 14px;font-size:12.5px;line-height:1.7;margin-bottom:18px;display:flex;gap:10px}
+.alert.info{background:#E6F4FF;border:1px solid #91CAFF;color:#0958D9}
+.alert .a-icon{flex-shrink:0}
+.alert a{color:#0958D9;font-weight:600;text-decoration:none}
+.alert a:hover{text-decoration:underline}
+@media(max-width:900px){.sidebar{display:none}.main{margin-left:0}.stats-row{grid-template-columns:1fr 1fr}.scn{flex-direction:column}.scn .right{align-items:flex-start}}
+</style>
+</head>
+<body>
+
+<!-- ===== Sidebar ===== -->
+<div class="sidebar">
+  <div class="sidebar-header">YASBee Admin</div>
+  <div class="sidebar-label">分销管理</div>
+  <a class="sidebar-item" href="2026-07-08_分销返佣配置_管理端.html"><span class="icon">⚙️</span>分销配置</a>
+  <a class="sidebar-item" href="2026-08-10_卡片代理返佣配置_管理端.html"><span class="icon">👥</span>代理管理</a>
+  <a class="sidebar-item active"><span class="icon">⭐</span>yasbee+ 奖励设置</a>
+  <a class="sidebar-item" href="2026-08-11_返佣记录_管理端.html"><span class="icon">💸</span>返佣与结算记录</a>
+  <a class="sidebar-item"><span class="icon">🏦</span>提现账户管理</a>
+  <a class="sidebar-item"><span class="icon">🧾</span>开卡订单与退款</a>
+  <div class="sidebar-label">卡片管理</div>
+  <a class="sidebar-item"><span class="icon">💳</span>卡片管理</a>
+  <a class="sidebar-item"><span class="icon">🛡️</span>风控中心</a>
+  <div class="sidebar-label">系统</div>
+  <a class="sidebar-item"><span class="icon">👤</span>操作员管理</a>
+  <div class="sidebar-footer">Admin · 2026-09-10</div>
+</div>
+
+<div class="main">
+  <div class="header">
+    <div class="crumb">分销管理 / <b>yasbee+ 奖励设置</b></div>
+    <div class="header-right">运营组 · 操作员 ops_yasbe</div>
+  </div>
+
+  <div class="content">
+    <div class="page-title">
+      <h1>yasbee+ 奖励设置</h1>
+      <div class="page-sub">客户维度（用户自操作）奖励：配置客户本人开卡 / 卡充值 / 币兑获得的 yasbee+ 奖励规则。<br>
+        业务已区分 <b>实体卡</b> 与 <b>虚拟卡</b> 两条卡种线，开卡奖励、卡充值奖励的比例可<b>按卡种分别设置</b>。</div>
+    </div>
+
+    <div class="alert info">
+      <span class="a-icon">ℹ️</span>
+      <div>本页仅配置 <b>客户维度</b> 奖励（客户自己操作获得的 yasbee+）。代理人维度（下级操作给代理返 U + yasbee+）在
+      <a href="2026-08-10_卡片代理返佣配置_管理端.html">代理管理 · 返佣设置</a> 中配置，本页不重复设置。
+      币兑场景与卡种无关，按统一比例配置。</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="s-label">本月已发放 yasbee+</div>
+        <div class="s-value gold">18,420.5</div>
+        <div class="s-sub">环比 +12.4%</div>
+      </div>
+      <div class="stat-card">
+        <div class="s-label">累计发放 yasbee+</div>
+        <div class="s-value">86,291.0</div>
+        <div class="s-sub">开卡 41,200 · 卡充值 32,640 · 币兑 12,451</div>
+      </div>
+      <div class="stat-card">
+        <div class="s-label">本月触发人次</div>
+        <div class="s-value">3,287</div>
+        <div class="s-sub">开卡 214 · 卡充值 2,106 · 币兑 967</div>
+      </div>
+      <div class="stat-card">
+        <div class="s-label">已启用规则</div>
+        <div class="s-value" style="color:#52c41a">5 / 5</div>
+        <div class="s-sub">开卡 实体/虚拟 · 卡充值 实体/虚拟 · 币兑</div>
+      </div>
+    </div>
+
+    <!-- Scenarios -->
+    <div class="card">
+      <div class="card-header">
+        <h2>📊 奖励场景配置</h2>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span style="font-size:12px;color:#86909c;">奖励币种</span>
+          <span class="tchip">yasbee+</span>
+          <button class="btn btn-primary" onclick="saveAll()">保存配置</button>
+        </div>
+      </div>
+      <div class="card-body">
+
+        <!-- 开卡 -->
+        <div class="scn" id="scn-open">
+          <div class="icon-wrap" style="background:#F4F0FF;color:#7C3AED;">💳</div>
+          <div class="info">
+            <h3>开卡奖励 <span class="tchip">yasbee+</span></h3>
+            <div class="desc">客户本人完成开卡后，按卡种发放 yasbee+；实体卡 / 虚拟卡 可分别设置不同比例</div>
+            <table class="cfg-tbl">
+              <thead>
+                <tr><th style="width:130px;">卡种</th><th style="width:200px;">奖励方式</th><th>奖励值</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="ctype phys">💳 实体卡</span></td>
+                  <td>
+                    <select class="tbl-input sel">
+                      <option value="fixed" selected>固定数量（每张）</option>
+                      <option value="pct">按开卡费比例</option>
+                    </select>
+                  </td>
+                  <td><div class="inline-suffix"><input class="tbl-input" type="number" step="0.1" value="10.0"><span class="suffix">yasbee+ / 张</span></div></td>
+                </tr>
+                <tr>
+                  <td><span class="ctype virt">🪪 虚拟卡</span></td>
+                  <td>
+                    <select class="tbl-input sel">
+                      <option value="fixed" selected>固定数量（每张）</option>
+                      <option value="pct">按开卡费比例</option>
+                    </select>
+                  </td>
+                  <td><div class="inline-suffix"><input class="tbl-input" type="number" step="0.1" value="10.0"><span class="suffix">yasbee+ / 张</span></div></td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="note">演示口径：实体卡 / 虚拟卡 均为开卡 +10 yasbee+ / 张；两卡种奖励值可分别调整。</div>
+          </div>
+          <div class="right">
+            <span class="switch on" onclick="toggle(this)"></span>
+            <span class="enabled-tag">已启用</span>
+          </div>
+        </div>
+
+        <!-- 卡充值 -->
+        <div class="scn" id="scn-topup">
+          <div class="icon-wrap" style="background:#FFF1E6;color:#D46B08;">➕</div>
+          <div class="info">
+            <h3>卡充值奖励 <span class="tchip">yasbee+</span></h3>
+            <div class="desc">客户本人向卡片充值成功后，按卡种发放 yasbee+；实体卡 / 虚拟卡 可分别设置不同比例</div>
+            <table class="cfg-tbl">
+              <thead>
+                <tr><th style="width:130px;">卡种</th><th style="width:150px;">奖励方式</th><th style="width:210px;">每 USD 折算</th><th>单笔上限</th><th>每月上限</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="ctype phys">💳 实体卡</span></td>
+                  <td>
+                    <select class="tbl-input sel">
+                      <option value="pct" selected>按充值金额比例</option>
+                      <option value="fixed">固定数量（每笔）</option>
+                    </select>
+                  </td>
+                  <td><div class="inline-suffix"><input class="tbl-input" type="number" step="1" value="10"><span class="suffix">USD = 1 yasbee+</span></div></td>
+                  <td><div class="inline-suffix"><input class="tbl-input" type="number" step="0.1" value="500.0"><span class="suffix">yasbee+</span></div></td>
+                  <td><div class="inline-suffix"><input class="tbl-input" type="number" step="1" value="2000"><span class="suffix">yasbee+</span></div></td>
+                </tr>
+                <tr>
+                  <td><span class="ctype virt">🪪 虚拟卡</span></td>
+                  <td>
+                    <select class="tbl-input sel">
+                      <option value="pct" selected>按充值金额比例</option>
+                      <option value="fixed">固定数量（每笔）</option>
+                    </select>
+                  </td>
+                  <td><div class="inline-suffix"><input class="tbl-input" type="number" step="1" value="10"><span class="suffix">USD = 1 yasbee+</span></div></td>
+                  <td><div class="inline-suffix"><input class="tbl-input" type="number" step="0.1" value="500.0"><span class="suffix">yasbee+</span></div></td>
+                  <td><div class="inline-suffix"><input class="tbl-input" type="number" step="1" value="2000"><span class="suffix">yasbee+</span></div></td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="note">演示口径：每充值 $10 得 1 yasbee+；实体卡 / 虚拟卡 折算比例与上限均可分别调整。</div>
+          </div>
+          <div class="right">
+            <span class="switch on" onclick="toggle(this)"></span>
+            <span class="enabled-tag">已启用</span>
+          </div>
+        </div>
+
+        <!-- 币兑 -->
+        <div class="scn" id="scn-swap">
+          <div class="icon-wrap" style="background:#E6F4EA;color:#16A34A;">⇄</div>
+          <div class="info">
+            <h3>币兑奖励 <span class="tchip">yasbee+</span></h3>
+            <div class="desc">客户本人完成币币兑换后，按兑换金额发放 yasbee+（与卡种无关，统一比例）</div>
+            <table class="cfg-tbl">
+              <thead>
+                <tr><th style="width:130px;">适用</th><th style="width:150px;">奖励方式</th><th style="width:210px;">奖励比例</th><th>单笔上限</th><th>每月上限</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="ctype none">全卡种</span></td>
+                  <td>
+                    <select class="tbl-input sel">
+                      <option value="pct" selected>按兑换金额比例</option>
+                      <option value="fixed">固定数量（每笔）</option>
+                    </select>
+                  </td>
+                  <td><div class="inline-suffix"><input class="tbl-input" type="number" step="0.01" value="1.00"><span class="suffix">%</span></div></td>
+                  <td><div class="inline-suffix"><input class="tbl-input" type="number" step="0.1" value="100.0"><span class="suffix">yasbee+</span></div></td>
+                  <td><div class="inline-suffix"><input class="tbl-input" type="number" step="1" value="500"><span class="suffix">yasbee+</span></div></td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="note">币兑为新增场景（原始需求未定义），比例由本页配置后客户端按规则展示；演示值 1%。</div>
+          </div>
+          <div class="right">
+            <span class="switch on" onclick="toggle(this)"></span>
+            <span class="enabled-tag">已启用</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 近 30 日发放预览 -->
+    <div class="card">
+      <div class="card-header">
+        <h2>📈 近 30 日 yasbee+ 发放</h2>
+        <span class="hint">按奖励场景汇总（演示数据）</span>
+      </div>
+      <div class="card-body" style="padding:8px 20px 14px;">
+        <table class="mini-tbl">
+          <thead><tr><th>日期</th><th>开卡奖励</th><th>卡充值奖励</th><th>币兑奖励</th><th>当日合计</th></tr></thead>
+          <tbody>
+            <tr><td>2026-09-08</td><td>180.0</td><td>1,240.5</td><td>420.0</td><td style="font-weight:600;">1,840.5</td></tr>
+            <tr><td>2026-09-07</td><td>90.0</td><td>985.0</td><td>360.0</td><td style="font-weight:600;">1,435.0</td></tr>
+            <tr><td>2026-09-06</td><td>120.0</td><td>1,102.0</td><td>288.0</td><td style="font-weight:600;">1,510.0</td></tr>
+            <tr><td>2026-09-05</td><td>60.0</td><td>876.5</td><td>195.0</td><td style="font-weight:600;">1,131.5</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggle(el){
+  el.classList.toggle('on');
+  var tag = el.parentElement.querySelector('.enabled-tag');
+  tag.textContent = el.classList.contains('on') ? '已启用' : '已停用';
+  tag.style.color = el.classList.contains('on') ? '#86909c' : '#cf1322';
+}
+function saveAll(){
+  alert('✅ yasbee+ 用户维度奖励配置已保存 (原型)');
+}
+</script>
+</body>
+</html>
