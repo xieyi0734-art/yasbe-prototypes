@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crypto Wallet — YASBee</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#111418;
+  --bg-elev:#1a1d22;
+  --bg-embed:#23262e;
+  --gold:#FFCA00;
+  --gold-deep:#FE5707;
+  --gold-border:#FFDC8C;
+  --text:#ffffff;
+  --text-2:rgba(255,255,255,0.72);
+  --text-3:rgba(255,255,255,0.45);
+  --text-4:rgba(255,255,255,0.30);
+  --border:rgba(255,255,255,0.08);
+  --border-strong:rgba(255,255,255,0.14);
+  --green:#34a853;
+  --red:#ea4335;
+  --amber:#f6cf47;
+  --blue:#4f8cff;
+}
+body{
+  font-family:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  background:var(--bg);color:var(--text);min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:var(--gold);text-decoration:none}
+
+/* ===== 顶部导航 ===== */
+.topbar{
+  position:sticky;top:0;z-index:100;height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;background:rgba(17,20,24,0.88);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+}
+.topbar-left{display:flex;align-items:center;gap:28px}
+.logo{font-size:18px;font-weight:800;letter-spacing:-0.4px;color:var(--text);white-space:nowrap}
+.logo span{color:var(--gold)}
+.nav{display:flex;align-items:center;gap:2px}
+.nav-item{padding:8px 14px;border-radius:8px;font-size:14px;color:var(--text-3);cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none}
+.nav-item:hover{color:var(--text);background:rgba(255,255,255,0.04)}
+.nav-item.active{color:var(--gold);background:rgba(255,202,0,0.08);font-weight:600}
+.topbar-right{display:flex;align-items:center;gap:14px}
+.icon-btn{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--text-3);cursor:pointer;transition:all .15s;background:transparent;border:none}
+.icon-btn:hover{color:var(--text);background:rgba(255,255,255,0.06)}
+.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#FFCA00,#FE5707);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#111418;cursor:pointer}
+
+/* ===== 主内容 ===== */
+.page{max-width:1040px;margin:0 auto;padding:28px 24px 64px}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:20px}
+.page-title{font-size:24px;font-weight:700;letter-spacing:-0.3px}
+.page-sub{font-size:13px;color:var(--text-3);margin-top:4px}
+.head-actions{display:flex;gap:10px}
+.btn-sm{height:42px;padding:0 18px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:7px;transition:all .15s;border:none}
+.btn-sm.gold{background:linear-gradient(92.29deg,#FFCA00 0%,#FE5707 100%);border:1px solid var(--gold-border);color:#111418}
+.btn-sm.gold:hover{opacity:0.92}
+.btn-sm.ghost{background:transparent;border:1px solid var(--border-strong);color:var(--text-2)}
+.btn-sm.ghost:hover{background:rgba(255,255,255,0.04);color:var(--text)}
+
+/* ===== 余额总览 ===== */
+.overview{display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:16px;margin-bottom:24px}
+.stat-card{background:var(--bg-elev);border:1px solid var(--border);border-radius:16px;padding:20px}
+.stat-label{font-size:12px;color:var(--text-3);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.stat-value{font-size:26px;font-weight:800;letter-spacing:-0.5px}
+.stat-value .cur{font-size:14px;font-weight:600;color:var(--text-3);margin-left:4px}
+.stat-sub{font-size:12px;color:var(--text-4);margin-top:6px}
+.alloc-bar{height:8px;border-radius:4px;background:var(--bg-embed);overflow:hidden;display:flex;margin:12px 0}
+.alloc-bar span{height:100%}
+.alloc-legend{display:flex;flex-direction:column;gap:8px}
+.alloc-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-3)}
+.alloc-item .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.alloc-item .pct{margin-left:auto;color:var(--text-2);font-weight:600}
+.top-assets{display:flex;flex-direction:column;gap:10px}
+.top-row{display:flex;align-items:center;gap:10px;font-size:13px}
+.top-row .sym{font-weight:700;color:var(--text);min-width:48px}
+.top-row .chg{margin-left:auto;font-weight:600}
+.up{color:var(--green)}.down{color:var(--red)}
+
+/* ===== 区块标题 ===== */
+.section{margin-bottom:24px}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.section-title{font-size:16px;font-weight:700}
+.section-title .cnt{font-size:12px;font-weight:400;color:var(--text-4);margin-left:6px}
+
+/* ===== 搜索 ===== */
+.search{
+  display:flex;align-items:center;gap:8px;height:40px;
+  background:var(--bg-elev);border:1px solid var(--border);
+  border-radius:10px;padding:0 12px;color:var(--text-4);
+}
+.search input{background:transparent;border:none;outline:none;color:var(--text);font-size:13px;font-family:inherit;width:160px}
+.search input::placeholder{color:var(--text-4)}
+
+/* ===== 表格 ===== */
+.card{background:var(--bg-elev);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.table-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{
+  text-align:left;padding:13px 16px;font-size:12px;font-weight:500;
+  color:var(--text-3);border-bottom:1px solid var(--border);white-space:nowrap;
+  background:rgba(255,255,255,0.02);
+}
+tbody td{padding:14px 16px;font-size:13px;color:var(--text-2);border-bottom:1px solid var(--border);white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:rgba(255,255,255,0.02)}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px}
+.id-link{color:var(--blue);cursor:pointer;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px}
+.asset-cell{display:flex;align-items:center;gap:10px}
+.asset-ico{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0}
+.asset-cell .name{font-weight:600;color:var(--text)}
+.asset-cell .chain{font-size:11px;color:var(--text-4);margin-top:1px}
+
+/* ===== 金额 ===== */
+.amt-pos{color:var(--green);font-weight:600}
+.amt-neg{color:var(--text);font-weight:600}
+
+/* ===== 状态 badge ===== */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.badge .dot{width:5px;height:5px;border-radius:50%}
+.badge.completed{background:rgba(52,168,83,0.13);color:var(--green)}
+.badge.completed .dot{background:var(--green)}
+.badge.processing{background:rgba(246,207,71,0.13);color:var(--amber)}
+.badge.processing .dot{background:var(--amber)}
+.badge.rejected{background:rgba(234,67,53,0.13);color:var(--red)}
+.badge.rejected .dot{background:var(--red)}
+.badge.failed{background:rgba(234,67,53,0.13);color:var(--red)}
+.badge.failed .dot{background:var(--red)}
+
+/* ===== 类型 badge ===== */
+.type-badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:3px 10px;border-radius:8px}
+.type-badge.deposit{background:rgba(52,168,83,0.1);color:var(--green)}
+.type-badge.withdrawal{background:rgba(79,140,255,0.12);color:var(--blue)}
+
+/* ===== 操作按钮 ===== */
+.action-btn{padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;border:none}
+.action-btn.deposit{background:rgba(52,168,83,0.12);color:var(--green)}
+.action-btn.deposit:hover{background:rgba(52,168,83,0.2)}
+.action-btn.withdraw{background:rgba(255,202,0,0.12);color:var(--gold)}
+.action-btn.withdraw:hover{background:rgba(255,202,0,0.2)}
+.action-btn.view{background:transparent;border:1px solid var(--border-strong);color:var(--text-3)}
+.action-btn.view:hover{color:var(--text);background:rgba(255,255,255,0.04)}
+
+/* ===== 筛选 Tab ===== */
+.filter-tabs{display:flex;gap:4px;padding:4px;background:var(--bg-embed);border-radius:10px;width:fit-content;margin-bottom:14px}
+.filter-tab{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;color:var(--text-3);cursor:pointer;transition:all .15s;background:transparent;border:none;font-family:inherit;white-space:nowrap;user-select:none}
+.filter-tab:hover{color:var(--text)}
+.filter-tab.active{background:var(--gold);color:#111418}
+
+/* ===== 弹窗 ===== */
+.overlay{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.72);display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);padding:20px}
+.overlay.show{display:flex}
+.modal{background:var(--bg-elev);border:1px solid var(--border);border-radius:16px;width:480px;max-width:100%;max-height:92vh;display:flex;flex-direction:column;overflow:hidden}
+.modal-header{border-bottom:1px solid var(--border);padding:20px 24px;display:flex;align-items:center;justify-content:space-between}
+.modal-header h2{font-size:18px;font-weight:700}
+.modal-close{width:32px;height:32px;border-radius:8px;background:transparent;border:none;color:var(--text-3);cursor:pointer;font-size:18px;transition:all .15s}
+.modal-close:hover{color:var(--text);background:rgba(255,255,255,0.06)}
+.modal-body{flex:1;overflow-y:auto;padding:20px 24px}
+.modal-footer{border-top:1px solid var(--border);padding:16px 24px}
+
+/* ===== 表单 ===== */
+.field{margin-bottom:16px}
+.field-label{display:block;font-size:13px;font-weight:500;color:var(--text-3);margin-bottom:7px}
+.field-label .req{color:var(--red)}
+.input,.select{width:100%;height:46px;background:var(--bg-embed);border:1px solid var(--border-strong);border-radius:10px;padding:0 14px;font-size:14px;color:var(--text);font-family:inherit;outline:none;transition:border .15s,box-shadow .15s}
+.input::placeholder{color:var(--text-4)}
+.input:focus,.select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,202,0,0.14)}
+.select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-opacity='0.45' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;cursor:pointer}
+.select option{background:var(--bg-elev);color:var(--text)}
+.field-row{display:flex;gap:12px}
+.field-row .field{flex:1}
+.hint{font-size:12px;color:var(--text-4);margin-top:6px;line-height:1.5}
+.warn{font-size:12px;color:var(--amber);margin-top:6px;line-height:1.5;display:flex;gap:6px}
+
+/* 地址输入 + 粘贴 */
+.addr-input-wrap{position:relative}
+.addr-input-wrap .input{padding-right:80px}
+.paste-btn{position:absolute;right:8px;top:50%;transform:translateY(-50%);padding:6px 12px;border-radius:7px;background:rgba(255,202,0,0.12);color:var(--gold);font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:inherit}
+.paste-btn:hover{background:rgba(255,202,0,0.2)}
+
+/* 钱包类型选择 */
+.wallet-type{display:flex;gap:8px}
+.wt-opt{flex:1;padding:12px;border:1px solid var(--border-strong);border-radius:10px;cursor:pointer;text-align:center;transition:all .15s;background:var(--bg-embed);user-select:none}
+.wt-opt:hover{border-color:var(--text-3)}
+.wt-opt.active{border-color:var(--gold);background:rgba(255,202,0,0.08)}
+.wt-opt .t{font-size:14px;font-weight:600;color:var(--text)}
+.wt-opt .d{font-size:11px;color:var(--text-3);margin-top:3px}
+
+/* 汇总卡 */
+.summary{background:var(--bg-embed);border-radius:12px;padding:4px 16px;margin-bottom:16px}
+.summary-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;font-size:14px}
+.summary-row+.summary-row{border-top:1px solid var(--border)}
+.summary-row .lbl{color:var(--text-3)}
+.summary-row .val{color:var(--text-2);font-weight:500}
+.summary-row .val.gold{color:var(--gold);font-weight:700}
+.summary-row .val.white{color:var(--text);font-weight:600}
+
+/* 充值地址框 */
+.address-box{background:var(--bg-embed);border:1px solid var(--border-strong);border-radius:12px;padding:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+.address-box .addr{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;color:var(--text-2);word-break:break-all;line-height:1.6}
+.copy-btn{flex-shrink:0;padding:7px 13px;border-radius:8px;background:rgba(255,202,0,0.12);color:var(--gold);font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:all .15s}
+.copy-btn:hover{background:rgba(255,202,0,0.2)}
+.qr-wrap{display:flex;justify-content:center;padding:10px 0}
+.qr{width:150px;height:150px;border-radius:12px;background:repeating-conic-gradient(#23262e 0% 25%, #1a1d22 0% 50%) 0 0/11px 11px;border:1px solid var(--border-strong);position:relative}
+.qr::before{content:'';position:absolute;inset:20%;background:#111418;border:2px solid var(--gold);border-radius:8px}
+.note-list{list-style:none;padding:0;margin:0}
+.note-list li{position:relative;padding-left:16px;font-size:12px;color:var(--text-3);line-height:1.6;margin-bottom:7px}
+.note-list li::before{content:'';position:absolute;left:0;top:6px;width:5px;height:5px;border-radius:50%;background:var(--gold)}
+
+/* ===== 按钮 ===== */
+.btn{width:100%;height:50px;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:all .15s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-gold{background:linear-gradient(92.29deg,#FFCA00 0%,#FE5707 100%);border:1px solid var(--gold-border);color:#111418}
+.btn-gold:hover{opacity:0.92}
+.btn-gold:disabled{opacity:0.5;cursor:not-allowed}
+.btn-outline{width:100%;height:48px;border-radius:10px;background:transparent;border:1px solid var(--border-strong);color:var(--text-2);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+.btn-outline:hover{background:rgba(255,255,255,0.04);color:var(--text)}
+
+/* 扫描中 */
+.scan-modal{background:var(--bg-elev);border:1px solid var(--border);border-radius:16px;width:400px;max-width:92vw;padding:36px 28px;text-align:center}
+.spinner{width:44px;height:44px;margin:0 auto 18px;border:3px solid rgba(255,202,0,0.2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.scan-modal h3{font-size:17px;font-weight:700;margin-bottom:6px}
+.scan-modal p{font-size:13px;color:var(--text-3);line-height:1.5}
+
+/* 结果 */
+.result-icon{width:52px;height:52px;margin:0 auto 14px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px}
+.result-icon.pending{background:rgba(246,207,71,0.14);color:var(--amber)}
+.result-icon.declined{background:rgba(234,67,53,0.14);color:var(--red)}
+.result-icon.success{background:rgba(52,168,83,0.14);color:var(--green)}
+.result-title{font-size:18px;font-weight:700;margin-bottom:8px}
+.result-desc{font-size:13px;color:var(--text-3);line-height:1.6;margin-bottom:20px}
+.result-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;margin-bottom:10px}
+.result-badge.pending{background:rgba(246,207,71,0.14);color:var(--amber)}
+.result-badge.declined{background:rgba(234,67,53,0.14);color:var(--red)}
+.result-badge.success{background:rgba(52,168,83,0.14);color:var(--green)}
+
+/* 演示场景条 */
+.demo-bar{display:flex;align-items:center;gap:10px;margin-bottom:20px;padding:10px 14px;background:rgba(255,202,0,0.05);border:1px dashed rgba(255,202,0,0.25);border-radius:12px;font-size:12px;color:var(--text-3);flex-wrap:wrap}
+.demo-bar .seg{display:flex;gap:4px;margin-left:auto}
+.demo-opt{padding:5px 12px;border-radius:7px;font-size:12px;cursor:pointer;color:var(--text-3);border:1px solid var(--border-strong);background:transparent;transition:all .15s;font-family:inherit;user-select:none}
+.demo-opt:hover{color:var(--text)}
+.demo-opt.active{background:var(--gold);color:#111418;border-color:var(--gold);font-weight:600}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<!-- 顶部导航 -->
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="logo">YAS<span>Bee</span></div>
+    <nav class="nav">
+      <div class="nav-item">Dashboard</div>
+      <div class="nav-item active">Crypto</div>
+      <div class="nav-item">Cards</div>
+      <div class="nav-item">Convert</div>
+      <div class="nav-item">Investment</div>
+    </nav>
+  </div>
+  <div class="topbar-right">
+    <button class="icon-btn" title="通知">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
+    </button>
+    <div class="avatar">DX</div>
+  </div>
+</header>
+
+<main class="page">
+  <!-- 页头 -->
+  <div class="page-head">
+    <div>
+      <div class="page-title">Crypto Wallet</div>
+      <div class="page-sub">充值 · 提现数字资产</div>
+    </div>
+    <div class="head-actions">
+      <button class="btn-sm ghost" onclick="openDeposit()">↓ 充值</button>
+      <button class="btn-sm gold" onclick="openWithdraw()">↑ 提现</button>
+    </div>
+  </div>
+
+  <!-- 演示场景 -->
+  <div class="demo-bar">
+    <span>🔍 风险扫描演示场景（仅提现）</span>
+    <div class="seg">
+      <button class="demo-opt active" data-scene="ok" onclick="setScene('ok')">正常钱包</button>
+      <button class="demo-opt" data-scene="risk" onclick="setScene('risk')">命中风险</button>
+      <button class="demo-opt" data-scene="reject" onclick="setScene('reject')">审核后拒绝</button>
+    </div>
+  </div>
+
+  <!-- 余额总览 -->
+  <div class="overview">
+    <div class="stat-card">
+      <div class="stat-label">💰 Balance · 总余额</div>
+      <div class="stat-value">21,340.52<span class="cur">USD</span></div>
+      <div class="stat-sub">≈ ¥153,652.00 · 较昨日 +2.4%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">📊 Asset Allocation · 资产配置</div>
+      <div class="alloc-bar">
+        <span style="width:55%;background:#FFCA00"></span>
+        <span style="width:28%;background:#4f8cff"></span>
+        <span style="width:12%;background:#34a853"></span>
+        <span style="width:5%;background:#7a7f8a"></span>
+      </div>
+      <div class="alloc-legend">
+        <div class="alloc-item"><span class="dot" style="background:#FFCA00"></span>USDT<span class="pct">55%</span></div>
+        <div class="alloc-item"><span class="dot" style="background:#4f8cff"></span>USDC<span class="pct">28%</span></div>
+        <div class="alloc-item"><span class="dot" style="background:#34a853"></span>BTC<span class="pct">12%</span></div>
+        <div class="alloc-item"><span class="dot" style="background:#7a7f8a"></span>其他<span class="pct">5%</span></div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">🚀 Top Performing · 表现最佳</div>
+      <div class="top-assets">
+        <div class="top-row"><span class="sym">BTC</span> Bitcoin<span class="chg up">+8.4%</span></div>
+        <div class="top-row"><span class="sym">ETH</span> Ethereum<span class="chg up">+5.1%</span></div>
+        <div class="top-row"><span class="sym">USDT</span> Tether<span class="chg up">+0.0%</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 资产列表 -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-title">Your Assets · 我的资产<span class="cnt">4 项</span></div>
+      <div class="search">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="搜索资产...">
+      </div>
+    </div>
+    <div class="card">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Asset · 资产</th><th>Blockchain · 链</th><th>Quantity · 数量</th><th>Market Price · 市价</th><th>Balance · 余额</th><th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="asset-cell"><div class="asset-ico" style="background:rgba(255,202,0,0.15);color:#FFCA00">₮</div><div><div class="name">USDT</div><div class="chain">Tether</div></div></div></td>
+              <td>TRON (TRC20)</td><td>11,740.00</td><td>$1.00</td><td><span class="amt-pos">$11,740.00</span></td>
+              <td><button class="action-btn deposit" onclick="openDeposit()">充值</button> <button class="action-btn withdraw" onclick="openWithdraw()">提现</button></td>
+            </tr>
+            <tr>
+              <td><div class="asset-cell"><div class="asset-ico" style="background:rgba(79,140,255,0.15);color:#4f8cff">$</div><div><div class="name">USDC</div><div class="chain">USD Coin</div></div></div></td>
+              <td>Ethereum (ERC20)</td><td>5,980.00</td><td>$1.00</td><td><span class="amt-pos">$5,980.00</span></td>
+              <td><button class="action-btn deposit" onclick="openDeposit()">充值</button> <button class="action-btn withdraw" onclick="openWithdraw()">提现</button></td>
+            </tr>
+            <tr>
+              <td><div class="asset-cell"><div class="asset-ico" style="background:rgba(52,168,83,0.15);color:#34a853">₿</div><div><div class="name">BTC</div><div class="chain">Bitcoin</div></div></div></td>
+              <td>Bitcoin</td><td>0.4200</td><td>$61,200.00</td><td><span class="amt-pos">$2,570.40</span></td>
+              <td><button class="action-btn deposit" onclick="openDeposit()">充值</button> <button class="action-btn withdraw" onclick="openWithdraw()">提现</button></td>
+            </tr>
+            <tr>
+              <td><div class="asset-cell"><div class="asset-ico" style="background:rgba(122,127,138,0.18);color:#b8bdc7">Ξ</div><div><div class="name">ETH</div><div class="chain">Ethereum</div></div></div></td>
+              <td>Ethereum</td><td>3.1500</td><td>$3,340.00</td><td><span class="amt-pos">$1,050.12</span></td>
+              <td><button class="action-btn deposit" onclick="openDeposit()">充值</button> <button class="action-btn withdraw" onclick="openWithdraw()">提现</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 交易记录 -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-title">Recent Crypto Transactions · 最近交易<span class="cnt" id="txCount"></span></div>
+      <button class="btn-sm ghost" style="height:36px">导出</button>
+    </div>
+    <div class="filter-tabs">
+      <button class="filter-tab active" data-f="all" onclick="filterTx('all')">全部</button>
+      <button class="filter-tab" data-f="deposit" onclick="filterTx('deposit')">充值</button>
+      <button class="filter-tab" data-f="withdrawal" onclick="filterTx('withdrawal')">提现</button>
+    </div>
+    <div class="card">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th><th>Type · 类型</th><th>Asset · 资产</th><th>Network · 网络</th><th>Amount · 金额</th><th>Status · 状态</th><th>Date · 日期</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="txBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ===== 充值弹窗 ===== -->
+<div class="overlay" id="depositOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>充值 · Deposit Funds</h2>
+      <button class="modal-close" onclick="closeDeposit()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label class="field-label">选择币种</label>
+        <select class="select">
+          <option>USDT</option><option>USDC</option><option>BTC</option><option>ETH</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">网络</label>
+        <select class="select">
+          <option>TRON (TRC20)</option><option>Ethereum (ERC20)</option><option>Bitcoin</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">充值地址</label>
+        <div class="address-box">
+          <span class="addr">TQrY8bkxpCdN8oYnqX7qWbQ8mP4zVk2nXsQa1</span>
+          <button class="copy-btn" onclick="this.textContent='已复制';setTimeout(()=>this.textContent='复制',1500)">复制</button>
+        </div>
+      </div>
+      <div class="qr-wrap"><div class="qr"></div></div>
+      <div class="field">
+        <label class="field-label">充值说明</label>
+        <ul class="note-list">
+          <li>仅向此地址发送 USDT，发送其他币种可能导致资产丢失。</li>
+          <li>最低充值金额：10.00 USDT</li>
+          <li>到账需 6 个网络确认，通常 10–30 分钟。</li>
+          <li>大额充值可能触发风控审核，到账时间将延长。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeDeposit()">完成</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 提现弹窗 ===== -->
+<div class="overlay" id="withdrawOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>提现 · Withdrawal</h2>
+      <button class="modal-close" onclick="closeWithdraw()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label class="field-label">选择币种</label>
+        <select class="select">
+          <option>USDT</option><option>USDC</option><option>BTC</option><option>ETH</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">网络</label>
+        <select class="select">
+          <option>TRON (TRC20)</option><option>Ethereum (ERC20)</option><option>Bitcoin</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">钱包类型</label>
+        <div class="wallet-type">
+          <div class="wt-opt active" onclick="selectWT(this)"><div class="t">托管</div><div class="d">平台托管</div></div>
+          <div class="wt-opt" onclick="selectWT(this)"><div class="t">自托管</div><div class="d">个人钱包</div></div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label">钱包名称</label>
+          <input class="input" type="text" placeholder="输入钱包名称">
+        </div>
+        <div class="field">
+          <label class="field-label">钱包持有人姓名</label>
+          <input class="input" type="text" placeholder="输入持有人姓名">
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">提现地址 <span class="req">*</span></label>
+        <div class="addr-input-wrap">
+          <input class="input" id="wdAddr" type="text" placeholder="输入提现地址" value="TQrY8bkxpCdN8oYnqX7qWbQ8mP4zVk2nXsQa1">
+          <button class="paste-btn" onclick="pasteAddr()">粘贴</button>
+        </div>
+        <div class="warn">⚠ 请确认地址正确，错误地址将导致资产不可逆丢失。</div>
+      </div>
+      <div class="field">
+        <label class="field-label">提现金额</label>
+        <input class="input" id="wdAmt" type="text" placeholder="请输入提现金额" value="1000">
+        <div class="hint">可用余额：11,740.00 USDT · 最小提现 5.00 USDT</div>
+      </div>
+      <div class="summary">
+        <div class="summary-row"><span class="lbl">提现金额</span><span class="val white">1,000.00 USDT</span></div>
+        <div class="summary-row"><span class="lbl">平台手续费</span><span class="val">2.00 USDT</span></div>
+        <div class="summary-row"><span class="lbl">网络手续费</span><span class="val">1.00 USDT</span></div>
+        <div class="summary-row"><span class="lbl">到账金额</span><span class="val gold">997.00 USDT</span></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-gold" onclick="submitWithdraw()">确认提现</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 扫描中 ===== -->
+<div class="overlay" id="scanOverlay">
+  <div class="scan-modal">
+    <div class="spinner"></div>
+    <h3>钱包风险扫描中…</h3>
+    <p>正在对目标钱包进行合规风险筛查，请稍候</p>
+  </div>
+</div>
+
+<!-- ===== 扫描结果 ===== -->
+<div class="overlay" id="resultOverlay">
+  <div class="scan-modal" id="resultModal"></div>
+</div>
+
+<script>
+var currentScene = 'ok';
+var currentFilter = 'all';
+
+// 交易记录数据（体现风险扫描四种结果）
+var txData = [
+  { id:'CRYP-008', type:'withdrawal', asset:'USDT', net:'TRON (TRC20)', amt:'-997.00', status:'processing', date:'2026-09-11 14:32:08' },
+  { id:'CRYP-007', type:'deposit',    asset:'USDT', net:'TRON (TRC20)', amt:'+500.00',  status:'completed', date:'2026-09-11 11:05:41' },
+  { id:'CRYP-006', type:'withdrawal', asset:'BTC',  net:'Bitcoin',      amt:'-0.0100',  status:'rejected',  date:'2026-09-10 18:22:15' },
+  { id:'CRYP-005', type:'deposit',    asset:'USDC', net:'Ethereum (ERC20)', amt:'+1200.00', status:'completed', date:'2026-09-10 09:47:03' },
+  { id:'CRYP-004', type:'withdrawal', asset:'ETH',  net:'Ethereum',     amt:'-0.5000',  status:'completed', date:'2026-09-09 16:18:52' },
+  { id:'CRYP-003', type:'deposit',    asset:'BTC',  net:'Bitcoin',      amt:'+0.0500',  status:'processing', date:'2026-09-09 10:30:27' },
+];
+
+var statusMap = {
+  completed: {label:'已完成', cls:'completed'},
+  processing:{label:'审核中', cls:'processing'},
+  rejected:  {label:'已拒绝', cls:'rejected'},
+  failed:    {label:'失败', cls:'failed'},
+};
+var typeMap = {
+  deposit:   {label:'充值', cls:'deposit'},
+  withdrawal:{label:'提现', cls:'withdrawal'},
+};
+
+function setScene(s){
+  currentScene = s;
+  document.querySelectorAll('.demo-opt').forEach(function(o){ o.classList.toggle('active', o.dataset.scene===s); });
+}
+
+function filterTx(f){
+  currentFilter = f;
+  document.querySelectorAll('.filter-tab').forEach(function(t){ t.classList.toggle('active', t.dataset.f===f); });
+  renderTx();
+}
+
+function renderTx(){
+  var list = txData.filter(function(t){ return currentFilter==='all' || t.type===currentFilter; });
+  document.getElementById('txCount').textContent = list.length + ' 项';
+  var html = list.map(function(t){
+    var s = statusMap[t.status], ty = typeMap[t.type];
+    var amtCls = t.amt.charAt(0)==='+' ? 'amt-pos' : 'amt-neg';
+    return '<tr>'+
+      '<td class="id-link" onclick="openTxDetail(\''+t.id+'\')">'+t.id+'</td>'+
+      '<td><span class="type-badge '+ty.cls+'">'+ty.label+'</span></td>'+
+      '<td><div class="asset-cell"><div class="name">'+t.asset+'</div></div></td>'+
+      '<td>'+t.net+'</td>'+
+      '<td class="'+amtCls+'">'+t.amt+' '+t.asset+'</td>'+
+      '<td><span class="badge '+s.cls+'"><span class="dot"></span>'+s.label+'</span></td>'+
+      '<td class="mono">'+t.date+'</td>'+
+      '<td><button class="action-btn view" onclick="openTxDetail(\''+t.id+'\')">查看</button></td>'+
+      '</tr>';
+  }).join('');
+  document.getElementById('txBody').innerHTML = html;
+}
+
+function openTxDetail(id){
+  var t = txData.find(function(x){ return x.id===id; });
+  if(!t) return;
+  var s = statusMap[t.status];
+  var detail = '';
+  if(t.status==='processing'){
+    detail = '该笔交易正在接受合规审核，审核通过后自动完成。';
+  } else if(t.status==='rejected'){
+    detail = '该笔交易未通过风险审核，资金已保留在账户。';
+  } else {
+    detail = '该笔交易已完成。';
+  }
+  showResult(t.status==='rejected'?'declined':(t.status==='processing'?'pending':'success'),
+    (t.status==='processing'?'审核中':(t.status==='rejected'?'已拒绝':'已完成')),
+    t.type==='withdrawal'?'提现':'充值',
+    detail);
+}
+
+// 弹窗开关
+function openDeposit(){ document.getElementById('depositOverlay').classList.add('show'); }
+function closeDeposit(){ document.getElementById('depositOverlay').classList.remove('show'); }
+function openWithdraw(){ document.getElementById('withdrawOverlay').classList.add('show'); }
+function closeWithdraw(){ document.getElementById('withdrawOverlay').classList.remove('show'); }
+function selectWT(el){ el.parentElement.querySelectorAll('.wt-opt').forEach(function(o){o.classList.remove('active');}); el.classList.add('active'); }
+function pasteAddr(){ document.getElementById('wdAddr').value='TQrY8bkxpCdN8oYnqX7qWbQ8mP4zVk2nXsQa1'; }
+
+function submitWithdraw(){
+  var addr = document.getElementById('wdAddr').value.trim();
+  var amt = document.getElementById('wdAmt').value.trim();
+  if(!addr){ alert('请输入提现地址'); return; }
+  if(!amt){ alert('请输入提现金额'); return; }
+  closeWithdraw();
+  document.getElementById('scanOverlay').classList.add('show');
+  setTimeout(function(){
+    document.getElementById('scanOverlay').classList.remove('show');
+    if(currentScene==='ok'){ showResult('success','已完成','提现','风险扫描通过，提现已提交，预计 10–30 分钟到账。'); }
+    else if(currentScene==='risk'){ showResult('pending','审核中','提现','本次提现正在接受合规审核，审核通过后将自动完成出账，请耐心等待。'); }
+    else { showResult('declined','已拒绝','提现','经审核，本次提现未能通过风险审核，出金失败，资金已保留在您的账户。'); }
+  }, 1600);
+}
+
+function showResult(type, badge, kind, desc){
+  var icons = {pending:'⏳', declined:'✕', success:'✓'};
+  document.getElementById('resultModal').innerHTML =
+    '<div class="result-icon '+type+'">'+icons[type]+'</div>'+
+    '<div class="result-badge '+type+'">'+kind+' · '+badge+'</div>'+
+    '<div class="result-title">'+(kind==='提现'?'提现':'充值')+badge+'</div>'+
+    '<div class="result-desc">'+desc+'</div>'+
+    '<button class="btn-outline" onclick="closeResult()">知道了</button>';
+  document.getElementById('resultOverlay').classList.add('show');
+}
+function closeResult(){ document.getElementById('resultOverlay').classList.remove('show'); }
+
+// 初始化
+renderTx();
+</script>
+</body>
+</html>

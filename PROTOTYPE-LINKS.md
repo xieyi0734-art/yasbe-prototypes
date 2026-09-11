@@ -172,11 +172,11 @@
 | Rewards · YASBee Cash & Points（C 端） | 双表：YASBee Cash（购买 / 空投赠送）+ YASBee Points（开卡 / 卡充值 / 币兑奖励） | 2026-09-09 | [2026-09-09_yasbee+奖励记录_客户端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/2026-09-09_yasbee+奖励记录_客户端.html) |
 | 代理推广与收益看板（B 端） | B 端代理推广与收益看板 | 2026-09-09 | [2026-09-09_代理推广与收益看板_B端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/2026-09-09_代理推广与收益看板_B端.html) |
 
-## 9. 🛡️ 加密出入金风险扫描（`prototypes/加密出入金风险扫描/` · 2026-09-10）
+## 9. 🛡️ 加密出入金风险扫描（`prototypes/加密出入金风险扫描/` · 2026-09-11）
 
 | 原型名称 | 功能 | 最后更新 | 链接 |
 |---|---|---|---|
-| 加密出入金风险扫描 · 客户端 | Crypto 交易记录新增风控状态（Pending Review / Refunded / Failed）+ 对方钱包列 + 合规提示 + 审核详情弹窗 | 2026-09-10 | [2026-09-10_加密出入金风险扫描_客户端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/加密出入金风险扫描/2026-09-10_加密出入金风险扫描_客户端.html) |
+| 加密出入金风险扫描 · 客户端 | Crypto Wallet（资产总览 + 资产列表 + 交易记录，深色 #FFCA00）+ 充值/提现弹窗 + 钱包风险扫描（审核中/已拒绝） | 2026-09-11 | [2026-09-11_加密出入金风险扫描_客户端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/加密出入金风险扫描/2026-09-11_加密出入金风险扫描_客户端.html) |
 | 加密出入金风险扫描 · 管理端 | 加密货币 · 交易审核：入金/出金两条风控队列 + Merkle 风险明细 + 批准/拒绝处置 | 2026-09-10 | [2026-09-10_加密出入金风险扫描_管理端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/加密出入金风险扫描/2026-09-10_加密出入金风险扫描_管理端.html) |
 
 ---
