@@ -3,324 +3,435 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Crypto Transactions — YASBee</title>
+<title>Statement — YASBee</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --gold:#FFCA00; --gold-dim:rgba(255,202,0,.12); --gold-mid:rgba(255,202,0,.2);
-  --bg:#191b1f; --header:#2c2c2c; --card:#1f2128; --card-2:#23262e;
-  --border:rgba(255,255,255,.08); --border-2:rgba(255,255,255,.05);
-  --text:#ffffff; --text-muted:#a0a0b0; --text-dim:#848493; --text-faint:#5f5f6e;
-}
-body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased;font-size:14px}
+:root{--gold:#E59303;--gold-light:rgba(229,147,3,0.08);--gold-mid:rgba(229,147,3,0.15);--bg:#f8f9fb;--sidebar-bg:#ffffff;--text:#1a1a2e;--text-muted:#5b5b70;--text-light:#9090a8;--border:#e8e8f0;--card-bg:#ffffff;--badge-bg:#f3f4f6;--radius:10px;--font:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif}
+@media(prefers-color-scheme:dark){:root{--bg:#0a0a18;--sidebar-bg:#0f0f22;--text:#e8e8f0;--text-muted:#9090a8;--text-light:#6a6a80;--border:#1e1e32;--card-bg:#12122a;--badge-bg:#1a1a30}}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased}
 .app{display:flex;min-height:100vh}
-
 /* Sidebar */
-.sidebar{width:232px;background:var(--header);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;border-right:1px solid var(--border)}
+.sidebar{width:240px;background:var(--sidebar-bg);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto}
 .sidebar-header{padding:20px 20px 16px;border-bottom:1px solid var(--border)}
-.sidebar-header .logo{font-size:20px;font-weight:700;color:var(--text);text-decoration:none;letter-spacing:-.3px}
+.sidebar-header .logo{font-size:20px;font-weight:700;letter-spacing:-0.3px;color:var(--text);text-decoration:none}
 .sidebar-header .logo span{color:var(--gold)}
-.sidebar-nav{padding:12px 10px;flex:1;display:flex;flex-direction:column;gap:2px}
-.nav-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;font-size:14px;font-weight:500;color:var(--text-dim);cursor:pointer;transition:all .15s;text-decoration:none}
-.nav-item:hover{background:var(--gold-dim);color:var(--text)}
+.sidebar-nav{padding:12px 10px;flex:1}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;font-size:14px;font-weight:500;color:var(--text-muted);cursor:pointer;transition:all .15s;text-decoration:none;margin-bottom:2px}
+.nav-item:hover{background:var(--gold-light);color:var(--text)}
 .nav-item.active{background:var(--gold-mid);color:var(--gold);font-weight:600}
 .nav-item .nav-icon{width:20px;height:20px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-.sidebar-footer{padding:16px 20px;border-top:1px solid var(--border);font-size:12px;color:var(--text-faint)}
-
+.sidebar-footer{padding:16px 20px;border-top:1px solid var(--border);font-size:13px;color:var(--text-light)}
 /* Main */
-.main{flex:1;display:flex;flex-direction:column;min-width:0}
-.topbar{height:60px;background:var(--header);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;flex-shrink:0}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:60px;background:var(--card-bg);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;flex-shrink:0}
 .topbar-left{display:flex;align-items:center;gap:12px}
-.topbar-left h1{font-size:18px;font-weight:600}
-.topbar-right{display:flex;align-items:center;gap:14px}
-.notif-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-dim);transition:all .15s;position:relative}
-.notif-btn:hover{background:var(--gold-dim);color:var(--gold)}
-.notif-btn .dot{position:absolute;top:8px;right:9px;width:7px;height:7px;background:#ea4335;border-radius:50%;border:2px solid var(--header)}
-.avatar{width:36px;height:36px;border-radius:50%;background:var(--gold);color:#191b1f;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+.topbar-left h1{font-size:20px;font-weight:600}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.notif-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-muted);transition:all .15s}
+.notif-btn:hover{background:var(--gold-light);color:var(--gold)}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px}
 .content{padding:24px 28px;flex:1;overflow-y:auto}
-
 /* Stats */
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
-.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
-.stat-card .stat-label{font-size:12px;color:var(--text-dim);margin-bottom:6px}
-.stat-card .stat-value{font-size:24px;font-weight:700;letter-spacing:-.5px}
-.stat-card .stat-sub{font-size:12px;color:var(--text-muted);margin-top:3px}
-.stat-card .stat-value .currency{font-size:15px;font-weight:500;color:var(--text-dim)}
-
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+.stat-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px}
+.stat-card .stat-label{font-size:13px;color:var(--text-light);margin-bottom:4px}
+.stat-card .stat-value{font-size:26px;font-weight:700;letter-spacing:-0.5px}
+.stat-card .stat-sub{font-size:12px;color:var(--text-muted);margin-top:2px}
+.stat-card .stat-value .currency{font-size:16px;font-weight:500;color:var(--text-muted)}
 /* Tabs */
 .tab-bar{display:flex;gap:0;margin-bottom:20px;border-bottom:1px solid var(--border)}
-.tab-btn{padding:11px 22px;font-size:14px;font-weight:500;color:var(--text-dim);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit}
+.tab-btn{padding:12px 24px;font-size:14px;font-weight:500;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--font)}
 .tab-btn:hover{color:var(--text)}
 .tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
-.tab-btn .tab-badge{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11px;background:var(--card-2);color:var(--text-dim);margin-left:6px;font-weight:400}
+.tab-btn .tab-badge{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11px;background:var(--badge-bg);color:var(--text-muted);margin-left:6px;font-weight:400}
 .tab-btn.active .tab-badge{background:var(--gold-mid);color:var(--gold)}
-
-/* Notice banner */
-.notice{display:flex;align-items:center;gap:10px;background:var(--gold-dim);border:1px solid var(--gold-mid);border-radius:10px;padding:11px 14px;font-size:12.5px;color:#ffd95e;margin-bottom:16px}
-.notice svg{flex-shrink:0}
-
 /* Filters */
 .filter-bar{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
 .filter-group{display:flex;align-items:center;gap:6px}
-.filter-group label{font-size:13px;color:var(--text-dim);white-space:nowrap}
-.filter-input,.filter-select{padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card);color:var(--text);outline:none;transition:border .15s;font-family:inherit}
-.filter-input:focus,.filter-select:focus{border-color:var(--gold)}
+.filter-group label{font-size:13px;color:var(--text-muted);white-space:nowrap}
+.filter-input,.filter-select{padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card-bg);color:var(--text);outline:none;transition:border .15s;font-family:var(--font)}
+.filter-input:focus,.filter-select:focus{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold-light)}
 .search-wrap{position:relative;flex:1;min-width:180px}
-.search-wrap input{width:100%;padding:8px 12px 8px 34px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card);color:var(--text);outline:none;transition:border .15s}
+.search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-light)}
+.search-wrap input{width:100%;padding:8px 12px 8px 36px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card-bg);color:var(--text);outline:none;transition:border .15s}
 .search-wrap input:focus{border-color:var(--gold)}
-.search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-faint)}
 .spacer{flex:1}
-.btn{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px;font-family:inherit;border:1px solid var(--border);background:transparent;color:var(--text-dim)}
-.btn:hover{background:var(--gold-dim);border-color:var(--gold);color:var(--text)}
-
+.btn{padding:8px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px;font-family:var(--font)}
+.btn-gold{background:var(--gold);color:#fff;border:1px solid var(--gold)}
+.btn-gold:hover{opacity:0.9}
+.btn-outline{background:transparent;color:var(--text-muted);border:1px solid var(--border)}
+.btn-outline:hover{background:var(--gold-light);border-color:var(--gold);color:var(--text)}
 /* Table */
-.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.table-wrap{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
 .table-scroll{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:13px}
-thead{background:var(--card-2)}
-th{padding:11px 16px;text-align:left;font-size:11px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;border-bottom:1px solid var(--border)}
-td{padding:13px 16px;border-bottom:1px solid var(--border-2);white-space:nowrap;color:var(--text);vertical-align:middle}
-tbody tr:last-child td{border-bottom:none}
-tbody tr:hover td{background:rgba(255,202,0,.03)}
-.tx-id{font-family:'SF Mono','Cascadia Code',Consolas,monospace;font-size:12px;color:#4da3ff;cursor:pointer}
-.amount{font-weight:600;font-family:'SF Mono','Cascadia Code',Consolas,monospace;font-size:13px}
-.amount.positive{color:#34d399}
-.amount.negative{color:#f87171}
-.addr{font-family:'SF Mono','Cascadia Code',Consolas,monospace;font-size:12px;color:var(--text-dim);display:inline-block;max-width:140px;overflow:hidden;text-overflow:ellipsis;vertical-align:bottom}
-.status-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;font-size:11.5px;font-weight:500}
-.status-completed{background:rgba(52,168,83,.15);color:#4ade80}
-.status-pending-review{background:rgba(255,202,0,.15);color:#ffd95e}
-.status-refunded{background:rgba(77,163,255,.15);color:#7cc0ff}
-.status-failed{background:rgba(234,67,53,.15);color:#fda4a4}
+thead{background:var(--badge-bg)}
+th{padding:11px 16px;text-align:left;font-size:11px;font-weight:600;color:var(--text-light);text-transform:uppercase;letter-spacing:0.3px;white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:12px 16px;border-bottom:1px solid var(--border);white-space:nowrap;color:var(--text)}
+tr:last-child td{border-bottom:none}
+tbody tr{cursor:pointer}
+tbody tr:hover td{background:var(--gold-light)}
+.tx-id{font-family:'SF Mono','Cascadia Code','Consolas',monospace;font-size:12px;color:#2563eb;cursor:pointer}
+.amount{font-weight:600;font-family:'SF Mono','Cascadia Code','Consolas',monospace;font-size:13px}
+.amount.positive{color:#059669}
+.amount.negative{color:#dc2626}
+.status-badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:500}
+.status-completed{background:#d1fae5;color:#047857}
+.status-pending{background:#fef3c7;color:#b45309}
+.status-failed{background:#fee2e2;color:#b91c1c}
+.status-refunded{background:#e0e7ff;color:#4338ca}
 .type-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:500}
-.type-income{background:rgba(52,211,153,.15);color:#34d399}
-.type-expense{background:rgba(248,113,113,.15);color:#f87171}
-.pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--border);font-size:13px;color:var(--text-dim)}
+.type-income{background:#d1fae5;color:#047857}
+.type-expense{background:#fee2e2;color:#b91c1c}
+.type-transfer{background:#dbeafe;color:#1d4ed8}
+.crypto-addr{font-family:'SF Mono','Cascadia Code','Consolas',monospace;font-size:11px;color:var(--text-muted);max-width:100px;overflow:hidden;text-overflow:ellipsis}
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--border);font-size:13px;color:var(--text-muted)}
 .pag-btns{display:flex;gap:4px}
-.pag-btn{width:32px;height:32px;border-radius:6px;border:1px solid var(--border);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:var(--text-dim);transition:all .15s}
-.pag-btn:hover{background:var(--gold-dim);border-color:var(--gold);color:var(--text)}
-.pag-btn.active{background:var(--gold);color:#191b1f;border-color:var(--gold)}
-
-/* Modal */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(3px);z-index:1000;display:none;align-items:center;justify-content:center}
+.pag-btn{width:32px;height:32px;border-radius:6px;border:1px solid var(--border);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:var(--text-muted);transition:all .15s}
+.pag-btn:hover{background:var(--gold-light);border-color:var(--gold);color:var(--text)}
+.pag-btn.active{background:var(--gold);color:#fff;border-color:var(--gold)}
+.pag-btn:disabled{opacity:0.4;cursor:default}
+/* Detail Modal */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center}
 .modal-overlay.open{display:flex}
-.modal{background:var(--card);border:1px solid var(--border);border-radius:14px;width:460px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.5);display:flex;flex-direction:column;overflow:hidden}
-.modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px 22px 0}
-.modal-header h3{font-size:17px;font-weight:600}
-.modal-close{width:30px;height:30px;border-radius:50%;border:none;background:var(--card-2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-dim);font-size:16px}
-.modal-close:hover{color:var(--text)}
-.modal-body{padding:18px 22px 22px}
-.detail-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border-2);font-size:13px}
+.modal{background:var(--card-bg);border-radius:14px;width:460px;max-width:90vw;padding:0;box-shadow:0 20px 60px rgba(0,0,0,0.15)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0}
+.modal-header h3{font-size:18px;font-weight:600}
+.modal-close{width:32px;height:32px;border-radius:50%;border:none;background:var(--badge-bg);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-muted);font-size:18px}
+.modal-body{padding:20px 24px}
+.detail-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
 .detail-row:last-child{border-bottom:none}
-.detail-row .k{color:var(--text-dim)}
-.detail-row .v{font-weight:500;text-align:right}
-.review-box{margin-top:14px;background:var(--gold-dim);border:1px solid var(--gold-mid);border-radius:10px;padding:13px 14px;font-size:12.5px;color:#ffd95e;line-height:1.6}
-.review-box .shield{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:#FFCA00;margin-bottom:4px}
-.modal-footer{display:flex;justify-content:flex-end;padding:0 22px 20px;gap:10px}
-.btn-gold{background:var(--gold);color:#191b1f;border:none;font-weight:600}
-.btn-gold:hover{opacity:.9;border:none}
-
-@media(max-width:768px){.sidebar{display:none}.stats{grid-template-columns:1fr}.filter-bar{flex-direction:column;align-items:stretch}}
+.detail-row .k{color:var(--text-muted);flex-shrink:0;margin-right:16px}
+.detail-row .v{font-weight:500;text-align:right;word-break:break-all}
+.review-box{margin-top:16px;background:var(--gold-light);border:1px solid var(--gold-mid);border-radius:10px;padding:13px 14px;font-size:12.5px;color:var(--text);line-height:1.6}
+.review-box .shield{display:flex;align-items:center;gap:6px;font-weight:600;color:var(--gold);margin-bottom:4px}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;padding:0 24px 20px}
+@media(max-width:768px){
+  .sidebar{display:none}
+  .stats{grid-template-columns:1fr}
+  .filter-bar{flex-direction:column;align-items:stretch}
+  .search-wrap{min-width:auto}
+}
 </style>
 </head>
 <body>
 <div class="app">
-
-<!-- Sidebar -->
 <div class="sidebar">
-  <div class="sidebar-header"><a href="#" class="logo">YAS<span>Bee</span></a></div>
-  <div class="sidebar-nav">
-    <a href="#" class="nav-item"><span class="nav-icon">◧</span>Dashboard</a>
-    <a href="#" class="nav-item active"><span class="nav-icon">☰</span>Statement</a>
-    <a href="#" class="nav-item"><span class="nav-icon">▤</span>Cards</a>
-    <a href="#" class="nav-item"><span class="nav-icon">⇄</span>Transfers</a>
-    <a href="#" class="nav-item"><span class="nav-icon">◔</span>Analytics</a>
-  </div>
-  <div class="sidebar-footer">© 2026 YASBee</div>
+<div class="sidebar-header"><a href="#" class="logo">YAS<span>Bee</span></a></div>
+<div class="sidebar-nav">
+<a href="#" class="nav-item"><span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span>Dashboard</a>
+<a href="#" class="nav-item active"><span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span>Statement</a>
+<a href="#" class="nav-item"><span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></span>Cards</a>
+<a href="#" class="nav-item"><span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></span>Transfers</a>
+<a href="#" class="nav-item"><span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></span>Analytics</a>
 </div>
-
-<!-- Main -->
+<div class="sidebar-footer">&copy; 2026 YASBee</div>
+</div>
 <div class="main">
-  <div class="topbar">
-    <div class="topbar-left"><h1>Statement</h1></div>
-    <div class="topbar-right">
-      <button class="notif-btn">🔔<div class="dot"></div></button>
-      <div class="avatar">DX</div>
-    </div>
-  </div>
+<div class="topbar">
+<div class="topbar-left"><h1>Statement</h1></div>
+<div class="topbar-right">
+<button class="notif-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></button>
+<div class="avatar">DX</div>
+</div>
+</div>
+<div class="content">
+<div class="stats">
+<div class="stat-card"><div class="stat-label">Total Balance</div><div class="stat-value">$24,830.50 <span class="currency">USD</span></div><div class="stat-sub">+$1,240 this month</div></div>
+<div class="stat-card"><div class="stat-label">Monthly Income</div><div class="stat-value">$8,420.00</div><div class="stat-sub">+12.4% from last month</div></div>
+<div class="stat-card"><div class="stat-label">Monthly Expenses</div><div class="stat-value">$3,180.75</div><div class="stat-sub">+3.2% from last month</div></div>
+</div>
 
-  <div class="content">
-    <div class="stats">
-      <div class="stat-card"><div class="stat-label">Total Balance</div><div class="stat-value">$24,830.50 <span class="currency">USD</span></div><div class="stat-sub">+$1,240 this month</div></div>
-      <div class="stat-card"><div class="stat-label">Monthly Income</div><div class="stat-value">$8,420.00</div><div class="stat-sub">+12.4% from last month</div></div>
-      <div class="stat-card"><div class="stat-label">Monthly Expenses</div><div class="stat-value">$3,180.75</div><div class="stat-sub">+3.2% from last month</div></div>
-    </div>
+<div class="tab-bar">
+<button class="tab-btn" onclick="switchTab('fiat',this)" data-tab="fiat">Fiat <span class="tab-badge">10</span></button>
+<button class="tab-btn active" onclick="switchTab('crypto',this)" data-tab="crypto">Crypto <span class="tab-badge">7</span></button>
+<button class="tab-btn" onclick="switchTab('card',this)" data-tab="card">Card Records <span class="tab-badge">10</span></button>
+<button class="tab-btn" onclick="switchTab('rewards',this)" data-tab="rewards">Rewards <span class="tab-badge">6</span></button>
+</div>
 
-    <div class="tab-bar">
-      <button class="tab-btn">Fiat <span class="tab-badge">10</span></button>
-      <button class="tab-btn active">Crypto <span class="tab-badge">7</span></button>
-      <button class="tab-btn">Card Records <span class="tab-badge">10</span></button>
-      <button class="tab-btn">Rewards <span class="tab-badge">6</span></button>
-    </div>
+<div class="filter-bar">
+<div class="filter-group"><label>From</label><input type="date" class="filter-input" value="2026-08-01"></div>
+<div class="filter-group"><label>To</label><input type="date" class="filter-input" value="2026-09-10"></div>
+<div class="filter-group"><label>Status</label><select class="filter-select"><option>All</option><option>Completed</option><option>Pending</option><option>Refunded</option><option>Failed</option></select></div>
+<div class="search-wrap"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="searchInput" placeholder="Search transactions..."></div>
+<button class="btn btn-outline" onclick="openExport()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Export</button>
+</div>
 
-    <div class="notice">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      <span>For your security, crypto deposits and withdrawals may be subject to compliance screening. Flagged transactions enter a review queue before being credited or sent.</span>
-    </div>
-
-    <div class="filter-bar">
-      <div class="filter-group"><label>From</label><input type="date" class="filter-input" value="2026-08-01"></div>
-      <div class="filter-group"><label>To</label><input type="date" class="filter-input" value="2026-09-10"></div>
-      <div class="filter-group"><label>Status</label>
-        <select class="filter-select">
-          <option>All</option><option>Completed</option><option>Pending Review</option><option>Refunded</option><option>Failed</option>
-        </select>
-      </div>
-      <div class="search-wrap">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" placeholder="Search transactions...">
-      </div>
-      <div class="spacer"></div>
-      <button class="btn">⭳ Export</button>
-    </div>
-
-    <div class="table-wrap">
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Type</th>
-              <th>Asset</th>
-              <th>Network</th>
-              <th>Amount</th>
-              <th>Counterparty Wallet</th>
-              <th>Status</th>
-              <th>Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><span class="tx-id">CRYP-0901</span></td>
-              <td><span class="type-badge type-income">↓ Income</span></td>
-              <td>BTC</td><td>Bitcoin</td>
-              <td><span class="amount positive">+0.0420 BTC</span></td>
-              <td><span class="addr">bc1qk2…x7f9a</span></td>
-              <td><span class="status-badge status-pending-review">⏳ Pending Review</span></td>
-              <td>2026-09-10 09:41</td>
-            </tr>
-            <tr>
-              <td><span class="tx-id">CRYP-0902</span></td>
-              <td><span class="type-badge type-expense">↑ Expense</span></td>
-              <td>USDT</td><td>TRON</td>
-              <td><span class="amount negative">-5,000.00 USDT</span></td>
-              <td><span class="addr">TQx3…9k2p1</span></td>
-              <td><span class="status-badge status-pending-review">⏳ Pending Review</span></td>
-              <td>2026-09-10 09:18</td>
-            </tr>
-            <tr>
-              <td><span class="tx-id">CRYP-0903</span></td>
-              <td><span class="type-badge type-income">↓ Income</span></td>
-              <td>ETH</td><td>Ethereum</td>
-              <td><span class="amount positive">+0.8500 ETH</span></td>
-              <td><span class="addr">0x3f2a…c81d</span></td>
-              <td><span class="status-badge status-completed">✓ Completed</span></td>
-              <td>2026-09-09 14:30</td>
-            </tr>
-            <tr>
-              <td><span class="tx-id">CRYP-0904</span></td>
-              <td><span class="type-badge type-expense">↑ Expense</span></td>
-              <td>USDC</td><td>Ethereum</td>
-              <td><span class="amount negative">-1,200.00 USDC</span></td>
-              <td><span class="addr">0x8b1e…44f2</span></td>
-              <td><span class="status-badge status-completed">✓ Completed</span></td>
-              <td>2026-09-08 10:15</td>
-            </tr>
-            <tr>
-              <td><span class="tx-id">CRYP-0905</span></td>
-              <td><span class="type-badge type-income">↓ Income</span></td>
-              <td>BTC</td><td>Bitcoin</td>
-              <td><span class="amount positive">+0.0150 BTC</span></td>
-              <td><span class="addr">bc1q9d…a2c7e</span></td>
-              <td><span class="status-badge status-refunded">↩ Refunded</span></td>
-              <td>2026-09-07 22:05</td>
-            </tr>
-            <tr>
-              <td><span class="tx-id">CRYP-0906</span></td>
-              <td><span class="type-badge type-expense">↑ Expense</span></td>
-              <td>ETH</td><td>Ethereum</td>
-              <td><span class="amount negative">-0.3200 ETH</span></td>
-              <td><span class="addr">0x7c4d…e09a</span></td>
-              <td><span class="status-badge status-failed">✕ Failed</span></td>
-              <td>2026-09-06 08:47</td>
-            </tr>
-            <tr>
-              <td><span class="tx-id">CRYP-0907</span></td>
-              <td><span class="type-badge type-income">↓ Income</span></td>
-              <td>SOL</td><td>Solana</td>
-              <td><span class="amount positive">+12.50 SOL</span></td>
-              <td><span class="addr">7fRk…mN4s</span></td>
-              <td><span class="status-badge status-completed">✓ Completed</span></td>
-              <td>2026-09-05 16:20</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="pagination">
-        <span>Showing 1–7 of 7</span>
-        <div class="pag-btns"><button class="pag-btn" disabled>‹</button><button class="pag-btn active">1</button><button class="pag-btn" disabled>›</button></div>
-      </div>
-    </div>
-  </div>
+<div class="table-wrap">
+<div class="table-scroll">
+<table id="txTable">
+<thead><tr id="tableHeader"></tr></thead>
+<tbody id="tableBody"></tbody>
+</table>
+</div>
+<div class="pagination">
+<span>Showing 1-10 of <span id="totalCount">24</span></span>
+<div class="pag-btns">
+<button class="pag-btn" disabled>&lt;</button>
+<button class="pag-btn active">1</button>
+<button class="pag-btn">2</button>
+<button class="pag-btn">3</button>
+<button class="pag-btn">&gt;</button>
+</div>
+</div>
+</div>
+</div>
 </div>
 </div>
 
-<!-- Pending Review detail modal -->
-<div class="modal-overlay" id="reviewModal">
-  <div class="modal">
-    <div class="modal-header">
-      <h3>Transaction Details</h3>
-      <button class="modal-close" onclick="closeReview()">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="detail-row"><span class="k">Transaction ID</span><span class="v tx-id">CRYP-0901</span></div>
-      <div class="detail-row"><span class="k">Type</span><span class="v">Income (Deposit)</span></div>
-      <div class="detail-row"><span class="k">Asset / Network</span><span class="v">BTC · Bitcoin</span></div>
-      <div class="detail-row"><span class="k">Amount</span><span class="v" style="color:#34d399">+0.0420 BTC</span></div>
-      <div class="detail-row"><span class="k">Counterparty Wallet</span><span class="v addr">bc1qk2…x7f9a</span></div>
-      <div class="detail-row"><span class="k">Status</span><span class="v"><span class="status-badge status-pending-review">⏳ Pending Review</span></span></div>
-      <div class="detail-row"><span class="k">Date</span><span class="v">2026-09-10 09:41</span></div>
-      <div class="review-box">
-        <div class="shield">🛡 Under Compliance Review</div>
-        Your transaction is undergoing routine compliance screening. Funds are temporarily held and will be credited once the review is complete. No further action is required from you at this time.
-      </div>
-    </div>
-    <div class="modal-footer"><button class="btn btn-gold" onclick="closeReview()">Got it</button></div>
-  </div>
+<!-- Export Modal -->
+<div class="modal-overlay" id="exportModal">
+<div class="modal">
+<div class="modal-header"><h3>Export Transactions</h3><button class="modal-close" onclick="closeExport()">&times;</button></div>
+<div class="modal-body">
+<div class="form-group"><label style="display:block;font-size:13px;font-weight:500;color:var(--text-muted);margin-bottom:6px">Export Format</label><div class="radio-group" style="display:flex;gap:12px;flex-wrap:wrap"><label style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text);cursor:pointer"><input type="radio" name="format" value="csv" checked> CSV</label><label style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text);cursor:pointer"><input type="radio" name="format" value="xlsx"> XLSX</label><label style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text);cursor:pointer"><input type="radio" name="format" value="pdf"> PDF</label></div></div>
+</div>
+<div class="modal-footer"><button class="btn btn-outline" onclick="closeExport()">Cancel</button><button class="btn btn-gold" onclick="closeExport();alert('Export started — your file will download shortly.')">Export</button></div>
+</div>
+</div>
+
+<!-- Transaction Detail Modal -->
+<div class="modal-overlay" id="detailModal">
+<div class="modal">
+<div class="modal-header"><h3>Transaction Details</h3><button class="modal-close" onclick="closeDetail()">&times;</button></div>
+<div class="modal-body" id="detailBody"></div>
+<div class="modal-footer"><button class="btn btn-gold" onclick="closeDetail()">Close</button></div>
+</div>
 </div>
 
 <script>
-// Demo: clicking a Pending Review row opens the detail modal
-document.querySelectorAll('tbody tr').forEach(function(row){
-  row.addEventListener('click', function(){
-    var statusCell = row.querySelector('.status-badge');
-    if(statusCell && statusCell.classList.contains('status-pending-review')){
-      document.getElementById('reviewModal').classList.add('open');
+var currentTab = 'crypto';
+
+var fiatData = [
+  {id:'FIAT-01KV9P254RGZ303AHH8PCT4AA',date:'2026-06-17 18:19:51',type:'deposit',currency:'USD',amount:2000.00,fee:50.00,status:'completed'},
+  {id:'FIAT-01KV9P1D08WEZRFHCVA962E3PG',date:'2026-06-17 18:19:07',type:'deposit',currency:'USD',amount:10000.00,fee:50.00,status:'completed'},
+  {id:'FIAT-01KV9P2R4TZ303AHH8PCT4AAC',date:'2026-06-15 09:12:33',type:'withdraw',currency:'USD',amount:500.00,fee:2.50,status:'completed'},
+  {id:'FIAT-01KV9P3D08WEZRFHCVA962E3PH',date:'2026-06-14 14:30:00',type:'deposit',currency:'EUR',amount:2250.00,fee:25.00,status:'completed'},
+  {id:'FIAT-01KV9P4R4TZ303AHH8PCT4AAD',date:'2026-06-12 10:05:22',type:'withdraw',currency:'USD',amount:3200.00,fee:5.00,status:'completed'},
+  {id:'FIAT-01KV9P5D08WEZRFHCVA962E3PI',date:'2026-06-10 16:45:00',type:'deposit',currency:'USD',amount:5800.00,fee:50.00,status:'completed'},
+  {id:'FIAT-01KV9P6R4TZ303AHH8PCT4AAE',date:'2026-06-08 08:30:00',type:'withdraw',currency:'EUR',amount:29.99,fee:0.50,status:'failed'},
+  {id:'FIAT-01KV9P7D08WEZRFHCVA962E3PJ',date:'2026-06-07 11:20:00',type:'deposit',currency:'USD',amount:1500.00,fee:15.00,status:'completed'},
+  {id:'FIAT-01KV9P8R4TZ303AHH8PCT4AAF',date:'2026-06-05 23:59:00',type:'withdraw',currency:'USD',amount:12.50,fee:0.00,status:'completed'},
+  {id:'FIAT-01KV9P9D08WEZRFHCVA962E3PK',date:'2026-06-04 07:15:00',type:'deposit',currency:'EUR',amount:89.00,fee:0.00,status:'completed'}
+];
+
+// Crypto: 风险扫描业务体现。income=入金 / expense=出金；命中风险 → pending(待人工审核)
+var cryptoData = [
+  {id:'CRYP-001',date:'2026-09-10 09:41:00',type:'income',asset:'BTC',network:'Bitcoin',amount:0.0420,status:'pending',addr:'bc1qk2x7f9a8d4e2c6b1a0f3e5d7c9b8a6f4e2d1'},
+  {id:'CRYP-002',date:'2026-09-10 09:18:00',type:'expense',asset:'USDT',network:'Tron',amount:5000.00,status:'pending',addr:'TQx39k2p1mN4s7fRk8dQ2wE5rTyU6iO9pL3aS'},
+  {id:'CRYP-003',date:'2026-09-09 14:30:00',type:'income',asset:'ETH',network:'Ethereum',amount:0.8500,status:'completed',addr:'0x3f2ac81d5e7b9a4c6d2e8f1b3a5c7d9e2f4a6b8c'},
+  {id:'CRYP-004',date:'2026-09-08 10:15:00',type:'expense',asset:'USDC',network:'Ethereum',amount:1200.00,status:'completed',addr:'0x8b1e44f2a6c8d0e3b5f7a9c1d3e5f7b9a1c3d5e7'},
+  {id:'CRYP-005',date:'2026-09-07 22:05:00',type:'income',asset:'BTC',network:'Bitcoin',amount:0.0150,status:'refunded',addr:'bc1q9da2c7e5f8b1d4a6c9e2f5b8d1a4c7e9f2b5d'},
+  {id:'CRYP-006',date:'2026-09-06 08:47:00',type:'expense',asset:'ETH',network:'Ethereum',amount:0.3200,status:'failed',addr:'0x7c4de09a2f6b8c1d4e7a9f3c5e8b1d6a4f7c9e2b'},
+  {id:'CRYP-007',date:'2026-09-05 16:20:00',type:'income',asset:'SOL',network:'Solana',amount:12.50,status:'completed',addr:'7fRkmN4s2dQ8wE5rTyU6iO9pL3aS1dF4gH7jK0z'}
+];
+
+var cardData = [
+  {merchant:'PAYPAL *kLOVE 666666 US',cardNum:'**** **** 8479',date:'2026-07-01 06:16:04',amount:-5.35,status:'completed'},
+  {merchant:'PAYPAL *kLOVE 666666 US',cardNum:'**** **** 8479',date:'2026-07-01 06:15:55',amount:-10.35,status:'completed'},
+  {merchant:'Transaction',cardNum:'**** **** 8479',date:'2026-07-01 06:15:18',amount:98.00,status:'completed'},
+  {merchant:'Amazon.com',cardNum:'**** **** 8479',date:'2026-06-28 14:20:00',amount:-126.40,status:'completed'},
+  {merchant:'Starbucks Coffee',cardNum:'**** **** 8479',date:'2026-06-27 09:15:00',amount:-5.75,status:'completed'},
+  {merchant:'Uber Ride',cardNum:'**** **** 8901',date:'2026-06-27 18:30:00',amount:-24.50,status:'completed'},
+  {merchant:'Netflix Subscription',cardNum:'**** **** 8479',date:'2026-06-26 00:00:00',amount:-15.99,status:'completed'},
+  {merchant:'Best Buy — Headphones',cardNum:'**** **** 8901',date:'2026-06-25 16:45:00',amount:-249.99,status:'pending'},
+  {merchant:'Card Refund — Return',cardNum:'**** **** 8479',date:'2026-06-24 12:30:00',amount:79.98,status:'completed'},
+  {merchant:'Top-up from Wallet',cardNum:'**** **** 8479',date:'2026-06-22 10:00:00',amount:500.00,status:'completed'}
+];
+
+var rewardsData = [
+  {asset:'BTC',holdingQty:0.085,unitPrice:64588.24,holdingValue:5490.00,lockMonths:0,tradeDate:'2026-06-28'},
+  {asset:'ETH',holdingQty:2.50,unitPrice:3460.00,holdingValue:8650.00,lockMonths:0,tradeDate:'2026-06-27'},
+  {asset:'USDC',holdingQty:5000.00,unitPrice:1.00,holdingValue:5000.00,lockMonths:0,tradeDate:'2026-06-26'},
+  {asset:'SOL',holdingQty:12.50,unitPrice:150.00,holdingValue:1875.00,lockMonths:3,tradeDate:'2026-06-24'},
+  {asset:'GSK',holdingQty:100.00,unitPrice:3.00,holdingValue:300.00,lockMonths:6,tradeDate:'2026-06-20'},
+  {asset:'ETH',holdingQty:0.008,unitPrice:3460.00,holdingValue:27.68,lockMonths:0,tradeDate:'2026-06-23'}
+];
+
+function formatMoney(n,c){return n.toLocaleString('en-US',{minimumFractionDigits:c||2,maximumFractionDigits:c||2})}
+function formatCryptoAmount(n){return n.toLocaleString('en-US',{minimumFractionDigits:n<1?4:2,maximumFractionDigits:n<1?4:2})}
+
+function switchTab(tab,btn){
+  var btns = document.querySelectorAll('.tab-btn');
+  for(var i=0;i<btns.length;i++) btns[i].classList.remove('active');
+  btn.classList.add('active');
+  currentTab = tab;
+  renderTable();
+}
+
+function typeLabel(type){
+  if(type==='deposit') return 'Deposit';
+  if(type==='withdraw') return 'Withdraw';
+  if(type==='income') return 'Income';
+  if(type==='expense') return 'Expense';
+  return type;
+}
+
+function statusLabel(status){
+  return status.charAt(0).toUpperCase() + status.slice(1);
+}
+
+function renderTable(){
+  var data;
+  var cols;
+  if(currentTab === 'fiat'){
+    data = fiatData;
+    cols = [
+      {key:'id',label:'ID'},
+      {key:'type',label:'Type'},
+      {key:'currency',label:'Currency'},
+      {key:'amount',label:'Amount'},
+      {key:'fee',label:'Fee'},
+      {key:'status',label:'Status'},
+      {key:'date',label:'Date'}
+    ];
+  } else if(currentTab === 'crypto'){
+    data = cryptoData;
+    cols = [
+      {key:'id',label:'ID'},
+      {key:'type',label:'Type'},
+      {key:'asset',label:'Asset'},
+      {key:'network',label:'Network'},
+      {key:'amount',label:'Amount'},
+      {key:'status',label:'Status'},
+      {key:'date',label:'Date'}
+    ];
+  } else if(currentTab === 'card'){
+    data = cardData;
+    cols = [
+      {key:'merchant',label:'Merchant'},
+      {key:'cardNum',label:'Card No.'},
+      {key:'date',label:'Date'},
+      {key:'amount',label:'Amount'},
+      {key:'status',label:'Status'}
+    ];
+  } else {
+    data = rewardsData;
+    cols = [
+      {key:'asset',label:'Asset'},
+      {key:'holdingQty',label:'Holding Qty'},
+      {key:'unitPrice',label:'Unit Price'},
+      {key:'holdingValue',label:'Holding Value'},
+      {key:'lockMonths',label:'Lock (Months)'},
+      {key:'tradeDate',label:'Trade Date'}
+    ];
+  }
+
+  var headerHtml = '';
+  for(var i=0;i<cols.length;i++) headerHtml += '<th>' + cols[i].label + '</th>';
+  document.getElementById('tableHeader').innerHTML = headerHtml;
+
+  var bodyHtml = '';
+  for(var i=0;i<data.length;i++){
+    var r = data[i];
+    bodyHtml += '<tr data-id="' + r.id + '" data-type="' + (currentTab==='crypto'?'crypto':currentTab) + '">';
+    for(var j=0;j<cols.length;j++){
+      var k = cols[j].key;
+      var val = r[k];
+      if(k === 'id'){
+        val = '<span class="tx-id">' + val + '</span>';
+      } else if(k === 'amount'){
+        if(currentTab === 'crypto'){
+          // 加密资产：数量 + 资产符号；正负号按 type
+          var isIncome = r.type === 'income';
+          var amtClass = isIncome ? 'positive' : 'negative';
+          var amtSign = isIncome ? '+' : '-';
+          val = '<span class="amount ' + amtClass + '">' + amtSign + formatCryptoAmount(Math.abs(val)) + ' ' + r.asset + '</span>';
+        } else {
+          var isNeg2 = val < 0;
+          var amtSign2 = isNeg2 ? '' : '+';
+          var amtClass2 = isNeg2 ? 'negative' : 'positive';
+          val = '<span class="amount ' + amtClass2 + '">' + amtSign2 + '$' + formatMoney(Math.abs(val)) + '</span>';
+        }
+      } else if(k === 'fee'){
+        val = '$' + formatMoney(val);
+      } else if(k === 'type'){
+        var t = val;
+        var tcls = (val==='deposit'||val==='income')?'income':'expense';
+        val = '<span class="type-badge type-' + tcls + '">' + typeLabel(t) + '</span>';
+      } else if(k === 'status'){
+        val = '<span class="status-badge status-' + val + '">' + statusLabel(val) + '</span>';
+      } else if(k === 'unitPrice' || k === 'holdingValue'){
+        val = '$' + formatMoney(val);
+      } else if(k === 'holdingQty'){
+        val = formatMoney(val, val < 1 ? 4 : 2);
+      } else if(k === 'lockMonths'){
+        val = val > 0 ? val + ' months' : '-';
+      }
+      bodyHtml += '<td>' + (val||'') + '</td>';
     }
-  });
+    bodyHtml += '</tr>';
+  }
+  document.getElementById('tableBody').innerHTML = bodyHtml;
+  document.getElementById('totalCount').textContent = data.length;
+
+  // 点击行查看详情（仅 crypto）
+  var rows = document.querySelectorAll('#tableBody tr');
+  for(var x=0;x<rows.length;x++){
+    (function(row){
+      row.addEventListener('click', function(e){
+        if(e.target.closest('.tx-id')){
+          // 点击 ID 也打开详情
+        }
+        if(row.getAttribute('data-type') === 'crypto'){
+          openDetail(row.getAttribute('data-id'));
+        }
+      });
+    })(rows[x]);
+  }
+}
+
+function findCryptoById(id){
+  for(var i=0;i<cryptoData.length;i++) if(cryptoData[i].id === id) return cryptoData[i];
+  return null;
+}
+
+function openDetail(id){
+  var r = findCryptoById(id);
+  if(!r) return;
+  var typeName = r.type === 'income' ? 'Income (Deposit)' : 'Expense (Withdrawal)';
+  var statusHtml = '<span class="status-badge status-' + r.status + '">' + statusLabel(r.status) + '</span>';
+  var html = '';
+  html += '<div class="detail-row"><span class="k">Transaction ID</span><span class="v tx-id">' + r.id + '</span></div>';
+  html += '<div class="detail-row"><span class="k">Type</span><span class="v">' + typeName + '</span></div>';
+  html += '<div class="detail-row"><span class="k">Asset / Network</span><span class="v">' + r.asset + ' · ' + r.network + '</span></div>';
+  html += '<div class="detail-row"><span class="k">Amount</span><span class="v">' + formatCryptoAmount(Math.abs(r.amount)) + ' ' + r.asset + '</span></div>';
+  html += '<div class="detail-row"><span class="k">Counterparty Wallet</span><span class="v crypto-addr" style="max-width:220px">' + r.addr + '</span></div>';
+  html += '<div class="detail-row"><span class="k">Status</span><span class="v">' + statusHtml + '</span></div>';
+  html += '<div class="detail-row"><span class="k">Date</span><span class="v">' + r.date + '</span></div>';
+
+  // 仅 pending（命中风险待审核）展示审核提示，不泄露风险等级/命中原因
+  if(r.status === 'pending'){
+    html += '<div class="review-box"><div class="shield">🛡 Under Review</div>' +
+      'This transaction is undergoing routine compliance screening. Funds are temporarily held and will be credited or sent once the review is complete. No further action is required from you.</div>';
+  } else if(r.status === 'refunded'){
+    html += '<div class="review-box" style="background:#eef2ff;border-color:#c7d2fe"><div class="shield" style="color:#4338ca">↩ Refunded</div>' +
+      'This deposit was returned to the source wallet after review. The funds have been refunded.</div>';
+  } else if(r.status === 'failed'){
+    html += '<div class="review-box" style="background:#fef2f2;border-color:#fecaca"><div class="shield" style="color:#b91c1c">✕ Failed</div>' +
+      'This withdrawal could not be completed after review. The funds remain in your balance.</div>';
+  }
+
+  document.getElementById('detailBody').innerHTML = html;
+  document.getElementById('detailModal').classList.add('open');
+}
+
+function closeDetail(){
+  document.getElementById('detailModal').classList.remove('open');
+}
+
+function openExport(){
+  document.getElementById('exportModal').classList.add('open');
+}
+function closeExport(){
+  document.getElementById('exportModal').classList.remove('open');
+}
+
+document.getElementById('detailModal').addEventListener('click', function(e){
+  if(e.target === this) closeDetail();
 });
-document.querySelectorAll('.tx-id').forEach(function(el){
-  el.addEventListener('click', function(e){
-    e.stopPropagation();
-    var row = el.closest('tr');
-    var statusCell = row.querySelector('.status-badge');
-    if(statusCell && statusCell.classList.contains('status-pending-review')){
-      document.getElementById('reviewModal').classList.add('open');
-    }
-  });
-});
-function closeReview(){ document.getElementById('reviewModal').classList.remove('open'); }
-document.getElementById('reviewModal').addEventListener('click', function(e){ if(e.target===this) closeReview(); });
+
+renderTable();
 </script>
 </body>
 </html>
