@@ -2,10 +2,10 @@
 
 | 项 | 内容 |
 |---|---|
-| 文档版本 | v1.0 |
+| 文档版本 | v1.1（2026-09-14：筛查模型由「交易筛查 KYT」改为「钱包地址筛查 KYA」） |
 | 编写日期 | 2026-09-10 |
 | 状态 | 待评审 |
-| 关联原型 | `prototypes/加密出入金风险扫描/2026-09-10_加密出入金风险扫描_客户端.html`、`…_管理端.html` |
+| 关联原型 | `prototypes/加密出入金风险扫描/2026-09-11_加密出入金风险扫描_客户端.html`、`2026-09-10_加密出入金风险扫描_管理端.html` |
 | 关联需求梳理 | `prd/Merkle-Science-加密出入金风险扫描-需求梳理与注意点.md` |
 | 上游依赖 | Merkle Science Compass API v4（`X-API-KEY` 认证，限流 100/min） |
 
@@ -14,7 +14,7 @@
 ## 1. 产品概述
 
 ### 1.1 背景
-YASBee 平台现有加密出入金能力（客户端 Crypto 交易模块 + 管理端「加密货币」节点）。当前出入金在链上确认后直接入账 / 出金，缺乏对**对方钱包**的合规风险筛查。为满足反洗钱（AML）与制裁合规要求，需引入 Merkle Science 钱包/交易风险扫描能力。
+YASBee 平台现有加密出入金能力（客户端 Crypto 交易模块 + 管理端「加密货币」节点）。当前出入金在链上确认后直接入账 / 出金，缺乏对**对方钱包**的合规风险筛查。为满足反洗钱（AML）与制裁合规要求，需引入 Merkle Science **钱包地址风险扫描（KYA — Know Your Address）** 能力：出入金均只对「对方钱包地址」调 `POST /addresses/` 做风险评估，**不使用交易筛查（KYT）**，取舍理由见 §1.5。
 
 ### 1.2 目标
 - 在入账 / 出账动作**之前**，对「对方钱包」执行 Merkle Science 风险扫描。
@@ -39,10 +39,20 @@ YASBee 平台现有加密出入金能力（客户端 Crypto 交易模块 + 管�
 | 术语 | 定义 |
 |---|---|
 | 对方钱包 | 入金时的**发送方钱包**；出金时的**接收方（目的）钱包** |
+| 钱包扫描（KYA） | 对单个钱包地址调 `POST /addresses/` 做风险评估，返回 `risk_level` 与命中告警；本业务**唯一**使用的筛查方式 |
 | 风险告警 | Merkle Science 返回的 `risk_level ≥ 阈值` 时产生的命中记录 |
 | Pending Review | 风控命中、等待人工审核的订单状态（对应平台 `PENDING`） |
 | 原路退款 | 入金被拒后，资金退回来源钱包（或转入挂账待处理） |
 | 出金失败 | 出金被拒后，资金解冻退回用户可用余额，订单终态 `FAILED` |
+
+### 1.5 关键取舍：钱包扫描（KYA）替代交易筛查（KYT）
+本业务**只做钱包地址筛查**，弃用交易筛查，理由：
+
+- 交易筛查会对交易**双侧**（全部发送方 + 接收方）筛查，平台归集 / 热钱包一并入筛，**误报率高**（官方明确）。
+- 交易筛查需处理 UTXO / 多币种 / 未确认交易等链上复杂性，运营难判断。
+- 钱包地址筛查直接评估「对方钱包地址本身」的风险（直接风险 / 关联暴露风险 / 行为风险），语义清晰，恰好匹配「出入金都只扫对方钱包」的业务诉求。
+
+`POST /addresses/` 的 `type` 参数**只用于把地址归属到客户**，不影响风险评分：`type=1` = 作为客户的入金地址，`type=2` = 作为客户的出金地址（入金扫的是发送方钱包，其 `type` 取值见 D6）。
 
 ---
 
@@ -65,22 +75,22 @@ YASBee 平台现有加密出入金能力（客户端 Crypto 交易模块 + 管�
 - **用户故事**：作为平台，当一笔加密入金交易在链上确认后，我要在入账前扫描发送方钱包，命中风险则不自动入账。
 - **业务规则**：
   - 触发时机：链上交易确认后、入账动作之前。
-  - 调用 Merkle `POST /api/v4/transactions/`，`type=1`（Deposit），仅筛发送方。
+  - 调用 Merkle `POST /api/v4/addresses/`，对**发送方钱包地址**做风险筛查；`type=1` 仅作「入金方向」归属标记，**不影响评分**（见 §1.5）。
   - `risk_level ≥ 阈值`（默认 `3`，可配置）→ 订单置 `PENDING`，生成风险告警，通知运营；否则自动入账 `COMPLETED`。
   - 地址格式非法 → 直接拒绝，不送 Merkle。
 - **异常流程**：
   - Merkle 超时 / 5xx → fail-closed：进 `PENDING`，标记「风控待人工复核」（见 F-012）。
   - 筛查返回但无告警 → 正常入账。
-- **字段定义**：见附录 A（交易筛查入参/出参）。
+- **字段定义**：见附录 A.1（钱包地址筛查入参 / 出参）。
 - **UI 说明**：客户端交易记录对应订单显示 `Pending Review`；管理端进入入金风险队列。
-- **API**：`POST /transactions/`（type=1）。
+- **API**：`POST /addresses/`（type=1）。
 
 ### F-002 出金接收方钱包风险扫描
 - **优先级**：P0（Must）
 - **用户故事**：作为平台，当用户提交加密出金（含 2FA 校验通过）后，我要在出账前扫描接收方钱包，命中风险则暂缓出金。
 - **业务规则**：
   - 触发时机：用户出金提交（2FA 通过）后、链上广播之前。
-  - 调用 Merkle `POST /api/v4/addresses/`，`type=2`（Withdrawal），筛接收方。
+  - 调用 Merkle `POST /api/v4/addresses/`，对**接收方（目的）钱包地址**做风险筛查；`type=2` 仅作「出金方向」归属标记，不影响评分。
   - `risk_level ≥ 阈值` → 订单 `PENDING`，生成风险告警，通知运营；否则提交链上出金。
 - **异常流程**：同 F-001，超时 fail-closed 进 `PENDING`。
 - **字段定义**：见附录 A（地址筛查入参/出参）。
@@ -91,7 +101,7 @@ YASBee 平台现有加密出入金能力（客户端 Crypto 交易模块 + 管�
 - **优先级**：P0（Must）
 - **用户故事**：作为系统，我要在风险命中时生成告警、驱动订单状态流转，并保证资金不提前入账/出账。
 - **业务规则**：见 §7 状态机。
-- **字段定义**：告警含 `identifier`（地址/交易哈希）、`risk_level`、`type`、`status`、`level`、`blockchain`、`customer_id`。
+- **字段定义**：告警含 `identifier`（钱包地址）、`risk_level`、`type`、`status`、`level`、`blockchain`、`customer_id`。
 
 ### F-004 管理端风险审核队列
 - **优先级**：P0（Must）
@@ -156,7 +166,7 @@ YASBee 平台现有加密出入金能力（客户端 Crypto 交易模块 + 管�
 
 ### F-011 持续监控重审（Webhook，后续增强）
 - **优先级**：P2（Could，本期不做）
-- **业务规则**：订阅 Merkle Webhook，已入账/已出金订单风险升级时二次拦截 + 冻结 + 重审；校验 `X-WEBHOOK-KEY`。
+- **业务规则**：订阅 Merkle Webhook，**已筛查的钱包地址**后续风险升级时二次拦截 + 冻结 + 重审（地址维度持续监控，非交易筛查）；校验 `X-WEBHOOK-KEY`。
 
 ### F-012 超时兜底与降级（fail-closed）
 - **优先级**：P0（Must）
@@ -177,7 +187,7 @@ YASBee 平台现有加密出入金能力（客户端 Crypto 交易模块 + 管�
 | 安全 | API Key 仅服务端持有，禁入前端/日志/文档（记录一律 `[REDACTED]`）；Webhook 校验签名 |
 | 合规 | 审核留痕不可篡改；与 Merkle resolve 状态一致；风险信息客户端不暴露明细 |
 | 限流 | 遵守 Merkle 100/min、1000/h、10000/d 配额，客户端侧做背压与熔断 |
-| 兼容 | 地址格式链级校验（EVM `0x`、BTC、Solana 等）；币种/链映射 Merkle 代码表 |
+| 兼容 | 地址格式链级校验（EVM `0x`、BTC、Solana 等）；链（`blockchain`）映射 Merkle 代码表（交易筛查弃用后 `currency` 不涉及） |
 
 ---
 
@@ -241,31 +251,38 @@ YASBee 平台现有加密出入金能力（客户端 Crypto 交易模块 + 管�
 - 审核动作均回写 Merkle `resolve`，日志完整可追溯。
 - Merkle 超时 / 5xx 时订单安全进入 `PENDING`（fail-closed），无风险漏放。
 - 风险阈值可在风控规则配置，默认 `risk_level ≥ 3`。
+- 出入金全流程**只对「对方钱包地址」调用 `POST /addresses/`**，无 `POST /transactions/` 调用（交易筛查已弃用）。
 
 ---
 
 ## 附录 A — Merkle Science 字段映射
 
-### A.1 交易筛查 `POST /transactions/`
+### A.1 钱包地址筛查 `POST /addresses/`（本业务唯一使用）
+**入参**
+
 | 字段 | 类型 | 说明 | 平台来源 |
 |---|---|---|---|
-| identifier | string | 交易哈希 | 链上确认 |
+| identifier | string | 钱包地址（入金=发送方 / 出金=接收方） | 链上解析 |
 | blockchain | string | 链代码 | 平台资产映射 |
-| currency | string | 币种代码 | 平台资产映射 |
-| customer_id | string | 客户标识 | 平台用户 |
-| type | int | 1=入金 / 2=出金 | 订单方向 |
-| show_alerts | bool | 返回 top10 告警 | true |
-| risk_level | int | 0–5 风险评分 | Merkle 返回 |
-| risk_level_verbose | string | 风险文本 | Merkle 返回 |
+| customer_id | string | 客户标识，用于 `GET /alerts/` 按客户归类 | 平台用户 |
+| type | int | 1=入金地址 / 2=出金地址；**仅归属标记，不影响评分** | 订单方向 |
+| show_alerts | bool | 返回 top 10 告警 | true |
+| custom_tags | array | 自定义标签（可选） | 平台业务标签 |
 
-### A.2 地址筛查 `POST /addresses/`
-| 字段 | 类型 | 说明 |
-|---|---|---|
-| identifier | string | 钱包地址 |
-| blockchain | string | 链代码 |
-| customer_id / type | — | 成对关联 |
-| show_alerts | bool | 返回告警 |
-| risk_level / risk_level_verbose | — | 返回 |
+**出参（关键字段）**
+
+| 字段 | 类型 | 说明 | 来源 |
+|---|---|---|---|
+| risk_level | int | 0–5 风险评分 | Merkle 返回 |
+| risk_level_verbose | string | 风险文本（No Risk / Info / … / Critical） | Merkle 返回 |
+| total_incoming_value / total_outgoing_value | number | 累计流入 / 流出金额 | Merkle 返回 |
+| balance | number | 地址当前余额 | Merkle 返回 |
+| originator[] / beneficiary[] | array | 直接 / 间接风险来源、受益方 | Merkle 返回 |
+| digital_assets[] | array | 关联数字资产 | Merkle 返回 |
+| tags | array | 地址标签（制裁 / 混币 / 交易所等） | Merkle 返回 |
+
+### A.2 交易筛查 `POST /transactions/`【已弃用】
+本业务**不使用**。交易筛查按交易哈希对整笔交易的双侧地址筛查（平台归集 / 热钱包一并入筛，误报率高），且需处理 UTXO / 多币种 / 未确认交易；语义与「出入金只扫对方钱包」不符，已由 A.1 钱包地址筛查替代。此处仅作背景对照，`currency` 等入参本业务不涉及。
 
 ### A.3 风险等级枚举
 | risk_level | verbose | 处置 |
@@ -287,3 +304,4 @@ YASBee 平台现有加密出入金能力（客户端 Crypto 交易模块 + 管�
 | D3 | 入金退款路径 | 原路退款（回来源钱包） | 待确认 |
 | D4 | 持续监控重审 | 本期不做，后续增强 | 已默认 |
 | D5 | 客户级筛查 | 本期不做 | 已默认 |
+| D6 | 入金 `type` 语义 | 入金扫发送方钱包时，`type` 传 1（标记入金方向）或不传（以 `customer_id` 归类）；不影响评分，待确认对 `GET /alerts/` 归类的影响 | 待确认 |
