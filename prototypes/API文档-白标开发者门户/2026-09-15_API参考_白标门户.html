@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>API Reference · YASBe 白标开发者文档</title>
+<link rel="stylesheet" href="assets/docs.css">
+<style>
+  .side .ep-item{display:flex;align-items:center;gap:8px;padding:5.5px 9px;border-radius:7px;color:var(--text-2);font-size:12.6px;font-family:var(--mono)}
+  .side .ep-item:hover{background:var(--surface);color:var(--text)}
+  .side .ep-item .m{font-size:9.5px;font-weight:700;padding:1.5px 4px;border-radius:4px;flex-shrink:0}
+  .side .ep-item .m.g{background:rgba(74,222,128,.13);color:var(--green)}
+  .side .ep-item .m.p{background:var(--gold-dim);color:var(--gold)}
+  .side .ep-item .m.s{background:rgba(192,132,252,.14);color:var(--purple)}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="brand"><span class="mark">Y</span>YASBe<span class="sub">白标开发者文档</span></div>
+  <nav class="hdr-nav">
+    <a href="2026-09-15_API文档首页_白标门户.html">文档</a>
+    <a href="2026-09-15_API参考_白标门户.html" class="on">API Reference</a>
+    <a href="2026-09-15_沙盒环境_白标门户.html">沙盒</a>
+    <span class="nav-soon" title="本原型未包含该页 · 待补">更新日志</span>
+    <span class="nav-soon" title="本原型未包含该页 · 待补">服务状态</span>
+  </nav>
+  <div class="hdr-right">
+    <div class="search">搜索端点 / 字段 / 事件…<kbd>⌘K</kbd></div>
+    <div class="env-switch">
+      <button class="on"><span class="env-dot test"></span>Sandbox</button>
+      <button><span class="env-dot live"></span>Live</button>
+    </div>
+    <span class="badge gold">v1</span>
+  </div>
+</header>
+
+<div class="shell">
+  <aside class="side">
+    <div class="side-group">
+      <div class="lbl">客户 Customers</div>
+      <a href="#ep-customers-create" class="ep-item"><span class="m p">POST</span>/v1/customers</a>
+      <a href="#inventory" class="ep-item"><span class="m g">GET</span>/v1/customers/{id}</a>
+      <a href="#inventory" class="ep-item"><span class="m p">POST</span>/v1/customers/{id}/kyb</a>
+    </div>
+    <div class="side-group">
+      <div class="lbl">收款 Virtual Accounts</div>
+      <a href="#ep-va-create" class="ep-item"><span class="m p">POST</span>/v1/virtual-accounts</a>
+      <a href="#inventory" class="ep-item"><span class="m g">GET</span>/v1/virtual-accounts/{id}</a>
+    </div>
+    <div class="side-group">
+      <div class="lbl">出款 Payouts</div>
+      <a href="#inventory" class="ep-item"><span class="m p">POST</span>/v1/beneficiaries</a>
+      <a href="#inventory" class="ep-item"><span class="m p">POST</span>/v1/quotes</a>
+      <a href="#ep-payout-create" class="ep-item"><span class="m p">POST</span>/v1/payouts</a>
+    </div>
+    <div class="side-group">
+      <div class="lbl">兑换 FX &amp; Bridge</div>
+      <a href="#inventory" class="ep-item"><span class="m p">POST</span>/v1/fx/conversions</a>
+      <a href="#inventory" class="ep-item"><span class="m p">POST</span>/v1/bridge/transfers</a>
+    </div>
+    <div class="side-group">
+      <div class="lbl">卡片 Cards</div>
+      <a href="#inventory" class="ep-item"><span class="m p">POST</span>/v1/cardholders</a>
+      <a href="#ep-card" class="ep-item"><span class="m p">POST</span>/v1/cards</a>
+    </div>
+    <div class="side-group">
+      <div class="lbl">加密 Crypto</div>
+      <a href="#inventory" class="ep-item"><span class="m p">POST</span>/v1/crypto/deposit-addresses</a>
+      <a href="#ep-wd" class="ep-item"><span class="m p">POST</span>/v1/crypto/withdrawals</a>
+    </div>
+    <div class="side-group">
+      <div class="lbl">平台 Platform</div>
+      <a href="#ep-tx" class="ep-item"><span class="m g">GET</span>/v1/transactions</a>
+      <a href="#inventory" class="ep-item"><span class="m p">POST</span>/v1/webhook-endpoints</a>
+      <a href="#states" class="ep-item"><span class="m g">DOC</span>状态机与枚举</a>
+    </div>
+    <div class="side-group">
+      <div class="lbl">沙盒 Sandbox</div>
+      <a href="#inventory" class="ep-item"><span class="m s">SIM</span>/simulate_kyb_approval</a>
+      <a href="2026-09-15_沙盒环境_白标门户.html" class="ep-item"><span class="m s">SIM</span>全部模拟端点 →</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="content">
+      <div class="crumbs">文档<span class="sep">/</span>API Reference</div>
+      <h1 class="sm">API Reference</h1>
+      <p class="lead">
+        全部端点基址 <code data-env-url data-env-url-test="https://api-sandbox.yasbee.com/v1" data-env-url-live="https://api.yasbee.com/v1">https://api-sandbox.yasbee.com/v1</code>
+        —— 用右上角环境切换可对照生产基址。所有端点返回 JSON，认证统一为 <code>Authorization: Bearer &lt;key&gt;</code>。
+      </p>
+      <p class="opt env-note">当前展示沙盒环境：api-sandbox.yasbee.com，示例密钥为 sk_test_ 前缀。</p>
+
+      <h2 id="inventory">端点清单</h2>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th style="width:66px">方法</th><th style="width:330px">路径</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td><span class="method post">POST</span></td><td><code>/v1/customers</code></td><td>创建终端客户（企业 / 个人）</td></tr>
+            <tr><td><span class="method get">GET</span></td><td><code>/v1/customers/{id}</code></td><td>查询客户与其 KYB / KYC 状态</td></tr>
+            <tr><td><span class="method post">POST</span></td><td><code>/v1/customers/{id}/kyb</code></td><td>提交 KYB 资料</td></tr>
+            <tr><td><span class="method get">GET</span></td><td><code>/v1/accounts</code></td><td>列出账户</td></tr>
+            <tr><td><span class="method get">GET</span></td><td><code>/v1/accounts/{id}/balance</code></td><td>查询余额（含可用 / 冻结）</td></tr>
+            <tr><td><span class="method post">POST</span></td><td><code>/v1/accounts/{id}/holds</code></td><td>冻结 / 释放余额</td></tr>
+            <tr><td><span class="method post">POST</span></td><td><code>/v1/virtual-accounts</code></td><td>开立命名虚拟账户</td></tr>
+            <tr><td><span class="method get">GET</span></td><td><code>/v1/virtual-accounts/{id}</code></td><td>查询虚拟账户与本地收款信息</td></tr>
+            <tr><td><span class="method post">POST</span></td><td><code>/v1/beneficiaries</code></td><td>登记出款收款人</td></tr>
+            <tr><td><span class="method post">POST</span></td><td><code>/v1/beneficiaries/{id}/verify</code></td><td>收款人户名核验（CoP / VoP）</td></tr>
+            <tr><td><span class="method post">POST</span></td><td><code>/v1/quotes</code></td><td>出款报价（汇率 / 费用 / 到账额）</td></tr>
+            <tr><td><span class="method post">POST</span></td><td><code>/v1/payouts</code></td><td>发起出款</td></tr>
+            <tr><td><span class="method post">POST</span></td><td><code>/v1/payouts/batch</code></td><td>批量出款</td></tr>
+            <tr><td><span class="method post">POST</span></td><td><code>/v1/payouts/{id}/recall</code></td><td>尝试召回出款</td></tr>
+            <tr><td><span class="method post">POST</span></td><td><code>/v1/fx/quotes</code></td><td>兑换报价</td></tr>
+            <tr><td><span class="method post">POST</span></td><td><code>/v1/fx/conversions</code></td><td>执行兑换</td></tr>
+            <tr><td><span class="method post">POST</span></td><td><code>/v1/bridge/transfers</code></td><td>法币 ↔ 稳定币桥接</td></tr>
+            <tr><td><span class="method post">POST</span></td><td><code>/v1/cardholders</code></td><td>创建持卡人</td></tr>
+            <tr><td><span class="method post">POST</span></td><td><code>/v1/cards</code></td><td>开卡（虚拟 / 实体）</td></tr>
+            <tr><td><span class="method post">POST</span></td><td><code>/v1/cards/{id}/activate</code></td><td>激活卡片（实体卡）</td></tr>
+            <tr><td><span class="method post">POST</span></td><td><code>/v1/cards/{id}/fund</code></td><td>卡片充值</td></tr>
+            <tr><td><span class="method post">POST</span></td><td><code>/v1/cards/{id}/freeze</code></td><td>冻结 / 解冻卡片</td></tr>
+            <tr><td><span class="method post">POST</span></td><td><code>/v1/cards/{id}/close</code></td><td>销卡</td></tr>
+            <tr><td><span class="method get">GET</span></td><td><code>/v1/card-transactions</code></td><td>卡交易流水</td></tr>
+            <tr><td><span class="method get">GET</span></td><td><code>/v1/card-authorizations</code></td><td>授权记录</td></tr>
+            <tr><td><span class="method post">POST</span></td><td><code>/v1/crypto/deposit-addresses</code></td><td>生成充值地址</td></tr>
+            <tr><td><span class="method post">POST</span></td><td><code>/v1/crypto/withdrawals</code></td><td>提现到外部地址</td></tr>
+            <tr><td><span class="method post">POST</span></td><td><code>/v1/crypto/collections</code></td><td>归集</td></tr>
+            <tr><td><span class="method get">GET</span></td><td><code>/v1/crypto/risk-scans/{id}</code></td><td>地址风险扫描结果</td></tr>
+            <tr><td><span class="method post">POST</span></td><td><code>/v1/compliance/screenings</code></td><td>名单筛查</td></tr>
+            <tr><td><span class="method get">GET</span></td><td><code>/v1/compliance/cases</code></td><td>合规案件</td></tr>
+            <tr><td><span class="method get">GET</span></td><td><code>/v1/transactions</code></td><td>统一交易查询</td></tr>
+            <tr><td><span class="method get">GET</span></td><td><code>/v1/settlements</code></td><td>结算单</td></tr>
+            <tr><td><span class="method post">POST</span></td><td><code>/v1/statements/export</code></td><td>对账单导出</td></tr>
+            <tr><td><span class="method post">POST</span></td><td><code>/v1/webhook-endpoints</code></td><td>配置回调地址与订阅事件</td></tr>
+            <tr><td><span class="method post">POST</span></td><td><code>/v1/oauth/token</code></td><td>换取访问令牌</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="opt">以下展示其中 5 个端点的完整文档形态（字段表 / 示例 / 状态机）；其余端点结构一致。</p>
+
+      <hr>
+
+      <h2 id="ep-customers-create">创建客户</h2>
+      <div class="ep">
+        <div class="ep-head">
+          <span class="method post">POST</span>
+          <span class="path">/v1/customers</span>
+          <span class="badge gold">写操作</span>
+          <span class="badge grey">需 Idempotency-Key</span>
+        </div>
+        <div class="ep-body">
+          <div class="ep-desc">创建一个终端客户。企业客户会同时进入 KYB 流程；沙盒中可用模拟端点直接置为通过。</div>
+
+          <h4>请求体字段</h4>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th style="width:190px">字段</th><th style="width:120px">类型</th><th style="width:70px">必填</th><th>说明</th></tr></thead>
+              <tbody>
+                <tr><td><code>type</code></td><td>enum</td><td class="req">必填</td><td><code>business</code> / <code>individual</code></td></tr>
+                <tr><td><code>name</code></td><td>string</td><td class="req">必填</td><td>企业全称或姓名，须与证件一致（影响后续同名判定）</td></tr>
+                <tr><td><code>country</code></td><td>string</td><td class="req">必填</td><td>ISO 3166-1 alpha-2，注册国 / 国籍</td></tr>
+                <tr><td><code>registration_number</code></td><td>string</td><td class="opt">企业必填</td><td>统一社会信用代码 / 公司注册号</td></tr>
+                <tr><td><code>email</code></td><td>string</td><td class="req">必填</td><td>用于接收通知与合规补件</td></tr>
+                <tr><td><code>phone</code></td><td>string</td><td class="opt">建议填</td><td>E.164 格式，含国家码</td></tr>
+                <tr><td><code>address</code></td><td>object</td><td class="req">必填</td><td><code>line1</code> / <code>city</code> / <code>postal_code</code> / <code>country</code>，注册地址子字段全部必填</td></tr>
+                <tr><td><code>kyb.business_type</code></td><td>enum</td><td class="opt">企业必填</td><td>企业类型，见枚举表</td></tr>
+                <tr><td><code>kyb.industry</code></td><td>string</td><td class="opt">企业必填</td><td>行业代码</td></tr>
+                <tr><td><code>kyb.website</code></td><td>string</td><td class="opt">企业建议</td><td>无网站需在业务描述中说明</td></tr>
+                <tr><td><code>kyb.ubo[]</code></td><td>array</td><td class="req">企业必填</td><td>最终受益人：<code>name</code> / <code>ownership_pct</code> / <code>country</code>；持股 ≥25% 必须申报</td></tr>
+                <tr><td><code>metadata</code></td><td>object</td><td class="opt">可选</td><td>你的内部标识，原样回传，不参与风控</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h4>示例</h4>
+          <div class="code">
+            <div class="code-head">
+              <span class="tab on" data-l="cURL">cURL</span>
+              <span class="tab" data-l="Node">Node</span>
+              <span class="tab" data-l="Python">Python</span>
+              <span class="cp">复制</span>
+            </div>
+<pre data-lang="cURL">curl -X POST https://api-sandbox.yasbee.com/v1/customers \
+  -H <span class="t-str">"Authorization: Bearer sk_test_9f2c…"</span> \
+  -H <span class="t-str">"Content-Type: application/json"</span> \
+  -H <span class="t-str">"Idempotency-Key: 6f0d2b91-4c2e-4a7d-9b31-52f0c8a1de77"</span> \
+  -d <span class="t-str">'{
+    "type": "business",
+    "name": "Shanghai Sunrise Trading Co., Ltd.",
+    "country": "CN",
+    "registration_number": "91310000MA1FL2XXXX",
+    "email": "finance@sunrise-trade.com",
+    "address": {"line1":"Room 2103, No.88 Century Ave","city":"Shanghai","postal_code":"200120","country":"CN"},
+    "kyb": {"business_type":"limited_liability","industry":"wholesale_trade","ubo":[{"name":"Zhang Wei","ownership_pct":"60","country":"CN"}]}
+  }'</span></pre>
+<pre data-lang="Node">const res = await fetch('https://api-sandbox.yasbee.com/v1/customers', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer sk_test_9f2c…',
+    'Content-Type': 'application/json',
+    'Idempotency-Key': crypto.randomUUID()
+  },
+  body: JSON.stringify({
+    type: 'business',
+    name: 'Shanghai Sunrise Trading Co., Ltd.',
+    country: 'CN',
+    registration_number: '91310000MA1FL2XXXX',
+    email: 'finance@sunrise-trade.com',
+    address: { line1: 'Room 2103, No.88 Century Ave', city: 'Shanghai', postal_code: '200120', country: 'CN' },
+    kyb: { business_type: 'limited_liability', industry: 'wholesale_trade',
+           ubo: [{ name: 'Zhang Wei', ownership_pct: '60', country: 'CN' }] }
+  })
+});
+const customer = await res.json();</pre>
+<pre data-lang="Python">import uuid, requests
+
+res = requests.post(
+    <span class="t-str">'https://api-sandbox.yasbee.com/v1/customers'</span>,
+    headers={
+        <span class="t-str">'Authorization'</span>: <span class="t-str">'Bearer sk_test_9f2c…'</span>,
+        <span class="t-str">'Idempotency-Key'</span>: str(uuid.uuid4()),
+    },
+    json={
+        <span class="t-str">'type'</span>: <span class="t-str">'business'</span>,
+        <span class="t-str">'name'</span>: <span class="t-str">'Shanghai Sunrise Trading Co., Ltd.'</span>,
+        <span class="t-str">'country'</span>: <span class="t-str">'CN'</span>,
+        <span class="t-str">'registration_number'</span>: <span class="t-str">'91310000MA1FL2XXXX'</span>,
+        <span class="t-str">'email'</span>: <span class="t-str">'finance@sunrise-trade.com'</span>,
+        <span class="t-str">'address'</span>: {<span class="t-str">'line1'</span>: <span class="t-str">'Room 2103, No.88 Century Ave'</span>, <span class="t-str">'city'</span>: <span class="t-str">'Shanghai'</span>,
+                    <span class="t-str">'postal_code'</span>: <span class="t-str">'200120'</span>, <span class="t-str">'country'</span>: <span class="t-str">'CN'</span>},
+        <span class="t-str">'kyb'</span>: {<span class="t-str">'business_type'</span>: <span class="t-str">'limited_liability'</span>, <span class="t-str">'industry'</span>: <span class="t-str">'wholesale_trade'</span>},
+    },
+)
+customer = res.json()</pre>
+          </div>
+
+          <h4>响应 200</h4>
+          <div class="code">
+            <div class="code-head"><span class="tab on">JSON</span><span class="cp">复制</span></div>
+<pre>{
+  <span class="t-key">"id"</span>: <span class="t-str">"cus_3f81a2bc9d"</span>,
+  <span class="t-key">"object"</span>: <span class="t-str">"customer"</span>,
+  <span class="t-key">"type"</span>: <span class="t-str">"business"</span>,
+  <span class="t-key">"name"</span>: <span class="t-str">"Shanghai Sunrise Trading Co., Ltd."</span>,
+  <span class="t-key">"country"</span>: <span class="t-str">"CN"</span>,
+  <span class="t-key">"kyb_status"</span>: <span class="t-str">"pending"</span>,
+  <span class="t-key">"kyc_status"</span>: <span class="t-num">null</span>,
+  <span class="t-key">"accounts"</span>: [],
+  <span class="t-key">"metadata"</span>: {},
+  <span class="t-key">"created_at"</span>: <span class="t-str">"2026-09-15T08:21:33.412Z"</span>
+}</pre>
+          </div>
+
+          <div class="callout info">
+            <div class="ci">ℹ️</div>
+            <div class="cb"><b>其他响应</b><code>409 conflict_duplicate_customer</code>（同主体已存在） · <code>422 validation_failed</code>（字段缺失或格式错误，返回逐字段原因） · <code>403 ip_not_allowlisted</code></div>
+          </div>
+          <p class="opt">相关事件：<code>customer.kyb_approved</code> · <code>customer.kyb_rejected</code> — 见 <a class="link" href="2026-09-15_事件与通知_白标门户.html">事件与通知</a>。</p>
+        </div>
+      </div>
+
+      <h2 id="ep-va-create">开立收款虚拟账户</h2>
+      <div class="ep">
+        <div class="ep-head">
+          <span class="method post">POST</span>
+          <span class="path">/v1/virtual-accounts</span>
+          <span class="badge gold">写操作</span>
+        </div>
+        <div class="ep-body">
+          <div class="ep-desc">为客户在指定币种与通道开出命名收款账户。返回的本地账号信息可直接展示给你的终端用户。</div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th style="width:190px">字段</th><th style="width:120px">类型</th><th style="width:70px">必填</th><th>说明</th></tr></thead>
+              <tbody>
+                <tr><td><code>customer_id</code></td><td>string</td><td class="req">必填</td><td>归属客户</td></tr>
+                <tr><td><code>currency</code></td><td>string</td><td class="req">必填</td><td>收款币种，如 <code>USD</code> / <code>EUR</code> / <code>GBP</code></td></tr>
+                <tr><td><code>country</code></td><td>string</td><td class="req">必填</td><td>收款通道所在国家，决定分配的本地清算信息</td></tr>
+                <tr><td><code>account_name</code></td><td>string</td><td class="req">必填</td><td>账户名（通常等于客户名）。<strong>同名判定以此字段为基准</strong></td></tr>
+                <tr><td><code>purpose</code></td><td>enum</td><td class="opt">可选</td><td><code>collection</code>（默认）/ <code>payout</code> / <code>treasury</code></td></tr>
+                <tr><td><code>metadata</code></td><td>object</td><td class="opt">可选</td><td>原样回传</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="code">
+            <div class="code-head"><span class="tab on">cURL</span><span class="tab" data-l="Node">Node</span><span class="cp">复制</span></div>
+<pre data-lang="cURL">curl -X POST https://api-sandbox.yasbee.com/v1/virtual-accounts \
+  -H <span class="t-str">"Authorization: Bearer sk_test_9f2c…"</span> \
+  -H <span class="t-str">"Idempotency-Key: 1b8e4f60-…"</span> \
+  -d <span class="t-str">'{
+    "customer_id": "cus_3f81a2bc9d",
+    "currency": "USD",
+    "country": "US",
+    "account_name": "Shanghai Sunrise Trading Co., Ltd.",
+    "purpose": "collection"
+  }'</span></pre>
+<pre data-lang="Node">const va = await api.post('/v1/virtual-accounts', {
+  customer_id: 'cus_3f81a2bc9d',
+  currency: 'USD',
+  country: 'US',
+  account_name: 'Shanghai Sunrise Trading Co., Ltd.',
+  purpose: 'collection'
+});</pre>
+          </div>
+          <div class="code">
+            <div class="code-head"><span class="tab on">响应 200</span><span class="cp">复制</span></div>
+<pre>{
+  <span class="t-key">"id"</span>: <span class="t-str">"va_7c29d10af5"</span>,
+  <span class="t-key">"customer_id"</span>: <span class="t-str">"cus_3f81a2bc9d"</span>,
+  <span class="t-key">"currency"</span>: <span class="t-str">"USD"</span>,
+  <span class="t-key">"country"</span>: <span class="t-str">"US"</span>,
+  <span class="t-key">"account_name"</span>: <span class="t-str">"Shanghai Sunrise Trading Co., Ltd."</span>,
+  <span class="t-key">"status"</span>: <span class="t-str">"active"</span>,
+  <span class="t-key">"deposit_instructions"</span>: {
+    <span class="t-key">"account_number"</span>: <span class="t-str">"9876543210"</span>,
+    <span class="t-key">"routing_number"</span>: <span class="t-str">"021000021"</span>,
+    <span class="t-key">"bank_name"</span>: <span class="t-str">"YASBe Partner Bank NA"</span>,
+    <span class="t-key">"reference"</span>: <span class="t-str">"VA-7C29D10AF5"</span>
+  },
+  <span class="t-key">"created_at"</span>: <span class="t-str">"2026-09-15T08:24:02.108Z"</span>
+}</pre>
+          </div>
+          <div class="callout warn">
+            <div class="ci">⚠️</div>
+            <div class="cb"><b>一定把 <code>reference</code> 展示给付款方</b>它是对账匹配的关键。终端用户漏填时，款项可能识别为匿名入账或进入人工处理。</div>
+          </div>
+        </div>
+      </div>
+
+      <h2 id="ep-payout-create">发起出款</h2>
+      <div class="ep">
+        <div class="ep-head">
+          <span class="method post">POST</span>
+          <span class="path">/v1/payouts</span>
+          <span class="badge gold">资金操作</span>
+          <span class="badge grey">需 Idempotency-Key</span>
+        </div>
+        <div class="ep-body">
+          <div class="ep-desc">从客户余额付款到已登记的收款人。发起前请确认余额与同名校验均通过，否则会被直接拒绝。</div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th style="width:190px">字段</th><th style="width:120px">类型</th><th style="width:70px">必填</th><th>说明</th></tr></thead>
+              <tbody>
+                <tr><td><code>source_account_id</code></td><td>string</td><td class="req">必填</td><td>扣款账户，余额必须覆盖金额 + 手续费</td></tr>
+                <tr><td><code>beneficiary_id</code></td><td>string</td><td class="req">必填</td><td>收款人，须为<strong>同名</strong>且状态正常</td></tr>
+                <tr><td><code>amount</code></td><td>string</td><td class="req">必填</td><td>十进制字符串，如 <code>"1250.00"</code></td></tr>
+                <tr><td><code>currency</code></td><td>string</td><td class="req">必填</td><td>扣款币种</td></tr>
+                <tr><td><code>target_currency</code></td><td>string</td><td class="opt">可选</td><td>到账币种；与扣款币种不同则自动走 FX</td></tr>
+                <tr><td><code>quote_id</code></td><td>string</td><td class="opt">建议填</td><td>锁价报价单，避免汇率波动</td></tr>
+                <tr><td><code>reference</code></td><td>string</td><td class="opt">建议填</td><td>你的业务单号，原样回传</td></tr>
+                <tr><td><code>metadata</code></td><td>object</td><td class="opt">可选</td><td>原样回传</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="code">
+            <div class="code-head"><span class="tab on">cURL</span><span class="cp">复制</span></div>
+<pre>curl -X POST https://api-sandbox.yasbee.com/v1/payouts \
+  -H <span class="t-str">"Authorization: Bearer sk_test_9f2c…"</span> \
+  -H <span class="t-str">"Idempotency-Key: 3ac9f102-…"</span> \
+  -d <span class="t-str">'{
+    "source_account_id": "acc_5b71c8e2",
+    "beneficiary_id": "bene_2d90fa31",
+    "amount": "1250.00",
+    "currency": "USD",
+    "target_currency": "CNY",
+    "quote_id": "qt_88fe10c4",
+    "reference": "INV-2026-0915-0442"
+  }'</span>
+
+<span class="t-cm"># 200 OK</span>
+{
+  <span class="t-key">"id"</span>: <span class="t-str">"pay_9d3b7710e2"</span>,
+  <span class="t-key">"status"</span>: <span class="t-str">"processing"</span>,
+  <span class="t-key">"amount"</span>: <span class="t-str">"1250.00"</span>,
+  <span class="t-key">"fee"</span>: <span class="t-str">"4.50"</span>,
+  <span class="t-key">"target_amount"</span>: <span class="t-str">"8951.20"</span>,
+  <span class="t-key">"target_currency"</span>: <span class="t-str">"CNY"</span>,
+  <span class="t-key">"created_at"</span>: <span class="t-str">"2026-09-15T08:31:44.771Z"</span>
+}</pre>
+          </div>
+          <div class="callout danger">
+            <div class="ci">⛔</div>
+            <div class="cb"><b>常见拒绝原因（422）</b><code>insufficient_funds</code> · <code>beneficiary_name_mismatch</code>（非同名） · <code>quote_expired</code> · <code>amount_below_minimum</code> · <code>corridor_not_supported</code></div>
+          </div>
+          <p class="opt">相关事件：<code>payout.completed</code> · <code>payout.failed</code> · <code>payout.returned</code>。</p>
+        </div>
+      </div>
+
+      <h2 id="ep-wd">加密提现（含风险闸门）</h2>
+      <div class="ep">
+        <div class="ep-head">
+          <span class="method post">POST</span>
+          <span class="path">/v1/crypto/withdrawals</span>
+          <span class="badge gold">资金操作</span>
+          <span class="badge red">强制风控</span>
+        </div>
+        <div class="ep-body">
+          <div class="ep-desc">把客户钱包余额提到外部地址。目标地址会先经过风险扫描，命中即拒绝，白标侧无法覆盖。</div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th style="width:190px">字段</th><th style="width:120px">类型</th><th style="width:70px">必填</th><th>说明</th></tr></thead>
+              <tbody>
+                <tr><td><code>wallet_id</code></td><td>string</td><td class="req">必填</td><td>出金钱包</td></tr>
+                <tr><td><code>asset</code></td><td>string</td><td class="req">必填</td><td>小写符号，如 <code>usdt</code></td></tr>
+                <tr><td><code>network</code></td><td>string</td><td class="req">必填</td><td><code>TRC20</code> / <code>ERC20</code> / <code>BEP20</code> …</td></tr>
+                <tr><td><code>amount</code></td><td>string</td><td class="req">必填</td><td>十进制字符串</td></tr>
+                <tr><td><code>to_address</code></td><td>string</td><td class="req">必填</td><td>外部钱包地址，<strong>必过风险扫描</strong></td></tr>
+                <tr><td><code>memo</code></td><td>string</td><td class="opt">按链</td><td>部分链必需（如 XRP / TON）</td></tr>
+                <tr><td><code>risk_scan_id</code></td><td>string</td><td class="opt">可选</td><td>你可先扫再提，复用同一扫描结果</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="code">
+            <div class="code-head"><span class="tab on">请求</span><span class="cp">复制</span></div>
+<pre>curl -X POST https://api-sandbox.yasbee.com/v1/crypto/withdrawals \
+  -H <span class="t-str">"Authorization: Bearer sk_test_9f2c…"</span> \
+  -H <span class="t-str">"Idempotency-Key: 7be3104d-…"</span> \
+  -d <span class="t-str">'{
+    "wallet_id": "wal_4a81c902",
+    "asset": "usdt",
+    "network": "TRC20",
+    "amount": "500.00",
+    "to_address": "TXk9yR2mVq7pLd4nBw8sJf1cZa6hEu3gQt"
+  }'</span></pre>
+          </div>
+          <div class="code">
+            <div class="code-head"><span class="tab on">200 通过</span><span class="tab" data-l="403 拦截">403 拦截</span><span class="cp">复制</span></div>
+<pre data-lang="200 通过">{
+  <span class="t-key">"id"</span>: <span class="t-str">"wd_2f0c91ba73"</span>,
+  <span class="t-key">"status"</span>: <span class="t-str">"processing"</span>,
+  <span class="t-key">"risk_scan"</span>: {<span class="t-key">"risk_level"</span>: <span class="t-num">1</span>, <span class="t-key">"decision"</span>: <span class="t-str">"allow"</span>},
+  <span class="t-key">"two_factor_status"</span>: <span class="t-str">"verified"</span>
+}
+<span class="t-cm"># risk_level 0–2 → 放行</span></pre>
+<pre data-lang="403 拦截">{
+  <span class="t-key">"error"</span>: {
+    <span class="t-key">"code"</span>: <span class="t-str">"risk_level_exceeded"</span>,
+    <span class="t-key">"message"</span>: <span class="t-str">"Destination address blocked by risk screening"</span>,
+    <span class="t-key">"risk_scan"</span>: {<span class="t-key">"risk_level"</span>: <span class="t-num">4</span>, <span class="t-key">"decision"</span>: <span class="t-str">"block"</span>,
+                   <span class="t-key">"categories"</span>: [<span class="t-str">"sanctions"</span>]}
+  }
+}
+<span class="t-cm"># risk_level ≥ 3 → 拒绝，不可由白标侧覆盖</span></pre>
+          </div>
+          <div class="callout danger">
+            <div class="ci">⛔</div>
+            <div class="cb"><b>这条闸门是平台的合规底线</b>请在你的产品里提前做提示：地址被拦截时引导用户更换收款地址，而不是提示「重试」。<code>risk_level</code> 相同的扫描结果在有效期内可复用（见沙盒页测试数据）。</div>
+          </div>
+        </div>
+      </div>
+
+      <h2 id="ep-card">开卡</h2>
+      <div class="ep">
+        <div class="ep-head">
+          <span class="method post">POST</span>
+          <span class="path">/v1/cards</span>
+          <span class="badge gold">写操作</span>
+        </div>
+        <div class="ep-body">
+          <div class="ep-desc">为持卡人开卡。虚拟卡即时生成可用；实体卡先进入制卡与邮寄流程，收到后需激活并设置 PIN。</div>
+          <div class="code">
+            <div class="code-head"><span class="tab on">cURL</span><span class="cp">复制</span></div>
+<pre>curl -X POST https://api-sandbox.yasbee.com/v1/cards \
+  -H <span class="t-str">"Authorization: Bearer sk_test_9f2c…"</span> \
+  -H <span class="t-str">"Idempotency-Key: 9e02ab35-…"</span> \
+  -d <span class="t-str">'{
+    "cardholder_id": "chl_61d0f8a4",
+    "type": "virtual",
+    "currency": "USD",
+    "spend_limit": {"daily": "2000.00", "monthly": "20000.00"},
+    "mcc_policy": {"mode": "blocklist", "codes": ["7995", "6051"]}
+  }'</span>
+
+<span class="t-cm"># 200 OK</span>
+{
+  <span class="t-key">"id"</span>: <span class="t-str">"card_88c1de40a7"</span>,
+  <span class="t-key">"status"</span>: <span class="t-str">"active"</span>,
+  <span class="t-key">"last4"</span>: <span class="t-str">"4242"</span>,
+  <span class="t-key">"currency"</span>: <span class="t-str">"USD"</span>,
+  <span class="t-key">"card_art"</span>: <span class="t-str">"your-brand-01"</span>,
+  <span class="t-key">"created_at"</span>: <span class="t-str">"2026-09-15T08:40:11.902Z"</span>
+}</pre>
+          </div>
+          <p class="opt">卡号、CVV 等敏感信息<strong>不通过 API 返回</strong>，仅可在你通过 PCI 认证后经专用接口获取，或由用户在我们提供的安全页面中查看。</p>
+        </div>
+      </div>
+
+      <h2 id="ep-tx">统一交易查询</h2>
+      <div class="ep">
+        <div class="ep-head">
+          <span class="method get">GET</span>
+          <span class="path">/v1/transactions</span>
+          <span class="badge grey">只读</span>
+        </div>
+        <div class="ep-body">
+          <div class="ep-desc">跨模块统一查询交易：收款、出款、兑换、卡交易、链上出入金都在同一个列表里，便于对账。</div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th style="width:190px">查询参数</th><th style="width:200px">取值</th><th>说明</th></tr></thead>
+              <tbody>
+                <tr><td><code>type</code></td><td><code>deposit</code> / <code>payout</code> / <code>conversion</code> / <code>card</code> / <code>crypto_deposit</code> / <code>crypto_withdrawal</code></td><td>交易类型</td></tr>
+                <tr><td><code>status</code></td><td><code>pending</code> / <code>processing</code> / <code>completed</code> / <code>failed</code> / <code>rejected</code> / <code>returned</code></td><td>状态过滤</td></tr>
+                <tr><td><code>customer_id</code></td><td><code>cus_...</code></td><td>按客户过滤</td></tr>
+                <tr><td><code>currency</code></td><td>ISO 4217</td><td>按币种过滤</td></tr>
+                <tr><td><code>created_from</code> / <code>created_to</code></td><td>ISO 8601</td><td>时间范围</td></tr>
+                <tr><td><code>limit</code> / <code>starting_after</code></td><td>1–100 / 游标 ID</td><td>分页</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="code">
+            <div class="code-head"><span class="tab on">cURL</span><span class="cp">复制</span></div>
+<pre>curl <span class="t-str">"https://api-sandbox.yasbee.com/v1/transactions?type=deposit&amp;status=completed&amp;limit=50"</span> \
+  -H <span class="t-str">"Authorization: Bearer sk_test_9f2c…"</span>
+
+<span class="t-cm"># 200 OK</span>
+{
+  <span class="t-key">"object"</span>: <span class="t-str">"list"</span>,
+  <span class="t-key">"has_more"</span>: <span class="t-num">true</span>,
+  <span class="t-key">"data"</span>: [
+    {
+      <span class="t-key">"id"</span>: <span class="t-str">"tx_51ac8890f2"</span>,
+      <span class="t-key">"type"</span>: <span class="t-str">"deposit"</span>,
+      <span class="t-key">"customer_id"</span>: <span class="t-str">"cus_3f81a2bc9d"</span>,
+      <span class="t-key">"amount"</span>: <span class="t-str">"12000.00"</span>,
+      <span class="t-key">"currency"</span>: <span class="t-str">"USD"</span>,
+      <span class="t-key">"fee"</span>: <span class="t-str">"0.00"</span>,
+      <span class="t-key">"status"</span>: <span class="t-str">"completed"</span>,
+      <span class="t-key">"payer_name_match"</span>: <span class="t-str">"matched"</span>,
+      <span class="t-key">"created_at"</span>: <span class="t-str">"2026-09-15T06:02:19.330Z"</span>
+    }
+  ]
+}</pre>
+          </div>
+          <p class="opt"><code>payer_name_match</code> 取值 <code>matched</code> / <code>mismatched</code> / <code>unknown</code>，对应同名判定结果，可直接用于你的运营处理队列。</p>
+        </div>
+      </div>
+
+      <h2 id="states">状态机与枚举</h2>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th style="width:150px">状态</th><th style="width:200px">适用对象</th><th>含义与后续</th></tr></thead>
+          <tbody>
+            <tr><td><code>pending</code></td><td>入金 / 客户 / 审核</td><td>已受理未进入处理，可能等待人工或等待网络确认</td></tr>
+            <tr><td><code>processing</code></td><td>出款 / 兑换 / 提现</td><td>处理中，资金已冻结或已提交通道，不可撤销</td></tr>
+            <tr><td><code>completed</code></td><td>全部</td><td>终态，成功</td></tr>
+            <tr><td><code>failed</code></td><td>出款 / 兑换 / 提现</td><td>终态，资金已原路退回至来源账户</td></tr>
+            <tr><td><code>rejected</code></td><td>入金 / 合规 / 提现</td><td>终态，被规则或人工拒绝；提现场景含风险等级原因</td></tr>
+            <tr><td><code>returned</code></td><td>出款 / 入金</td><td>通道退回，通常 3–10 个工作日回到余额，可能产生通道费</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout info">
+        <div class="ci">ℹ️</div>
+        <div class="cb"><b>状态只前进，不后退</b>终态（<code>completed</code> / <code>failed</code> / <code>rejected</code> / <code>returned</code>）之后不会再变；<code>returned</code> 是独立终态而不是 <code>failed</code> 的一种，因为它带资金回退与费用差异。</div>
+      </div>
+
+      <div class="prevnext">
+        <a href="2026-09-15_服务能力总览_白标门户.html"><div class="d">← 上一篇</div><div class="t">服务能力总览</div></a>
+        <a href="2026-09-15_沙盒环境_白标门户.html" class="r"><div class="d">下一篇 →</div><div class="t">沙盒环境</div></a>
+      </div>
+
+      <div class="pagefoot">
+        <span>YASBe 白标开发者文档 · v1.0 原型稿 · 2026-09-15</span>
+        <span>字段与端点为设计稿，最终以 API 契约为准</span>
+      </div>
+    </div>
+
+    <aside class="toc">
+      <div class="toc-inner">
+        <div class="lbl">本页内容</div>
+        <a href="#inventory" class="on">端点清单</a>
+        <a href="#ep-customers-create">创建客户</a>
+        <a href="#ep-va-create">开立虚拟账户</a>
+        <a href="#ep-payout-create">发起出款</a>
+        <a href="#ep-wd">加密提现（风控）</a>
+        <a href="#ep-card">开卡</a>
+        <a href="#ep-tx">统一交易查询</a>
+        <a href="#states">状态机与枚举</a>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<script src="assets/docs.js"></script>
+</body>
+</html>

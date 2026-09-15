@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>事件与通知 · YASBe 白标开发者文档</title>
+<link rel="stylesheet" href="assets/docs.css">
+</head>
+<body>
+
+<header class="hdr">
+  <div class="brand"><span class="mark">Y</span>YASBe<span class="sub">白标开发者文档</span></div>
+  <nav class="hdr-nav">
+    <a href="2026-09-15_API文档首页_白标门户.html">文档</a>
+    <a href="2026-09-15_API参考_白标门户.html">API Reference</a>
+    <a href="2026-09-15_沙盒环境_白标门户.html">沙盒</a>
+    <span class="nav-soon" title="本原型未包含该页 · 待补">更新日志</span>
+    <span class="nav-soon" title="本原型未包含该页 · 待补">服务状态</span>
+  </nav>
+  <div class="hdr-right">
+    <div class="search">搜索端点 / 字段 / 事件…<kbd>⌘K</kbd></div>
+    <div class="env-switch"><button class="on"><span class="env-dot test"></span>Sandbox</button><button><span class="env-dot live"></span>Live</button></div>
+    <span class="badge gold">v1</span>
+  </div>
+</header>
+
+<div class="shell">
+  <aside class="side">
+    <div class="side-group">
+      <div class="lbl">开始</div>
+      <a href="2026-09-15_API文档首页_白标门户.html">欢迎</a>
+      <a href="2026-09-15_快速开始_白标门户.html">快速开始</a>
+    </div>
+    <div class="side-group">
+      <div class="lbl">平台能力</div>
+      <a href="2026-09-15_服务能力总览_白标门户.html">服务能力总览</a>
+    </div>
+    <div class="side-group">
+      <div class="lbl">API 参考</div>
+      <a href="2026-09-15_API参考_白标门户.html">API Reference</a>
+      <a href="2026-09-15_事件与通知_白标门户.html" class="on">事件与通知</a>
+      <a href="2026-09-15_错误码与限流_白标门户.html">错误码与限流</a>
+    </div>
+    <div class="side-group">
+      <div class="lbl">测试与上线</div>
+      <a href="2026-09-15_沙盒环境_白标门户.html">沙盒环境</a>
+      <a href="2026-09-15_沙盒环境_白标门户.html#go-live">上线检查清单</a>
+    </div>
+    <div class="side-group">
+      <div class="lbl">门户</div>
+      <a href="2026-09-15_开发者设置_白标门户.html">开发者设置<span class="tag">B端</span></a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="content">
+      <div class="crumbs">文档<span class="sep">/</span>API 参考<span class="sep">/</span>事件与通知</div>
+      <h1 class="sm">事件与通知</h1>
+      <p class="lead">
+        状态变更通过 Webhook 主动推给你 —— 不要轮询。<strong>但也不要只依赖 Webhook</strong>：
+        事件可能重复、乱序或延迟，正确姿势是「事件驱动 UI + 定时查询兜底」。
+      </p>
+
+      <h2 id="model">事件对象</h2>
+      <div class="code">
+        <div class="code-head"><span class="tab on">JSON</span><span class="cp">复制</span></div>
+<pre>{
+  <span class="t-key">"id"</span>: <span class="t-str">"evt_1f8a90c3d7"</span>,
+  <span class="t-key">"type"</span>: <span class="t-str">"payout.completed"</span>,
+  <span class="t-key">"created_at"</span>: <span class="t-str">"2026-09-15T08:52:07.221Z"</span>,
+  <span class="t-key">"environment"</span>: <span class="t-str">"sandbox"</span>,
+  <span class="t-key">"data"</span>: {
+    <span class="t-key">"object"</span>: <span class="t-str">"payout"</span>,
+    <span class="t-key">"id"</span>: <span class="t-str">"pay_9d3b7710e2"</span>,
+    <span class="t-key">"status"</span>: <span class="t-str">"completed"</span>,
+    <span class="t-key">"customer_id"</span>: <span class="t-str">"cus_3f81a2bc9d"</span>,
+    <span class="t-key">"amount"</span>: <span class="t-str">"1250.00"</span>,
+    <span class="t-key">"currency"</span>: <span class="t-str">"USD"</span>,
+    <span class="t-key">"target_amount"</span>: <span class="t-str">"8951.20"</span>,
+    <span class="t-key">"target_currency"</span>: <span class="t-str">"CNY"</span>
+  },
+  <span class="t-key">"request_id"</span>: <span class="t-str">"req_6c19b0a4"</span>
+}</pre>
+      </div>
+      <p class="opt"><code>data</code> 只带摘要字段。收到事件后如需完整对象，用 <code>data.id</code> 回查对应端点 —— 这是最稳的实现方式。</p>
+
+      <h2 id="types">事件类型</h2>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th style="width:250px">事件</th><th>触发时机</th><th style="width:190px">建议动作</th></tr></thead>
+          <tbody>
+            <tr><td colspan="3" style="background:var(--surface-2);color:var(--muted);font-size:12px;letter-spacing:.5px">客户与合规</td></tr>
+            <tr><td><code>customer.created</code></td><td>客户创建成功</td><td>落库</td></tr>
+            <tr><td><code>customer.kyb_approved</code></td><td>KYB 审核通过</td><td>解锁账户 / 开卡入口</td></tr>
+            <tr><td><code>customer.kyb_rejected</code></td><td>KYB 被拒</td><td>展示拒绝原因 + 补件入口</td></tr>
+            <tr><td><code>customer.kyc_approved</code> / <code>.kyc_rejected</code></td><td>持卡人 KYC 结果</td><td>推进或中断开卡流程</td></tr>
+            <tr><td><code>compliance.case_opened</code></td><td>命中监控规则，进入人工案件</td><td>冻结相关操作并提示用户</td></tr>
+
+            <tr><td colspan="3" style="background:var(--surface-2);color:var(--muted);font-size:12px;letter-spacing:.5px">本地收款</td></tr>
+            <tr><td><code>deposit.received</code></td><td>通道收到款，尚未判定</td><td>可用「处理中」提示</td></tr>
+            <tr><td><code>deposit.pending_review</code></td><td><strong>非同名</strong>挂账，等人工 / 上传证明</td><td>进入运营审核队列</td></tr>
+            <tr><td><code>deposit.completed</code></td><td>入账完成，余额可用</td><td>通知终端用户</td></tr>
+            <tr><td><code>deposit.returned</code></td><td>挂账超期自动退回</td><td>通知付款方与收款人</td></tr>
+
+            <tr><td colspan="3" style="background:var(--surface-2);color:var(--muted);font-size:12px;letter-spacing:.5px">出款</td></tr>
+            <tr><td><code>payout.processing</code></td><td>已受理并提交通道</td><td>不可撤销态</td></tr>
+            <tr><td><code>payout.completed</code></td><td>到账成功</td><td>结单</td></tr>
+            <tr><td><code>payout.failed</code></td><td>失败，资金已退回余额</td><td>提示可重新发起</td></tr>
+            <tr><td><code>payout.returned</code></td><td>通道退回（可能扣通道费）</td><td>对账差异处理</td></tr>
+
+            <tr><td colspan="3" style="background:var(--surface-2);color:var(--muted);font-size:12px;letter-spacing:.5px">兑换与桥接</td></tr>
+            <tr><td><code>fx.conversion_completed</code></td><td>兑换完成</td><td>更新双币种余额</td></tr>
+            <tr><td><code>bridge.transfer_completed</code></td><td>法币 ↔ 稳定币桥接完成</td><td>更新法币与链上余额</td></tr>
+
+            <tr><td colspan="3" style="background:var(--surface-2);color:var(--muted);font-size:12px;letter-spacing:.5px">卡片</td></tr>
+            <tr><td><code>card.created</code> / <code>card.activated</code></td><td>开卡成功 / 实体卡激活</td><td>展示卡面与状态</td></tr>
+            <tr><td><code>card.authorization_requested</code></td><td>消费授权请求（实时）</td><td>可自定义决策，超时视为放行</td></tr>
+            <tr><td><code>card.authorization_declined</code></td><td>授权被拒（限额 / MCC / 余额）</td><td>向持卡人提示原因</td></tr>
+            <tr><td><code>card.transaction_settled</code></td><td>授权清算入账</td><td>更新卡余额与流水</td></tr>
+            <tr><td><code>card.funded</code></td><td>卡片充值完成</td><td>更新余额</td></tr>
+
+            <tr><td colspan="3" style="background:var(--surface-2);color:var(--muted);font-size:12px;letter-spacing:.5px">加密</td></tr>
+            <tr><td><code>crypto.deposit_detected</code></td><td>链上侦测到充值</td><td>显示「确认中」</td></tr>
+            <tr><td><code>crypto.deposit_confirmed</code></td><td>达到确认数并入账</td><td>余额可用</td></tr>
+            <tr><td><code>crypto.withdrawal_completed</code></td><td>提现上链成功</td><td>提供 tx hash</td></tr>
+            <tr><td><code>crypto.withdrawal_blocked</code></td><td><strong>风险等级 ≥ 3 被拦截</strong></td><td>提示更换地址，不可重试绕过</td></tr>
+
+            <tr><td colspan="3" style="background:var(--surface-2);color:var(--muted);font-size:12px;letter-spacing:.5px">结算</td></tr>
+            <tr><td><code>settlement.generated</code></td><td>结算单生成</td><td>进入你的确认流程</td></tr>
+            <tr><td><code>settlement.confirmed</code></td><td>结算确认完成</td><td>财务入账</td></tr>
+            <tr><td><code>statement.ready</code></td><td>对账单导出就绪</td><td>下载链接（有效期 24h）</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="delivery">投递与重试</h2>
+      <div class="kv">
+        <div><div class="k">投递方式</div><div class="v">POST JSON 到你在门户配置的 HTTPS 端点；请求头含 <code>X-YASBe-Signature</code> 与 <code>X-YASBe-Event-Id</code></div></div>
+        <div><div class="k">成功判定</div><div class="v">HTTP 2xx 视为成功。其它状态码一律视为失败并重试</div></div>
+        <div><div class="k">重试策略</div><div class="v">指数退避，最多 8 次、最长 24 小时；之后进入「待重投」状态，可在门户手动重投</div></div>
+        <div><div class="k">超时</div><div class="v">单次投递 10 秒未响应即判失败 —— 你的端点应<strong>先落库快速返回 200</strong>，再异步处理</div></div>
+        <div><div class="k">顺序</div><div class="v"><strong>不保证顺序</strong>。请以事件里的对象状态为准，而不是到达顺序</div></div>
+        <div><div class="k">重复</div><div class="v">可能重复投递。用 <code>event.id</code> 做幂等键去重</div></div>
+      </div>
+
+      <h2 id="signature">签名校验</h2>
+      <p>签名头格式 <code>t=&lt;时间戳&gt;,v1=&lt;签名&gt;</code>，签名 = HMAC-SHA256(<code>t + "." + 原始请求体</code>, 你的端点密钥)。请用<strong>原始 body</strong> 校验，不要用反序列化后再序列化的内容。</p>
+      <div class="code">
+        <div class="code-head"><span class="tab on" data-l="Node">Node</span><span class="tab" data-l="Python">Python</span><span class="cp">复制</span></div>
+<pre data-lang="Node">const crypto = require('crypto');
+
+function verify(rawBody, signatureHeader, secret) {
+  const parts = Object.fromEntries(
+    signatureHeader.split(',').map(p => p.split('='))
+  );
+  const expected = crypto
+    .createHmac('sha256', secret)
+    .update(parts.t + '.' + rawBody)
+    .digest('hex');
+
+  // 防重放：超过 5 分钟视为过期
+  if (Math.abs(Date.now() / 1000 - Number(parts.t)) > 300) return false;
+  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(parts.v1));
+}</pre>
+<pre data-lang="Python">import hmac, hashlib, time
+
+def verify(raw_body: bytes, signature_header: str, secret: str) -> bool:
+    parts = dict(p.split('=') for p in signature_header.split(','))
+    expected = hmac.new(
+        secret.encode(), f"{parts['t']}.".encode() + raw_body, hashlib.sha256
+    ).hexdigest()
+
+    if abs(time.time() - int(parts['t'])) > 300:   <span class="t-cm"># 防重放</span>
+        return False
+    return hmac.compare_digest(expected, parts['v1'])</pre>
+      </div>
+      <div class="callout warn">
+        <div class="ci">⚠️</div>
+        <div class="cb"><b>端点密钥可在门户重置</b>重置后旧签名立即失效。若你需要灰度轮换，可以同时保留两个密钥一段时间（门户支持双密钥并存）。</div>
+      </div>
+
+      <h2 id="sandbox">沙盒里的 Webhook</h2>
+      <ul class="list">
+        <li><strong>沙盒会真实投递事件</strong>（与生产同一套投递与签名机制），因此验签逻辑可以在沙盒完整验证。</li>
+        <li><strong>手动重投</strong> —— <code>POST /v1/sandbox/webhook-events/{id}/redeliver</code>，或在门户「请求日志」里点重投，用于测试幂等。</li>
+        <li><strong>本地开发</strong> —— 沙盒允许 <code>http://</code> 回调地址，方便用内网穿透工具；生产<strong>必须 HTTPS</strong>。</li>
+        <li><strong>投递记录</strong> —— 门户里可查看每次投递的状态码、耗时与响应体片段，排查看这里最快。</li>
+      </ul>
+
+      <h2 id="pitfalls">实现要点</h2>
+      <ul class="list">
+        <li>端点在 <strong>500ms 内返回 2xx</strong>：先写消息队列/落库，异步再处理业务。</li>
+        <li>用 <code>event.id</code> 幂等；不要用 <code>data.id</code>（同一对象会有多个事件）。</li>
+        <li>不要假设事件一定到达 —— 用「未终态交易定时轮询」兜底，两小时一次足够。</li>
+        <li>不要按到达顺序覆盖状态 —— 用事件里的 <code>status</code> 与本地状态机的<strong>单向推进</strong>规则判断。</li>
+        <li>回调端点不要做重活，也不要调用我们的 API 等待响应（会放大故障）。</li>
+      </ul>
+
+      <div class="prevnext">
+        <a href="2026-09-15_API参考_白标门户.html"><div class="d">← 上一篇</div><div class="t">API Reference</div></a>
+        <a href="2026-09-15_错误码与限流_白标门户.html" class="r"><div class="d">下一篇 →</div><div class="t">错误码与限流</div></a>
+      </div>
+
+      <div class="pagefoot">
+        <span>YASBe 白标开发者文档 · v1.0 原型稿 · 2026-09-15</span>
+        <span>事件清单与重试参数为设计稿</span>
+      </div>
+    </div>
+
+    <aside class="toc">
+      <div class="toc-inner">
+        <div class="lbl">本页内容</div>
+        <a href="#model" class="on">事件对象</a>
+        <a href="#types">事件类型</a>
+        <a href="#delivery">投递与重试</a>
+        <a href="#signature">签名校验</a>
+        <a href="#sandbox">沙盒里的 Webhook</a>
+        <a href="#pitfalls">实现要点</a>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<script src="assets/docs.js"></script>
+</body>
+</html>

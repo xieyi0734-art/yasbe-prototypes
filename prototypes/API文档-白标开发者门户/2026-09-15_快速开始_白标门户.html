@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>快速开始 · YASBe 白标开发者文档</title>
+<link rel="stylesheet" href="assets/docs.css">
+</head>
+<body>
+
+<header class="hdr">
+  <div class="brand">
+    <span class="mark">Y</span>YASBe
+    <span class="sub">白标开发者文档</span>
+  </div>
+  <nav class="hdr-nav">
+    <a href="2026-09-15_API文档首页_白标门户.html" class="on">文档</a>
+    <a href="2026-09-15_API参考_白标门户.html">API Reference</a>
+    <a href="2026-09-15_沙盒环境_白标门户.html">沙盒</a>
+    <span class="nav-soon" title="本原型未包含该页 · 待补">更新日志</span>
+    <span class="nav-soon" title="本原型未包含该页 · 待补">服务状态</span>
+  </nav>
+  <div class="hdr-right">
+    <div class="search">搜索端点 / 字段 / 事件…<kbd>⌘K</kbd></div>
+    <div class="env-switch">
+      <button class="on"><span class="env-dot test"></span>Sandbox</button>
+      <button><span class="env-dot live"></span>Live</button>
+    </div>
+    <span class="badge gold">v1</span>
+  </div>
+</header>
+
+<div class="shell">
+  <aside class="side">
+    <div class="side-group">
+      <div class="lbl">开始</div>
+      <a href="2026-09-15_API文档首页_白标门户.html">欢迎</a>
+      <a href="2026-09-15_快速开始_白标门户.html" class="on">快速开始</a>
+    </div>
+    <div class="side-group">
+      <div class="lbl">平台能力</div>
+      <a href="2026-09-15_服务能力总览_白标门户.html">服务能力总览</a>
+    </div>
+    <div class="side-group">
+      <div class="lbl">API 参考</div>
+      <a href="2026-09-15_API参考_白标门户.html">API Reference</a>
+      <a href="2026-09-15_事件与通知_白标门户.html">事件与通知</a>
+      <a href="2026-09-15_错误码与限流_白标门户.html">错误码与限流</a>
+    </div>
+    <div class="side-group">
+      <div class="lbl">测试与上线</div>
+      <a href="2026-09-15_沙盒环境_白标门户.html">沙盒环境</a>
+      <a href="2026-09-15_沙盒环境_白标门户.html#go-live">上线检查清单</a>
+    </div>
+    <div class="side-group">
+      <div class="lbl">门户</div>
+      <a href="2026-09-15_开发者设置_白标门户.html">开发者设置<span class="tag">B端</span></a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="content">
+      <div class="crumbs">文档<span class="sep">/</span>快速开始</div>
+      <h1 class="sm">快速开始</h1>
+      <p class="lead">
+        四步完成第一次成功调用。沙盒环境<strong>无需 KYB、秒级开通</strong>，你可以先用沙盒把链路跑通，
+        再回来补生产资质。
+      </p>
+
+      <div class="callout gold">
+        <div class="ci">⚡</div>
+        <div class="cb">
+          <b>只想先跑通一次请求？</b>
+          如果你已经签约并拿到沙盒密钥，可以直接跳到 <a class="link" href="#first-call">第 4 步</a>。
+          还没有密钥的话，<a class="link" href="2026-09-15_沙盒环境_白标门户.html">沙盒环境</a> 里有自助开通入口。
+        </div>
+      </div>
+
+      <div class="steps">
+
+        <div class="step" id="s1">
+          <h3>开通白标账号</h3>
+          <p>确认集成模式（A 渠道分销 / B 白标主商户 / C 聚合多租户）后，提交主体资料走 KYB 审核。</p>
+          <div class="kv">
+            <div><div class="k">需要准备</div><div class="v">公司注册证明、注册地址、业务描述、网站或 App、UBO 信息、结算账户</div></div>
+            <div><div class="k">谁审核</div><div class="v">YASBe 合规团队；模式 B / C 需额外评估你的牌照与合规能力</div></div>
+            <div><div class="k">产出</div><div class="v">B端门户账号（<code>portal.yasbee.com</code>）+ 白标主体 ID（<code>ent_...</code>）</div></div>
+            <div><div class="k">耗时</div><div class="v">资料齐全情况下通常 1–3 个工作日</div></div>
+          </div>
+          <div class="callout info">
+            <div class="ci">ℹ️</div>
+            <div class="cb"><b>沙盒不等 KYB</b>白标门户开好后即可自助创建沙盒环境，无需等 KYB 通过。KYB 只影响 Live 密钥发放。</div>
+          </div>
+        </div>
+
+        <div class="step" id="s2">
+          <h3>获取 API 密钥</h3>
+          <p>在 B端门户 <strong>开发者设置 → API 密钥</strong> 中创建。沙盒密钥自助生成，生产密钥需审批。</p>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th style="width:110px">环境</th><th style="width:170px">密钥前缀</th><th>获取方式</th><th class="nowrap" style="width:120px">IP 白名单</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><span class="badge" style="color:var(--amber);border-color:rgba(251,191,36,.3)">Sandbox</span></td>
+                  <td><code>sk_test_</code></td>
+                  <td>门户自助创建，即时生效，数量不限</td>
+                  <td class="nowrap"><span class="opt">可选（默认不限制）</span></td>
+                </tr>
+                <tr>
+                  <td><span class="badge green">Live</span></td>
+                  <td><code>sk_live_</code></td>
+                  <td>KYB 通过 + 合规评估 + 结算账户就绪后由运营开通</td>
+                  <td class="nowrap"><strong>必填</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout warn">
+            <div class="ci">⚠️</div>
+            <div class="cb">
+              <b>密钥只能出现在你的服务端</b>
+              密钥等同于资金操作权限。不要写进前端、App 包、公开仓库或日志；前端需要通过你自己的后端中转调用。
+              泄露时立即在门户吊销并重建 —— 吊销即时生效，进行中的请求不受影响。
+            </div>
+          </div>
+        </div>
+
+        <div class="step" id="s3">
+          <h3>环境与鉴权</h3>
+          <p>两个环境完全隔离：数据、密钥、Webhook 互不相通。所有请求走 HTTPS，一律使用 <code>Bearer</code> 认证。</p>
+          <div class="env-cmp">
+            <div class="col test">
+              <div class="hd"><span class="env-dot test"></span>Sandbox</div>
+              <div class="url">https://api-sandbox.yasbee.com/v1</div>
+              <ul class="list">
+                <li>模拟数据，无真实资金</li>
+                <li>可调用 <code>/v1/sandbox/*</code> 模拟端点</li>
+                <li>数据 30 天滚动清理</li>
+              </ul>
+            </div>
+            <div class="vs">VS</div>
+            <div class="col live">
+              <div class="hd"><span class="env-dot live"></span>Live</div>
+              <div class="url">https://api.yasbee.com/v1</div>
+              <ul class="list">
+                <li>真实资金与真实通道</li>
+                <li>无模拟端点</li>
+                <li>数据长期保留，可导出对账单</li>
+              </ul>
+            </div>
+          </div>
+
+          <h4>方式一 · API Key 直连（推荐起步）</h4>
+          <p>把密钥直接放进 <code>Authorization</code> 头，适合服务端单主体调用。</p>
+          <div class="code">
+            <div class="code-head"><span class="tab on" data-l="cURL">cURL</span><span class="tab" data-l="Node">Node</span><span class="tab" data-l="Python">Python</span><span class="cp">复制</span></div>
+<pre data-lang="cURL"><span class="t-cm"># 列出你名下的终端客户</span>
+curl https://api-sandbox.yasbee.com/v1/customers?limit=2 \
+  -H <span class="t-str">"Authorization: Bearer sk_test_9f2c…"</span> \
+  -H <span class="t-str">"X-Request-Id: 7c1a9e04-2f6b…"</span></pre>
+<pre data-lang="Node">const res = await fetch('https://api-sandbox.yasbee.com/v1/customers?limit=2', {
+  headers: {
+    'Authorization': 'Bearer sk_test_9f2c…',
+    'X-Request-Id': crypto.randomUUID()
+  }
+});
+const { data } = await res.json();</pre>
+<pre data-lang="Python">import requests
+
+res = requests.get(
+    <span class="t-str">'https://api-sandbox.yasbee.com/v1/customers'</span>,
+    params={<span class="t-str">'limit'</span>: 2},
+    headers={<span class="t-str">'Authorization'</span>: <span class="t-str">'Bearer sk_test_9f2c…'</span>},
+)
+customers = res.json()[<span class="t-str">'data'</span>]</pre>
+          </div>
+
+          <h4>方式二 · OAuth 2.0 换取短期令牌</h4>
+          <p>需要细粒度授权（只读密钥、代下游子商户操作）时使用 <code>client_credentials</code> 换 <code>access_token</code>，有效期 3600 秒。</p>
+          <div class="code">
+            <div class="code-head"><span class="tab on">cURL</span><span class="cp">复制</span></div>
+            <pre>curl -X POST https://api-sandbox.yasbee.com/v1/oauth/token \
+  -H <span class="t-str">"Content-Type: application/json"</span> \
+  -d <span class="t-str">'{
+    "grant_type": "client_credentials",
+    "client_id": "cli_test_4d81…",
+    "client_secret": "cs_test_…",
+    "scope": "customers:read virtual_accounts:write payouts:write"
+  }'</span>
+
+<span class="t-cm"># 200 OK</span>
+{
+  <span class="t-key">"access_token"</span>: <span class="t-str">"at_9b31c7…"</span>,
+  <span class="t-key">"token_type"</span>: <span class="t-str">"Bearer"</span>,
+  <span class="t-key">"expires_in"</span>: <span class="t-num">3600</span>,
+  <span class="t-key">"scope"</span>: <span class="t-str">"customers:read virtual_accounts:write payouts:write"</span>
+}</pre>
+          </div>
+        </div>
+
+        <div class="step" id="first-call">
+          <h3>创建第一个终端客户</h3>
+          <p>客户（customer）是几乎所有业务的起点：先有客户，才能给他开收款账户、发卡、出款。</p>
+          <div class="code">
+            <div class="code-head"><span class="tab on" data-l="cURL">cURL</span><span class="tab" data-l="Node">Node</span><span class="tab" data-l="Java">Java</span><span class="cp">复制</span></div>
+<pre data-lang="cURL">curl -X POST https://api-sandbox.yasbee.com/v1/customers \
+  -H <span class="t-str">"Authorization: Bearer sk_test_9f2c…"</span> \
+  -H <span class="t-str">"Content-Type: application/json"</span> \
+  -H <span class="t-str">"Idempotency-Key: 6f0d2b91-…"</span> \
+  -d <span class="t-str">'{
+    "type": "business",
+    "name": "Shanghai Sunrise Trading Co., Ltd.",
+    "country": "CN",
+    "registration_number": "91310000MA1FL2XXXX",
+    "email": "finance@sunrise-trade.com",
+    "phone": "+86 21 5XXX XXXX",
+    "address": {
+      "line1": "Room 2103, No. 88 Century Ave",
+      "city": "Shanghai",
+      "postal_code": "200120",
+      "country": "CN"
+    },
+    "kyb": {
+      "business_type": "limited_liability",
+      "industry": "wholesale_trade",
+      "website": "https://sunrise-trade.com",
+      "ubo": [{"name":"Zhang Wei","ownership_pct":"60","country":"CN"}]
+    }
+  }'</span></pre>
+<pre data-lang="Node">const res = await fetch('https://api-sandbox.yasbee.com/v1/customers', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer sk_test_9f2c…',
+    'Content-Type': 'application/json',
+    'Idempotency-Key': crypto.randomUUID()
+  },
+  body: JSON.stringify({
+    type: 'business',
+    name: 'Shanghai Sunrise Trading Co., Ltd.',
+    country: 'CN',
+    registration_number: '91310000MA1FL2XXXX',
+    email: 'finance@sunrise-trade.com',
+    address: { line1: 'Room 2103, No.88 Century Ave', city: 'Shanghai', postal_code: '200120', country: 'CN' },
+    kyb: { business_type: 'limited_liability', industry: 'wholesale_trade',
+           website: 'https://sunrise-trade.com',
+           ubo: [{ name: 'Zhang Wei', ownership_pct: '60', country: 'CN' }] }
+  })
+});
+const customer = await res.json();</pre>
+<pre data-lang="Java">HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("https://api-sandbox.yasbee.com/v1/customers"))
+    .header("Authorization", "Bearer sk_test_9f2c…")
+    .header("Content-Type", "application/json")
+    .header("Idempotency-Key", UUID.randomUUID().toString())
+    .POST(HttpRequest.BodyPublishers.ofString(payload))
+    .build();
+
+HttpResponse&lt;String&gt; response = HttpClient.newHttpClient()
+    .send(request, HttpResponse.BodyHandlers.ofString());</pre>
+          </div>
+          <p>沙盒里这一步不会真的送审。用模拟端点直接把它置为已通过：</p>
+          <div class="code">
+            <div class="code-head"><span class="tab on">cURL</span><span class="cp">复制</span></div>
+            <pre>curl -X POST https://api-sandbox.yasbee.com/v1/sandbox/customers/cus_3f81a2bc/simulate_kyb_approval \
+  -H <span class="t-str">"Authorization: Bearer sk_test_9f2c…"</span>
+
+<span class="t-cm"># 200 OK → kyb_status: "approved"，随后可开通账户与卡</span></pre>
+          </div>
+          <div class="callout ok">
+            <div class="ci">✅</div>
+            <div class="cb">
+              <b>到这里链路已经通了</b>
+              接下来按业务往下走：<a class="link" href="2026-09-15_服务能力总览_白标门户.html#va">开收款账户</a> ·
+              <a class="link" href="2026-09-15_服务能力总览_白标门户.html#payout">发起出款</a> ·
+              <a class="link" href="2026-09-15_服务能力总览_白标门户.html#cards">发卡</a> ·
+              <a class="link" href="2026-09-15_事件与通知_白标门户.html">配置 Webhook 接收状态变更</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <h2 id="conventions">请求约定</h2>
+      <p>这几条约定贯穿所有端点，读完可以省掉很多字段猜测。</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th style="width:180px">约定</th><th>规则</th><th style="width:210px">示例</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>金额</td>
+              <td><strong>一律用十进制字符串</strong>（不用浮点数、不用最小单位整数），避免精度误差与币种小数位差异。</td>
+              <td><code>"amount": "1250.00"</code></td>
+            </tr>
+            <tr>
+              <td>币种</td>
+              <td>法币用 ISO 4217 三位大写；加密资产用小写符号 + 链标识。</td>
+              <td><code>"currency": "USD"</code><br><code>"asset":"usdt","network":"TRC20"</code></td>
+            </tr>
+            <tr>
+              <td>时间</td>
+              <td>ISO 8601 UTC，带毫秒。不要传本地时间。</td>
+              <td><code>"created_at":"2026-09-15T08:21:33.412Z"</code></td>
+            </tr>
+            <tr>
+              <td>命名</td>
+              <td>请求与响应字段统一 <code>snake_case</code>；资源 ID 带类型前缀。</td>
+              <td><code>cus_ / va_ / pay_ / card_ / tx_</code></td>
+            </tr>
+            <tr>
+              <td>幂等</td>
+              <td>所有 <code>POST</code> 必须带 <code>Idempotency-Key</code>（建议 UUIDv4）。同键重放会返回首次结果。</td>
+              <td><code>Idempotency-Key: 6f0d2b91-…</code></td>
+            </tr>
+            <tr>
+              <td>分页</td>
+              <td>游标分页：<code>limit</code>（默认 20，最大 100）+ <code>starting_after</code> + 响应里的 <code>has_more</code>。</td>
+              <td><code>?limit=50&amp;starting_after=cus_3f81a2bc</code></td>
+            </tr>
+            <tr>
+              <td>追踪</td>
+              <td>可选传 <code>X-Request-Id</code>；我们会在响应和事件里原样回传，排查问题时提供给对接人。</td>
+              <td><code>X-Request-Id: 7c1a9e04-…</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="pitfalls">五个最常见的坑</h2>
+      <ul class="list">
+        <li><strong>金额用浮点数</strong> —— 前端算 <code>0.1 + 0.2</code> 传过来，对账差一分钱。统一用字符串。</li>
+        <li><strong>忘记 Idempotency-Key</strong> —— 网络超时重试后出现两笔出款。所有写操作都要带键。</li>
+        <li><strong>把 Webhook 当作唯一真相</strong> —— 事件可能重复投递或延迟到达，必须落库幂等，并以<strong>主动查询</strong>作为兜底对账手段。</li>
+        <li><strong>拿沙盒行为推断生产</strong> —— 沙盒只保证请求/响应结构与状态机一致，通道覆盖与时效不同。见 <a class="link" href="2026-09-15_沙盒环境_白标门户.html#diff">沙盒与生产的差异</a>。</li>
+        <li><strong>密钥入前端</strong> —— 移动端/浏览器里出现 <code>sk_</code> 前缀即视为泄露，需立刻吊销。</li>
+      </ul>
+
+      <div class="prevnext">
+        <a href="2026-09-15_API文档首页_白标门户.html">
+          <div class="d">← 上一篇</div>
+          <div class="t">欢迎</div>
+        </a>
+        <a href="2026-09-15_服务能力总览_白标门户.html" class="r">
+          <div class="d">下一篇 →</div>
+          <div class="t">服务能力总览</div>
+        </a>
+      </div>
+
+      <div class="pagefoot">
+        <span>YASBe 白标开发者文档 · v1.0 原型稿 · 2026-09-15</span>
+        <span>端点路径为设计稿，以最终 API 契约为准</span>
+      </div>
+    </div>
+
+    <aside class="toc">
+      <div class="toc-inner">
+        <div class="lbl">本页内容</div>
+        <a href="#s1" class="on">1 · 开通白标账号</a>
+        <a href="#s2">2 · 获取 API 密钥</a>
+        <a href="#s3">3 · 环境与鉴权</a>
+        <a href="#first-call">4 · 创建第一个客户</a>
+        <a href="#conventions">请求约定</a>
+        <a href="#pitfalls">五个最常见的坑</a>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<script src="assets/docs.js"></script>
+</body>
+</html>

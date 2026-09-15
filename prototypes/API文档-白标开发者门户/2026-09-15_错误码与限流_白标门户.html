@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>错误码与限流 · YASBe 白标开发者文档</title>
+<link rel="stylesheet" href="assets/docs.css">
+</head>
+<body>
+
+<header class="hdr">
+  <div class="brand"><span class="mark">Y</span>YASBe<span class="sub">白标开发者文档</span></div>
+  <nav class="hdr-nav">
+    <a href="2026-09-15_API文档首页_白标门户.html">文档</a>
+    <a href="2026-09-15_API参考_白标门户.html">API Reference</a>
+    <a href="2026-09-15_沙盒环境_白标门户.html">沙盒</a>
+    <span class="nav-soon" title="本原型未包含该页 · 待补">更新日志</span>
+    <span class="nav-soon" title="本原型未包含该页 · 待补">服务状态</span>
+  </nav>
+  <div class="hdr-right">
+    <div class="search">搜索端点 / 字段 / 事件…<kbd>⌘K</kbd></div>
+    <div class="env-switch"><button class="on"><span class="env-dot test"></span>Sandbox</button><button><span class="env-dot live"></span>Live</button></div>
+    <span class="badge gold">v1</span>
+  </div>
+</header>
+
+<div class="shell">
+  <aside class="side">
+    <div class="side-group">
+      <div class="lbl">开始</div>
+      <a href="2026-09-15_API文档首页_白标门户.html">欢迎</a>
+      <a href="2026-09-15_快速开始_白标门户.html">快速开始</a>
+    </div>
+    <div class="side-group">
+      <div class="lbl">平台能力</div>
+      <a href="2026-09-15_服务能力总览_白标门户.html">服务能力总览</a>
+    </div>
+    <div class="side-group">
+      <div class="lbl">API 参考</div>
+      <a href="2026-09-15_API参考_白标门户.html">API Reference</a>
+      <a href="2026-09-15_事件与通知_白标门户.html">事件与通知</a>
+      <a href="2026-09-15_错误码与限流_白标门户.html" class="on">错误码与限流</a>
+    </div>
+    <div class="side-group">
+      <div class="lbl">测试与上线</div>
+      <a href="2026-09-15_沙盒环境_白标门户.html">沙盒环境</a>
+      <a href="2026-09-15_沙盒环境_白标门户.html#go-live">上线检查清单</a>
+    </div>
+    <div class="side-group">
+      <div class="lbl">门户</div>
+      <a href="2026-09-15_开发者设置_白标门户.html">开发者设置<span class="tag">B端</span></a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="content">
+      <div class="crumbs">文档<span class="sep">/</span>API 参考<span class="sep">/</span>错误码与限流</div>
+      <h1 class="sm">错误码与限流</h1>
+      <p class="lead">错误响应结构固定，业务错误<strong>永远带一个稳定的 <code>code</code></strong> —— 请按 <code>code</code> 分支，不要解析 <code>message</code>（文案可能调整）。</p>
+
+      <h2 id="shape">错误响应结构</h2>
+      <div class="code">
+        <div class="code-head"><span class="tab on">JSON</span><span class="cp">复制</span></div>
+<pre>{
+  <span class="t-key">"error"</span>: {
+    <span class="t-key">"code"</span>: <span class="t-str">"insufficient_funds"</span>,
+    <span class="t-key">"message"</span>: <span class="t-str">"Source account balance is not sufficient for this payout"</span>,
+    <span class="t-key">"param"</span>: <span class="t-str">"source_account_id"</span>,
+    <span class="t-key">"details"</span>: [
+      {<span class="t-key">"field"</span>: <span class="t-str">"amount"</span>, <span class="t-key">"issue"</span>: <span class="t-str">"exceeds_available_balance"</span>}
+    ],
+    <span class="t-key">"request_id"</span>: <span class="t-str">"req_6c19b0a4"</span>,
+    <span class="t-key">"doc_url"</span>: <span class="t-str">"https://docs.yasbee.com/errors#insufficient_funds"</span>
+  }
+}</pre>
+      </div>
+      <p class="opt">把 <code>request_id</code> 打进你的日志。联系我们时提供它，我们能直接定位到请求与通道回执。</p>
+
+      <h2 id="http">HTTP 状态语义</h2>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th style="width:110px">状态码</th><th style="width:190px">含义</th><th>典型场景 / 应对</th></tr></thead>
+          <tbody>
+            <tr><td><code>200</code></td><td>成功</td><td>注意：<strong>HTTP 200 不代表业务终态成功</strong>，看对象的 <code>status</code></td></tr>
+            <tr><td><code>400</code></td><td>请求格式错误</td><td>JSON 语法问题、类型不符 —— 改代码</td></tr>
+            <tr><td><code>401</code></td><td>未认证</td><td>密钥缺失 / 失效 / 环境用错（test 密钥打生产）</td></tr>
+            <tr><td><code>403</code></td><td>无权限</td><td>scope 不足、IP 不在白名单、风控拦截（如 <code>risk_level_exceeded</code>）</td></tr>
+            <tr><td><code>404</code></td><td>资源不存在</td><td>ID 拼错；或调了 <code>/v1/sandbox/*</code> 但用的是生产密钥</td></tr>
+            <tr><td><code>409</code></td><td>冲突</td><td>幂等键复用但请求体不同、重复主体</td></tr>
+            <tr><td><code>422</code></td><td>业务校验失败</td><td><strong>最常见</strong>：余额不足、同名校验不通过、报价过期 —— 需业务处理</td></tr>
+            <tr><td><code>429</code></td><td>触发限流</td><td>按 <code>Retry-After</code> 退避重试，不要立即重放</td></tr>
+            <tr><td><code>500</code> / <code>503</code></td><td>平台异常 / 不可用</td><td>可重试（带幂等键），指数退避；连续失败请联系对接人</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="codes">业务错误码</h2>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th style="width:270px">code</th><th style="width:100px">HTTP</th><th>含义与处理建议</th></tr></thead>
+          <tbody>
+            <tr><td colspan="3" style="background:var(--surface-2);color:var(--muted);font-size:12px;letter-spacing:.5px">认证与权限</td></tr>
+            <tr><td><code>invalid_api_key</code></td><td>401</td><td>密钥不存在或已吊销 → 门户确认后重建</td></tr>
+            <tr><td><code>environment_mismatch</code></td><td>401</td><td>测试密钥访问生产（或反之）→ 检查配置</td></tr>
+            <tr><td><code>insufficient_scope</code></td><td>403</td><td>密钥 scope 不含该操作 → 门户调整 scope</td></tr>
+            <tr><td><code>ip_not_allowlisted</code></td><td>403</td><td>出口 IP 不在白名单 → 加白名单或用固定出口</td></tr>
+
+            <tr><td colspan="3" style="background:var(--surface-2);color:var(--muted);font-size:12px;letter-spacing:.5px">客户与合规</td></tr>
+            <tr><td><code>kyb_required</code></td><td>422</td><td>客户 KYB 未通过，不能建账户 / 开卡 → 先完成审核</td></tr>
+            <tr><td><code>kyb_pending_review</code></td><td>422</td><td>审核中，禁止重复提交 → 等待事件回调</td></tr>
+            <tr><td><code>duplicate_customer</code></td><td>409</td><td>同主体已存在 → 复用已有客户 ID</td></tr>
+            <tr><td><code>compliance_rejected</code></td><td>422</td><td>名单筛查命中 → 走人工案件，不要自动重试</td></tr>
+
+            <tr><td colspan="3" style="background:var(--surface-2);color:var(--muted);font-size:12px;letter-spacing:.5px">收款</td></tr>
+            <tr><td><code>account_not_active</code></td><td>422</td><td>虚拟账户未激活或已关闭</td></tr>
+            <tr><td><code>reference_missing</code></td><td>422</td><td>付款方未填收款参考号，无法匹配 → 提示付款方补填</td></tr>
+            <tr><td><code>payer_name_mismatch</code></td><td>422</td><td>非同名款项，需人工审核。用 <code>upload_proof</code> 或等待运营处理</td></tr>
+
+            <tr><td colspan="3" style="background:var(--surface-2);color:var(--muted);font-size:12px;letter-spacing:.5px">出款</td></tr>
+            <tr><td><code>insufficient_funds</code></td><td>422</td><td>余额不足以覆盖金额 + 手续费</td></tr>
+            <tr><td><code>beneficiary_name_mismatch</code></td><td>422</td><td>出款仅允许同名收款人 → 更换或修正收款人</td></tr>
+            <tr><td><code>beneficiary_not_verified</code></td><td>422</td><td>收款人未过核验（CoP / VoP）→ 先核验</td></tr>
+            <tr><td><code>quote_expired</code></td><td>422</td><td>报价已过期 → 重新取价后提交</td></tr>
+            <tr><td><code>amount_below_minimum</code></td><td>422</td><td>低于该走廊最小金额 → 合并或调整金额</td></tr>
+            <tr><td><code>corridor_not_supported</code></td><td>422</td><td>该币种 / 国家组合未开通 → 查合同附件的走廊清单</td></tr>
+            <tr><td><code>payout_not_recallable</code></td><td>422</td><td>已进入不可撤销阶段</td></tr>
+
+            <tr><td colspan="3" style="background:var(--surface-2);color:var(--muted);font-size:12px;letter-spacing:.5px">卡片</td></tr>
+            <tr><td><code>cardholder_kyc_pending</code></td><td>422</td><td>持卡人 KYC 未通过，不能开卡</td></tr>
+            <tr><td><code>card_limit_exceeded</code></td><td>422</td><td>超出当日 / 当月限额，需走限额豁免</td></tr>
+            <tr><td><code>mcc_blocked</code></td><td>422</td><td>MCC 命中你的拦截策略</td></tr>
+            <tr><td><code>card_not_active</code></td><td>422</td><td>卡未激活或已冻结 / 销卡</td></tr>
+
+            <tr><td colspan="3" style="background:var(--surface-2);color:var(--muted);font-size:12px;letter-spacing:.5px">加密</td></tr>
+            <tr><td><code>risk_level_exceeded</code></td><td>403</td><td><strong>地址风险等级 ≥ 3，强制拦截</strong> → 提示用户更换地址，不可覆盖</td></tr>
+            <tr><td><code>asset_network_mismatch</code></td><td>422</td><td>资产与链不匹配 → 校验前端选项</td></tr>
+            <tr><td><code>address_invalid</code></td><td>422</td><td>地址格式对该链无效，或缺少 memo</td></tr>
+            <tr><td><code>two_factor_required</code></td><td>422</td><td>提现需先完成二次验证（TOTP）</td></tr>
+
+            <tr><td colspan="3" style="background:var(--surface-2);color:var(--muted);font-size:12px;letter-spacing:.5px">平台</td></tr>
+            <tr><td><code>idempotency_key_reuse</code></td><td>409</td><td>同键不同请求体 → 换新键；同键同体是重放并返回首次结果</td></tr>
+            <tr><td><code>rate_limited</code></td><td>429</td><td>见下方限流章节</td></tr>
+            <tr><td><code>validation_failed</code></td><td>422</td><td>字段缺失或格式错，<code>details[]</code> 里逐字段说明</td></tr>
+            <tr><td><code>internal_error</code></td><td>500</td><td>可重试；重复出现请带 <code>request_id</code> 联系我们</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="idempotency">幂等语义</h2>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th style="width:270px">场景</th><th>行为</th></tr></thead>
+          <tbody>
+            <tr><td>同一 <code>Idempotency-Key</code> + 相同请求体</td><td>返回<strong>首次的响应</strong>（含相同资源 ID），不重复创建</td></tr>
+            <tr><td>同一 <code>Idempotency-Key</code> + 不同请求体</td><td><code>409 idempotency_key_reuse</code></td></tr>
+            <tr><td>未带 <code>Idempotency-Key</code> 的写请求</td><td>允许，但超时重试可能产生重复 —— 不推荐</td></tr>
+            <tr><td>键的有效期</td><td>24 小时。同一键在有效期内始终返回首次结果</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="limits">限流</h2>
+      <p>限流按<strong>密钥 + 端点组</strong>维度计算，滑动窗口。响应头会告诉你当前状态，不要靠猜测。</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th style="width:210px">端点组</th><th style="width:170px">沙盒</th><th style="width:190px">生产</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>查询类（GET）</td><td>20 req/s</td><td>按合同</td><td>列表、详情、余额</td></tr>
+            <tr><td>写操作（客户 / 账户）</td><td>5 req/s</td><td>按合同</td><td>创建、更新</td></tr>
+            <tr><td>资金类（出款 / 兑换 / 提现）</td><td>2 req/s</td><td>按合同</td><td>单笔上限另见走廊限制</td></tr>
+            <tr><td>批量出款</td><td>1 req / 10s</td><td>按合同</td><td>单批条数另有限制</td></tr>
+            <tr><td>报价类</td><td>10 req/s</td><td>按合同</td><td>用于批量试算时请节流</td></tr>
+            <tr><td>沙盒模拟端点</td><td>5 req/s</td><td>—</td><td>仅沙盒</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="opt">沙盒配额可在门户查看，用于防止误压测；生产配额在合同中约定，如需提升联系我们。</p>
+
+      <h4>限流响应头</h4>
+      <div class="code">
+        <div class="code-head"><span class="tab on">HTTP</span><span class="cp">复制</span></div>
+<pre>HTTP/1.1 <span class="t-num">429</span> Too Many Requests
+X-RateLimit-Limit: <span class="t-num">5</span>
+X-RateLimit-Remaining: <span class="t-num">0</span>
+X-RateLimit-Reset: <span class="t-num">17435</span>          <span class="t-cm"># 距窗口重置的秒数</span>
+Retry-After: <span class="t-num">1</span>
+
+{ <span class="t-key">"error"</span>: { <span class="t-key">"code"</span>: <span class="t-str">"rate_limited"</span>, <span class="t-key">"message"</span>: <span class="t-str">"Too many requests"</span> } }</pre>
+      </div>
+
+      <h2 id="retry">重试策略</h2>
+      <div class="grid c2">
+        <div class="card">
+          <div class="ico" style="background:rgba(74,222,128,.12)">✅</div>
+          <h4>可以重试</h4>
+          <p><code>429</code>（按 Retry-After）、<code>500</code> / <code>503</code>、网络超时。<strong>必须带同一 <code>Idempotency-Key</code></strong>，指数退避 + 抖动。</p>
+        </div>
+        <div class="card">
+          <div class="ico" style="background:rgba(239,68,68,.12)">⛔</div>
+          <h4>不要重试</h4>
+          <p><code>400</code> / <code>401</code> / <code>403</code> / <code>404</code> / <code>422</code>。这些是代码或数据问题，重试只会重复失败并触发限流。</p>
+        </div>
+      </div>
+      <div class="callout gold">
+        <div class="ci">🔍</div>
+        <div class="cb">
+          <b>排错顺序</b>
+          ① 看 <code>error.code</code> 与 <code>details[]</code> → ② 查本文档对应行 → ③ 在沙盒用模拟端点复现 →
+          ④ 仍不明确就带 <code>request_id</code> 找对接人。跳过前三步直接问，通常要来回两轮。
+        </div>
+      </div>
+
+      <div class="prevnext">
+        <a href="2026-09-15_事件与通知_白标门户.html"><div class="d">← 上一篇</div><div class="t">事件与通知</div></a>
+        <a href="2026-09-15_开发者设置_白标门户.html" class="r"><div class="d">下一篇 →</div><div class="t">开发者设置（门户）</div></a>
+      </div>
+
+      <div class="pagefoot">
+        <span>YASBe 白标开发者文档 · v1.0 原型稿 · 2026-09-15</span>
+        <span>错误码与配额为设计稿</span>
+      </div>
+    </div>
+
+    <aside class="toc">
+      <div class="toc-inner">
+        <div class="lbl">本页内容</div>
+        <a href="#shape" class="on">错误响应结构</a>
+        <a href="#http">HTTP 状态语义</a>
+        <a href="#codes">业务错误码</a>
+        <a href="#idempotency">幂等语义</a>
+        <a href="#limits">限流</a>
+        <a href="#retry">重试策略</a>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<script src="assets/docs.js"></script>
+</body>
+</html>

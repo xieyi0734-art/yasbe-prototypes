@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>服务能力总览 · YASBe 白标开发者文档</title>
+<link rel="stylesheet" href="assets/docs.css">
+</head>
+<body>
+
+<header class="hdr">
+  <div class="brand"><span class="mark">Y</span>YASBe<span class="sub">白标开发者文档</span></div>
+  <nav class="hdr-nav">
+    <a href="2026-09-15_API文档首页_白标门户.html" class="on">文档</a>
+    <a href="2026-09-15_API参考_白标门户.html">API Reference</a>
+    <a href="2026-09-15_沙盒环境_白标门户.html">沙盒</a>
+    <span class="nav-soon" title="本原型未包含该页 · 待补">更新日志</span>
+    <span class="nav-soon" title="本原型未包含该页 · 待补">服务状态</span>
+  </nav>
+  <div class="hdr-right">
+    <div class="search">搜索端点 / 字段 / 事件…<kbd>⌘K</kbd></div>
+    <div class="env-switch">
+      <button class="on"><span class="env-dot test"></span>Sandbox</button>
+      <button><span class="env-dot live"></span>Live</button>
+    </div>
+    <span class="badge gold">v1</span>
+  </div>
+</header>
+
+<div class="shell">
+  <aside class="side">
+    <div class="side-group">
+      <div class="lbl">开始</div>
+      <a href="2026-09-15_API文档首页_白标门户.html">欢迎</a>
+      <a href="2026-09-15_快速开始_白标门户.html">快速开始</a>
+    </div>
+    <div class="side-group">
+      <div class="lbl">平台能力</div>
+      <a href="2026-09-15_服务能力总览_白标门户.html" class="on">服务能力总览</a>
+      <a href="#accounts">主体与账户</a>
+      <a href="#va">本地收款</a>
+      <a href="#payout">跨境出款</a>
+      <a href="#fx">兑换与稳定币桥</a>
+      <a href="#cards">卡片发行</a>
+      <a href="#crypto">加密钱包与出入金</a>
+      <a href="#compliance">合规与风控</a>
+      <a href="#settlement">结算与对账</a>
+      <a href="#limits">能力边界</a>
+    </div>
+    <div class="side-group">
+      <div class="lbl">API 参考</div>
+      <a href="2026-09-15_API参考_白标门户.html">API Reference</a>
+      <a href="2026-09-15_事件与通知_白标门户.html">事件与通知</a>
+      <a href="2026-09-15_错误码与限流_白标门户.html">错误码与限流</a>
+    </div>
+    <div class="side-group">
+      <div class="lbl">测试与上线</div>
+      <a href="2026-09-15_沙盒环境_白标门户.html">沙盒环境</a>
+      <a href="2026-09-15_沙盒环境_白标门户.html#go-live">上线检查清单</a>
+    </div>
+    <div class="side-group">
+      <div class="lbl">门户</div>
+      <a href="2026-09-15_开发者设置_白标门户.html">开发者设置<span class="tag">B端</span></a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="content">
+      <div class="crumbs">文档<span class="sep">/</span>平台能力<span class="sep">/</span>服务能力总览</div>
+      <h1 class="sm">服务能力总览</h1>
+      <p class="lead">
+        这一页回答一个问题：<strong>作为白标客户，我能把哪些能力卖给自己的终端用户</strong>。
+        每个能力都标注了端点、前置条件和沙盒可用性 —— 前置条件不满足时接口会直接拒绝，别等到联调才发现。
+      </p>
+
+      <div class="stats">
+        <div><div class="k">能力模块</div><div class="v">8</div></div>
+        <div><div class="k">REST 端点</div><div class="v gold">36</div></div>
+        <div><div class="k">Webhook 事件</div><div class="v">29</div></div>
+        <div><div class="k">沙盒覆盖</div><div class="v green">全模块可测</div></div>
+      </div>
+
+      <h2 id="matrix">能力矩阵</h2>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:120px">模块</th>
+              <th style="width:230px">能力</th>
+              <th>关键端点</th>
+              <th style="width:150px">前置条件</th>
+              <th class="nowrap" style="width:74px">沙盒</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td rowspan="3"><strong>主体与账户</strong></td>
+              <td>创建 / 管理终端客户</td>
+              <td><span class="method post">POST</span> <code>/v1/customers</code></td>
+              <td>白标主体 KYB 通过</td>
+              <td><span class="badge green">可测</span></td>
+            </tr>
+            <tr>
+              <td>多币种账户与余额</td>
+              <td><span class="method get">GET</span> <code>/v1/accounts/{id}/balance</code></td>
+              <td>客户已建账</td>
+              <td><span class="badge green">可测</span></td>
+            </tr>
+            <tr>
+              <td>余额冻结 / 预留</td>
+              <td><span class="method post">POST</span> <code>/v1/accounts/{id}/holds</code></td>
+              <td>模式 B / C</td>
+              <td><span class="badge green">可测</span></td>
+            </tr>
+
+            <tr>
+              <td rowspan="3"><strong>本地收款</strong></td>
+              <td>开立命名虚拟账户</td>
+              <td><span class="method post">POST</span> <code>/v1/virtual-accounts</code></td>
+              <td>客户 KYB/KYC 通过</td>
+              <td><span class="badge green">可测</span></td>
+            </tr>
+            <tr>
+              <td>本地实时收款入账</td>
+              <td><span class="method sim">SIM</span> <code>/v1/sandbox/virtual-accounts/{id}/simulate_deposit</code></td>
+              <td>通道覆盖该国家</td>
+              <td><span class="badge green">可测</span></td>
+            </tr>
+            <tr>
+              <td>同名 / 非同名入账判定</td>
+              <td><span class="method get">GET</span> <code>/v1/transactions?type=deposit</code></td>
+              <td>自动，无需配置</td>
+              <td><span class="badge green">可测</span></td>
+            </tr>
+
+            <tr>
+              <td rowspan="4"><strong>跨境出款</strong></td>
+              <td>收款人登记与核验</td>
+              <td><span class="method post">POST</span> <code>/v1/beneficiaries</code></td>
+              <td>客户 KYB 通过</td>
+              <td><span class="badge green">可测</span></td>
+            </tr>
+            <tr>
+              <td>报价（含费与汇率）</td>
+              <td><span class="method post">POST</span> <code>/v1/quotes</code></td>
+              <td>—</td>
+              <td><span class="badge green">可测</span></td>
+            </tr>
+            <tr>
+              <td>发起出款 / 批量出款</td>
+              <td><span class="method post">POST</span> <code>/v1/payouts</code> · <code>/v1/payouts/batch</code></td>
+              <td>余额充足 + 同名校验通过</td>
+              <td><span class="badge green">可测</span></td>
+            </tr>
+            <tr>
+              <td>退回与资金召回</td>
+              <td><span class="method post">POST</span> <code>/v1/payouts/{id}/recall</code></td>
+              <td>出款尚未终态</td>
+              <td><span class="badge green">可测</span></td>
+            </tr>
+
+            <tr>
+              <td rowspan="3"><strong>兑换与稳定币桥</strong></td>
+              <td>多币种报价</td>
+              <td><span class="method post">POST</span> <code>/v1/fx/quotes</code></td>
+              <td>—</td>
+              <td><span class="badge green">可测</span></td>
+            </tr>
+            <tr>
+              <td>法币 ↔ 法币兑换</td>
+              <td><span class="method post">POST</span> <code>/v1/fx/conversions</code></td>
+              <td>币对在售</td>
+              <td><span class="badge green">可测</span></td>
+            </tr>
+            <tr>
+              <td>法币 ↔ 稳定币桥</td>
+              <td><span class="method post">POST</span> <code>/v1/bridge/transfers</code></td>
+              <td>白标主体已开通桥接</td>
+              <td><span class="badge green">可测</span></td>
+            </tr>
+
+            <tr>
+              <td rowspan="4"><strong>卡片发行</strong></td>
+              <td>创建持卡人</td>
+              <td><span class="method post">POST</span> <code>/v1/cardholders</code></td>
+              <td>KYB + 持卡人 KYC</td>
+              <td><span class="badge green">可测</span></td>
+            </tr>
+            <tr>
+              <td>开卡（虚拟 / 实体）</td>
+              <td><span class="method post">POST</span> <code>/v1/cards</code></td>
+              <td>持卡人 KYC 通过 + 预存额度</td>
+              <td><span class="badge green">可测</span></td>
+            </tr>
+            <tr>
+              <td>卡片充值 / 冻结 / 销卡</td>
+              <td><span class="method post">POST</span> <code>/v1/cards/{id}/fund</code> · <code>/freeze</code> · <code>/close</code></td>
+              <td>卡片为激活态</td>
+              <td><span class="badge green">可测</span></td>
+            </tr>
+            <tr>
+              <td>交易与授权流水</td>
+              <td><span class="method get">GET</span> <code>/v1/card-transactions</code></td>
+              <td>—</td>
+              <td><span class="badge green">可测</span></td>
+            </tr>
+
+            <tr>
+              <td rowspan="4"><strong>加密钱包</strong></td>
+              <td>生成充值地址</td>
+              <td><span class="method post">POST</span> <code>/v1/crypto/deposit-addresses</code></td>
+              <td>客户已建钱包</td>
+              <td><span class="badge green">可测</span></td>
+            </tr>
+            <tr>
+              <td>链上充值入账</td>
+              <td><span class="method sim">SIM</span> <code>/v1/sandbox/crypto/simulate_deposit</code></td>
+              <td>同名钱包地址</td>
+              <td><span class="badge green">可测</span></td>
+            </tr>
+            <tr>
+              <td>提现到外部地址</td>
+              <td><span class="method post">POST</span> <code>/v1/crypto/withdrawals</code></td>
+              <td>因风控需要 2FA 校验</td>
+              <td><span class="badge green">可测</span></td>
+            </tr>
+            <tr>
+              <td>钱包地址风险扫描</td>
+              <td><span class="method get">GET</span> <code>/v1/crypto/risk-scans/{id}</code></td>
+              <td>自动触发，无需配置</td>
+              <td><span class="badge green">可测</span></td>
+            </tr>
+
+            <tr>
+              <td rowspan="3"><strong>合规与风控</strong></td>
+              <td>提交 KYB / KYC 并取回结果</td>
+              <td><span class="method post">POST</span> <code>/v1/customers/{id}/kyb</code></td>
+              <td>—</td>
+              <td><span class="badge green">可测</span></td>
+            </tr>
+            <tr>
+              <td>制裁 / PEP / 负面舆情筛查</td>
+              <td><span class="method post">POST</span> <code>/v1/compliance/screenings</code></td>
+              <td>—</td>
+              <td><span class="badge green">可测</span></td>
+            </tr>
+            <tr>
+              <td>人工审核案件流</td>
+              <td><span class="method get">GET</span> <code>/v1/compliance/cases</code></td>
+              <td>模式 A / C 由平台处理</td>
+              <td><span class="badge amber">只读</span></td>
+            </tr>
+
+            <tr>
+              <td rowspan="2"><strong>结算与对账</strong></td>
+              <td>结算单与明细</td>
+              <td><span class="method get">GET</span> <code>/v1/settlements</code></td>
+              <td>模式 B / C</td>
+              <td><span class="badge green">可测</span></td>
+            </tr>
+            <tr>
+              <td>对账单导出（CSV / XLSX）</td>
+              <td><span class="method post">POST</span> <code>/v1/statements/export</code></td>
+              <td>—</td>
+              <td><span class="badge green">可测</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="opt">端点路径为设计稿，最终以 API 契约为准。标 <span class="badge amber" style="font-size:10px">只读</span> 的能力表示白标侧只能查询，不能改状态。</p>
+
+      <h2 id="accounts">主体与账户</h2>
+      <p>
+        两层主体：<strong>你（白标主体）</strong>与<strong>你的终端客户</strong>。白标主体需要过 KYB；
+        终端客户是个人还是企业、需不需要 KYC，取决于你的业务场景和集成模式。
+      </p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th style="width:150px">对象</th><th>说明</th><th style="width:180px">关键字段</th></tr></thead>
+          <tbody>
+            <tr><td><code>customer</code></td><td>终端客户，可为企业或个人。是所有资金动作的归属主体。</td><td><code>type</code> <code>kyb_status</code> <code>kyc_status</code></td></tr>
+            <tr><td><code>account</code></td><td>客户在某一币种下的账户，承载余额。同一客户可开多币种账户。</td><td><code>currency</code> <code>available</code> <code>held</code></td></tr>
+            <tr><td><code>cardholder</code></td><td>卡片模块的持卡人，与 customer 可一一对应，也可一对多。</td><td><code>customer_id</code> <code>kyc_status</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout info">
+        <div class="ci">ℹ️</div>
+        <div class="cb"><b>一个 KYB 下可以有 N 个持卡人</b>企业客户申请多张卡不需要重复 KYB，只需为每个使用人建立持卡人并各自过 KYC。这条规则直接影响你的产品设计：企业卡池场景下「一个客户 → 多张卡」是原生支持的。</div>
+      </div>
+
+      <h2 id="va">本地收款</h2>
+      <p>
+        给客户开立一个<strong>命名虚拟账户</strong>（名字挂客户、账号由平台分配），用本地实时清算通道收款 ——
+        资金到账即入账，不必等跨境链路。这是白标最容易变现的能力之一。
+      </p>
+      <ul class="list">
+        <li><strong>开立</strong> —— 指定客户、币种与通道国家，返回本地账号信息（含收款人名），可直接印在发票上。</li>
+        <li><strong>入账</strong> —— 收到款后生成 <code>transaction</code>，状态从 <code>pending</code> 走向 <code>completed</code>。</li>
+        <li><strong>同名判定</strong> —— 付款方名称与账户名比对：<strong>大小写、空格不敏感</strong>。同名自动入账；非同名默认挂账，需你上传证明或由运营审核后放行。</li>
+        <li><strong>挂账处理</strong> —— 非同名款项挂账后 7 天内未处理，按规则自动退回原付款方。</li>
+      </ul>
+      <div class="callout warn">
+        <div class="ci">⚠️</div>
+        <div class="cb"><b>非同名不是异常，是常态</b>终端用户经常用第三方代付。你的产品需要为「挂账」设计一个运营处理界面，否则钱到不了账、客户会来投诉。接口会通过 <code>deposit.pending_review</code> 事件通知你。</div>
+      </div>
+
+      <h2 id="payout">跨境出款</h2>
+      <p>把余额付到收款人的本地银行账户，支持单笔与批量。流程固定为「登记收款人 → 拿报价 → 发起出款 → 等终态」。</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th style="width:150px">步骤</th><th>端点</th><th style="width:230px">要点</th></tr></thead>
+          <tbody>
+            <tr><td>登记收款人</td><td><span class="method post">POST</span> <code>/v1/beneficiaries</code></td><td>需按收款国家提交本地清算字段；返回后建议调用核验端点确认户名。</td></tr>
+            <tr><td>报价</td><td><span class="method post">POST</span> <code>/v1/quotes</code></td><td>返回汇率、手续费、到账金额与报价有效期；过期需重新取价。</td></tr>
+            <tr><td>发起出款</td><td><span class="method post">POST</span> <code>/v1/payouts</code></td><td>必须带 <code>Idempotency-Key</code>；出款方仅可选<strong>同名</strong>且账户状态正常的收款人。</td></tr>
+            <tr><td>批量</td><td><span class="method post">POST</span> <code>/v1/payouts/batch</code></td><td>单批上限按合同约定；逐条返回受理结果，不做整批回滚。</td></tr>
+            <tr><td>撤回</td><td><span class="method post">POST</span> <code>/v1/payouts/{id}/recall</code></td><td>仅在终态前可尝试；通道已清算则只能依赖退回流程。</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout gold">
+        <div class="ci">🔁</div>
+        <div class="cb"><b>出款是最容易出资金的环节</b>建议实现三件事：发起前本地预校验（余额 + 同名 + 限额）、强制带幂等键、出款状态全部以 Webhook 为准并做落库对账。</div>
+      </div>
+
+      <h2 id="fx">兑换与稳定币桥</h2>
+      <p>多币种兑换既可作为独立能力（客户自己换汇），也可作为跨境腿的中间环节（收款币种 → 出款币种）。</p>
+      <div class="grid c2">
+        <div class="card">
+          <div class="ico">💱</div>
+          <h4>法币 ↔ 法币</h4>
+          <p>取报价 → 锁价 → 兑换。报价有效期短，锁价成功后按锁定价成交，滑点不落在你这边。</p>
+        </div>
+        <div class="card">
+          <div class="ico">🪙</div>
+          <h4>法币 ↔ 稳定币</h4>
+          <p>把跨境腿换成稳定币结算，规避本地清算窗口与代理行延迟；链上到账后可按需再换回法币。</p>
+        </div>
+      </div>
+      <p class="opt">桥接能力是否需要单独开通、可用币对与单笔上限，取决于你的白标主体资质与通道覆盖，签约时确认。</p>
+
+      <h2 id="cards">卡片发行</h2>
+      <p>从持卡人到卡片再到交易，全链路 API 化。白标客户的典型形态是「企业卡池」：一个企业客户为自己的员工或业务场景发多张卡。</p>
+      <div class="steps">
+        <div class="step">
+          <h3>创建持卡人</h3>
+          <p>提交姓名、证件、地址等 KYC 信息，得到 <code>chl_...</code>。持卡人必须挂在某个 customer 下。</p>
+        </div>
+        <div class="step">
+          <h3>开卡</h3>
+          <p>选卡种（虚拟 / 实体）、币种与额度，扣开卡费后生成卡片。实体卡需再提交收件信息进入制卡发货流程。</p>
+        </div>
+        <div class="step">
+          <h3>激活与充值</h3>
+          <p>虚拟卡开卡即可用；实体卡需激活并设置 PIN。充值从客户余额扣款并计手续费。</p>
+        </div>
+        <div class="step">
+          <h3>交易与授权</h3>
+          <p>消费产生授权与清算两条记录；可通过实时授权接口做自定义拦截（限额、MCC、商户维度）。</p>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th style="width:190px">能力</th><th>端点</th><th style="width:160px">说明</th></tr></thead>
+          <tbody>
+            <tr><td>卡片状态管理</td><td><span class="method post">POST</span> <code>/v1/cards/{id}/freeze</code> · <code>/unfreeze</code> · <code>/close</code></td><td>冻结即时生效</td></tr>
+            <tr><td>限额豁免申请</td><td><span class="method post">POST</span> <code>/v1/cards/{id}/limit-exemptions</code></td><td>提交后进入人工审核</td></tr>
+            <tr><td>实时授权决策</td><td><span class="method post">POST</span> <code>/v1/cards/authorization-webhook</code>（你暴露，我们回调）</td><td>超时视为放行，需谨慎</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="crypto">加密钱包与出入金</h2>
+      <p>加密侧的能力边界很清楚：<strong>我们做托管钱包 + 出入金 + 风险扫描</strong>，不做交易所撮合、不做自营做市。</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th style="width:170px">能力</th><th>端点</th><th style="width:250px">风控口径</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>充值地址</td>
+              <td><span class="method post">POST</span> <code>/v1/crypto/deposit-addresses</code></td>
+              <td>按客户 + 资产 + 链生成专属地址</td>
+            </tr>
+            <tr>
+              <td>提现</td>
+              <td><span class="method post">POST</span> <code>/v1/crypto/withdrawals</code></td>
+              <td>出金需二次验证（TOTP）；外部地址先过风险扫描</td>
+            </tr>
+            <tr>
+              <td>归集</td>
+              <td><span class="method post">POST</span> <code>/v1/crypto/collections</code></td>
+              <td>按主体维度批量归集到热/冷钱包</td>
+            </tr>
+            <tr>
+              <td>地址风险扫描</td>
+              <td><span class="method get">GET</span> <code>/v1/crypto/risk-scans/{id}</code></td>
+              <td><strong>只扫对方钱包地址</strong>；<code>risk_level</code> 0–2 放行、≥3 拦截</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout danger">
+        <div class="ci">⛔</div>
+        <div class="cb">
+          <b>风险等级 ≥ 3 直接拦截，不可覆盖</b>
+          扫描结果为 3（Medium）及以上时，提现请求会被拒绝且不能由白标侧强制放行。0–2 正常放行；
+          你可以在自己的产品里做更严格的加严策略，但不能放松平台的这条底线。白标侧可通过 <code>crypto.withdrawal.blocked</code> 事件拿到拦截原因并提示终端用户更换地址。
+        </div>
+      </div>
+
+      <h2 id="compliance">合规与风控</h2>
+      <div class="grid c3">
+        <div class="card"><div class="ico">🪪</div><h4>KYB / KYC</h4><p>提交资料、查询结果、接收审批回调。结果分 <code>approved</code> / <code>pending</code> / <code>rejected</code>，拒绝时带可展示给用户的原因码。</p></div>
+        <div class="card"><div class="ico">🔍</div><h4>名单筛查</h4><p>制裁、PEP、负面舆情。企业主体额外做 UBO 穿透筛查。</p></div>
+        <div class="card"><div class="ico">📡</div><h4>交易监控</h4><p>法币交易按规则引擎监控；加密侧做地址级风险扫描。命中后进入人工案件。</p></div>
+      </div>
+      <div class="callout info">
+        <div class="ci">ℹ️</div>
+        <div class="cb"><b>合规责任按模式划分</b>模式 A / C 下，终端客户的 KYC 与案件处置由 YASBe 承担，你只需保证提交信息真实；模式 B 下你会拿到完整的案件处置接口与责任。别在这一层想「能不能省掉」—— 上线后被要求补做的成本远高于一开始就做。</div>
+      </div>
+
+      <h2 id="settlement">结算与对账</h2>
+      <p>白标生意的最后一步是分润。平台的结算口径固定：按周期锁定 → 汇总明细 → 计算返佣 → 出结算单 → 你确认 → 划拨。</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th style="width:170px">环节</th><th>接口 / 产出</th><th style="width:190px">周期</th></tr></thead>
+          <tbody>
+            <tr><td>费用明细</td><td><span class="method get">GET</span> <code>/v1/settlements/{id}/line-items</code></td><td>实时可查</td></tr>
+            <tr><td>结算单</td><td><span class="method get">GET</span> <code>/v1/settlements</code></td><td>按合同（周 / 月）</td></tr>
+            <tr><td>对账单导出</td><td><span class="method post">POST</span> <code>/v1/statements/export</code></td><td>按日 / 按月</td></tr>
+            <tr><td>结算确认</td><td><span class="method post">POST</span> <code>/v1/settlements/{id}/confirm</code></td><td>异议期内</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="opt">费率结构（开卡费、充值费率、出款费、FX 加点、分润比例）在合同中约定，不在 API 里配置；API 只返回实际发生的费用明细。</p>
+
+      <h2 id="modes">集成模式对照</h2>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr><th style="width:120px">维度</th><th>模式 A · 渠道分销</th><th>模式 B · 白标主商户</th><th>模式 C · 聚合多租户</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>谁持牌</td><td>YASBe</td><td>你（或你的合作持牌方）</td><td>YASBe</td></tr>
+            <tr><td>客户资金归属</td><td>YASBe 名下</td><td>你名下</td><td>YASBe 名下，按子客户隔离</td></tr>
+            <tr><td>下游是否独立开户</td><td>否，挂你名下</td><td>是，你给他们开子账户</td><td>是，平台给他们开独立账户</td></tr>
+            <tr><td>额外可用能力</td><td>—</td><td>子账户开立、余额划拨、结算管理、案件处置</td><td>多租户隔离、按子客户计费</td></tr>
+            <tr><td>上线速度</td><td>最快</td><td>中</td><td>慢（架构评审）</td></tr>
+            <tr><td>适合谁</td><td>有渠道无牌、想轻量变现</td><td>持牌机构 / 有合规团队的平台</td><td>多商户平台、SaaS 化输出</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="limits">能力边界</h2>
+      <p>写清楚「不做什么」，比列出一堆能力更能节省双方时间。</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th style="width:250px">能力</th><th style="width:110px">状态</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>本地收款 / 出款通道</td><td><span class="badge gold">按走廊</span></td><td>仅覆盖已开通走廊的国家与币种，清单随合同附件给到并按季度更新。</td></tr>
+            <tr><td>实体卡</td><td><span class="badge gold">按地区</span></td><td>制卡与邮寄存在区域限制，部分国家仅支持虚拟卡。</td></tr>
+            <tr><td>稳定币发行</td><td><span class="badge grey">不支持</span></td><td>平台不提供自营稳定币发行与收益类产品。</td></tr>
+            <tr><td>加密现货撮合</td><td><span class="badge grey">不支持</span></td><td>不提供交易所撮合、杠杆、衍生品；仅做托管钱包与出入金。</td></tr>
+            <tr><td>持牌业务代持</td><td><span class="badge grey">不支持</span></td><td>平台不代持你的牌照责任；模式 B 下你自己承担合规主体责任。</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="prevnext">
+        <a href="2026-09-15_快速开始_白标门户.html"><div class="d">← 上一篇</div><div class="t">快速开始</div></a>
+        <a href="2026-09-15_API参考_白标门户.html" class="r"><div class="d">下一篇 →</div><div class="t">API Reference</div></a>
+      </div>
+
+      <div class="pagefoot">
+        <span>YASBe 白标开发者文档 · v1.0 原型稿 · 2026-09-15</span>
+        <span>能力清单与端点路径为设计稿，以合同与 API 契约为准</span>
+      </div>
+    </div>
+
+    <aside class="toc">
+      <div class="toc-inner">
+        <div class="lbl">本页内容</div>
+        <a href="#matrix" class="on">能力矩阵</a>
+        <a href="#accounts">主体与账户</a>
+        <a href="#va">本地收款</a>
+        <a href="#payout">跨境出款</a>
+        <a href="#fx">兑换与稳定币桥</a>
+        <a href="#cards">卡片发行</a>
+        <a href="#crypto">加密钱包与出入金</a>
+        <a href="#compliance">合规与风控</a>
+        <a href="#settlement">结算与对账</a>
+        <a href="#modes">集成模式对照</a>
+        <a href="#limits">能力边界</a>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<script src="assets/docs.js"></script>
+</body>
+</html>

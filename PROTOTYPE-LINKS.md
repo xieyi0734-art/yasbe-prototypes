@@ -13,7 +13,7 @@
 - **命名格式**：`YYYY-MM-DD_<业务>_<端别>.html`
   - 例：`2026-09-10_卡种维度奖励配置_管理端.html`
   - 例：`2026-09-10_开卡返佣记录_客户端.html`
-  - 端别取值：`管理端` / `客户端` / `B端` / `代币官网`
+  - 端别取值：`管理端` / `客户端` / `B端` / `代币官网` / `白标门户`（2026-09-15 新增，用于白标开发者文档站）
 - **存放位置**：全部统一收在**仓库根 `prototypes/`** 一个目录下 ——
   - **文件夹按「需求」划分，文件夹名不含端别**（例：`prototypes/返佣和奖励/`）；同需求的管理端 / 客户端 / B 端原型放同一文件夹，不再按端别拆目录
   - **原型文件名区分端别**（`管理端` / `客户端` / `B端` / `代币官网`）
@@ -178,6 +178,26 @@
 |---|---|---|---|
 | 加密出入金风险扫描 · 客户端 | Crypto Wallet（资产总览 + 资产列表 + 交易记录，深色 #FFCA00）+ 充值/提现弹窗 + 钱包风险扫描（审核中/已拒绝） | 2026-09-11 | [2026-09-11_加密出入金风险扫描_客户端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/加密出入金风险扫描/2026-09-11_加密出入金风险扫描_客户端.html) |
 | 加密出入金风险扫描 · 管理端 | 加密货币 · 交易审核：入金/出金两条风控队列 + Merkle 风险明细 + 批准/拒绝处置 | 2026-09-10 | [2026-09-10_加密出入金风险扫描_管理端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/加密出入金风险扫描/2026-09-10_加密出入金风险扫描_管理端.html) |
+
+## 10. 🧩 API 文档 · 白标开发者门户（`prototypes/API文档-白标开发者门户/` · 2026-09-15）
+
+> 面向**白标客户**的开发者文档站 + 门户控制台原型。信息架构参考 **Interlace Developer Portal**（模块化 AaaS/BaaS/CaaS/WaaS + 沙盒章节）与 **Bridge API Docs**（Get started / Guides / Platform / API Reference / Changelog）。
+> 入口为 `index.html`（原型导航页）。设计系统：`assets/docs.css` + `assets/docs.js`（深色 #0d0f14 / 品牌金 #FFCA00 点缀）。
+> ⚠️ 端点路径与字段名为**设计稿占位**（尚无后端契约）；费率、走廊覆盖、配额、事件条目数以合同与最终 API 契约为准。
+
+| 原型名称 | 功能 | 最后更新 | 链接 |
+|---|---|---|---|
+| 原型导航（入口） | 8 页总览 + 参考基准 + 占位说明 | 2026-09-15 | [index.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/API文档-白标开发者门户/index.html) |
+| 文档首页 · Welcome | 能构建什么（6 场景）+ 四大核心组件 + 三种集成模式 + 入口分流 | 2026-09-15 | [2026-09-15_API文档首页_白标门户.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/API文档-白标开发者门户/2026-09-15_API文档首页_白标门户.html) |
+| 快速开始 · Quick Start | 四步跑通首次调用：开通主体 → 取密钥 → 环境与鉴权（API Key / OAuth）→ 创建首个客户；含请求约定与常见坑 | 2026-09-15 | [2026-09-15_快速开始_白标门户.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/API文档-白标开发者门户/2026-09-15_快速开始_白标门户.html) |
+| 服务能力总览 | 白标可售能力矩阵（8 模块 × 端点 × 前置条件 × 沙盒可用）+ 集成模式对照 + 能力边界 | 2026-09-15 | [2026-09-15_服务能力总览_白标门户.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/API文档-白标开发者门户/2026-09-15_服务能力总览_白标门户.html) |
+| API Reference | 36 端点清单 + 5 端点完整文档形态（字段表/多语言示例/响应/拒绝原因）+ 状态机枚举 | 2026-09-15 | [2026-09-15_API参考_白标门户.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/API文档-白标开发者门户/2026-09-15_API参考_白标门户.html) |
+| 沙盒环境 | 自助开通 · 密钥形态 · 11 个模拟端点 · 测试数据 · 与生产差异表 · 上线检查清单 | 2026-09-15 | [2026-09-15_沙盒环境_白标门户.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/API文档-白标开发者门户/2026-09-15_沙盒环境_白标门户.html) |
+| 事件与通知 | 29 类事件清单 + 投递与重试 + 签名校验（Node/Python）+ 沙盒重投 | 2026-09-15 | [2026-09-15_事件与通知_白标门户.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/API文档-白标开发者门户/2026-09-15_事件与通知_白标门户.html) |
+| 错误码与限流 | 错误响应结构 + HTTP 语义 + 30+ 业务错误码 + 幂等语义 + 限流配额与重试 | 2026-09-15 | [2026-09-15_错误码与限流_白标门户.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/API文档-白标开发者门户/2026-09-15_错误码与限流_白标门户.html) |
+| 开发者设置（B端门户） | 门户内控制台：环境切换 · API 密钥 · Webhook 端点与签名密钥 · IP 白名单 · 沙盒工具 · 请求日志 | 2026-09-15 | [2026-09-15_开发者设置_白标门户.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/API文档-白标开发者门户/2026-09-15_开发者设置_白标门户.html) |
+
+---
 
 ---
 

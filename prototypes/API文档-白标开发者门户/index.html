@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>YASBe 白标开发者门户 · 原型导航</title>
+<link rel="stylesheet" href="assets/docs.css">
+</head>
+<body>
+
+<header class="hdr">
+  <div class="brand"><span class="mark">Y</span>YASBe<span class="sub">白标开发者门户 · 原型</span></div>
+  <nav class="hdr-nav">
+    <a href="2026-09-15_API文档首页_白标门户.html">文档站</a>
+    <a href="2026-09-15_开发者设置_白标门户.html">门户控制台</a>
+  </nav>
+  <div class="hdr-right">
+    <span class="badge gold">v1.0 原型稿</span>
+    <span class="badge grey">2026-09-15</span>
+  </div>
+</header>
+
+<div class="shell">
+  <aside class="side">
+    <div class="side-group">
+      <div class="lbl">开发者文档</div>
+      <a href="2026-09-15_API文档首页_白标门户.html">1 · 首页 / Welcome</a>
+      <a href="2026-09-15_快速开始_白标门户.html">2 · 快速开始</a>
+      <a href="2026-09-15_服务能力总览_白标门户.html">3 · 服务能力总览</a>
+      <a href="2026-09-15_API参考_白标门户.html">4 · API Reference</a>
+      <a href="2026-09-15_沙盒环境_白标门户.html">5 · 沙盒环境</a>
+      <a href="2026-09-15_事件与通知_白标门户.html">6 · 事件与通知</a>
+      <a href="2026-09-15_错误码与限流_白标门户.html">7 · 错误码与限流</a>
+    </div>
+    <div class="side-group">
+      <div class="lbl">门户控制台</div>
+      <a href="2026-09-15_开发者设置_白标门户.html">8 · 开发者设置（B端门户）</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="content">
+      <div class="crumbs">原型导航</div>
+      <h1 class="sm">YASBe 白标开发者门户</h1>
+      <p class="lead">
+        面向<strong>白标客户</strong>的开发者文档站 + 门户控制台原型。信息架构参考 Interlace Developer Portal 与 Bridge API Docs，
+        覆盖三件事：<strong>我们能提供哪些服务</strong>、<strong>API 怎么调</strong>、<strong>沙盒怎么用</strong>。
+      </p>
+
+      <div class="stats">
+        <div><div class="k">文档页</div><div class="v">7</div></div>
+        <div><div class="k">门户页</div><div class="v">1</div></div>
+        <div><div class="k">能力模块</div><div class="v gold">8</div></div>
+        <div><div class="k">沙盒模拟端点</div><div class="v">11</div></div>
+      </div>
+
+      <h2 id="docs">开发者文档（7 页）</h2>
+      <div class="grid c2">
+        <a class="card" href="2026-09-15_API文档首页_白标门户.html">
+          <div class="ico">1️⃣</div>
+          <h4>首页 / Welcome</h4>
+          <p>能构建什么、平台四大核心组件、三种集成模式（渠道分销 / 白标主商户 / 聚合多租户）、入口分流。</p>
+        </a>
+        <a class="card" href="2026-09-15_快速开始_白标门户.html">
+          <div class="ico">2️⃣</div>
+          <h4>快速开始</h4>
+          <p>四步跑通首次调用：开通主体 → 取密钥 → 环境与鉴权（API Key / OAuth）→ 创建第一个客户；含请求约定与五个常见坑。</p>
+        </a>
+        <a class="card" href="2026-09-15_服务能力总览_白标门户.html">
+          <div class="ico">3️⃣</div>
+          <h4>服务能力总览</h4>
+          <p><strong>白标能卖什么</strong>：8 大模块能力矩阵 + 端点 + 前置条件 + 沙盒可用性，含集成模式对照与能力边界（明确不做什么）。</p>
+        </a>
+        <a class="card" href="2026-09-15_API参考_白标门户.html">
+          <div class="ico">4️⃣</div>
+          <h4>API Reference</h4>
+          <p>36 个端点清单 + 5 个端点的完整文档形态（字段表 / 多语言示例 / 响应 / 拒绝原因）+ 状态机枚举。</p>
+        </a>
+        <a class="card" href="2026-09-15_沙盒环境_白标门户.html">
+          <div class="ico">5️⃣</div>
+          <h4>沙盒环境</h4>
+          <p><strong>沙盒怎么设计</strong>：自助开通、密钥形态、11 个模拟端点、测试数据、与生产的差异表、上线检查清单。</p>
+        </a>
+        <a class="card" href="2026-09-15_事件与通知_白标门户.html">
+          <div class="ico">6️⃣</div>
+          <h4>事件与通知</h4>
+          <p>28 类事件清单、投递与重试策略、签名校验代码（Node / Python）、沙盒重投。</p>
+        </a>
+        <a class="card" href="2026-09-15_错误码与限流_白标门户.html">
+          <div class="ico">7️⃣</div>
+          <h4>错误码与限流</h4>
+          <p>错误响应结构、HTTP 语义、30+ 业务错误码、幂等语义、限流配额与重试策略。</p>
+        </a>
+      </div>
+
+      <h2 id="portal">门户控制台（1 页）</h2>
+      <div class="grid c2">
+        <a class="card" href="2026-09-15_开发者设置_白标门户.html">
+          <div class="ico">🧩</div>
+          <h4>开发者设置</h4>
+          <p>B端门户内视角：环境切换、API 密钥管理、Webhook 端点与签名密钥、IP 白名单、沙盒工具、请求日志（含 403 风控拦截与 429 限流实例）。</p>
+        </a>
+        <div class="card">
+          <div class="ico">📁</div>
+          <h4>资源文件</h4>
+          <p><code>assets/docs.css</code> 设计系统 · <code>assets/docs.js</code> 交互（环境切换 / 语言 tab / 复制 / TOC 高亮）</p>
+        </div>
+      </div>
+
+      <h2 id="ref">参考基准</h2>
+      <div class="kv">
+        <div><div class="k">信息架构</div><div class="v">Bridge API Docs（Get started / Guides / Platform / API Reference / Changelog）+ Interlace Developer Portal（模块化 AaaS / BaaS / CaaS / WaaS + 沙盒章节）</div></div>
+        <div><div class="k">沙盒形态</div><div class="v">Bridge：<code>sk-test</code> 前缀 + 独立基址 + <code>simulate_kyc_approval</code>；Interlace：<code>api-sandbox</code> 基址 + 门户自助取 clientId / clientSecret + 沙盒专属支持链清单</div></div>
+        <div><div class="k">集成模式</div><div class="v">Interlace MoR / Gateway / Distributor 三模式 → 映射为本平台的渠道分销 / 白标主商户 / 聚合多租户</div></div>
+        <div><div class="k">本平台口径</div><div class="v">能力清单来自 YASBe 公司简介与白标业务流原型；风险闸门口径取自 Merkle Science 钱包风险扫描 PRD（≥3 拦截）</div></div>
+      </div>
+
+      <div class="callout warn">
+        <div class="ci">📌</div>
+        <div class="cb">
+          <b>本原型中为占位设计的部分</b>
+          端点路径与字段名为设计稿（尚无后端契约）；费率、走廊覆盖清单、配额数值、事件清单条目数以合同与最终 API 契约为准。
+        </div>
+      </div>
+
+      <div class="pagefoot">
+        <span>YASBe 白标开发者门户 · v1.0 原型稿 · 2026-09-15</span>
+        <span>prototypes/API文档-白标开发者门户/</span>
+      </div>
+    </div>
+
+    <aside class="toc">
+      <div class="toc-inner">
+        <div class="lbl">本页内容</div>
+        <a href="#docs" class="on">开发者文档</a>
+        <a href="#portal">门户控制台</a>
+        <a href="#ref">参考基准</a>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<script src="assets/docs.js"></script>
+</body>
+</html>

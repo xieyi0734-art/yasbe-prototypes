@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>欢迎 · YASBe 白标开发者文档</title>
+<link rel="stylesheet" href="assets/docs.css">
+</head>
+<body>
+
+<header class="hdr">
+  <div class="brand">
+    <span class="mark">Y</span>YASBe
+    <span class="sub">白标开发者文档</span>
+  </div>
+  <nav class="hdr-nav">
+    <a href="2026-09-15_API文档首页_白标门户.html" class="on">文档</a>
+    <a href="2026-09-15_API参考_白标门户.html">API Reference</a>
+    <a href="2026-09-15_沙盒环境_白标门户.html">沙盒</a>
+    <span class="nav-soon" title="本原型未包含该页 · 待补">更新日志</span>
+    <span class="nav-soon" title="本原型未包含该页 · 待补">服务状态</span>
+  </nav>
+  <div class="hdr-right">
+    <div class="search">搜索端点 / 字段 / 事件…<kbd>⌘K</kbd></div>
+    <div class="env-switch">
+      <button class="on"><span class="env-dot test"></span>Sandbox</button>
+      <button><span class="env-dot live"></span>Live</button>
+    </div>
+    <span class="badge gold">v1</span>
+  </div>
+</header>
+
+<div class="shell">
+  <aside class="side">
+    <div class="side-group">
+      <div class="lbl">开始</div>
+      <a href="2026-09-15_API文档首页_白标门户.html" class="on">欢迎</a>
+      <a href="2026-09-15_快速开始_白标门户.html">快速开始</a>
+    </div>
+    <div class="side-group">
+      <div class="lbl">平台能力</div>
+      <a href="2026-09-15_服务能力总览_白标门户.html">服务能力总览</a>
+    </div>
+    <div class="side-group">
+      <div class="lbl">API 参考</div>
+      <a href="2026-09-15_API参考_白标门户.html">API Reference</a>
+      <a href="2026-09-15_事件与通知_白标门户.html">事件与通知</a>
+      <a href="2026-09-15_错误码与限流_白标门户.html">错误码与限流</a>
+    </div>
+    <div class="side-group">
+      <div class="lbl">测试与上线</div>
+      <a href="2026-09-15_沙盒环境_白标门户.html">沙盒环境</a>
+      <a href="2026-09-15_沙盒环境_白标门户.html#go-live">上线检查清单</a>
+    </div>
+    <div class="side-group">
+      <div class="lbl">门户</div>
+      <a href="2026-09-15_开发者设置_白标门户.html">开发者设置<span class="tag">B端</span></a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="content">
+      <div class="crumbs">文档<span class="sep">/</span>欢迎</div>
+      <h1>欢迎接入 YASBe 白标 API</h1>
+      <p class="lead">
+        YASBe 是 PayFi 支付金融基础设施。用一套 API，你就可以为你的终端用户提供
+        <strong>本地实时收款、跨境出款、货币兑换与稳定币桥、卡片发行、加密钱包出入金</strong>
+        以及<strong>内嵌合规风控</strong> —— 无需自建本地实体、无需逐国开立银行账户、无需自行拼接多家通道。
+      </p>
+
+      <div class="stats">
+        <div><div class="k">API 版本</div><div class="v">v1</div></div>
+        <div><div class="k">能力模块</div><div class="v">8</div></div>
+        <div><div class="k">运行环境</div><div class="v gold">Sandbox / Live</div></div>
+        <div><div class="k">鉴权方式</div><div class="v" style="font-size:14px">API Key + OAuth</div></div>
+      </div>
+
+      <h2 id="what">你可以用 YASBe 构建什么</h2>
+      <div class="grid c3">
+        <a class="card" href="2026-09-15_服务能力总览_白标门户.html#va">
+          <div class="ico">🏦</div>
+          <h4>本地收款账户</h4>
+          <p>为你的客户开立命名虚拟账户，用本地实时清算通道收款，款项实时入账、自动对账。</p>
+          <div class="foot">查看能力 →</div>
+        </a>
+        <a class="card" href="2026-09-15_服务能力总览_白标门户.html#payout">
+          <div class="ico">📤</div>
+          <h4>跨境出款</h4>
+          <p>付款到收款人本地银行账户，支持单笔与批量，含收款人核验与状态回调。</p>
+          <div class="foot">查看能力 →</div>
+        </a>
+        <a class="card" href="2026-09-15_服务能力总览_白标门户.html#fx">
+          <div class="ico">🔁</div>
+          <h4>兑换与稳定币桥</h4>
+          <p>多币种报价与兑换，法币与稳定币之间双向转换，作为跨境腿的流动性桥。</p>
+          <div class="foot">查看能力 →</div>
+        </a>
+        <a class="card" href="2026-09-15_服务能力总览_白标门户.html#cards">
+          <div class="ico">💳</div>
+          <h4>卡片发行</h4>
+          <p>虚拟卡与实体卡开卡、激活、充值、冻结销卡，含实时交易授权与 MCC 控制。</p>
+          <div class="foot">查看能力 →</div>
+        </a>
+        <a class="card" href="2026-09-15_服务能力总览_白标门户.html#crypto">
+          <div class="ico">₿</div>
+          <h4>加密钱包与出入金</h4>
+          <p>地址生成、链上充值、提现、归集，配合钱包地址风险扫描与同名出入金规则。</p>
+          <div class="foot">查看能力 →</div>
+        </a>
+        <a class="card" href="2026-09-15_服务能力总览_白标门户.html#compliance">
+          <div class="ico">🛡️</div>
+          <h4>合规与风控</h4>
+          <p>KYB / KYC 提交与结果回调、制裁与 PEP 筛查、交易监控、风险扫描闸门。</p>
+          <div class="foot">查看能力 →</div>
+        </a>
+      </div>
+
+      <h2 id="components">平台核心组件</h2>
+      <p>四个基础对象贯穿全部能力模块。理解它们之后，任何业务流都只是组合调用。</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr><th style="width:170px">组件</th><th>说明</th><th class="nowrap" style="width:150px">关键资源</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>主体与客户</strong><br><span class="opt">Entities</span></td>
+              <td>你的白标主体（KYB）以及挂在你名下的终端客户 / 持卡人。资金归属与合规责任按集成模式划分。</td>
+              <td class="nowrap"><code>customer</code><br><code>cardholder</code></td>
+            </tr>
+            <tr>
+              <td><strong>账户与余额</strong><br><span class="opt">Accounts</span></td>
+              <td>多币种法币账户、命名虚拟账户、加密钱包。余额按币种与用途分账，支持冻结与预留。</td>
+              <td class="nowrap"><code>account</code><br><code>virtual_account</code><br><code>wallet</code></td>
+            </tr>
+            <tr>
+              <td><strong>交易与结算</strong><br><span class="opt">Transactions</span></td>
+              <td>收款、出款、兑换、卡交易、链上出入金统一为一笔 transaction，带状态机、费用明细与结算周期。</td>
+              <td class="nowrap"><code>transaction</code><br><code>settlement</code></td>
+            </tr>
+            <tr>
+              <td><strong>事件与通知</strong><br><span class="opt">Events</span></td>
+              <td>状态变更通过 Webhook 推送，支持签名校验、重试退避与沙盒重放；可回调查询兜底。</td>
+              <td class="nowrap"><code>event</code><br><code>webhook_endpoint</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="modes">选择你的集成模式</h2>
+      <p>
+        白标接入有三种模式，差别在于<strong>谁持有牌照、资金归谁、你的下游客户是否独立开户</strong>。
+        选错模式后期改造成本很高，建议在拿沙盒之前先确认。
+      </p>
+      <div class="grid c3">
+        <div class="card">
+          <div class="ico">🔗</div>
+          <h4>模式 A · 渠道分销</h4>
+          <p>你分销 YASBe 的 API 能力给你的下游商户，主体 KYB 与资金在 YASBe 侧，你赚取分润。</p>
+          <div class="foot" style="color:var(--muted)">合规主责：YASBe · 上线最快</div>
+        </div>
+        <div class="card">
+          <div class="ico">🏢</div>
+          <h4>模式 B · 白标主商户</h4>
+          <p>你是持牌或已具备合规能力的主商户，自己管理客户资金与风控，YASBe 提供通道与账务底座。</p>
+          <div class="foot" style="color:var(--muted)">合规主责：共同 · 控制力最强</div>
+        </div>
+        <div class="card">
+          <div class="ico">🌐</div>
+          <h4>模式 C · 聚合多租户</h4>
+          <p>你无牌或不愿持有客户资金，由 YASBe 持牌，你的每个下游客户获得独立账户与余额隔离。</p>
+          <div class="foot" style="color:var(--muted)">合规主责：YASBe · 架构最复杂</div>
+        </div>
+      </div>
+      <div class="callout info">
+        <div class="ci">ℹ️</div>
+        <div class="cb">
+          <b>模式决定你调用的接口范围</b>
+          模式 A / C 下，客户开户、KYC 结果、资金归集由平台侧闭环，你主要调用收款、出款、卡片与事件接口；
+          模式 B 下你会额外获得子账户开立、余额划拨与结算管理接口。完整差异见
+          <a class="link" href="2026-09-15_服务能力总览_白标门户.html#modes">服务能力总览 · 集成模式对照</a>。
+        </div>
+      </div>
+
+      <h2 id="get-started">从这里开始</h2>
+      <div class="grid c2">
+        <a class="card" href="2026-09-15_快速开始_白标门户.html">
+          <div class="ico">🚀</div>
+          <h4>快速开始</h4>
+          <p>四步完成首次调用：开通白标账号 → 取沙盒密钥 → 鉴权 → 创建第一个主体。</p>
+          <div class="foot">约 10 分钟 →</div>
+        </a>
+        <a class="card" href="2026-09-15_沙盒环境_白标门户.html">
+          <div class="ico">🧪</div>
+          <h4>沙盒环境</h4>
+          <p>秒级自助开通的隔离环境，模拟 KYB 审批、入金、卡授权、链上充值，不产生真实资金。</p>
+          <div class="foot">无需 KYB 即可开始 →</div>
+        </a>
+        <a class="card" href="2026-09-15_API参考_白标门户.html">
+          <div class="ico">📘</div>
+          <h4>API Reference</h4>
+          <p>端点、字段、枚举、示例请求与响应，含 cURL / Node / Python / Java 代码片段。</p>
+          <div class="foot">浏览端点 →</div>
+        </a>
+        <a class="card" href="2026-09-15_服务能力总览_白标门户.html">
+          <div class="ico">📋</div>
+          <h4>服务能力总览</h4>
+          <p>白标可售能力矩阵：模块、能力、对应端点、依赖的前置条件与沙盒可用性。</p>
+          <div class="foot">看能卖什么 →</div>
+        </a>
+      </div>
+
+      <h2 id="support">支持与联系</h2>
+      <div class="kv">
+        <div><div class="k">技术对接支持</div><div class="v">developer-support@yasbee.com（工作日 09:00–21:00 GMT+8）</div></div>
+        <div><div class="k">接入群组</div><div class="v">签约后由客户成功拉入专属 Telegram 群，含技术 + 合规对接人</div></div>
+        <div><div class="k">服务状态</div><div class="v">status.yasbee.com — 通道可用性与计划维护公告</div></div>
+        <div><div class="k">SLA</div><div class="v">按合同约定；生产环境 API 可用性目标见签约附件</div></div>
+      </div>
+
+      <div class="pagefoot">
+        <span>YASBe 白标开发者文档 · v1.0 原型稿 · 2026-09-15</span>
+        <span>对应 API: v1 · 环境: Sandbox / Live</span>
+      </div>
+    </div>
+
+    <aside class="toc">
+      <div class="toc-inner">
+        <div class="lbl">本页内容</div>
+        <a href="#what" class="on">你可以构建什么</a>
+        <a href="#components">平台核心组件</a>
+        <a href="#modes">选择集成模式</a>
+        <a href="#get-started">从这里开始</a>
+        <a href="#support">支持与联系</a>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<script>
+document.querySelectorAll('.env-switch button').forEach(function(b){
+  b.addEventListener('click',function(){
+    document.querySelectorAll('.env-switch button').forEach(function(x){x.classList.remove('on')});
+    b.classList.add('on');
+  });
+});
+document.querySelectorAll('.code-head .tab, .toc a').forEach(function(t){
+  t.addEventListener('click',function(){
+    if(!t.closest('.code-head')){return}
+    var head=t.closest('.code-head');
+    head.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on')});
+    t.classList.add('on');
+  });
+});
+</script>
+</body>
+</html>

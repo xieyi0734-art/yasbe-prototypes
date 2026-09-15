@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>开发者设置 · YASBe 白标门户</title>
+<link rel="stylesheet" href="assets/docs.css">
+<style>
+  body{background:var(--bg)}
+  .pside .brand{margin-bottom:16px;padding:0 4px}
+  .ptabs{display:flex;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:4px;margin-bottom:18px;width:fit-content}
+  .ptabs button{border:0;background:transparent;color:var(--muted);font-family:inherit;font-size:13px;padding:7px 14px;border-radius:7px;cursor:pointer}
+  .ptabs button.on{background:var(--gold-dim);color:var(--gold);font-weight:600}
+  .ptabs button:disabled{opacity:.45;cursor:not-allowed}
+  .trow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .chip{font-size:11.5px;padding:3px 9px;border-radius:6px;background:var(--surface-3);border:1px solid var(--border);color:var(--text-2);font-family:var(--mono)}
+  .chip.on{background:var(--gold-dim);border-color:rgba(255,202,0,.32);color:var(--gold)}
+  .toolgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+  .tool{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:13px 14px;cursor:pointer}
+  .tool:hover{border-color:rgba(255,202,0,.38)}
+  .tool .n{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
+  .tool .d{font-size:12px;color:var(--muted);line-height:1.55}
+  @media(max-width:1100px){.toolgrid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="portal">
+  <aside class="pside">
+    <div class="brand"><span class="mark">Y</span>YASBe</div>
+    <div class="pnav">
+      <a href="#">📊 仪表盘</a>
+      <a href="#">🏦 银行账户</a>
+      <a href="#">₿ 加密货币钱包</a>
+      <a href="#">💳 卡片</a>
+      <a href="#">📣 代理中心</a>
+      <a href="#">⭐ 推广与收益</a>
+      <a href="#">👥 我的客户</a>
+      <a href="#">📄 协议与规则</a>
+      <a href="#">⚙️ 设置</a>
+      <a href="#" class="on">🧩 开发者</a>
+    </div>
+    <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border)">
+      <a href="2026-09-15_API文档首页_白标门户.html" style="display:block;font-size:12.5px;color:var(--gold);padding:6px 11px">← 回到文档站</a>
+    </div>
+  </aside>
+
+  <div class="pbody">
+    <div class="crumbs">门户<span class="sep">/</span>开发者</div>
+    <h1 class="sm" style="margin-bottom:6px">开发者设置</h1>
+    <p style="margin-bottom:18px">管理密钥、回调地址与沙盒工具。测试密钥即时可用；生产密钥需 KYB 通过后由运营开通。</p>
+
+    <div class="ptabs">
+      <button class="on" id="tabTest">🧪 沙盒环境</button>
+      <button id="tabLive" disabled>🔒 生产环境 · 未开通（需 KYB 通过）</button>
+    </div>
+
+    <div class="pcard">
+      <div class="trow" style="justify-content:space-between;margin-bottom:6px">
+        <h3 style="margin:0">API 密钥</h3>
+        <button class="btn pri">+ 创建密钥</button>
+      </div>
+      <p style="font-size:12.6px;color:var(--muted);margin-bottom:12px">密钥只在创建时完整显示一次，请立即保存。吊销即时生效。</p>
+      <div class="tbl-wrap" style="margin:0">
+        <table>
+          <thead><tr><th>名称</th><th>密钥</th><th>权限范围</th><th class="nowrap">创建时间</th><th class="nowrap">最后使用</th><th class="nowrap">操作</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>生产服务端</strong><br><span class="opt">后端主账号</span></td>
+              <td><code>sk_test_9f2c••••••••4b71</code></td>
+              <td><span class="chip">全量（读 + 写）</span></td>
+              <td class="nowrap">2026-09-15 09:02</td>
+              <td class="nowrap">2 分钟前</td>
+              <td class="nowrap"><span class="ptr">吊销</span></td>
+            </tr>
+            <tr>
+              <td><strong>对账任务</strong><br><span class="opt">定时拉取交易</span></td>
+              <td><code>sk_test_3a8d••••••••c210</code></td>
+              <td><span class="chip">只读</span></td>
+              <td class="nowrap">2026-09-15 09:05</td>
+              <td class="nowrap">1 小时前</td>
+              <td class="nowrap"><span class="ptr">吊销</span></td>
+            </tr>
+            <tr>
+              <td><strong>本地联调</strong><br><span class="opt">张伟 · 笔记本</span></td>
+              <td><code>sk_test_77e1••••••••9df4</code></td>
+              <td><span class="chip">读 + 出款测试</span></td>
+              <td class="nowrap">2026-09-15 09:11</td>
+              <td class="nowrap">从未使用</td>
+              <td class="nowrap"><span class="ptr">吊销</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warn" style="margin-bottom:0">
+        <div class="ci">⚠️</div>
+        <div class="cb"><b>沙盒密钥默认不限 IP</b>方便你本地联调；生产密钥必须配置 IP 白名单才能启用。</div>
+      </div>
+    </div>
+
+    <div class="pcard">
+      <h3>Webhook 端点</h3>
+      <p style="font-size:12.6px;color:var(--muted)">状态变更会推送到这里。端点需在 10 秒内返回 2xx，否则按退避策略重试。</p>
+      <div class="tbl-wrap" style="margin:0 0 14px">
+        <table>
+          <thead><tr><th style="width:330px">回调地址</th><th>订阅事件</th><th class="nowrap">最近投递</th><th class="nowrap">操作</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>https://api.your-brand.com/wh/yasbee</code></td>
+              <td><span class="chip on">payout.*</span> <span class="chip on">deposit.*</span> <span class="chip on">card.*</span> <span class="chip">+ 8</span></td>
+              <td class="nowrap"><span class="badge green">200 · 142ms</span></td>
+              <td class="nowrap"><span class="ptr">重投</span> · <span class="ptr danger">删除</span></td>
+            </tr>
+            <tr>
+              <td><code>https://ops.your-brand.com/hooks/yasbee</code></td>
+              <td><span class="chip on">compliance.*</span> <span class="chip on">settlement.*</span></td>
+              <td class="nowrap"><span class="badge red">500 · 重试 3/8</span></td>
+              <td class="nowrap"><span class="ptr">重投</span> · <span class="ptr danger">删除</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="trow" style="gap:26px">
+        <div>
+          <div style="font-size:12.5px;color:var(--muted);margin-bottom:5px">端点签名密钥</div>
+          <span class="mono-key">whsec_test_••••••••••••7a1c</span>
+        </div>
+        <div class="trow" style="gap:8px">
+          <button class="btn ghost">显示</button>
+          <button class="btn">轮换</button>
+        </div>
+      </div>
+      <p class="opt" style="margin-top:10px">轮换支持双密钥并存过渡期，便于你灰度切换而不丢事件。</p>
+    </div>
+
+    <div class="pcard">
+      <h3>IP 白名单</h3>
+      <p style="font-size:12.6px;color:var(--muted)">沙盒可选，生产必填。启用后仅白名单内的出口 IP 可调用。</p>
+      <div class="callout info" style="margin-bottom:12px">
+        <div class="ci">ℹ️</div>
+        <div class="cb"><b>当前：未启用</b>沙盒密钥不受 IP 限制。生产环境未配置白名单时密钥无法激活。</div>
+      </div>
+      <button class="btn">+ 添加 IP</button>
+    </div>
+
+    <div class="pcard">
+      <h3>沙盒工具</h3>
+      <p style="font-size:12.6px;color:var(--muted)">快捷触发模拟动作，等价于调用 <code>/v1/sandbox/*</code>。完整说明见
+        <a class="link" href="2026-09-15_沙盒环境_白标门户.html#simulate">沙盒环境 · 模拟端点</a>。</p>
+      <div class="toolgrid">
+        <div class="tool"><div class="n">✅ 模拟 KYB 通过</div><div class="d">选择一个沙盒客户，直接置为 <code>approved</code></div></div>
+        <div class="tool"><div class="n">💰 模拟收款到账</div><div class="d">指定金额与付款方名称，可造非同名挂账</div></div>
+        <div class="tool"><div class="n">💳 模拟卡消费授权</div><div class="d">选测试卡号、商户与 MCC，验证拦截策略</div></div>
+        <div class="tool"><div class="n">₿ 模拟链上充值</div><div class="d">指定资产 / 链 / 确认数，可停在确认中</div></div>
+        <div class="tool"><div class="n">⏱ 时间旅行</div><div class="d">把沙盒时间推到 T+1 / T+7，触发结算与自动退回</div></div>
+        <div class="tool"><div class="n">♻️ 重置沙盒数据</div><div class="d">清空业务数据，密钥与配置保留</div></div>
+      </div>
+    </div>
+
+    <div class="pcard">
+      <div class="trow" style="justify-content:space-between;margin-bottom:12px">
+        <h3 style="margin:0">请求日志</h3>
+        <div class="trow"><span class="chip">近 24 小时</span><span class="chip">全部状态</span></div>
+      </div>
+      <div class="tbl-wrap" style="margin:0">
+        <table>
+          <thead><tr><th class="nowrap">时间</th><th class="nowrap">方法</th><th>路径</th><th class="nowrap">状态</th><th class="nowrap">耗时</th><th class="nowrap">request_id</th><th class="nowrap">操作</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="nowrap">09:41:12</td>
+              <td class="nowrap"><span class="method post">POST</span></td>
+              <td><code>/v1/payouts</code></td>
+              <td class="nowrap"><span class="badge green">200</span></td>
+              <td class="nowrap">318ms</td>
+              <td class="nowrap"><code>req_6c19b0a4</code></td>
+              <td class="nowrap"><span class="ptr">查看</span></td>
+            </tr>
+            <tr>
+              <td class="nowrap">09:40:57</td>
+              <td class="nowrap"><span class="method post">POST</span></td>
+              <td><code>/v1/crypto/withdrawals</code></td>
+              <td class="nowrap"><span class="badge red">403</span></td>
+              <td class="nowrap">612ms</td>
+              <td class="nowrap"><code>req_1a77fe20</code></td>
+              <td class="nowrap"><span class="ptr">查看</span> · <span class="ptr">重放</span></td>
+            </tr>
+            <tr>
+              <td class="nowrap">09:38:04</td>
+              <td class="nowrap"><span class="method sim">SIM</span></td>
+              <td><code>/v1/sandbox/virtual-accounts/va_7c2…/simulate_deposit</code></td>
+              <td class="nowrap"><span class="badge green">200</span></td>
+              <td class="nowrap">95ms</td>
+              <td class="nowrap"><code>req_31b0c9d5</code></td>
+              <td class="nowrap"><span class="ptr">查看</span></td>
+            </tr>
+            <tr>
+              <td class="nowrap">09:35:41</td>
+              <td class="nowrap"><span class="method get">GET</span></td>
+              <td><code>/v1/transactions?type=deposit</code></td>
+              <td class="nowrap"><span class="badge green">200</span></td>
+              <td class="nowrap">142ms</td>
+              <td class="nowrap"><code>req_8f0d21ba</code></td>
+              <td class="nowrap"><span class="ptr">查看</span></td>
+            </tr>
+            <tr>
+              <td class="nowrap">09:33:18</td>
+              <td class="nowrap"><span class="method post">POST</span></td>
+              <td><code>/v1/customers</code></td>
+              <td class="nowrap"><span class="badge" style="color:var(--amber);border-color:rgba(251,191,36,.3)">429</span></td>
+              <td class="nowrap">8ms</td>
+              <td class="nowrap"><code>req_c4e0197f</code></td>
+              <td class="nowrap"><span class="ptr">查看</span> · <span class="ptr">重放</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="opt" style="margin-top:12px">
+        403 那条即风险闸门拦截（<code>risk_level_exceeded</code>）；429 是沙盒配额触发，生产配额请见合同。
+        点「查看」可看完整请求与响应体（敏感字段自动脱敏）。
+      </p>
+    </div>
+
+    <div class="pagefoot">
+      <span>YASBe 白标门户 · 开发者设置 · v1.0 原型稿 · 2026-09-15</span>
+      <span>此页为门户内视角，与文档站共享同一套设计规范</span>
+    </div>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('.ptabs button').forEach(function(b){
+  b.addEventListener('click', function(){ if(b.disabled) return;
+    document.querySelectorAll('.ptabs button').forEach(function(x){ x.classList.remove('on'); });
+    b.classList.add('on');
+  });
+});
+</script>
+</body>
+</html>
