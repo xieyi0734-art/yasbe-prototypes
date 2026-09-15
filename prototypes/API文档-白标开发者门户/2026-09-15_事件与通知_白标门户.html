@@ -93,7 +93,8 @@
             <tr><td><code>customer.created</code></td><td>客户创建成功</td><td>落库</td></tr>
             <tr><td><code>customer.kyb_approved</code></td><td>KYB 审核通过</td><td>解锁账户 / 开卡入口</td></tr>
             <tr><td><code>customer.kyb_rejected</code></td><td>KYB 被拒</td><td>展示拒绝原因 + 补件入口</td></tr>
-            <tr><td><code>customer.kyc_approved</code> / <code>.kyc_rejected</code></td><td>持卡人 KYC 结果</td><td>推进或中断开卡流程</td></tr>
+            <tr><td><code>customer.kyc_approved</code></td><td>持卡人 KYC 通过</td><td>推进开卡流程</td></tr>
+            <tr><td><code>customer.kyc_rejected</code></td><td>持卡人 KYC 被拒</td><td>中断开卡并展示拒绝原因</td></tr>
             <tr><td><code>compliance.case_opened</code></td><td>命中监控规则，进入人工案件</td><td>冻结相关操作并提示用户</td></tr>
 
             <tr><td colspan="3" style="background:var(--surface-2);color:var(--muted);font-size:12px;letter-spacing:.5px">本地收款</td></tr>
@@ -113,7 +114,8 @@
             <tr><td><code>bridge.transfer_completed</code></td><td>法币 ↔ 稳定币桥接完成</td><td>更新法币与链上余额</td></tr>
 
             <tr><td colspan="3" style="background:var(--surface-2);color:var(--muted);font-size:12px;letter-spacing:.5px">卡片</td></tr>
-            <tr><td><code>card.created</code> / <code>card.activated</code></td><td>开卡成功 / 实体卡激活</td><td>展示卡面与状态</td></tr>
+            <tr><td><code>card.created</code></td><td>开卡成功</td><td>展示卡面与状态</td></tr>
+            <tr><td><code>card.activated</code></td><td>实体卡激活</td><td>展示卡面与状态</td></tr>
             <tr><td><code>card.authorization_requested</code></td><td>消费授权请求（实时）</td><td>可自定义决策，超时视为放行</td></tr>
             <tr><td><code>card.authorization_declined</code></td><td>授权被拒（限额 / MCC / 余额）</td><td>向持卡人提示原因</td></tr>
             <tr><td><code>card.transaction_settled</code></td><td>授权清算入账</td><td>更新卡余额与流水</td></tr>
