@@ -17,6 +17,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica N
 .stat-card{background:#fff;border-radius:12px;border:1px solid #E5E7EB;padding:20px}
 .stat-value{font-size:25px;font-weight:700}
 .stat-label{font-size:13px;color:#86909C;margin-bottom:4px}
+.stat-sub{font-size:12px;color:#9CA3AF;margin-top:6px}
 .badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:500}
 .badge-ok{background:#DCFCE7;color:#166534}
 .badge-fail{background:#FEE2E2;color:#991B1B}
@@ -33,13 +34,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica N
 .btn-danger:hover{background:#b91c1c}
 .btn-danger-outline{background:#fff;color:#DC2626;border:1px solid #FECACA;border-radius:8px;padding:8px 20px;font-size:14px;font-weight:500;cursor:pointer}
 .btn-danger-outline:hover{background:#FEF2F2}
-.filter-input{border:1px solid #D1D5DB;border-radius:8px;padding:8px 12px;font-size:14px;outline:none;width:220px}
+.filter-input{border:1px solid #D1D5DB;border-radius:8px;padding:8px 12px;font-size:14px;outline:none;width:240px}
 .filter-input:focus{border-color:#E59303;box-shadow:0 0 0 2px rgba(229,147,3,.15)}
 .filter-select{border:1px solid #D1D5DB;border-radius:8px;padding:8px 12px;font-size:14px;outline:none;cursor:pointer;background:#fff}
 .filter-select:focus{border-color:#E59303;box-shadow:0 0 0 2px rgba(229,147,3,.15)}
 .table-wrap{background:#fff;border-radius:12px;border:1px solid #E5E7EB}
 .table-scroll{overflow-x:auto;border-radius:12px}
-table{width:100%;border-collapse:collapse;min-width:1150px}
+table{width:100%;border-collapse:collapse;min-width:1620px}
 th{text-align:left;padding:10px 12px;font-size:12px;font-weight:500;color:#6B7280;border-bottom:1px solid #E5E7EB;background:#F9FAFB;white-space:nowrap}
 td{padding:10px 12px;font-size:13px;border-bottom:1px solid #F3F4F6;white-space:nowrap}
 tr:last-child td{border-bottom:none}
@@ -48,6 +49,12 @@ tr:hover td{background:#F9FAFB}
 .tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
 .tag-deposit{background:#DCFCE7;color:#166534}
 .tag-withdraw{background:#EFF6FF;color:#1D4ED8}
+.tag-bridge{background:#E0E7FF;color:#3730A3}
+.tag-openpayd{background:#CCFBF1;color:#0F766E}
+.tag-up{background:#F3F4F6;color:#4B5563}
+.tag-up-ok{background:#DCFCE7;color:#166534}
+.tag-up-warn{background:#FEF3C7;color:#92400E}
+.tag-up-fail{background:#FEE2E2;color:#991B1B}
 .pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 20px 16px}
 .page-btn{padding:6px 12px;border:1px solid #D1D5DB;border-radius:6px;background:#fff;cursor:pointer;font-size:13px;color:#4B5563}
 .page-btn:hover{border-color:#E59303;color:#E59303}
@@ -55,7 +62,7 @@ tr:hover td{background:#F9FAFB}
 .table-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px 0}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;overflow-y:auto}
 .modal-overlay.active{display:flex;align-items:center;justify-content:center}
-.modal{background:#fff;border-radius:16px;padding:28px 32px;width:720px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.15);margin:24px auto}
+.modal{background:#fff;border-radius:16px;padding:28px 32px;width:760px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.15);margin:24px auto}
 .modal-title{font-size:18px;font-weight:600}
 .detail-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #F3F4F6;font-size:13px}
 .detail-row:last-child{border-bottom:none}
@@ -70,6 +77,9 @@ tr:hover td{background:#F9FAFB}
 .form-input{width:100%;border:1px solid #D1D5DB;border-radius:8px;padding:9px 12px;font-size:14px;outline:none;background:#F9FAFB}
 .form-input:focus{border-color:#E59303;box-shadow:0 0 0 2px rgba(229,147,3,.15)}
 .upload-box{border:1px dashed #D1D5DB;border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;background:#F9FAFB;font-size:13px}
+.note{font-size:12px;color:#86909C;background:#F9FAFB;border:1px dashed #E5E7EB;border-radius:8px;padding:12px 16px;margin-top:16px;line-height:1.8}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:0 24px}
+.split .col-head{font-size:12px;font-weight:600;color:#6B7280;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;padding:6px 10px;margin-bottom:8px;text-align:center}
 </style>
 </head>
 <body>
@@ -77,7 +87,7 @@ tr:hover td{background:#F9FAFB}
 <div class="sidebar">
 <div class="sidebar-header">YASBee 管理后台</div>
 <div class="sidebar-label">主菜单</div>
-<div class="sidebar-item" style="color:#fff;"><span>🪪</span> 客户管理 ▾</div>
+<div class="sidebar-item"><span>🪪</span> 客户管理 ▾</div>
 <div class="sidebar-item" style="padding-left:36px;font-size:13px;">📈 概览</div>
 <div class="sidebar-item" style="padding-left:36px;font-size:13px;">✅ 认证</div>
 <div class="sidebar-item" style="padding-left:36px;font-size:13px;">📋 客户列表</div>
@@ -87,6 +97,7 @@ tr:hover td{background:#F9FAFB}
 <div class="sidebar-item" style="padding-left:36px;font-size:13px;">🏦 资金总览</div>
 <div class="sidebar-item" style="padding-left:36px;font-size:13px;">🏢 收款账户</div>
 <div class="sidebar-item" style="padding-left:36px;font-size:13px;">💱 币种设置</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">🔗 渠道调用日志</div>
 <div class="sidebar-item"><span>₿</span> 加密货币</div>
 <div class="sidebar-item"><span>🔄</span> 兑换管理</div>
 <div class="sidebar-label">渠道</div>
@@ -103,8 +114,9 @@ tr:hover td{background:#F9FAFB}
 <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;">
 <div>
 <h1 style="font-size:24px;font-weight:700;">交易记录</h1>
-<p style="font-size:13px;color:#86909C;margin-top:4px;">法币出入金交易（Deposits &amp; Withdrawals），PROCESSING 状态需审核</p>
+<p style="font-size:13px;color:#86909C;margin-top:4px;">法币出入金全量流水（Deposits &amp; Withdrawals）· 新增 <b>通道 / 渠道交易号 / 上游状态</b> 三列 — 平台状态与上游状态分开表达，PROCESSING 可在此页发起审核</p>
 </div>
+<a class="btn-outline" style="text-decoration:none;" href="01-Fiat-Review-Queue.html">← 待办队列</a>
 </div>
 
 <!-- Stats Row -->
@@ -112,49 +124,60 @@ tr:hover td{background:#F9FAFB}
 <div class="stat-card">
 <div class="stat-label">总交易</div>
 <div class="stat-value">125</div>
+<div class="stat-sub">Bridge 74 · OpenPayd 51</div>
 </div>
 <div class="stat-card">
 <div class="stat-label">本月入金</div>
 <div class="stat-value" style="color:#166534;">$48,620.50</div>
+<div class="stat-sub">含 €/£ 折美元</div>
 </div>
 <div class="stat-card">
 <div class="stat-label">本月出金</div>
 <div class="stat-value" style="color:#1D4ED8;">-$32,150.00</div>
+<div class="stat-sub">含 €/£ 折美元</div>
 </div>
 <div class="stat-card">
 <div class="stat-label">待审核 (PROCESSING)</div>
 <div class="stat-value" style="color:#854D0E;">12</div>
+<div class="stat-sub">Bridge 7 · OpenPayd 5</div>
 </div>
 <div class="stat-card">
 <div class="stat-label">本月手续费</div>
 <div class="stat-value">$1,240.00</div>
+<div class="stat-sub">平台对外费率口径</div>
 </div>
 </div>
 
 <!-- Filters -->
 <div style="background:#fff;border-radius:12px;border:1px solid #E5E7EB;padding:16px 20px;margin-bottom:20px;">
 <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-<select class="filter-select" style="width:150px;" onchange="filterTable()">
+<select class="filter-select" id="fType" style="width:150px;" onchange="filterTable()">
 <option value="all">全部类型</option>
-<option>Deposit</option>
-<option>Withdrawal</option>
+<option value="Deposit">Deposit</option>
+<option value="Withdrawal">Withdrawal</option>
 </select>
-<select class="filter-select" style="width:160px;" onchange="filterTable()">
+<select class="filter-select" id="fCh" style="width:160px;" onchange="filterTable()">
+<option value="all">全部通道</option>
+<option value="Bridge">Bridge</option>
+<option value="OpenPayd">OpenPayd</option>
+</select>
+<select class="filter-select" id="fStatus" style="width:160px;" onchange="filterTable()">
 <option value="all">All Statuses</option>
 <option>PROCESSING</option>
 <option>COMPLETED</option>
 <option>REJECTED</option>
+<option>CANCELLED</option>
 <option>FAILED</option>
 </select>
-<select class="filter-select" style="width:140px;" onchange="filterTable()">
+<select class="filter-select" id="fCcy" style="width:140px;" onchange="filterTable()">
 <option value="all">全部币种</option>
 <option>USD</option>
 <option>EUR</option>
 <option>GBP</option>
 </select>
-<input class="filter-input" placeholder="Search by ID or Customer" oninput="filterTable()">
+<input class="filter-input" id="fSearch" placeholder="Search by ID / 渠道交易号 / Customer" oninput="filterTable()">
 <div style="margin-left:auto;display:flex;gap:8px;">
-<button class="btn-outline" onclick="alert('导出 CSV (原型)')">📥 导出 CSV</button>
+<button class="btn-outline" onclick="alert('导出 CSV (原型) — 导出列与表头一致，含通道与渠道交易号')">📥 导出 CSV</button>
 </div>
 </div>
 </div>
@@ -170,134 +193,184 @@ tr:hover td{background:#F9FAFB}
 <thead>
 <tr>
 <th>ID</th>
-<th>Customer ID</th>
-<th>Customer Name</th>
+<th>Customer</th>
+<th>通道</th>
 <th>Type</th>
 <th>Currency</th>
 <th>Amount</th>
 <th>Status</th>
+<th>上游状态</th>
+<th>渠道交易号</th>
 <th>Reviewer</th>
 <th>Date</th>
 <th style="width:130px;">Actions</th>
 </tr>
 </thead>
 <tbody>
-<tr data-type="Deposit" data-status="PROCESSING" data-ccy="USD" data-search="FIAT-01M1X8EZEFSNNJDJ1B07MVFR61 C-WAEJ4T8G tz">
+<tr data-provider="Bridge" data-type="Deposit" data-status="PROCESSING" data-ccy="USD" data-up="Deposit Hold" data-uptag="up-warn" data-chtx="bridge_va_8f3c21d4" data-search="FIAT-01M1X8EZEFSNNJDJ1B07MVFR61 bridge_va_8f3c21d4 C-WAEJ4T8G tz" data-cust="tz · C-WAEJ4T8G" data-src="John Smith · Clear Bank" data-dst="Apex Markets Inc · USD 收款账户 •••• 8842" data-ref="YASBE-USD-8842" data-reviewer="张天佑">
 <td><span class="mono" style="font-size:12px;">FIAT-01M1X8EZEFSNNJDJ1B07MVFR61</span></td>
-<td><span class="mono">C-WAEJ4T8G</span></td>
-<td>tz</td>
+<td><span class="mono">C-WAEJ4T8G</span> <span style="color:#6B7280;">tz</span></td>
+<td><span class="tag tag-bridge">Bridge</span></td>
 <td><span class="tag tag-deposit">Deposit</span></td>
 <td>USD</td>
 <td style="font-weight:600;">$20.50</td>
-<td><span class="badge badge-pending">PROCESSING</span></td>
+<td class="cell-status"><span class="badge badge-pending">PROCESSING</span></td>
+<td><span class="tag tag-up-warn">Deposit Hold</span></td>
+<td class="mono" style="font-size:12px;color:#6B7280;">bridge_va_8f3c21d4</td>
 <td>张天佑</td>
 <td>2026-09-07 14:20:30</td>
 <td><button class="btn-primary" onclick="review(this,'deposit')">Review</button></td>
 </tr>
-<tr data-type="Withdrawal" data-status="PROCESSING" data-ccy="USD" data-search="FIAT-01KZZMZ89J2R0HZNH38VXD42D8 C-WAEJ4T8G tz">
+<tr data-provider="Bridge" data-type="Withdrawal" data-status="PROCESSING" data-ccy="USD" data-up="Pending Submit" data-uptag="up" data-chtx="bridge_off_2b7d90ac" data-search="FIAT-01KZZMZ89J2R0HZNH38VXD42D8 bridge_off_2b7d90ac C-WAEJ4T8G tz" data-cust="tz · C-WAEJ4T8G" data-src="tz · USD 收款账户 •••• 8842" data-dst="Wang Xiaoming · Bank of America •••• 5520" data-ref="WD-20260907-1003" data-reviewer="张天佑">
 <td><span class="mono" style="font-size:12px;">FIAT-01KZZMZ89J2R0HZNH38VXD42D8</span></td>
-<td><span class="mono">C-WAEJ4T8G</span></td>
-<td>tz</td>
+<td><span class="mono">C-WAEJ4T8G</span> <span style="color:#6B7280;">tz</span></td>
+<td><span class="tag tag-bridge">Bridge</span></td>
 <td><span class="tag tag-withdraw">Withdrawal</span></td>
 <td>USD</td>
 <td style="font-weight:600;">$850.00</td>
-<td><span class="badge badge-pending">PROCESSING</span></td>
+<td class="cell-status"><span class="badge badge-pending">PROCESSING</span></td>
+<td><span class="tag tag-up">Pending Submit</span></td>
+<td class="mono" style="font-size:12px;color:#6B7280;">bridge_off_2b7d90ac</td>
 <td>张天佑</td>
 <td>2026-09-07 10:03:44</td>
 <td><button class="btn-primary" onclick="review(this,'withdraw')">Review</button></td>
 </tr>
-<tr data-type="Deposit" data-status="COMPLETED" data-ccy="EUR" data-search="FIAT-01J9XW7PLQK2MZNAB4C8D0E5F6 C-8QX2S0LC cai">
+<tr data-provider="OpenPayd" data-type="Deposit" data-status="COMPLETED" data-ccy="EUR" data-up="Pay In Completed" data-uptag="up-ok" data-chtx="OP-PI-20260907-4A11C8" data-search="FIAT-01J9XW7PLQK2MZNAB4C8D0E5F6 OP-PI-20260907-4A11C8 C-8QX2S0LC cai" data-cust="cai · C-8QX2S0LC" data-src="Belmont Trading SARL · Banking Circle" data-dst="cai · EUR Payment Account IBAN •••• 3091" data-ref="YASBE-EUR-3091" data-reviewer="System">
 <td><span class="mono" style="font-size:12px;">FIAT-01J9XW7PLQK2MZNAB4C8D0E5F6</span></td>
-<td><span class="mono">C-8QX2S0LC</span></td>
-<td>cai</td>
+<td><span class="mono">C-8QX2S0LC</span> <span style="color:#6B7280;">cai</span></td>
+<td><span class="tag tag-openpayd">OpenPayd</span></td>
 <td><span class="tag tag-deposit">Deposit</span></td>
 <td>EUR</td>
 <td style="font-weight:600;">€1,800.00</td>
-<td><span class="badge badge-ok">COMPLETED</span></td>
+<td class="cell-status"><span class="badge badge-ok">COMPLETED</span></td>
+<td><span class="tag tag-up-ok">Pay In Completed</span></td>
+<td class="mono" style="font-size:12px;color:#6B7280;">OP-PI-20260907-4A11C8</td>
 <td>System</td>
 <td>2026-09-07 09:15:02</td>
 <td><button class="btn-text" style="cursor:default;color:#9CA3AF;" disabled>详情</button></td>
 </tr>
-<tr data-type="Withdrawal" data-status="COMPLETED" data-ccy="GBP" data-search="FIAT-01H8VY6UQJ3LZNXBC9D1E2F3G4 C-SSC119MO 123">
+<tr data-provider="OpenPayd" data-type="Withdrawal" data-status="COMPLETED" data-ccy="GBP" data-up="Payout Settled" data-uptag="up-ok" data-chtx="OP-PO-20260906-77B2E1" data-search="FIAT-01H8VY6UQJ3LZNXBC9D1E2F3G4 OP-PO-20260906-77B2E1 C-SSC119MO 123" data-cust="123 · C-SSC119MO" data-src="123 · GBP Payment Account •••• 7741" data-dst="123 Trading Ltd · Barclays •••• 1188" data-ref="WD-20260906-1642" data-reviewer="System">
 <td><span class="mono" style="font-size:12px;">FIAT-01H8VY6UQJ3LZNXBC9D1E2F3G4</span></td>
-<td><span class="mono">C-SSC119MO</span></td>
-<td>123</td>
+<td><span class="mono">C-SSC119MO</span> <span style="color:#6B7280;">123</span></td>
+<td><span class="tag tag-openpayd">OpenPayd</span></td>
 <td><span class="tag tag-withdraw">Withdrawal</span></td>
 <td>GBP</td>
 <td style="font-weight:600;">£500.00</td>
-<td><span class="badge badge-ok">COMPLETED</span></td>
+<td class="cell-status"><span class="badge badge-ok">COMPLETED</span></td>
+<td><span class="tag tag-up-ok">Payout Settled</span></td>
+<td class="mono" style="font-size:12px;color:#6B7280;">OP-PO-20260906-77B2E1</td>
 <td>System</td>
 <td>2026-09-06 16:42:18</td>
 <td><button class="btn-text" style="cursor:default;color:#9CA3AF;" disabled>详情</button></td>
 </tr>
-<tr data-type="Deposit" data-status="PROCESSING" data-ccy="USD" data-search="FIAT-01G7U5T4RSI2MYPODA0E1F2C3B4 C-FWCHT9TS zdz">
+<tr data-provider="Bridge" data-type="Deposit" data-status="COMPLETED" data-ccy="USD" data-up="Collected → USDC/Base" data-uptag="up-ok" data-chtx="bridge_col_5e9a03bd" data-search="FIAT-01C3O0N2MDLKHTGZ9X8W7V6U5T4S3 bridge_col_5e9a03bd C-PJVTAFWG qing liang" data-cust="qing liang · C-PJVTAFWG" data-src="Liang Qing · Clear Junction" data-dst="qing liang · USD 收款账户 •••• 6620 → 平台托管钱包" data-ref="YASBE-USD-6620" data-reviewer="System">
+<td><span class="mono" style="font-size:12px;">FIAT-01C3O0N2MDLKHTGZ9X8W7V6U5T4S3</span></td>
+<td><span class="mono">C-PJVTAFWG</span> <span style="color:#6B7280;">qing liang</span></td>
+<td><span class="tag tag-bridge">Bridge</span></td>
+<td><span class="tag tag-deposit">Deposit</span></td>
+<td>USD</td>
+<td style="font-weight:600;">$3,250.00</td>
+<td class="cell-status"><span class="badge badge-ok">COMPLETED</span></td>
+<td><span class="tag tag-up-ok">Collected → USDC/Base</span></td>
+<td class="mono" style="font-size:12px;color:#6B7280;">bridge_col_5e9a03bd</td>
+<td>System</td>
+<td>2026-09-06 11:18:07</td>
+<td><button class="btn-text" style="cursor:default;color:#9CA3AF;" disabled>详情</button></td>
+</tr>
+<tr data-provider="Bridge" data-type="Deposit" data-status="PROCESSING" data-ccy="USD" data-up="Deposit Hold" data-uptag="up-warn" data-chtx="bridge_va_31f8cc02" data-search="FIAT-01G7U5T4RSI2MYPODA0E1F2C3B4 bridge_va_31f8cc02 C-FWCHT9TS zdz" data-cust="zdz · C-FWCHT9TS" data-src="Nova Trade LLC · Apex Markets Inc" data-dst="zdz · USD 收款账户 •••• 5560" data-ref="YASBE-USD-5560" data-reviewer="李慧">
 <td><span class="mono" style="font-size:12px;">FIAT-01G7U5T4RSI2MYPODA0E1F2C3B4</span></td>
-<td><span class="mono">C-FWCHT9TS</span></td>
-<td>zdz</td>
+<td><span class="mono">C-FWCHT9TS</span> <span style="color:#6B7280;">zdz</span></td>
+<td><span class="tag tag-bridge">Bridge</span></td>
 <td><span class="tag tag-deposit">Deposit</span></td>
 <td>USD</td>
 <td style="font-weight:600;">$5,000.00</td>
-<td><span class="badge badge-pending">PROCESSING</span></td>
+<td class="cell-status"><span class="badge badge-pending">PROCESSING</span></td>
+<td><span class="tag tag-up-warn">Deposit Hold</span></td>
+<td class="mono" style="font-size:12px;color:#6B7280;">bridge_va_31f8cc02</td>
 <td>李慧</td>
 <td>2026-09-06 11:30:55</td>
 <td><button class="btn-primary" onclick="review(this,'deposit')">Review</button></td>
 </tr>
-<tr data-type="Withdrawal" data-status="REJECTED" data-ccy="USD" data-search="FIAT-01F6T3S2RQH1OLXNBC9E8D7C6A5 C-T2GSF2TC ZHANG SAN">
+<tr data-provider="OpenPayd" data-type="Withdrawal" data-status="CANCELLED" data-ccy="EUR" data-up="Cancelled / Refunded" data-uptag="up-fail" data-chtx="OP-PO-20260905-9C4D02" data-search="FIAT-0E9D1K3M5P7RQ2ST4UV6WX8YZ0A OP-PO-20260905-9C4D02 C-Y8FCT8G0 fdrt" data-cust="fdrt · C-Y8FCT8G0" data-src="fdrt · EUR Payment Account •••• 5518" data-dst="Fdrt Consulting · BNP Paribas •••• 8834" data-ref="WD-20260905-1412" data-reviewer="张天佑">
+<td><span class="mono" style="font-size:12px;">FIAT-0E9D1K3M5P7RQ2ST4UV6WX8YZ0A</span></td>
+<td><span class="mono">C-Y8FCT8G0</span> <span style="color:#6B7280;">fdrt</span></td>
+<td><span class="tag tag-openpayd">OpenPayd</span></td>
+<td><span class="tag tag-withdraw">Withdrawal</span></td>
+<td>EUR</td>
+<td style="font-weight:600;">€1,400.00</td>
+<td class="cell-status"><span class="badge badge-cancel">CANCELLED</span></td>
+<td><span class="tag tag-up-fail">Cancelled / Refunded</span></td>
+<td class="mono" style="font-size:12px;color:#6B7280;">OP-PO-20260905-9C4D02</td>
+<td>张天佑</td>
+<td>2026-09-05 16:20:33</td>
+<td><button class="btn-text" style="cursor:default;color:#9CA3AF;" disabled>详情</button></td>
+</tr>
+<tr data-provider="Bridge" data-type="Withdrawal" data-status="REJECTED" data-ccy="USD" data-up="Rejected Before Submit" data-uptag="up-fail" data-chtx="—" data-search="FIAT-01F6T3S2RQH1OLXNBC9E8D7C6A5 C-T2GSF2TC ZHANG SAN" data-cust="ZHANG SAN · C-T2GSF2TC" data-src="ZHANG SAN · USD 收款账户 •••• 9014" data-dst="Zhang San · Citibank •••• 2214" data-ref="WD-20260905-1508" data-reviewer="李慧">
 <td><span class="mono" style="font-size:12px;">FIAT-01F6T3S2RQH1OLXNBC9E8D7C6A5</span></td>
-<td><span class="mono">C-T2GSF2TC</span></td>
-<td>ZHANG SAN</td>
+<td><span class="mono">C-T2GSF2TC</span> <span style="color:#6B7280;">ZHANG SAN</span></td>
+<td><span class="tag tag-bridge">Bridge</span></td>
 <td><span class="tag tag-withdraw">Withdrawal</span></td>
 <td>USD</td>
 <td style="font-weight:600;">$1,200.00</td>
-<td><span class="badge badge-fail">REJECTED</span></td>
+<td class="cell-status"><span class="badge badge-fail">REJECTED</span></td>
+<td><span class="tag tag-up-fail">Rejected Before Submit</span></td>
+<td class="mono" style="font-size:12px;color:#9CA3AF;">—</td>
 <td>李慧</td>
 <td>2026-09-05 15:08:40</td>
 <td><button class="btn-text" style="cursor:default;color:#9CA3AF;" disabled>详情</button></td>
 </tr>
-<tr data-type="Deposit" data-status="COMPLETED" data-ccy="USD" data-search="FIAT-01E5R2Q1POG0NKMVAZ9Y8X7W6V5 C-KAA4K9A8 yuis">
+<tr data-provider="Bridge" data-type="Deposit" data-status="COMPLETED" data-ccy="USD" data-up="Collected → USDC/Base" data-uptag="up-ok" data-chtx="bridge_col_1a4f7e66" data-search="FIAT-01E5R2Q1POG0NKMVAZ9Y8X7W6V5 bridge_col_1a4f7e66 C-KAA4K9A8 yuis" data-cust="yuis · C-KAA4K9A8" data-src="Chen Wei · ICBC" data-dst="yuis · USD 收款账户 •••• 8214" data-ref="YASBE-USD-8214" data-reviewer="System">
 <td><span class="mono" style="font-size:12px;">FIAT-01E5R2Q1POG0NKMVAZ9Y8X7W6V5</span></td>
-<td><span class="mono">C-KAA4K9A8</span></td>
-<td>yuis</td>
+<td><span class="mono">C-KAA4K9A8</span> <span style="color:#6B7280;">yuis</span></td>
+<td><span class="tag tag-bridge">Bridge</span></td>
 <td><span class="tag tag-deposit">Deposit</span></td>
 <td>USD</td>
 <td style="font-weight:600;">$10,000.00</td>
-<td><span class="badge badge-ok">COMPLETED</span></td>
+<td class="cell-status"><span class="badge badge-ok">COMPLETED</span></td>
+<td><span class="tag tag-up-ok">Collected → USDC/Base</span></td>
+<td class="mono" style="font-size:12px;color:#6B7280;">bridge_col_1a4f7e66</td>
 <td>System</td>
 <td>2026-09-04 13:22:31</td>
 <td><button class="btn-text" style="cursor:default;color:#9CA3AF;" disabled>详情</button></td>
 </tr>
-<tr data-type="Withdrawal" data-status="PROCESSING" data-ccy="EUR" data-search="FIAT-01D4Q1P0ONFMLJUIZ8Y7X6W5V4U3 C-Y8FCT8G0 fdrt">
+<tr data-provider="OpenPayd" data-type="Withdrawal" data-status="PROCESSING" data-ccy="EUR" data-up="Payout Processing" data-uptag="up-warn" data-chtx="OP-PO-20260903-3F8A55" data-search="FIAT-01D4Q1P0ONFMLJUIZ8Y7X6W5V4U3 OP-PO-20260903-3F8A55 C-Y8FCT8G0 fdrt" data-cust="fdrt · C-Y8FCT8G0" data-src="fdrt · EUR Payment Account •••• 5518" data-dst="Fdrt Consulting · BNP Paribas •••• 8834" data-ref="WD-20260903-0945" data-reviewer="张天佑">
 <td><span class="mono" style="font-size:12px;">FIAT-01D4Q1P0ONFMLJUIZ8Y7X6W5V4U3</span></td>
-<td><span class="mono">C-Y8FCT8G0</span></td>
-<td>fdrt</td>
+<td><span class="mono">C-Y8FCT8G0</span> <span style="color:#6B7280;">fdrt</span></td>
+<td><span class="tag tag-openpayd">OpenPayd</span></td>
 <td><span class="tag tag-withdraw">Withdrawal</span></td>
 <td>EUR</td>
 <td style="font-weight:600;">€320.00</td>
-<td><span class="badge badge-pending">PROCESSING</span></td>
+<td class="cell-status"><span class="badge badge-pending">PROCESSING</span></td>
+<td><span class="tag tag-up-warn">Payout Processing</span></td>
+<td class="mono" style="font-size:12px;color:#6B7280;">OP-PO-20260903-3F8A55</td>
 <td>张天佑</td>
 <td>2026-09-03 09:45:12</td>
 <td><button class="btn-primary" onclick="review(this,'withdraw')">Review</button></td>
 </tr>
-<tr data-type="Deposit" data-status="COMPLETED" data-ccy="GBP" data-search="FIAT-01C3O0N2MDLKHTGZ9X8W7V6U5T4S3 C-PJVTAFWG qing liang">
-<td><span class="mono" style="font-size:12px;">FIAT-01C3O0N2MDLKHTGZ9X8W7V6U5T4S3</span></td>
-<td><span class="mono">C-PJVTAFWG</span></td>
-<td>qing liang</td>
+<tr data-provider="OpenPayd" data-type="Deposit" data-status="COMPLETED" data-ccy="GBP" data-up="Pay In Completed" data-uptag="up-ok" data-chtx="OP-PI-20260902-6B2D19" data-search="FIAT-01C3O0N2MDLKHTGZ9X7W6V5U4T3S2R OP-PI-20260902-6B2D19 C-PJVTAFWG qing liang" data-cust="qing liang · C-PJVTAFWG" data-src="Liang Qing · Clear Junction" data-dst="qing liang · GBP Payment Account •••• 6620" data-ref="YASBE-GBP-6620" data-reviewer="System">
+<td><span class="mono" style="font-size:12px;">FIAT-01C3O0N2MDLKHTGZ9X7W6V5U4T3S2R</span></td>
+<td><span class="mono">C-PJVTAFWG</span> <span style="color:#6B7280;">qing liang</span></td>
+<td><span class="tag tag-openpayd">OpenPayd</span></td>
 <td><span class="tag tag-deposit">Deposit</span></td>
 <td>GBP</td>
 <td style="font-weight:600;">£2,000.00</td>
-<td><span class="badge badge-ok">COMPLETED</span></td>
+<td class="cell-status"><span class="badge badge-ok">COMPLETED</span></td>
+<td><span class="tag tag-up-ok">Pay In Completed</span></td>
+<td class="mono" style="font-size:12px;color:#6B7280;">OP-PI-20260902-6B2D19</td>
 <td>System</td>
 <td>2026-09-02 17:36:09</td>
 <td><button class="btn-text" style="cursor:default;color:#9CA3AF;" disabled>详情</button></td>
 </tr>
-<tr data-type="Withdrawal" data-status="FAILED" data-ccy="USD" data-search="FIAT-01B2N1M0LCKJGSFZ8X7W6V5U4T3S2R C-F1XMCW74 kakaluote">
+<tr data-provider="Bridge" data-type="Withdrawal" data-status="FAILED" data-ccy="USD" data-up="Upstream Failed" data-uptag="up-fail" data-chtx="bridge_off_7d2b4419" data-search="FIAT-01B2N1M0LCKJGSFZ8X7W6V5U4T3S2R bridge_off_7d2b4419 C-F1XMCW74 kakaluote" data-cust="kakaluote · C-F1XMCW74" data-src="kakaluote · USD 收款账户 •••• 4402" data-dst="Kaka Luote · Wells Fargo •••• 3308" data-ref="WD-20260901-0819" data-reviewer="System">
 <td><span class="mono" style="font-size:12px;">FIAT-01B2N1M0LCKJGSFZ8X7W6V5U4T3S2R</span></td>
-<td><span class="mono">C-F1XMCW74</span></td>
-<td>kakaluote</td>
+<td><span class="mono">C-F1XMCW74</span> <span style="color:#6B7280;">kakaluote</span></td>
+<td><span class="tag tag-bridge">Bridge</span></td>
 <td><span class="tag tag-withdraw">Withdrawal</span></td>
 <td>USD</td>
 <td style="font-weight:600;">$400.00</td>
-<td><span class="badge badge-fail">FAILED</span></td>
+<td class="cell-status"><span class="badge badge-fail">FAILED</span></td>
+<td><span class="tag tag-up-fail">Upstream Failed</span></td>
+<td class="mono" style="font-size:12px;color:#6B7280;">bridge_off_7d2b4419</td>
 <td>System</td>
 <td>2026-09-01 08:19:47</td>
 <td><button class="btn-text" style="cursor:default;color:#9CA3AF;" disabled>详情</button></td>
@@ -306,7 +379,7 @@ tr:hover td{background:#F9FAFB}
 </table>
 </div>
 <div class="pagination">
-<div style="font-size:13px;color:#86909C;">Showing 1 to 10 of 125 records</div>
+<div style="font-size:13px;color:#86909C;">Showing 1 to 12 of 125 records</div>
 <div style="display:flex;gap:4px;">
 <button class="page-btn">‹</button>
 <button class="page-btn active">1</button>
@@ -315,147 +388,150 @@ tr:hover td{background:#F9FAFB}
 <button class="page-btn">4</button>
 <button class="page-btn">5</button>
 <button class="page-btn" style="cursor:default;border:none;color:#86909C;">•••</button>
-<button class="page-btn">13</button>
+<button class="page-btn">11</button>
 <button class="page-btn">›</button>
 </div>
 </div>
 </div>
 
+<div class="note">
+<strong>状态口径：</strong>① <b>平台状态</b>（Status）由平台账本定义：<span class="mono">PROCESSING / COMPLETED / REJECTED / CANCELLED / FAILED</span>；<b>上游状态</b>为通道返回口径，两者不一一对应 — Bridge 入金完成后进入<b>归集</b>（fiat → USDC/Base 托管钱包），OpenPayd 为纯法币账户（归集由平台自建）；② OpenPayd 上游存在 <span class="mono">Cancelled</span>（对应退款/重试），已映射为平台 <b>CANCELLED</b> 并可原路退回；③ <b>渠道交易号</b>为上游交易标识（Bridge collection/offramp 号 · OpenPayd Pay In / Payout 号），演示占位，用于与「渠道调用日志」的 traceId 对照排查。
 </div>
 
-<!-- Modal: Deposit Review -->
-<div class="modal-overlay" id="depositReviewModal">
+</div>
+
+<!-- Modal: Fiat Transaction Detail -->
+<div class="modal-overlay" id="detailModal">
 <div class="modal">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-<div class="modal-title">Fiat Transaction Details</div>
-<span style="font-size:24px;cursor:pointer;color:#86909C;" onclick="closeModal('depositReviewModal')">✕</span>
+<div class="modal-title" id="mdTitle">Fiat Transaction Details</div>
+<span style="font-size:24px;cursor:pointer;color:#86909C;" onclick="closeModal('detailModal')">✕</span>
 </div>
 <div class="status-strip">
-<span class="k">Status:</span><span class="badge badge-pending">PROCESSING</span>
-<span class="k" style="margin-left:16px;">Currency:</span><b>USD</b>
-<span class="k" style="margin-left:16px;">Type:</span><span class="tag tag-deposit">Deposit</span>
+<span class="k">Status:</span><span class="badge badge-pending" id="mdStatus">PROCESSING</span>
+<span class="k" style="margin-left:16px;">通道:</span><b id="mdProvider">—</b>
+<span class="k" style="margin-left:16px;">Currency:</span><b id="mdCcy">—</b>
+<span class="k" style="margin-left:16px;">Type:</span><span class="tag tag-deposit" id="mdType">Deposit</span>
 </div>
+<div class="split">
+<div>
+<div class="col-head">平台侧 Platform</div>
 <div class="section-block">
-<div class="section-head">Sender Information</div>
-<div class="detail-row"><span class="k">Sender Name</span><span class="v">CHEN WEI</span></div>
-<div class="detail-row"><span class="k">Sending Bank</span><span class="v">Industrial and Commercial Bank of China</span></div>
-<div class="detail-row"><span class="k">Sending Account</span><span class="v mono">6217****8341</span></div>
+<div class="detail-row"><span class="k">Transaction ID</span><span class="v mono" id="mdTid"></span></div>
+<div class="detail-row"><span class="k">Customer</span><span class="v" id="mdCust"></span></div>
+<div class="detail-row"><span class="k">Date &amp; Time</span><span class="v" id="mdTime"></span></div>
+<div class="detail-row"><span class="k">Principal Amount</span><span class="v" id="mdAmt"></span></div>
+<div class="detail-row"><span class="k">Fees</span><span class="v" id="mdFee"></span></div>
+<div class="detail-row"><span class="k">Posted Amount</span><span class="v" id="mdPost"></span></div>
+<div class="detail-row"><span class="k">Reference</span><span class="v mono" id="mdRef"></span></div>
+<div class="detail-row"><span class="k">Reviewer</span><span class="v" id="mdReviewer"></span></div>
 </div>
-<div class="section-block">
-<div class="section-head">Receiver Information</div>
-<div class="detail-row"><span class="k">Receiver Name</span><span class="v">Apex Markets Inc</span></div>
-<div class="detail-row"><span class="k">Receiving Account</span><span class="v mono">US21****8214</span></div>
 </div>
+<div>
+<div class="col-head">上游侧 Upstream</div>
 <div class="section-block">
-<div class="section-head">Transaction Details</div>
-<div class="detail-row"><span class="k">Transaction ID</span><span class="v mono">FIAT-01M1X8EZEFSNNJDJ1B07MVFR61</span></div>
-<div class="detail-row"><span class="k">Date &amp; Time</span><span class="v">2026-09-07 14:20:30</span></div>
-<div class="detail-row"><span class="k">Principal Amount</span><span class="v">$20.50 USD</span></div>
-<div class="detail-row"><span class="k">Fees</span><span class="v">$0.00 USD</span></div>
-<div class="detail-row"><span class="k">Posted Amount</span><span class="v" style="font-weight:700;">$20.50 USD</span></div>
-<div class="detail-row"><span class="k">Reference</span><span class="v mono">DEP-20260907-1842</span></div>
-<div class="detail-row"><span class="k">Notes</span><span class="v" style="color:#9CA3AF;">----</span></div>
+<div class="detail-row"><span class="k">Provider</span><span class="v" id="mdProvider2"></span></div>
+<div class="detail-row"><span class="k">清算网络 rails</span><span class="v" id="mdMethod"></span></div>
+<div class="detail-row"><span class="k">渠道交易号</span><span class="v mono" id="mdChTx"></span></div>
+<div class="detail-row"><span class="k">上游状态</span><span class="v" id="mdUp"></span></div>
+<div class="detail-row"><span class="k">traceId</span><span class="v mono" id="mdTrace"></span></div>
+<div class="detail-row"><span class="k">来源账户</span><span class="v" id="mdSrc"></span></div>
+<div class="detail-row"><span class="k">目标账户</span><span class="v" id="mdDst"></span></div>
+<div class="detail-row" style="background:#F9FAFB;"><span class="k" style="color:#6B7280;">按 traceId 反查 →「渠道调用日志」</span><span class="v" style="font-weight:400;">🔗</span></div>
+</div>
+</div>
 </div>
 <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px;padding-top:16px;border-top:1px solid #E5E7EB;">
-<button class="btn-outline" onclick="closeModal('depositReviewModal')">Close</button>
-<button class="btn-danger-outline" onclick="actReview(this,'depositReviewModal','REJECTED')">Reject</button>
-<button class="btn-primary" onclick="actReview(this,'depositReviewModal','COMPLETED')">Approve</button>
+<button class="btn-outline" onclick="closeModal('detailModal')">Close</button>
+<button class="btn-danger-outline" id="mdRejectBtn" onclick="actReview('REJECTED')">Reject</button>
+<button class="btn-primary" id="mdApproveBtn" onclick="actReview('COMPLETED')">Approve</button>
 </div>
 </div>
 </div>
 
-<!-- Modal: Withdrawal Review -->
-<div class="modal-overlay" id="withdrawReviewModal">
-<div class="modal">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-<div class="modal-title">Withdraw Fiat Review</div>
-<span style="font-size:24px;cursor:pointer;color:#86909C;" onclick="closeModal('withdrawReviewModal')">✕</span>
-</div>
-<div class="status-strip">
-<span class="k">Currency:</span><b>USD</b>
-<span class="k" style="margin-left:16px;">Amount:</span><b>$850.00</b>
-<span class="k" style="margin-left:16px;">Transfer Method:</span><b>Fedwire</b>
-</div>
-<div style="margin-bottom:16px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;padding:10px 14px;font-size:13px;">
-<span style="color:#854D0E;font-weight:600;">Available Balance (USD): $10,092,667.15</span>
-</div>
-<div class="section-block">
-<div class="section-head">Beneficiary Information</div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
-<div>
-<label class="form-label">Beneficiary Name *</label>
-<input class="form-input" value="CHEN WEI">
-</div>
-<div>
-<label class="form-label">Account Number *</label>
-<input class="form-input" value="6217****8341">
-</div>
-</div>
-<div style="margin-bottom:14px;">
-<label class="form-label">Transfer Purpose *</label>
-<input class="form-input" value="Personal transfer">
-</div>
-<div>
-<label class="form-label">Supporting Document (Mandatory)</label>
-<div class="upload-box">
-<span>📄 file_5823270466551914376.pdf</span>
-<button class="btn-text" onclick="alert('预览文档 (原型)')">View Document</button>
-</div>
-</div>
-</div>
-<div class="section-block">
-<div class="section-head">Transaction Details</div>
-<div class="detail-row"><span class="k">Transaction ID</span><span class="v mono">FIAT-01KZZMZ89J2R0HZNH38VXD42D8</span></div>
-<div class="detail-row"><span class="k">Date &amp; Time</span><span class="v">2026-09-07 10:03:44</span></div>
-<div class="detail-row"><span class="k">Principal Amount</span><span class="v">$850.00 USD</span></div>
-<div class="detail-row"><span class="k">Fees</span><span class="v">$0.00 USD</span></div>
-<div class="detail-row"><span class="k">Posted Amount</span><span class="v" style="font-weight:700;">$850.00 USD</span></div>
-</div>
-<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px;padding-top:16px;border-top:1px solid #E5E7EB;">
-<button class="btn-outline" onclick="closeModal('withdrawReviewModal')">Close</button>
-<button class="btn-danger-outline" onclick="actReview(this,'withdrawReviewModal','REJECTED')">Reject</button>
-<button class="btn-primary" onclick="actReview(this,'withdrawReviewModal','COMPLETED')">Approve</button>
-</div>
-</div>
-</div>
+<div id="toast" style="position:fixed;right:24px;bottom:24px;background:#1D2129;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;z-index:2000;opacity:0;transform:translateY(10px);transition:all .25s;pointer-events:none;max-width:460px;"></div>
 
 <script>
-var currentRow=null;
-function review(btn,type){
-currentRow=btn.closest('tr');
-var id=(type==='deposit')?'depositReviewModal':'withdrawReviewModal';
-document.getElementById(id).classList.add('active');
+var currentRow = null;
+var toastEl = document.getElementById('toast');
+function showToast(msg) {
+  toastEl.textContent = msg;
+  toastEl.style.opacity = '1';
+  toastEl.style.transform = 'translateY(0)';
+  clearTimeout(toastEl._h);
+  toastEl._h = setTimeout(function(){ toastEl.style.opacity = '0'; toastEl.style.transform = 'translateY(10px)'; }, 3200);
 }
-function actReview(btn,modalId,newStatus){
-var statusCell=currentRow.querySelector('td:nth-child(7) .badge');
-statusCell.className='badge '+(newStatus==='COMPLETED'?'badge-ok':'badge-fail');
-statusCell.textContent=newStatus;
-currentRow.setAttribute('data-status',newStatus);
-currentRow.querySelector('td:last-child').innerHTML='<button class="btn-text" style="cursor:default;color:#9CA3AF;" disabled>详情</button>';
-closeModal(modalId);
-var msg=(newStatus==='COMPLETED')?'✅ 已通过 (Approve)':'❌ 已拒绝 (Reject)';
-alert(msg+' 交易已更新 (原型)');
-currentRow=null;
+
+function sym(ccy){ return ccy === 'EUR' ? '€' : (ccy === 'GBP' ? '£' : '$'); }
+function attr(tr, k){ var v = tr.getAttribute('data-' + k); return (v === null || v === '') ? '—' : v; }
+
+function review(btn, type) {
+  currentRow = btn.closest('tr');
+  var tr = currentRow;
+  var ccy = attr(tr, 'ccy');
+  var provider = attr(tr, 'provider');
+  document.getElementById('mdTitle').textContent = type === 'deposit' ? 'Fiat Deposit Details' : 'Fiat Withdrawal Details';
+  document.getElementById('mdStatus').textContent = attr(tr, 'status');
+  document.getElementById('mdProvider').textContent = provider;
+  document.getElementById('mdProvider2').textContent = provider;
+  document.getElementById('mdCcy').textContent = ccy;
+  document.getElementById('mdType').textContent = attr(tr, 'type');
+  document.getElementById('mdTid').textContent = tr.querySelector('td').textContent.trim();
+  document.getElementById('mdCust').textContent = attr(tr, 'cust');
+  document.getElementById('mdTime').textContent = tr.cells[10].textContent.trim();
+  document.getElementById('mdReviewer').textContent = attr(tr, 'reviewer');
+  document.getElementById('mdChTx').textContent = attr(tr, 'chtx');
+  document.getElementById('mdUp').textContent = attr(tr, 'up');
+  document.getElementById('mdSrc').textContent = attr(tr, 'src');
+  document.getElementById('mdDst').textContent = attr(tr, 'dst');
+  document.getElementById('mdRef').textContent = attr(tr, 'ref');
+  document.getElementById('mdTrace').textContent = 'trc_' + attr(tr, 'chtx').replace(/[^a-z0-9]/gi, '').toLowerCase().slice(-10);
+  document.getElementById('mdMethod').textContent = provider === 'OpenPayd'
+    ? (ccy === 'GBP' ? 'FASTER_PAYMENTS / CHAPS' : 'SEPA / SEPA Instant')
+    : (ccy === 'USD' ? 'Wire / ACH / FedNow' : (ccy === 'GBP' ? 'FPS' : 'SEPA'));
+  var amtCell = tr.cells[5].textContent.trim();
+  document.getElementById('mdAmt').textContent = amtCell + ' ' + ccy;
+  document.getElementById('mdFee').textContent = sym(ccy) + '0.00 ' + ccy;
+  document.getElementById('mdPost').textContent = amtCell + ' ' + ccy;
+  document.getElementById('detailModal').classList.add('active');
 }
-function openModal(id){document.getElementById(id).classList.add('active')}
-function closeModal(id){document.getElementById(id).classList.remove('active')}
-document.addEventListener('click',function(e){if(e.target.classList.contains('modal-overlay')&&e.target.classList.contains('active')){e.target.classList.remove('active')}});
-function filterTable(){
-var sels=document.querySelectorAll('.filter-select');
-var type=sels[0].value,status=sels[1].value,ccy=sels[2].value;
-var search=document.querySelector('.filter-input').value.toLowerCase();
-var rows=document.querySelectorAll('tbody tr');
-var visible=0;
-rows.forEach(function(r){
-var ok=(type=='all'||r.getAttribute('data-type')==type)
-&&(status=='all'||r.getAttribute('data-status')==status)
-&&(ccy=='all'||r.getAttribute('data-ccy')==ccy)
-&&(!search||r.getAttribute('data-search').toLowerCase().indexOf(search)>=0);
-r.style.display=ok?'':'none';
-if(ok) visible++;
-});
-document.getElementById('recCount').textContent=visible+' transactions available';
+
+function actReview(newStatus) {
+  if (!currentRow) return;
+  var cell = currentRow.querySelector('.cell-status');
+  var cls = newStatus === 'COMPLETED' ? 'badge-ok' : 'badge-fail';
+  cell.innerHTML = '<span class="badge ' + cls + '">' + newStatus + '</span>';
+  currentRow.setAttribute('data-status', newStatus);
+  currentRow.querySelector('td:last-child').innerHTML = '<button class="btn-text" style="cursor:default;color:#9CA3AF;" disabled>详情</button>';
+  closeModal('detailModal');
+  showToast((newStatus === 'COMPLETED' ? '✅ 已通过 (Approve)' : '❌ 已拒绝 (Reject)') + ' — 平台状态已更新，上游状态同步回执（原型）');
+  currentRow = null;
 }
+
+function openModal(id){ document.getElementById(id).classList.add('active'); }
+function closeModal(id){ document.getElementById(id).classList.remove('active'); }
+document.addEventListener('click', function(e){ if (e.target.classList.contains('modal-overlay') && e.target.classList.contains('active')) { e.target.classList.remove('active'); } });
+
+function filterTable() {
+  var type = document.getElementById('fType').value;
+  var ch = document.getElementById('fCh').value;
+  var status = document.getElementById('fStatus').value;
+  var ccy = document.getElementById('fCcy').value;
+  var search = document.getElementById('fSearch').value.toLowerCase();
+  var rows = document.querySelectorAll('tbody tr');
+  var visible = 0;
+  rows.forEach(function(r){
+    var ok = (type === 'all' || r.getAttribute('data-type') === type)
+      && (ch === 'all' || r.getAttribute('data-provider') === ch)
+      && (status === 'all' || r.getAttribute('data-status') === status)
+      && (ccy === 'all' || r.getAttribute('data-ccy') === ccy)
+      && (!search || r.getAttribute('data-search').toLowerCase().indexOf(search) >= 0);
+    r.style.display = ok ? '' : 'none';
+    if (ok) visible++;
+  });
+  document.getElementById('recCount').textContent = visible + ' transactions available (本页 12 条演示数据)';
+}
+filterTable();
 </script>
 </body>
 </html>

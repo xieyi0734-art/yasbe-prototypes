@@ -17,6 +17,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica N
 .stat-card{background:#fff;border-radius:12px;border:1px solid #E5E7EB;padding:20px}
 .stat-value{font-size:25px;font-weight:700}
 .stat-label{font-size:13px;color:#86909C;margin-bottom:4px}
+.stat-sub{font-size:12px;color:#9CA3AF;margin-top:6px;line-height:1.5}
 .badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:500}
 .badge-pending{background:#FEF9C3;color:#854D0E}
 .btn-primary{background:#E59303;color:#fff;border:none;border-radius:8px;padding:6px 16px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
@@ -41,11 +42,20 @@ tr:hover td{background:#F9FAFB}
 .tag-amber{background:#FEF3C7;color:#92400E}
 .tag-gray{background:#F3F4F6;color:#4B5563}
 .tag-purple{background:#EDE9FE;color:#5B21B6}
+.tag-bridge{background:#E0E7FF;color:#3730A3}
+.tag-openpayd{background:#CCFBF1;color:#0F766E}
 .sec-card{background:#fff;border-radius:12px;border:1px solid #E5E7EB;margin-bottom:20px;overflow:hidden}
 .sec-head{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid #E5E7EB}
 .sec-title{font-size:16px;font-weight:600}
-.sec-sub{font-size:12px;color:#86909C;margin-top:2px}
+.sec-sub{font-size:12px;color:#86909C;margin-top:2px;line-height:1.6}
 .sec-count{font-size:13px;color:#166534;background:#DCFCE7;border-radius:20px;padding:2px 12px;font-weight:600}
+.sec-count.openpayd{color:#0F766E;background:#CCFBF1}
+.sec-count.bridge{color:#3730A3;background:#E0E7FF}
+.chbar{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:12px 16px;margin-bottom:20px;flex-wrap:wrap}
+.chbar-label{font-size:13px;color:#86909C;margin-right:4px}
+.ch-btn{padding:6px 14px;border:1px solid #D1D5DB;border-radius:20px;background:#fff;font-size:13px;font-weight:500;color:#4B5563;cursor:pointer;transition:all .15s}
+.ch-btn:hover{border-color:#E59303;color:#E59303}
+.ch-btn.active{border-color:#E59303;background:#E59303;color:#fff}
 .queue-empty{padding:36px;text-align:center;color:#9CA3AF;font-size:14px}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;overflow-y:auto}
 .modal-overlay.active{display:flex;align-items:center;justify-content:center}
@@ -65,8 +75,9 @@ tr:hover td{background:#F9FAFB}
 .form-textarea:focus{border-color:#E59303;box-shadow:0 0 0 2px rgba(229,147,3,.15)}
 .reject-box{display:none;margin-top:12px;background:#FEF2F2;border:1px solid #FECACA;border-radius:10px;padding:14px}
 .mono{font-family:SFMono-Regular,Menlo,Monaco,Consolas,monospace}
-.toast{position:fixed;right:24px;bottom:24px;background:#1D2129;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;z-index:2000;opacity:0;transform:translateY(10px);transition:all .25s;pointer-events:none;max-width:420px}
+.toast{position:fixed;right:24px;bottom:24px;background:#1D2129;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;z-index:2000;opacity:0;transform:translateY(10px);transition:all .25s;pointer-events:none;max-width:460px}
 .toast.show{opacity:1;transform:translateY(0)}
+.note{font-size:12px;color:#86909C;background:#F9FAFB;border:1px dashed #E5E7EB;border-radius:8px;padding:12px 16px;margin-bottom:20px;line-height:1.8}
 </style>
 </head>
 <body>
@@ -84,6 +95,7 @@ tr:hover td{background:#F9FAFB}
 <div class="sidebar-item" style="padding-left:36px;font-size:13px;">🏦 资金总览</div>
 <div class="sidebar-item" style="padding-left:36px;font-size:13px;">🏢 收款账户</div>
 <div class="sidebar-item" style="padding-left:36px;font-size:13px;">💱 币种设置</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">🔗 渠道调用日志</div>
 <div class="sidebar-item"><span>₿</span> 加密货币</div>
 <div class="sidebar-item"><span>🔄</span> 兑换管理</div>
 <div class="sidebar-label">渠道</div>
@@ -100,114 +112,161 @@ tr:hover td{background:#F9FAFB}
 <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;">
 <div>
 <h1 style="font-size:24px;font-weight:700;">交易审核</h1>
-<p style="font-size:13px;color:#86909C;margin-top:4px;">待办队列（PROCESSING）— 同名规则已由系统自动执行（同名入金自动入账、出金仅可选同名已核验外部账户）；人工仅需处理三线：非同名入金挂账复核、出金合规终审、非同名外部账户（EA）添加审核。审批后自动移出队列，可在交易记录查看历史</p>
+<p style="font-size:13px;color:#86909C;margin-top:4px;">待办队列（PROCESSING）· <b>法币通道 = Bridge（USD 等）/ OpenPayd（EUR / GBP 等）</b> — 顶部按通道筛选，队列内以「通道」列区分；同名规则由平台统一强制，每条标出判定方（平台 / 上游）</p>
 </div>
+<a class="btn-outline" style="text-decoration:none;" href="02-Fiat-Transaction-List.html">查看交易记录 →</a>
+</div>
+
+<!-- Channel Filter -->
+<div class="chbar">
+<span class="chbar-label">法币通道：</span>
+<button class="ch-btn active" data-ch="all" onclick="chFilter('all',this)">全部通道 <span id="chAll">15</span></button>
+<button class="ch-btn" data-ch="Bridge" onclick="chFilter('Bridge',this)">Bridge <span id="chBridge">7</span></button>
+<button class="ch-btn" data-ch="OpenPayd" onclick="chFilter('OpenPayd',this)">OpenPayd <span id="chOpenpayd">8</span></button>
+<span style="margin-left:auto;font-size:12px;color:#9CA3AF;">筛选同时作用于下方三个队列</span>
 </div>
 
 <!-- Stats Row -->
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
 <div class="stat-card">
-<div class="stat-label">待审入金（非同名挂账复核）</div>
-<div class="stat-value" id="stDeposit" style="color:#166534;">5</div>
+<div class="stat-label">待审入金</div>
+<div class="stat-value" id="stDeposit" style="color:#166534;">6</div>
+<div class="stat-sub" id="stDepositCh">Bridge 3 · OpenPayd 3</div>
 </div>
 <div class="stat-card">
-<div class="stat-label">待审出金（同名已核验受益人）</div>
-<div class="stat-value" id="stWithdraw" style="color:#1D4ED8;">4</div>
+<div class="stat-label">待审出金</div>
+<div class="stat-value" id="stWithdraw" style="color:#1D4ED8;">5</div>
+<div class="stat-sub" id="stWithdrawCh">Bridge 2 · OpenPayd 3</div>
 </div>
 <div class="stat-card">
 <div class="stat-label">待审 EA 添加（非同名证明审核）</div>
-<div class="stat-value" id="stEaAdd" style="color:#92400E;">3</div>
+<div class="stat-value" id="stEaAdd" style="color:#92400E;">4</div>
+<div class="stat-sub" id="stEaAddCh">Bridge 2 · OpenPayd 2</div>
 </div>
 <div class="stat-card">
 <div class="stat-label">今日已审核</div>
 <div class="stat-value">23</div>
+<div class="stat-sub">近 7 日平均 19 单 / 日</div>
 </div>
 </div>
 
-<!-- Deposit Queue (non-same-name hold review) -->
+<!-- Deposit Queue -->
 <div class="sec-card">
 <div class="sec-head">
 <div>
-<div class="sec-title">入金待审队列 · 非同名挂账复核 <span class="tag tag-ok" style="margin-left:8px;">Deposit</span></div>
-<div class="sec-sub">同名入金已由系统自动入账（不进入队列）；此处仅为<b>非同名挂账</b>单 — 客户已按提示添加该外部账户并上传证明，批准=挂账解除入账 / 拒绝=原路退款</div>
+<div class="sec-title">入金待审队列 <span class="tag tag-ok" style="margin-left:8px;">Deposit</span></div>
+<div class="sec-sub"><b>Bridge</b>：非同名入金挂账复核（同名入金系统自动入账，不进队列）；<b>OpenPayd</b>：Pay In 待运营确认（同名 / 非同名均需确认，非同名挂账）。<b>挂账 HOLD 为平台级机制、两通道统一适用</b>（7 天未补证自动退款，已补证单停表待复核）</div>
 </div>
-<span class="sec-count" id="cntDeposit">5 单待审</span>
+<span class="sec-count" id="cntDeposit">6 单待审</span>
 </div>
 <div class="table-scroll">
-<table>
+<table style="min-width:1560px;">
 <thead>
 <tr>
 <th>交易 ID</th>
 <th>客户</th>
+<th>通道</th>
 <th>币种</th>
 <th>金额</th>
+<th>待审原因</th>
 <th>目标收款账户</th>
 <th>打款人 Sender</th>
-<th>发款银行</th>
 <th>同名判定</th>
+<th>判定方</th>
+<th>上游状态</th>
 <th>提交时间</th>
 <th style="text-align:right;">操作</th>
 </tr>
 </thead>
 <tbody id="tbDeposit">
-<tr data-proof="bank-statement-johnsmith-0908.pdf" data-days="2" data-hold="FIAT-HOLD-011" data-subj="TZ INTERNATIONAL LTD" data-acc-name="USD 收款账户" data-acc-tail="8842" data-ref="YASBE-USD-8842">
+<tr data-provider="Bridge" data-p-id="FIAT-01M1X8EZEFSNNJDJ1B07MVFR61" data-cust="tz" data-custid="C-WAEJ4T8G" data-ccy="USD" data-amt="$20.50" data-reason="非同名挂账复核" data-acc="USD 收款账户 · •••• 8842" data-sender="John Smith" data-bank="Clear Bank" data-judge="✗ 非同名" data-judgeby="平台（系统比对 KYB 主体）" data-upstream="平台内挂账 HOLD" data-time="2026-09-08 09:12:05" data-proof="bank-statement-johnsmith-0908.pdf" data-days="2" data-hold="FIAT-HOLD-011" data-subj="TZ INTERNATIONAL LTD" data-ref="YASBE-USD-8842" data-risk="">
 <td class="mono">FIAT-01M1X8EZEFSNNJDJ1B07MVFR61</td>
 <td><span style="font-weight:500;">tz</span><div class="mono" style="font-size:11px;color:#86909C;">C-WAEJ4T8G</div></td>
+<td><span class="tag tag-bridge" style="margin-left:0;">Bridge</span></td>
 <td>USD</td>
 <td>$20.50</td>
+<td><span class="tag tag-amber" style="margin-left:0;">非同名挂账复核</span></td>
 <td><span style="font-weight:500;">USD 收款账户</span><div class="mono" style="font-size:11px;color:#86909C;">•••• 8842</div></td>
 <td>John Smith</td>
-<td>Clear Bank</td>
 <td><span class="tag tag-amber">非同名 · 已补证</span></td>
+<td><span class="tag tag-gray">平台</span></td>
+<td><span class="mono" style="font-size:12px;color:#92400E;">HOLD</span></td>
 <td>2026-09-08 09:12:05</td>
 <td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'deposit')">复核</button></td>
 </tr>
-<tr data-proof="ownership-confirmation-cai.pdf" data-days="1" data-hold="FIAT-HOLD-012" data-subj="CAI CONSULTING SARL" data-acc-name="EUR 收款账户" data-acc-tail="3091" data-ref="YASBE-EUR-3091">
-<td class="mono">FIAT-09WQ2XC4VBNM7KJ2L8PA0SD3F5</td>
-<td><span style="font-weight:500;">cai</span><div class="mono" style="font-size:11px;color:#86909C;">C-8QX2S0LC</div></td>
-<td>EUR</td>
-<td>€1,250.00</td>
-<td><span style="font-weight:500;">EUR 收款账户</span><div class="mono" style="font-size:11px;color:#86909C;">•••• 3091</div></td>
-<td>Belmont Trading SARL</td>
-<td>Banking Circle</td>
-<td><span class="tag tag-amber">非同名 · 已补证</span></td>
-<td>2026-09-08 09:03:41</td>
-<td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'deposit')">复核</button></td>
-</tr>
-<tr data-proof="statement-123trading-2201.pdf" data-days="5" data-hold="FIAT-HOLD-009" data-subj="123 TRADING LTD" data-acc-name="GBP 收款账户" data-acc-tail="7741" data-ref="YASBE-GBP-7741">
-<td class="mono">FIAT-08HJ3K5L9QWERTY2U4I6O8P0A1</td>
-<td><span style="font-weight:500;">123</span><div class="mono" style="font-size:11px;color:#86909C;">C-SSC119MO</div></td>
-<td>GBP</td>
-<td>£3,400.00</td>
-<td><span style="font-weight:500;">GBP 收款账户</span><div class="mono" style="font-size:11px;color:#86909C;">•••• 7741</div></td>
-<td>Peter Zhang</td>
-<td>Clear Junction</td>
-<td><span class="tag tag-amber">非同名 · 已补证 · 第 5 天</span></td>
-<td>2026-09-08 08:47:22</td>
-<td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'deposit')">复核</button></td>
-</tr>
-<tr data-proof="trade-contract-novatrade.pdf" data-days="1" data-hold="FIAT-HOLD-013" data-subj="WANG XIAOMING" data-acc-name="USD 收款账户" data-acc-tail="5560" data-ref="YASBE-USD-5560">
+<tr data-provider="Bridge" data-p-id="FIAT-07ZXCV6BNM5QAZ4WSX3EDC2RFV" data-cust="zdz" data-custid="C-FWCHT9TS" data-ccy="USD" data-amt="$80,000.00" data-reason="非同名挂账复核" data-acc="USD 收款账户 · •••• 5560" data-sender="Nova Trade LLC" data-bank="Apex Markets Inc" data-judge="✗ 非同名" data-judgeby="平台（系统比对 KYB 主体）" data-upstream="平台内挂账 HOLD" data-time="2026-09-08 08:31:09" data-proof="trade-contract-novatrade.pdf" data-days="1" data-hold="FIAT-HOLD-013" data-subj="WANG XIAOMING" data-ref="YASBE-USD-5560" data-risk="大额交易 — 建议二次核验资金来源与贸易背景">
 <td class="mono">FIAT-07ZXCV6BNM5QAZ4WSX3EDC2RFV</td>
 <td><span style="font-weight:500;">zdz</span><div class="mono" style="font-size:11px;color:#86909C;">C-FWCHT9TS</div></td>
+<td><span class="tag tag-bridge" style="margin-left:0;">Bridge</span></td>
 <td>USD</td>
 <td>$80,000.00<span class="tag tag-risk">大额</span></td>
+<td><span class="tag tag-amber" style="margin-left:0;">非同名挂账复核</span></td>
 <td><span style="font-weight:500;">USD 收款账户</span><div class="mono" style="font-size:11px;color:#86909C;">•••• 5560</div></td>
 <td>Nova Trade LLC</td>
-<td>Apex Markets Inc</td>
 <td><span class="tag tag-amber">非同名 · 已补证</span></td>
+<td><span class="tag tag-gray">平台</span></td>
+<td><span class="mono" style="font-size:12px;color:#92400E;">HOLD</span></td>
 <td>2026-09-08 08:31:09</td>
 <td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'deposit')">复核</button></td>
 </tr>
-<tr data-proof="statement-linghuang-2208.pdf" data-days="3" data-hold="FIAT-HOLD-010" data-subj="YONECO GLOBAL LIMITED" data-acc-name="USD 收款账户" data-acc-tail="7712" data-ref="YASBE-USD-7712">
+<tr data-provider="Bridge" data-p-id="FIAT-06POI9UYT8REW7QAZ1ZXC2VBN3" data-cust="yoneco41" data-custid="C-KL2MNP9Q" data-ccy="USD" data-amt="$5,120.00" data-reason="非同名挂账复核" data-acc="USD 收款账户 · •••• 7712" data-sender="Ling Huang" data-bank="Apex Markets Inc" data-judge="✗ 非同名" data-judgeby="平台（系统比对 KYB 主体）" data-upstream="平台内挂账 HOLD" data-time="2026-09-08 07:58:30" data-proof="statement-linghuang-2208.pdf" data-days="3" data-hold="FIAT-HOLD-010" data-subj="YONECO GLOBAL LIMITED" data-ref="YASBE-USD-7712" data-risk="">
 <td class="mono">FIAT-06POI9UYT8REW7QAZ1ZXC2VBN3</td>
 <td><span style="font-weight:500;">yoneco41</span><div class="mono" style="font-size:11px;color:#86909C;">C-KL2MNP9Q</div></td>
+<td><span class="tag tag-bridge" style="margin-left:0;">Bridge</span></td>
 <td>USD</td>
 <td>$5,120.00</td>
+<td><span class="tag tag-amber" style="margin-left:0;">非同名挂账复核</span></td>
 <td><span style="font-weight:500;">USD 收款账户</span><div class="mono" style="font-size:11px;color:#86909C;">•••• 7712</div></td>
 <td>Ling Huang</td>
-<td>Apex Markets Inc</td>
-<td><span class="tag tag-amber">非同名 · 已补证 · 第 3 天</span></td>
+<td><span class="tag tag-amber">非同名 · 已补证</span></td>
+<td><span class="tag tag-gray">平台</span></td>
+<td><span class="mono" style="font-size:12px;color:#92400E;">HOLD</span></td>
 <td>2026-09-08 07:58:30</td>
+<td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'deposit')">复核</button></td>
+</tr>
+<tr data-provider="OpenPayd" data-p-id="FIAT-09WQ2XC4VBNM7KJ2L8PA0SD3F5" data-cust="cai" data-custid="C-8QX2S0LC" data-ccy="EUR" data-amt="€1,250.00" data-reason="非同名 Pay In 挂账待确认" data-acc="EUR Payment Account · IBAN •••• 3091" data-sender="Belmont Trading SARL" data-bank="Banking Circle" data-judge="✗ 非同名" data-judgeby="平台（OpenPayd 不校验 sender）" data-upstream="Pay In Processing" data-time="2026-09-08 09:03:41" data-proof="ownership-confirmation-cai.pdf" data-days="1" data-hold="FIAT-HOLD-012" data-subj="CAI CONSULTING SARL" data-ref="YASBE-EUR-3091" data-risk="">
+<td class="mono">FIAT-09WQ2XC4VBNM7KJ2L8PA0SD3F5</td>
+<td><span style="font-weight:500;">cai</span><div class="mono" style="font-size:11px;color:#86909C;">C-8QX2S0LC</div></td>
+<td><span class="tag tag-openpayd" style="margin-left:0;">OpenPayd</span></td>
+<td>EUR</td>
+<td>€1,250.00</td>
+<td><span class="tag tag-info" style="margin-left:0;">非同名 Pay In 挂账待确认</span></td>
+<td><span style="font-weight:500;">EUR Payment Account</span><div class="mono" style="font-size:11px;color:#86909C;">IBAN •••• 3091</div></td>
+<td>Belmont Trading SARL</td>
+<td><span class="tag tag-amber">非同名 · 已补证</span></td>
+<td><span class="tag tag-gray">平台</span></td>
+<td><span class="mono" style="font-size:12px;color:#0F766E;">Pay In Processing</span></td>
+<td>2026-09-08 09:03:41</td>
+<td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'deposit')">复核</button></td>
+</tr>
+<tr data-provider="OpenPayd" data-p-id="FIAT-08HJ3K5L9QWERTY2U4I6O8P0A1" data-cust="123" data-custid="C-SSC119MO" data-ccy="GBP" data-amt="£3,400.00" data-reason="非同名 Pay In 挂账待确认" data-acc="GBP Payment Account · Sort Code •••• 7741" data-sender="Peter Zhang" data-bank="Clear Junction" data-judge="✗ 非同名" data-judgeby="平台（OpenPayd 不校验 sender）" data-upstream="Pay In Processing" data-time="2026-09-08 08:47:22" data-proof="statement-123trading-2201.pdf" data-days="5" data-hold="FIAT-HOLD-009" data-subj="123 TRADING LTD" data-ref="YASBE-GBP-7741" data-risk="">
+<td class="mono">FIAT-08HJ3K5L9QWERTY2U4I6O8P0A1</td>
+<td><span style="font-weight:500;">123</span><div class="mono" style="font-size:11px;color:#86909C;">C-SSC119MO</div></td>
+<td><span class="tag tag-openpayd" style="margin-left:0;">OpenPayd</span></td>
+<td>GBP</td>
+<td>£3,400.00</td>
+<td><span class="tag tag-info" style="margin-left:0;">非同名 Pay In 挂账待确认</span></td>
+<td><span style="font-weight:500;">GBP Payment Account</span><div class="mono" style="font-size:11px;color:#86909C;">Sort Code •••• 7741</div></td>
+<td>Peter Zhang</td>
+<td><span class="tag tag-amber">非同名 · 已补证</span></td>
+<td><span class="tag tag-gray">平台</span></td>
+<td><span class="mono" style="font-size:12px;color:#0F766E;">Pay In Processing</span></td>
+<td>2026-09-08 08:47:22</td>
+<td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'deposit')">复核</button></td>
+</tr>
+<tr data-provider="OpenPayd" data-p-id="FIAT-0BQ3X5M7N9PLR2TV4WY6ZA8C0D" data-cust="qing liang" data-custid="C-PJVTAFWG" data-ccy="GBP" data-amt="£6,800.00" data-reason="Pay In 待确认" data-acc="GBP Payment Account · Sort Code •••• 6620" data-sender="Liang Qing" data-bank="Clear Junction" data-judge="✓ 同名（已核验）" data-judgeby="平台（OpenPayd 不校验 sender）" data-upstream="Pay In Processing" data-time="2026-09-08 09:24:51" data-proof="bank-statement-liangqing-0908.pdf" data-days="0" data-hold="—" data-subj="QING LIANG TRADING LTD" data-ref="YASBE-GBP-6620" data-risk="">
+<td class="mono">FIAT-0BQ3X5M7N9PLR2TV4WY6ZA8C0D</td>
+<td><span style="font-weight:500;">qing liang</span><div class="mono" style="font-size:11px;color:#86909C;">C-PJVTAFWG</div></td>
+<td><span class="tag tag-openpayd" style="margin-left:0;">OpenPayd</span></td>
+<td>GBP</td>
+<td>£6,800.00</td>
+<td><span class="tag tag-info" style="margin-left:0;">Pay In 待确认</span></td>
+<td><span style="font-weight:500;">GBP Payment Account</span><div class="mono" style="font-size:11px;color:#86909C;">Sort Code •••• 6620</div></td>
+<td>Liang Qing</td>
+<td><span class="tag tag-ok">同名 · 已核验</span></td>
+<td><span class="tag tag-gray">平台</span></td>
+<td><span class="mono" style="font-size:12px;color:#0F766E;">Pay In Processing</span></td>
+<td>2026-09-08 09:24:51</td>
 <td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'deposit')">复核</button></td>
 </tr>
 </tbody>
@@ -219,74 +278,104 @@ tr:hover td{background:#F9FAFB}
 <div class="sec-card">
 <div class="sec-head">
 <div>
-<div class="sec-title">出金待审队列 · 合规终审 <span class="tag" style="margin-left:8px;background:#EFF6FF;color:#1D4ED8;">Withdrawal</span></div>
-<div class="sec-sub">出金目标<b>仅限正常状态（已核验）的同名外部账户</b>，系统已按该规则过滤并校验资金；此处为受益人信息与合规单据终审 — 批准后提交上游汇款</div>
+<div class="sec-title">出金待审队列 <span class="tag" style="margin-left:8px;background:#EFF6FF;color:#1D4ED8;">Withdrawal</span></div>
+<div class="sec-sub">出金目标<b>仅限正常状态（已核验）的同名外部账户</b>，系统已按该规则过滤并校验资金；批准后 Bridge 提交上游汇款 / OpenPayd 提交 Payout（SEPA · FASTER_PAYMENTS · CHAPS）</div>
 </div>
-<span class="sec-count" id="cntWithdraw" style="color:#1D4ED8;background:#EFF6FF;">4 单待审</span>
+<span class="sec-count" id="cntWithdraw" style="color:#1D4ED8;background:#EFF6FF;">5 单待审</span>
 </div>
 <div class="table-scroll">
-<table>
+<table style="min-width:1500px;">
 <thead>
 <tr>
 <th>交易 ID</th>
 <th>客户</th>
+<th>通道</th>
 <th>币种</th>
 <th>金额</th>
 <th>受益人 Beneficiary</th>
 <th>同名核验</th>
+<th>判定方</th>
 <th>转账用途</th>
 <th>单据</th>
+<th>上游状态</th>
 <th>提交时间</th>
 <th style="text-align:right;">操作</th>
 </tr>
 </thead>
 <tbody id="tbWithdraw">
-<tr data-ea="ea-eur-cai" data-ea-name="Cai Consulting SARL" data-ea-state="verified" data-bal="€28,400.00" data-ea-bank="Deutsche Bank" data-ea-acc="4402" data-src-acc="EUR 收款账户 · 尾号 3091" data-proof="invoice-2026-0891.pdf">
-<td class="mono">FIAT-05MNB4VCX5ZAQ6WSX7EDC8RFV9</td>
-<td><span style="font-weight:500;">cai</span><div class="mono" style="font-size:11px;color:#86909C;">C-8QX2S0LC</div></td>
-<td>EUR</td>
-<td>€2,300.00</td>
-<td>Cai Consulting SARL</td>
-<td><span class="tag tag-ok">同名 · 已核验</span></td>
-<td>Invoice #2026-0891</td>
-<td><span class="tag tag-ok">已传</span></td>
-<td>2026-09-08 09:20:15</td>
-<td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'withdraw')">审核</button></td>
-</tr>
-<tr data-ea="ea-gbp-123" data-ea-name="123 Trading Ltd" data-ea-state="verified" data-bal="£9,860.00" data-ea-bank="Barclays" data-ea-acc="1188" data-src-acc="GBP 收款账户 · 尾号 7741" data-proof="supplier-payment-123.pdf">
-<td class="mono">FIAT-04TGBN4YH5UJM6IK7OL8P0QAZ9</td>
-<td><span style="font-weight:500;">123</span><div class="mono" style="font-size:11px;color:#86909C;">C-SSC119MO</div></td>
-<td>GBP</td>
-<td>£1,150.00</td>
-<td>123 Trading Ltd</td>
-<td><span class="tag tag-ok">同名 · 已核验</span></td>
-<td>Supplier Payment</td>
-<td><span class="tag tag-ok">已传</span></td>
-<td>2026-09-08 09:01:47</td>
-<td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'withdraw')">审核</button></td>
-</tr>
-<tr data-ea="ea-usd-wxm" data-ea-name="Wang Xiaoming" data-ea-state="verified" data-bal="$4,215.50" data-ea-bank="Bank of America" data-ea-acc="5520" data-src-acc="USD 收款账户 · 尾号 8842" data-proof="">
+<tr data-provider="Bridge" data-p-id="FIAT-03WSX2EDC3RFV4TGBN5YHNU6JM" data-cust="tz" data-custid="C-WAEJ4T8G" data-ccy="USD" data-amt="$500.00" data-sender="Wang Xiaoming" data-ea="EA-BR-US-5520" data-ea-name="Wang Xiaoming" data-ea-state="✓ 同名 · 已核验（正常状态，可出金）" data-ea-bank="Bank of America" data-ea-acc="5520" data-bal="$4,215.50" data-src-acc="USD 收款账户 · 尾号 8842" data-pur="Personal Remittance" data-doc="" data-upstream="待提交上游" data-judgeby="上游（Bridge 校验 external account）" data-time="2026-09-08 08:52:33" data-risk="">
 <td class="mono">FIAT-03WSX2EDC3RFV4TGBN5YHNU6JM</td>
 <td><span style="font-weight:500;">tz</span><div class="mono" style="font-size:11px;color:#86909C;">C-WAEJ4T8G</div></td>
+<td><span class="tag tag-bridge" style="margin-left:0;">Bridge</span></td>
 <td>USD</td>
 <td>$500.00</td>
 <td>Wang Xiaoming</td>
 <td><span class="tag tag-ok">同名 · 已核验</span></td>
+<td><span class="tag tag-gray">上游</span></td>
 <td>Personal Remittance</td>
 <td><span class="tag tag-risk">缺单据</span></td>
+<td><span class="mono" style="font-size:12px;color:#4B5563;">待提交</span></td>
 <td>2026-09-08 08:52:33</td>
 <td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'withdraw')">审核</button></td>
 </tr>
-<tr data-ea="ea-usd-lisa" data-ea-name="Lisa Chen" data-ea-state="verified" data-bal="$45,000.00" data-ea-bank="Wells Fargo" data-ea-acc="3308" data-src-acc="USD 收款账户 · 尾号 7733" data-proof="tuition-letter-lisa.pdf">
+<tr data-provider="Bridge" data-p-id="FIAT-02QAZ1WSX2EDC3RFV4TGBN5YHU6" data-cust="lisa" data-custid="C-77A3B9ZX" data-ccy="USD" data-amt="$12,000.00" data-sender="Lisa Chen" data-ea="EA-BR-US-3308" data-ea-name="Lisa Chen" data-ea-state="✓ 同名 · 已核验（正常状态，可出金）" data-ea-bank="Wells Fargo" data-ea-acc="3308" data-bal="$45,000.00" data-src-acc="USD 收款账户 · 尾号 7733" data-pur="Tuition Fee" data-doc="tuition-letter-lisa.pdf" data-upstream="待提交上游" data-judgeby="上游（Bridge 校验 external account）" data-time="2026-09-08 08:44:18" data-risk="首笔出金 — 建议核验资金来源与受益关系">
 <td class="mono">FIAT-02QAZ1WSX2EDC3RFV4TGBN5YHU6</td>
 <td><span style="font-weight:500;">lisa</span><div class="mono" style="font-size:11px;color:#86909C;">C-77A3B9ZX</div></td>
+<td><span class="tag tag-bridge" style="margin-left:0;">Bridge</span></td>
 <td>USD</td>
 <td>$12,000.00<span class="tag tag-risk">首笔出金</span></td>
 <td>Lisa Chen</td>
 <td><span class="tag tag-ok">同名 · 已核验</span></td>
+<td><span class="tag tag-gray">上游</span></td>
 <td>Tuition Fee</td>
 <td><span class="tag tag-ok">已传</span></td>
+<td><span class="mono" style="font-size:12px;color:#4B5563;">待提交</span></td>
 <td>2026-09-08 08:44:18</td>
+<td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'withdraw')">审核</button></td>
+</tr>
+<tr data-provider="OpenPayd" data-p-id="FIAT-05MNB4VCX5ZAQ6WSX7EDC8RFV9" data-cust="cai" data-custid="C-8QX2S0LC" data-ccy="EUR" data-amt="€2,300.00" data-sender="Cai Consulting SARL" data-ea="BEN-EUR-4471" data-ea-name="Parent Beneficiary + Bank Beneficiary（两层）" data-ea-state="✓ 同名 · 已核验（正常状态，可出金）" data-ea-bank="Deutsche Bank" data-ea-acc="4402" data-bal="€28,400.00" data-src-acc="EUR Payment Account · 尾号 3091" data-pur="Invoice #2026-0891" data-doc="invoice-2026-0891.pdf" data-upstream="Payout Processing" data-judgeby="平台（父受益人 + 银行受益人两层）" data-time="2026-09-08 09:20:15" data-risk="">
+<td class="mono">FIAT-05MNB4VCX5ZAQ6WSX7EDC8RFV9</td>
+<td><span style="font-weight:500;">cai</span><div class="mono" style="font-size:11px;color:#86909C;">C-8QX2S0LC</div></td>
+<td><span class="tag tag-openpayd" style="margin-left:0;">OpenPayd</span></td>
+<td>EUR</td>
+<td>€2,300.00</td>
+<td>Cai Consulting SARL</td>
+<td><span class="tag tag-ok">同名 · 已核验</span></td>
+<td><span class="tag tag-gray">平台</span></td>
+<td>Invoice #2026-0891</td>
+<td><span class="tag tag-ok">已传</span></td>
+<td><span class="mono" style="font-size:12px;color:#0F766E;">Payout Processing</span></td>
+<td>2026-09-08 09:20:15</td>
+<td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'withdraw')">审核</button></td>
+</tr>
+<tr data-provider="OpenPayd" data-p-id="FIAT-04TGBN4YH5UJM6IK7OL8P0QAZ9" data-cust="123" data-custid="C-SSC119MO" data-ccy="GBP" data-amt="£1,150.00" data-sender="123 Trading Ltd" data-ea="BEN-GB-1188" data-ea-name="Parent Beneficiary + Bank Beneficiary（两层）" data-ea-state="✓ 同名 · 已核验（正常状态，可出金）" data-ea-bank="Barclays" data-ea-acc="1188" data-bal="£9,860.00" data-src-acc="GBP Payment Account · 尾号 7741" data-pur="Supplier Payment" data-doc="supplier-payment-123.pdf" data-upstream="Payout Processing" data-judgeby="平台（父受益人 + 银行受益人两层）" data-time="2026-09-08 09:01:47" data-risk="">
+<td class="mono">FIAT-04TGBN4YH5UJM6IK7OL8P0QAZ9</td>
+<td><span style="font-weight:500;">123</span><div class="mono" style="font-size:11px;color:#86909C;">C-SSC119MO</div></td>
+<td><span class="tag tag-openpayd" style="margin-left:0;">OpenPayd</span></td>
+<td>GBP</td>
+<td>£1,150.00</td>
+<td>123 Trading Ltd</td>
+<td><span class="tag tag-ok">同名 · 已核验</span></td>
+<td><span class="tag tag-gray">平台</span></td>
+<td>Supplier Payment</td>
+<td><span class="tag tag-ok">已传</span></td>
+<td><span class="mono" style="font-size:12px;color:#0F766E;">Payout Processing</span></td>
+<td>2026-09-08 09:01:47</td>
+<td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'withdraw')">审核</button></td>
+</tr>
+<tr data-provider="OpenPayd" data-p-id="FIAT-0C6Y8L2Q4S7UN9XW1ZB3DF5HJ7K" data-cust="fdrt" data-custid="C-Y8FCT8G0" data-ccy="EUR" data-amt="€4,500.00" data-sender="Fdrt Consulting" data-ea="BEN-EUR-8834" data-ea-name="Parent Beneficiary + Bank Beneficiary（两层）" data-ea-state="✓ 同名 · 已核验（正常状态，可出金）" data-ea-bank="BNP Paribas" data-ea-acc="8834" data-bal="€16,200.00" data-src-acc="EUR Payment Account · 尾号 5518" data-pur="Service Fee" data-doc="service-agreement-fdrt.pdf" data-upstream="Payout Processing" data-judgeby="平台（父受益人 + 银行受益人两层）" data-time="2026-09-08 09:40:12" data-risk="">
+<td class="mono">FIAT-0C6Y8L2Q4S7UN9XW1ZB3DF5HJ7K</td>
+<td><span style="font-weight:500;">fdrt</span><div class="mono" style="font-size:11px;color:#86909C;">C-Y8FCT8G0</div></td>
+<td><span class="tag tag-openpayd" style="margin-left:0;">OpenPayd</span></td>
+<td>EUR</td>
+<td>€4,500.00</td>
+<td>Fdrt Consulting</td>
+<td><span class="tag tag-ok">同名 · 已核验</span></td>
+<td><span class="tag tag-gray">平台</span></td>
+<td>Service Fee</td>
+<td><span class="tag tag-ok">已传</span></td>
+<td><span class="mono" style="font-size:12px;color:#0F766E;">Payout Processing</span></td>
+<td>2026-09-08 09:40:12</td>
 <td style="text-align:right;"><button class="btn-primary" onclick="openReview(this,'withdraw')">审核</button></td>
 </tr>
 </tbody>
@@ -294,62 +383,88 @@ tr:hover td{background:#F9FAFB}
 </div>
 </div>
 
-<!-- EA Add Review Queue (new: non-same-name external account application) -->
+<!-- EA Add Queue -->
 <div class="sec-card">
 <div class="sec-head">
 <div>
 <div class="sec-title">EA 添加审核队列 <span class="tag tag-purple" style="margin-left:8px;">External Account</span></div>
-<div class="sec-sub">客户添加外部账户时系统自动判定同名：同名=自动创建成功（不进队列）；此处仅为<b>非同名申请</b> — 客户须上传证明文件，同意=账户创建成功（标记仅入金来源）/ 驳回=账户创建失败</div>
+<div class="sec-sub">同名申请系统自动创建成功（不进队列）；此处仅为<b>非同名申请</b>。判定方：Bridge 由上游校验 external account；OpenPayd 由平台按「父受益人 + 银行受益人」两层校验 — 同意=账户创建成功（标记仅入金来源）/ 驳回=创建失败</div>
 </div>
-<span class="sec-count" id="cntEaAdd" style="color:#5B21B6;background:#EDE9FE;">3 单待审</span>
+<span class="sec-count" id="cntEaAdd" style="color:#5B21B6;background:#EDE9FE;">4 单待审</span>
 </div>
 <div class="table-scroll">
-<table>
+<table style="min-width:1380px;">
 <thead>
 <tr>
 <th>申请 ID</th>
 <th>客户</th>
+<th>通道</th>
 <th>币种</th>
 <th>持有人（客户输入）</th>
 <th>同名判定</th>
+<th>判定方</th>
 <th>主体实名</th>
 <th>证明文件</th>
+<th>上游状态</th>
 <th>提交时间</th>
 <th style="text-align:right;">操作</th>
 </tr>
 </thead>
 <tbody id="tbEaAdd">
-<tr data-ea-name="WANG XIAOMING" data-subj="tz" data-proof="ownership-declaration-wxm.pdf" data-acc="4821" data-bank="Chase Bank" data-bic="CHASUS33">
+<tr data-provider="Bridge" data-p-id="EA-ADD-20260908-003" data-cust="tz" data-custid="C-WAEJ4T8G" data-ccy="USD" data-holder="Wang Xiaoming" data-judge="✗ 非同名" data-judgeby="上游（Bridge 校验 external account）" data-subj="TZ INTERNATIONAL LTD" data-proof="ownership-declaration-wxm.pdf" data-bank="Chase Bank" data-bic="CHASUS33" data-acc="4821" data-upstream="Pending Review" data-time="2026-09-08 09:31:02">
 <td class="mono">EA-ADD-20260908-003</td>
 <td><span style="font-weight:500;">tz</span><div class="mono" style="font-size:11px;color:#86909C;">C-WAEJ4T8G</div></td>
+<td><span class="tag tag-bridge" style="margin-left:0;">Bridge</span></td>
 <td>USD</td>
 <td>Wang Xiaoming</td>
 <td><span class="tag tag-risk">非同名</span></td>
+<td><span class="tag tag-gray">上游</span></td>
 <td><span class="mono" style="font-size:12px;">TZ INTERNATIONAL LTD</span></td>
 <td><span class="tag tag-ok">已传</span></td>
+<td><span class="mono" style="font-size:12px;color:#4B5563;">Pending Review</span></td>
 <td>2026-09-08 09:31:02</td>
 <td style="text-align:right;"><button class="btn-primary" onclick="openEaReview(this)">审核</button></td>
 </tr>
-<tr data-ea-name="YONECO TRADING CO" data-subj="123" data-proof="kyb-affiliate-agreement-yoneco.pdf" data-acc="77F3" data-bank="HSBC UK" data-bic="HBUKGB4B">
-<td class="mono">EA-ADD-20260908-002</td>
-<td><span style="font-weight:500;">123</span><div class="mono" style="font-size:11px;color:#86909C;">C-SSC119MO</div></td>
-<td>GBP</td>
-<td>Yoneco Trading Co</td>
-<td><span class="tag tag-risk">非同名</span></td>
-<td><span class="mono" style="font-size:12px;">123 TRADING LTD</span></td>
-<td><span class="tag tag-ok">已传</span></td>
-<td>2026-09-08 09:02:47</td>
-<td style="text-align:right;"><button class="btn-primary" onclick="openEaReview(this)">审核</button></td>
-</tr>
-<tr data-ea-name="LING HUANG" data-subj="yoneco41" data-proof="bank-statement-linghuang-2208.pdf" data-acc="2214" data-bank="Citibank N.A." data-bic="CITIUS33">
+<tr data-provider="Bridge" data-p-id="EA-ADD-20260908-001" data-cust="yoneco41" data-custid="C-KL2MNP9Q" data-ccy="USD" data-holder="Ling Huang" data-judge="✗ 非同名" data-judgeby="上游（Bridge 校验 external account）" data-subj="YONECO GLOBAL LIMITED" data-proof="bank-statement-linghuang-2208.pdf" data-bank="Citibank N.A." data-bic="CITIUS33" data-acc="2214" data-upstream="Pending Review" data-time="2026-09-08 08:20:11">
 <td class="mono">EA-ADD-20260908-001</td>
 <td><span style="font-weight:500;">yoneco41</span><div class="mono" style="font-size:11px;color:#86909C;">C-KL2MNP9Q</div></td>
+<td><span class="tag tag-bridge" style="margin-left:0;">Bridge</span></td>
 <td>USD</td>
 <td>Ling Huang</td>
 <td><span class="tag tag-risk">非同名</span></td>
+<td><span class="tag tag-gray">上游</span></td>
 <td><span class="mono" style="font-size:12px;">YONECO GLOBAL LIMITED</span></td>
 <td><span class="tag tag-ok">已传</span></td>
+<td><span class="mono" style="font-size:12px;color:#4B5563;">Pending Review</span></td>
 <td>2026-09-08 08:20:11</td>
+<td style="text-align:right;"><button class="btn-primary" onclick="openEaReview(this)">审核</button></td>
+</tr>
+<tr data-provider="OpenPayd" data-p-id="EA-ADD-20260908-002" data-cust="123" data-custid="C-SSC119MO" data-ccy="GBP" data-holder="Yoneco Trading Co" data-judge="✗ 非同名" data-judgeby="平台（父受益人 + 银行受益人两层）" data-subj="123 TRADING LTD" data-proof="kyb-affiliate-agreement-yoneco.pdf" data-bank="HSBC UK" data-bic="HBUKGB4B" data-acc="77F3" data-upstream="Beneficiary Pending" data-time="2026-09-08 09:02:47">
+<td class="mono">EA-ADD-20260908-002</td>
+<td><span style="font-weight:500;">123</span><div class="mono" style="font-size:11px;color:#86909C;">C-SSC119MO</div></td>
+<td><span class="tag tag-openpayd" style="margin-left:0;">OpenPayd</span></td>
+<td>GBP</td>
+<td>Yoneco Trading Co</td>
+<td><span class="tag tag-risk">非同名</span></td>
+<td><span class="tag tag-gray">平台</span></td>
+<td><span class="mono" style="font-size:12px;">123 TRADING LTD</span></td>
+<td><span class="tag tag-ok">已传</span></td>
+<td><span class="mono" style="font-size:12px;color:#4B5563;">Beneficiary Pending</span></td>
+<td>2026-09-08 09:02:47</td>
+<td style="text-align:right;"><button class="btn-primary" onclick="openEaReview(this)">审核</button></td>
+</tr>
+<tr data-provider="OpenPayd" data-p-id="EA-ADD-20260908-004" data-cust="cai" data-custid="C-8QX2S0LC" data-ccy="EUR" data-holder="Nova Trade GmbH" data-judge="✗ 非同名" data-judgeby="平台（父受益人 + 银行受益人两层）" data-subj="CAI CONSULTING SARL" data-proof="supplier-agreement-novatrade.pdf" data-bank="Deutsche Bank" data-bic="DEUTDEFF" data-acc="9017" data-upstream="Beneficiary Pending" data-time="2026-09-08 09:36:40">
+<td class="mono">EA-ADD-20260908-004</td>
+<td><span style="font-weight:500;">cai</span><div class="mono" style="font-size:11px;color:#86909C;">C-8QX2S0LC</div></td>
+<td><span class="tag tag-openpayd" style="margin-left:0;">OpenPayd</span></td>
+<td>EUR</td>
+<td>Nova Trade GmbH</td>
+<td><span class="tag tag-risk">非同名</span></td>
+<td><span class="tag tag-gray">平台</span></td>
+<td><span class="mono" style="font-size:12px;">CAI CONSULTING SARL</span></td>
+<td><span class="tag tag-ok">已传</span></td>
+<td><span class="mono" style="font-size:12px;color:#4B5563;">Beneficiary Pending</span></td>
+<td>2026-09-08 09:36:40</td>
 <td style="text-align:right;"><button class="btn-primary" onclick="openEaReview(this)">审核</button></td>
 </tr>
 </tbody>
@@ -357,25 +472,36 @@ tr:hover td{background:#F9FAFB}
 </div>
 </div>
 
+<div class="note">
+<strong>口径说明：</strong>① <b>通道（Provider）</b>为法币上游通道，与「渠道」分组下的<b>卡片渠道</b>（Interlace / TestPay / CardNet）不是同一概念；② <b>同名核验</b>对外统一由平台强制（Bridge 侧由上游代劳 external account / KYC 校验，OpenPayd 侧上游不校验 sender，故判定方不同，队列内逐单标注）；③ 审批动作落点：OpenPayd 走 <span class="mono">POST /apiAdmin/openpayd/payins/{id}/review</span> · <span class="mono">POST /apiAdmin/openpayd/payouts/{id}/review</span>，Bridge 侧管理端接口<b>后端待建</b>（本期仅表达流程与字段，不产生假动作）；④ 上游调用轨迹见「渠道调用日志」页。
 </div>
 
-<!-- Deposit Review Modal (non-same-name hold review) -->
+</div>
+
+<!-- Deposit Review Modal -->
 <div class="modal-overlay" id="depositModal">
 <div class="modal">
 <div class="status-strip">
 <span class="badge badge-pending">PROCESSING</span>
-<span style="font-weight:600;" id="dTitle">入金复核 · 非同名挂账单</span>
+<span style="font-weight:600;" id="dTitle">入金复核</span>
 <span style="margin-left:auto;font-size:13px;color:#86909C;" id="dTid"></span>
+</div>
+<div class="section-block">
+<div class="section-head">通道与上游状态</div>
+<div class="detail-row"><span class="k">法币通道 Provider</span><span class="v" id="dProvider"></span></div>
+<div class="detail-row"><span class="k">上游状态</span><span class="v" id="dUpstream"></span></div>
+<div class="detail-row"><span class="k">待审原因</span><span class="v" id="dReason"></span></div>
 </div>
 <div class="section-block">
 <div class="section-head">同名判定 <span style="font-weight:400;color:#86909C;font-size:12px;">系统自动比对（大小写 / 空格不敏感）</span></div>
 <div class="detail-row"><span class="k">打款人 Sender</span><span class="v" id="dSender"></span></div>
 <div class="detail-row"><span class="k">发款银行</span><span class="v" id="dBank"></span></div>
 <div class="detail-row"><span class="k">客户 KYB 主体实名</span><span class="v" id="dKyb"></span></div>
-<div class="detail-row"><span class="k">判定结果</span><span class="v" style="color:#DC2626;" id="dJudge"></span></div>
+<div class="detail-row"><span class="k">判定结果</span><span class="v" id="dJudge"></span></div>
+<div class="detail-row"><span class="k">判定方</span><span class="v" id="dJudgeBy"></span></div>
 <div class="detail-row"><span class="k">处置路径</span><span class="v" id="dPath"></span></div>
 </div>
-<div class="section-block">
+<div class="section-block" id="dHoldBlock">
 <div class="section-head">挂账信息</div>
 <div class="detail-row"><span class="k">挂账单号</span><span class="v mono" id="dHold"></span></div>
 <div class="detail-row"><span class="k">已挂账</span><span class="v" id="dDays"></span></div>
@@ -384,7 +510,7 @@ tr:hover td{background:#F9FAFB}
 <div class="section-block">
 <div class="section-head">客户补证 <span style="font-weight:400;color:#86909C;font-size:12px;">非同名入金须添加该外部账户并上传证明</span></div>
 <div class="detail-row"><span class="k">证明文件</span><span class="v" id="dProof" style="color:#1E40AF;">—</span></div>
-<div class="detail-row" style="background:#F9FAFB;"><span class="k" style="color:#6B7280;">客户已在 7 天内添加账户并上传证明 → 自动退款已停表；本单复核：批准=解除挂账入账 / 拒绝=原路退款</span><span class="v" style="font-weight:400;">⏱</span></div>
+<div class="detail-row" style="background:#F9FAFB;"><span class="k" style="color:#6B7280;">批准=资金入账 / 拒绝=原路退款；客户已补证的挂账单不再触发自动退款</span><span class="v" style="font-weight:400;">⏱</span></div>
 </div>
 <div class="section-block">
 <div class="section-head">Transaction Details</div>
@@ -419,8 +545,14 @@ tr:hover td{background:#F9FAFB}
 <div class="modal">
 <div class="status-strip">
 <span class="badge badge-pending">PROCESSING</span>
-<span style="font-weight:600;">出金审核 · 受益人信息与合规检查</span>
+<span style="font-weight:600;" id="wTitle">出金审核 · 受益人信息与合规检查</span>
 <span style="margin-left:auto;font-size:13px;color:#86909C;" id="wTid"></span>
+</div>
+<div class="section-block">
+<div class="section-head">通道与上游状态</div>
+<div class="detail-row"><span class="k">法币通道 Provider</span><span class="v" id="wProvider"></span></div>
+<div class="detail-row"><span class="k">清算网络 rails</span><span class="v" id="wMethod"></span></div>
+<div class="detail-row"><span class="k">上游状态</span><span class="v" id="wUpstream"></span></div>
 </div>
 <div class="section-block">
 <div class="section-head">Available Balance</div>
@@ -432,6 +564,7 @@ tr:hover td{background:#F9FAFB}
 <div class="section-head">同名账户核验 <span style="font-weight:400;color:#86909C;font-size:12px;">出金目标仅限正常状态（已核验）的同名外部账户</span></div>
 <div class="detail-row"><span class="k">目标外部账户</span><span class="v mono" id="wEa"></span></div>
 <div class="detail-row"><span class="k">同名核验</span><span class="v" id="wEaState" style="color:#166534;">✓ 同名 · 已核验（可出金）</span></div>
+<div class="detail-row"><span class="k">判定方</span><span class="v" id="wJudgeBy"></span></div>
 <div class="detail-row"><span class="k">收款银行（EA 开户行）</span><span class="v" id="wEaBank"></span></div>
 </div>
 <div class="section-block">
@@ -448,7 +581,6 @@ tr:hover td{background:#F9FAFB}
 <div class="detail-row"><span class="k">Date &amp; Time</span><span class="v" id="wTime"></span></div>
 <div class="detail-row"><span class="k">Currency</span><span class="v" id="wCcy"></span></div>
 <div class="detail-row"><span class="k">Amount</span><span class="v" id="wAmt"></span></div>
-<div class="detail-row"><span class="k">Transfer Method</span><span class="v" id="wMethod">—</span></div>
 </div>
 <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px;">
 <button class="btn-danger-outline" onclick="startReject()">拒绝 Reject</button>
@@ -479,9 +611,15 @@ tr:hover td{background:#F9FAFB}
 <div class="detail-row"><span class="k">KYB 主体实名</span><span class="v mono" id="eaSubj"></span></div>
 </div>
 <div class="section-block">
+<div class="section-head">通道与上游状态</div>
+<div class="detail-row"><span class="k">法币通道 Provider</span><span class="v" id="eaProvider"></span></div>
+<div class="detail-row"><span class="k">上游状态</span><span class="v" id="eaUpstream"></span></div>
+</div>
+<div class="section-block">
 <div class="section-head">同名判定 <span style="font-weight:400;color:#86909C;font-size:12px;">系统自动比对（大小写 / 空格不敏感）</span></div>
 <div class="detail-row"><span class="k">持有人（客户输入）</span><span class="v" id="eaHolder"></span></div>
 <div class="detail-row"><span class="k">判定结果</span><span class="v" style="color:#DC2626;" id="eaJudge"></span></div>
+<div class="detail-row"><span class="k">判定方</span><span class="v" id="eaJudgeBy"></span></div>
 <div class="detail-row"><span class="k">创建路径</span><span class="v" id="eaPath"></span></div>
 </div>
 <div class="section-block">
@@ -514,107 +652,135 @@ tr:hover td{background:#F9FAFB}
 <div class="toast" id="toast"></div>
 
 <script>
-var curTr = null, curType = null;
+var curTr = null, curType = null, curCh = 'all';
+var QUEUES = {
+  deposit:  {tb:'tbDeposit',  st:'stDeposit',  cnt:'cntDeposit',  ch:'stDepositCh',  label:'入金', cols:13},
+  withdraw: {tb:'tbWithdraw', st:'stWithdraw', cnt:'cntWithdraw', ch:'stWithdrawCh', label:'出金', cols:13},
+  ea:       {tb:'tbEaAdd',    st:'stEaAdd',    cnt:'cntEaAdd',    ch:'stEaAddCh',    label:'EA 添加', cols:12}
+};
 
 function showToast(msg) {
   var t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
   clearTimeout(t._h);
-  t._h = setTimeout(function(){ t.classList.remove('show'); }, 3200);
+  t._h = setTimeout(function(){ t.classList.remove('show'); }, 3600);
+}
+function sym(ccy){ return ccy === 'EUR' ? '€' : (ccy === 'GBP' ? '£' : '$'); }
+function d(tr, key){ var v = tr.getAttribute('data-' + key); return (v === null || v === '') ? '—' : v; }
+
+function visibleRows(key) {
+  var rows = document.querySelectorAll('#' + QUEUES[key].tb + ' tr[data-provider]');
+  var out = [];
+  for (var i = 0; i < rows.length; i++) {
+    if (rows[i].style.display !== 'none') out.push(rows[i]);
+  }
+  return out;
 }
 
-function cleanAmt(cell) {
-  var t = cell.textContent.replace(/大额|首笔出金|\s/g, '');
-  return t;
+function chFilter(ch, btn) {
+  curCh = ch;
+  var btns = document.querySelectorAll('.ch-btn');
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+  btn.classList.add('active');
+  var rows = document.querySelectorAll('tr[data-provider]');
+  for (var j = 0; j < rows.length; j++) {
+    var keep = (ch === 'all') || (rows[j].getAttribute('data-provider') === ch);
+    rows[j].style.display = keep ? '' : 'none';
+  }
+  recount();
 }
-function cellText(tr, idx) { return tr.cells[idx].textContent.trim(); }
+
+function recount() {
+  var all = document.querySelectorAll('tr[data-provider]').length;
+  var br = 0, op = 0, k;
+  var rows = document.querySelectorAll('tr[data-provider]');
+  for (k = 0; k < rows.length; k++) {
+    var p = rows[k].getAttribute('data-provider');
+    if (p === 'Bridge') br++; else op++;
+  }
+  document.getElementById('chAll').textContent = all;
+  document.getElementById('chBridge').textContent = br;
+  document.getElementById('chOpenpayd').textContent = op;
+  for (key in QUEUES) {
+    var vis = visibleRows(key);
+    var vb = 0, vo = 0;
+    for (var i = 0; i < vis.length; i++) {
+      if (vis[i].getAttribute('data-provider') === 'Bridge') vb++; else vo++;
+    }
+    document.getElementById(QUEUES[key].st).textContent = vis.length;
+    document.getElementById(QUEUES[key].cnt).textContent = vis.length + ' 单待审';
+    document.getElementById(QUEUES[key].ch).textContent = 'Bridge ' + vb + ' · OpenPayd ' + vo;
+  }
+}
 
 function openReview(btn, type) {
   curType = type;
   curTr = btn.closest('tr');
-  var cells = curTr.cells;
-  var isDep = type === 'deposit';
-  if (isDep) {
-    var subj = curTr.getAttribute('data-subj') || '—';
-    var days = curTr.getAttribute('data-days') || '—';
-    var proof = curTr.getAttribute('data-proof') || '—';
-    var hold = curTr.getAttribute('data-hold') || '—';
-    document.getElementById('dTid').textContent = cells[0].textContent;
-    document.getElementById('dTid2').textContent = cells[0].textContent;
-    document.getElementById('dCust').textContent = cellText(curTr, 1);
-    document.getElementById('dCcy').textContent = cellText(curTr, 2);
-    document.getElementById('dAmt').textContent = cleanAmt(cells[3]);
-    document.getElementById('dPost').textContent = cleanAmt(cells[3]);
-    var ccyD = cellText(curTr, 2);
-    document.getElementById('dFee').textContent = (ccyD === 'EUR' ? '€' : ccyD === 'GBP' ? '£' : '$') + '0.00';
-    document.getElementById('dSender').textContent = cellText(curTr, 5);
-    document.getElementById('dBank').textContent = cellText(curTr, 6);
-    document.getElementById('dTime').textContent = cellText(curTr, 8);
-    document.getElementById('dTitle').textContent = '入金复核 · 非同名挂账单';
-    document.getElementById('dKyb').textContent = subj;
-    document.getElementById('dJudge').textContent = '✗ 非同名（系统比对：与 KYB 主体不一致）';
-    document.getElementById('dPath').textContent = '客户已添加外部账户并上传证明 → 批准=解除挂账计入余额 / 拒绝=原路退款';
-    document.getElementById('dHold').textContent = hold;
-    document.getElementById('dDays').textContent = '第 ' + days + ' 天（已补证 · 复核中；7 天自动退款仅适用于未补证单，本单已停表）';
-    document.getElementById('dProof').textContent = proof + '  📎 预览';
-    var accName = curTr.getAttribute('data-acc-name') || '—';
-    var accTail = curTr.getAttribute('data-acc-tail') || '';
-    document.getElementById('dAcc').textContent = accName + (accTail ? ' ·••• ' + accTail : '');
-    document.getElementById('dRef').textContent = curTr.getAttribute('data-ref') || '—';
-    var risks = [];
-    for (var c = 0; c < cells.length; c++) {
-      var rt = cells[c].querySelector('.tag-risk');
-      if (rt && /大额/.test(rt.textContent)) risks.push('大额交易 — 建议二次核验资金来源与贸易背景');
-    }
-    if (risks.length) {
-      document.getElementById('dRisk').textContent = risks.join('；');
-      document.getElementById('dRiskRow').style.display = '';
-    } else {
-      document.getElementById('dRiskRow').style.display = 'none';
-    }
+  var provider = d(curTr, 'provider');
+  if (type === 'deposit') {
+    document.getElementById('dTitle').textContent = (provider === 'OpenPayd' ? 'Pay In 复核 · OpenPayd' : '入金复核 · 非同名挂账单 · Bridge');
+    document.getElementById('dTid').textContent = d(curTr, 'p-id');
+    document.getElementById('dTid2').textContent = d(curTr, 'p-id');
+    document.getElementById('dCust').textContent = d(curTr, 'cust') + ' · ' + d(curTr, 'custid');
+    document.getElementById('dCcy').textContent = d(curTr, 'ccy');
+    document.getElementById('dAmt').textContent = d(curTr, 'amt');
+    document.getElementById('dPost').textContent = d(curTr, 'amt');
+    document.getElementById('dFee').textContent = sym(d(curTr, 'ccy')) + '0.00';
+    document.getElementById('dTime').textContent = d(curTr, 'time');
+    document.getElementById('dProvider').textContent = provider;
+    document.getElementById('dUpstream').textContent = d(curTr, 'upstream');
+    document.getElementById('dReason').textContent = d(curTr, 'reason');
+    document.getElementById('dSender').textContent = d(curTr, 'sender');
+    document.getElementById('dBank').textContent = d(curTr, 'bank');
+    document.getElementById('dKyb').textContent = d(curTr, 'subj');
+    document.getElementById('dJudge').textContent = d(curTr, 'judge') + '（与 KYB 主体不一致 = 非同名）';
+    document.getElementById('dJudgeBy').textContent = d(curTr, 'judgeby');
+    document.getElementById('dPath').textContent = (provider === 'OpenPayd')
+      ? '上游 Pay In Processing → 平台确认后入账（OpenPayd 不校验 sender，同名规则由平台强制）/ 拒绝=原路退款'
+      : '客户已添加外部账户并上传证明 → 批准=解除挂账计入余额 / 拒绝=原路退款';
+    document.getElementById('dHold').textContent = d(curTr, 'hold');
+    var days = d(curTr, 'days');
+    document.getElementById('dDays').textContent = (days === '—' || days === '0')
+      ? '—（非挂账单）'
+      : '第 ' + days + ' 天（已补证 · 复核中；7 天自动退款仅适用于未补证单，本单已停表）';
+    document.getElementById('dProof').textContent = d(curTr, 'proof') + '  📎 预览';
+    document.getElementById('dAcc').textContent = d(curTr, 'acc');
+    document.getElementById('dRef').textContent = d(curTr, 'ref');
+    document.getElementById('dHoldBlock').style.display = (d(curTr, 'hold') === '—') ? 'none' : '';
+    var risk = d(curTr, 'risk');
+    if (risk !== '—') { document.getElementById('dRisk').textContent = risk; document.getElementById('dRiskRow').style.display = ''; }
+    else document.getElementById('dRiskRow').style.display = 'none';
     document.getElementById('depositModal').classList.add('active');
   } else {
-    var ea = curTr.getAttribute('data-ea') || '—';
-    var eaName = curTr.getAttribute('data-ea-name') || '';
-    var bal = curTr.getAttribute('data-bal') || '—';
-    document.getElementById('wBal').textContent = bal;
-    document.getElementById('wSrcAcc').textContent = curTr.getAttribute('data-src-acc') || '—';
-    document.getElementById('wTid').textContent = cells[0].textContent;
-    document.getElementById('wTid2').textContent = cells[0].textContent;
-    document.getElementById('wCust').textContent = cellText(curTr, 1);
-    document.getElementById('wCcy').textContent = cellText(curTr, 2);
-    document.getElementById('wAmt').textContent = cleanAmt(cells[3]);
-    document.getElementById('wBen').textContent = cellText(curTr, 4);
-    document.getElementById('wEa').textContent = ea + (eaName ? ' · ' + eaName : '');
-    document.getElementById('wEaBank').textContent = curTr.getAttribute('data-ea-bank') || '—';
-    document.getElementById('wEaState').textContent = '✓ 同名 · 已核验（正常状态，可出金）';
-    document.getElementById('wEaState').style.color = '#166534';
-    document.getElementById('wAcc').textContent = '•••• ' + (curTr.getAttribute('data-ea-acc') || '0000');
-    var ccyW = cellText(curTr, 2);
-    document.getElementById('wMethod').textContent = ccyW === 'USD' ? 'Fedwire' : (ccyW === 'GBP' ? 'FPS' : 'SEPA');
-    document.getElementById('wPur').textContent = cellText(curTr, 6);
-    var doc = cellText(curTr, 7);
-    var proofW = curTr.getAttribute('data-proof');
-    if (doc === '已传') {
-      document.getElementById('wDoc').textContent = (proofW ? proofW : 'supporting-doc.pdf') + ' 已上传';
-      document.getElementById('wDoc').style.color = '#166534';
-    } else {
-      document.getElementById('wDoc').textContent = '未上传（缺单据）';
-      document.getElementById('wDoc').style.color = '#DC2626';
-    }
-    document.getElementById('wTime').textContent = cellText(curTr, 8);
-    var wRisks = [];
-    for (var wc = 0; wc < cells.length; wc++) {
-      var wrt = cells[wc].querySelector('.tag-risk');
-      if (wrt && /首笔出金/.test(wrt.textContent)) wRisks.push('首笔出金 — 建议核验资金来源与受益关系');
-    }
-    if (wRisks.length) {
-      document.getElementById('wRisk').textContent = wRisks.join('；');
-      document.getElementById('wRiskRow').style.display = '';
-    } else {
-      document.getElementById('wRiskRow').style.display = 'none';
-    }
+    document.getElementById('wTitle').textContent = (provider === 'OpenPayd' ? '出金审核 · OpenPayd Payout' : '出金审核 · Bridge Offramp');
+    document.getElementById('wTid').textContent = d(curTr, 'p-id');
+    document.getElementById('wTid2').textContent = d(curTr, 'p-id');
+    document.getElementById('wCust').textContent = d(curTr, 'cust') + ' · ' + d(curTr, 'custid');
+    document.getElementById('wCcy').textContent = d(curTr, 'ccy');
+    document.getElementById('wAmt').textContent = d(curTr, 'amt');
+    document.getElementById('wBal').textContent = d(curTr, 'bal');
+    document.getElementById('wSrcAcc').textContent = d(curTr, 'src-acc');
+    document.getElementById('wProvider').textContent = provider;
+    document.getElementById('wUpstream').textContent = d(curTr, 'upstream');
+    var ccy = d(curTr, 'ccy');
+    document.getElementById('wMethod').textContent = provider === 'OpenPayd'
+      ? (ccy === 'GBP' ? 'FASTER_PAYMENTS / CHAPS' : 'SEPA / SEPA Instant')
+      : (ccy === 'USD' ? 'Wire / ACH / FedNow' : (ccy === 'GBP' ? 'FPS' : 'SEPA'));
+    document.getElementById('wEa').textContent = d(curTr, 'ea') + ' · ' + d(curTr, 'ea-name');
+    document.getElementById('wEaBank').textContent = d(curTr, 'ea-bank');
+    document.getElementById('wEaState').textContent = d(curTr, 'ea-state');
+    document.getElementById('wJudgeBy').textContent = d(curTr, 'judgeby');
+    document.getElementById('wBen').textContent = d(curTr, 'sender');
+    document.getElementById('wAcc').textContent = '•••• ' + d(curTr, 'ea-acc');
+    document.getElementById('wPur').textContent = d(curTr, 'pur');
+    var doc = d(curTr, 'doc');
+    if (doc === '—') { document.getElementById('wDoc').textContent = '未上传（缺单据）'; document.getElementById('wDoc').style.color = '#DC2626'; }
+    else { document.getElementById('wDoc').textContent = doc + ' 已上传'; document.getElementById('wDoc').style.color = '#166534'; }
+    document.getElementById('wTime').textContent = d(curTr, 'time');
+    var wrisk = d(curTr, 'risk');
+    if (wrisk !== '—') { document.getElementById('wRisk').textContent = wrisk; document.getElementById('wRiskRow').style.display = ''; }
+    else document.getElementById('wRiskRow').style.display = 'none';
     document.getElementById('withdrawModal').classList.add('active');
   }
   hideReject();
@@ -623,21 +789,23 @@ function openReview(btn, type) {
 function openEaReview(btn) {
   curType = 'ea';
   curTr = btn.closest('tr');
-  var cells = curTr.cells;
-  var holder = cellText(curTr, 3);
-  var subjRaw = cellText(curTr, 5).replace(/\s+/g, ' ');
-  var ccy = cellText(curTr, 2);
-  document.getElementById('eaTid').textContent = cells[0].textContent;
-  document.getElementById('eaCust').textContent = cellText(curTr, 1);
-  document.getElementById('eaSubj').textContent = subjRaw;
-  document.getElementById('eaHolder').textContent = holder;
-  document.getElementById('eaJudge').textContent = '✗ 非同名（持有人 ≠ KYB 主体，大小写/空格不敏感比对）';
-  document.getElementById('eaPath').textContent = '需运营人工审核证明 → 同意=创建成功（非同名 · 仅入金来源）/ 驳回=创建失败';
-  document.getElementById('eaCcy').textContent = ccy;
-  document.getElementById('eaBank').textContent = curTr.getAttribute('data-bank') || '—';
-  document.getElementById('eaBic').textContent = curTr.getAttribute('data-bic') || '—';
-  document.getElementById('eaAcc').textContent = '•••• •••• ' + (curTr.getAttribute('data-acc') || '0000');
-  document.getElementById('eaProof').textContent = (curTr.getAttribute('data-proof') || '—') + '  📎 预览';
+  var provider = d(curTr, 'provider');
+  document.getElementById('eaTid').textContent = d(curTr, 'p-id');
+  document.getElementById('eaCust').textContent = d(curTr, 'cust') + ' · ' + d(curTr, 'custid');
+  document.getElementById('eaSubj').textContent = d(curTr, 'subj');
+  document.getElementById('eaProvider').textContent = provider;
+  document.getElementById('eaUpstream').textContent = d(curTr, 'upstream');
+  document.getElementById('eaHolder').textContent = d(curTr, 'holder');
+  document.getElementById('eaJudge').textContent = d(curTr, 'judge') + '（持有人 ≠ KYB 主体，大小写/空格不敏感比对）';
+  document.getElementById('eaJudgeBy').textContent = d(curTr, 'judgeby');
+  document.getElementById('eaPath').textContent = provider === 'OpenPayd'
+    ? '平台按「父受益人 + 银行受益人」两层校验 → 同意=创建成功（非同名 · 仅入金来源）/ 驳回=创建失败'
+    : '上游 Bridge 校验 external account → 同意=创建成功（非同名 · 仅入金来源）/ 驳回=创建失败';
+  document.getElementById('eaCcy').textContent = d(curTr, 'ccy');
+  document.getElementById('eaBank').textContent = d(curTr, 'bank');
+  document.getElementById('eaBic').textContent = d(curTr, 'bic');
+  document.getElementById('eaAcc').textContent = '•••• •••• ' + d(curTr, 'acc');
+  document.getElementById('eaProof').textContent = d(curTr, 'proof') + '  📎 预览';
   document.getElementById('eaModal').classList.add('active');
   hideReject();
 }
@@ -647,14 +815,12 @@ function hideReject() {
   document.getElementById('rejectBoxWd').style.display = 'none';
   document.getElementById('rejectBoxEa').style.display = 'none';
 }
-
 function startReject() {
   if (curType === 'deposit') { document.getElementById('rejectBoxDep').style.display = 'block'; }
   else if (curType === 'ea') { document.getElementById('rejectBoxEa').style.display = 'block'; }
   else { document.getElementById('rejectBoxWd').style.display = 'block'; }
 }
 function startEaReject() { startReject(); }
-
 function cancelReject() { hideReject(); }
 
 function closeAll() {
@@ -665,51 +831,46 @@ function closeAll() {
 }
 
 function approveDeposit() {
-  var amt = cleanAmt(curTr.cells[3]);
-  showToast('已批准 ' + curTr.cells[0].textContent + ' — ' + amt + ' 挂账解除，已计入客户账户余额');
+  var isOp = d(curTr, 'provider') === 'OpenPayd';
+  showToast('已批准 ' + d(curTr, 'p-id') + ' — ' + d(curTr, 'amt') + (isOp ? ' Pay In 确认，资金已计入客户余额（上游 Pay In Processing → Completed）' : ' 挂账解除，已计入客户账户余额'));
   closeAll(); removeRow(curTr, 'deposit');
 }
 function approveWithdraw() {
-  var docCell = curTr.cells[7].textContent.trim();
-  if (docCell.indexOf('缺') >= 0) { showToast('该出金单缺少支持单据（Supporting Document 为必填项），不能批准 — 请拒绝并告知客户补充后重新提交'); return; }
-  var amt = cleanAmt(curTr.cells[3]);
-  showToast('已批准 ' + curTr.cells[0].textContent + ' — ' + amt + ' 已提交上游汇款（同名已核验受益人）');
+  if (d(curTr, 'doc') === '—') { showToast('该出金单缺少支持单据（Supporting Document 为必填项），不能批准 — 请拒绝并告知客户补充后重新提交'); return; }
+  var isOp = d(curTr, 'provider') === 'OpenPayd';
+  showToast('已批准 ' + d(curTr, 'p-id') + ' — ' + d(curTr, 'amt') + (isOp ? ' 已提交 OpenPayd Payout（上游 Payout Processing）' : ' 已提交上游汇款（同名已核验受益人）'));
   closeAll(); removeRow(curTr, 'withdraw');
 }
 function confirmReject(type) {
   var boxId = type === 'deposit' ? 'rejectReasonDep' : 'rejectReasonWd';
   var reason = document.getElementById(boxId).value.trim();
   if (!reason) { showToast('请填写拒绝理由后再提交'); return; }
-  if (type === 'deposit') {
-    showToast('已拒绝 ' + curTr.cells[0].textContent + ' — 挂账资金将原路退回，理由已记入审核日志');
-  } else {
-    showToast('已拒绝 ' + curTr.cells[0].textContent + ' — 理由已记入审核日志');
-  }
+  if (type === 'deposit') showToast('已拒绝 ' + d(curTr, 'p-id') + ' — 资金将原路退回，理由已记入审核日志');
+  else showToast('已拒绝 ' + d(curTr, 'p-id') + ' — 理由已记入审核日志（上游 Payout 取消）');
   closeAll(); removeRow(curTr, type);
 }
 function approveEa() {
-  showToast('已同意 ' + curTr.cells[0].textContent + ' — 外部账户创建成功（非同名 · 仅入金来源）');
+  showToast('已同意 ' + d(curTr, 'p-id') + ' — 外部账户创建成功（非同名 · 仅入金来源）');
   closeAll(); removeRow(curTr, 'ea');
 }
 function confirmEaReject() {
   var reason = document.getElementById('rejectReasonEa').value.trim();
   if (!reason) { showToast('请填写驳回理由后再提交'); return; }
-  showToast('已驳回 ' + curTr.cells[0].textContent + ' — 外部账户创建失败，客户可重新提交');
+  showToast('已驳回 ' + d(curTr, 'p-id') + ' — 外部账户创建失败，客户可重新提交');
   closeAll(); removeRow(curTr, 'ea');
 }
+
 function removeRow(tr, type) {
   tr.remove();
-  var map = { deposit: ['tbDeposit', 'stDeposit', 'cntDeposit', '入金', 10], withdraw: ['tbWithdraw', 'stWithdraw', 'cntWithdraw', '出金', 10], ea: ['tbEaAdd', 'stEaAdd', 'cntEaAdd', 'EA 添加', 9] };
-  var m = map[type];
-  var t = document.getElementById(m[0]);
-  var n = t.querySelectorAll('tr').length;
-  document.getElementById(m[1]).textContent = n;
-  document.getElementById(m[2]).textContent = n + ' 单待审';
-  if (n === 0) {
-    var empty = '<tr><td colspan="' + m[4] + '"><div class="queue-empty">🎉 队列已清空 — 所有 ' + m[3] + ' 待办均已处理</div></td></tr>';
-    t.innerHTML = empty;
+  var m = QUEUES[type];
+  var t = document.getElementById(m.tb);
+  if (t.querySelectorAll('tr[data-provider]').length === 0) {
+    t.innerHTML = '<tr><td colspan="' + m.cols + '"><div class="queue-empty">🎉 队列已清空 — 所有 ' + m.label + ' 待办均已处理</div></td></tr>';
   }
+  recount();
 }
+
+recount();
 </script>
 </body>
 </html>

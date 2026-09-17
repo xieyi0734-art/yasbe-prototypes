@@ -41,11 +41,12 @@
 | 客户详情 · 法币 Tab | 客户法币账户 + 出入金记录 | 2026-09-08 | [02-Customer-Detail-Fiat-Tab.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/customer/02-Customer-Detail-Fiat-Tab.html) |
 | 客户详情 · 推荐 Tab | 客户推荐视图（10） | 2026-07-08 | [10-Customer-Detail-Referrals-Tab.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/customer/10-Customer-Detail-Referrals-Tab.html) |
 | 客户详情 · 推荐 Tab v2 | 推荐视图（代理版） | 2026-08-03 | [10-Customer-Detail-Referrals-Tab-v2.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/customer/10-Customer-Detail-Referrals-Tab-v2.html) |
-| 法币 · 交易审核 | 三队列:入金非同名挂账复核 / 出金同名已核验受益人终审 / EA 非同名添加审核(同意=创建成功·仅入金来源,驳回=失败) | 2026-09-08 | [01-Fiat-Review-Queue.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/fiat/01-Fiat-Review-Queue.html) |
-| 法币 · 交易记录 | 出入金全量流水（10 列 + Review 入口） | 2026-09-08 | [02-Fiat-Transaction-List.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/fiat/02-Fiat-Transaction-List.html) |
-| 法币 · 资金总览 | 平台级资金视图（逐币种对账闭环） | 2026-09-08 | [03-Fiat-Treasury-Overview.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/fiat/03-Fiat-Treasury-Overview.html) |
-| 法币 · 收款账户 | 平台收款账户 + 上游 KYB | 2026-09-08 | [04-Fiat-Bank-Accounts.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/fiat/04-Fiat-Bank-Accounts.html) |
-| 法币 · 币种设置 | 币种费率两档（≤50k / >50k） | 2026-09-08 | [05-Fiat-Currency-Settings.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/fiat/05-Fiat-Currency-Settings.html) |
+| 法币 · 交易审核 | **双通道（Bridge / OpenPayd）**待办队列: 入金(挂账复核 / Pay In 待确认) / 出金(合规终审 / Payout 待审) / EA 非同名添加; 通道列 + 通道筛选 + 判定方标注(平台/上游) | 2026-09-17 | [01-Fiat-Review-Queue.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/fiat/01-Fiat-Review-Queue.html) |
+| 法币 · 交易记录 | 出入金全量流水（12 列，新增通道 / 上游状态 / 渠道交易号）+ 平台侧·上游侧双栏详情 + 通道筛选 | 2026-09-17 | [02-Fiat-Transaction-List.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/fiat/02-Fiat-Transaction-List.html) |
+| 法币 · 资金总览 | **通道 × 币种**矩阵 + 归集视图（Bridge 内建归集 / OpenPayd 平台自建）+ 三方对账与差异来源 | 2026-09-17 | [03-Fiat-Treasury-Overview.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/fiat/03-Fiat-Treasury-Overview.html) |
+| 法币 · 收款账户 | 两层结构: 平台通道账户(通道×币种 / 生命周期 / 上游 KYB) + 用户收款账户(汇总下钻) | 2026-09-17 | [04-Fiat-Bank-Accounts.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/fiat/04-Fiat-Bank-Accounts.html) |
+| 法币 · 币种设置 | 费率挂「通道 × 币种 × rails」两档 + FX/退回费 + 限额三层级 + 通道成本(内部可见) | 2026-09-17 | [05-Fiat-Currency-Settings.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/fiat/05-Fiat-Currency-Settings.html) |
+| 法币 · 渠道调用日志 | 法币通道调用轨迹: traceId / 接口 / 状态 / 耗时 / 重试 / 关联交易，按交易号反查（新增页） | 2026-09-17 | [06-Channel-Api-Logs.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/fiat/06-Channel-Api-Logs.html) |
 | 风控规则管理 | 风控规则配置（01） | 2026-07-08 | [01-Risk-Rule-Management.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/risk-control/01-Risk-Rule-Management.html) |
 | 风控事件列表 | 风控事件（02） | 2026-07-08 | [02-Risk-Event-List.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/risk-control/02-Risk-Event-List.html) |
 | 卡片交易流水 | 交易流水列表（17） | 2026-07-08 | [17-Card-Transaction-List.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/transaction/17-Card-Transaction-List.html) |

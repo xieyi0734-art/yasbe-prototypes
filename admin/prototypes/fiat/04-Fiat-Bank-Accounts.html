@@ -17,16 +17,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica N
 .stat-card{background:#fff;border-radius:12px;border:1px solid #E5E7EB;padding:20px}
 .stat-value{font-size:25px;font-weight:700}
 .stat-label{font-size:13px;color:#86909C;margin-bottom:4px}
+.stat-sub{font-size:12px;color:#9CA3AF;margin-top:6px}
 .badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:500}
 .badge-ok{background:#DCFCE7;color:#166534}
+.badge-pending{background:#FEF9C3;color:#854D0E}
+.badge-off{background:#F3F4F6;color:#6B7280}
+.badge-fail{background:#FEE2E2;color:#991B1B}
+.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
+.tag-bridge{background:#E0E7FF;color:#3730A3}
+.tag-openpayd{background:#CCFBF1;color:#0F766E}
+.tag-gray{background:#F3F4F6;color:#4B5563}
+.tag-ok{background:#DCFCE7;color:#166534}
+.sec-card{background:#fff;border-radius:12px;border:1px solid #E5E7EB;margin-bottom:20px;overflow:hidden}
+.sec-head{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid #E5E7EB;background:#F9FAFB}
+.sec-title{font-size:16px;font-weight:600;display:flex;align-items:center;gap:10px}
+.sec-sub{font-size:12px;color:#86909C;margin-top:2px;line-height:1.6}
 .table-wrap{background:#fff;border-radius:12px;border:1px solid #E5E7EB}
-.table-scroll{overflow-x:auto;border-radius:12px}
-table{width:100%;border-collapse:collapse;min-width:980px}
+.table-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
 th{text-align:left;padding:10px 12px;font-size:12px;font-weight:500;color:#6B7280;border-bottom:1px solid #E5E7EB;background:#F9FAFB;white-space:nowrap}
-td{padding:10px 12px;font-size:13px;border-bottom:1px solid #F3F4F6;white-space:nowrap}
+td{padding:11px 12px;font-size:13px;border-bottom:1px solid #F3F4F6;white-space:nowrap}
 tr:last-child td{border-bottom:none}
-tr:hover td{background:#F9FAFB}
-tr.rowlink{cursor:pointer}
+tbody tr:hover td{background:#F9FAFB}
+tbody tr.row-off td{background:#FCFCFD;color:#9CA3AF}
+tbody tr.rowlink{cursor:pointer}
 .mono{font-family:SFMono-Regular,Menlo,Monaco,Consolas,monospace}
 .link-btn{background:none;border:none;color:#E59303;font-size:13px;font-weight:500;cursor:pointer;padding:0}
 .link-btn:hover{text-decoration:underline}
@@ -34,7 +48,7 @@ tr.rowlink{cursor:pointer}
 .scheme-tag span{background:#F3F4F6;border:1px solid #E5E7EB;border-radius:4px;padding:1px 7px;font-size:11px;color:#4B5563}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;overflow-y:auto}
 .modal-overlay.active{display:flex;align-items:center;justify-content:center}
-.modal{background:#fff;border-radius:16px;padding:28px 32px;width:680px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.15);margin:24px auto}
+.modal{background:#fff;border-radius:16px;padding:28px 32px;width:720px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.15);margin:24px auto}
 .modal-title{font-size:18px;font-weight:600}
 .detail-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #F3F4F6;font-size:13px}
 .detail-row:last-child{border-bottom:none}
@@ -43,8 +57,12 @@ tr.rowlink{cursor:pointer}
 .section-head{font-size:14px;font-weight:600;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #E5E7EB}
 .btn-primary{background:#E59303;color:#fff;border:none;border-radius:8px;padding:8px 20px;font-size:14px;font-weight:500;cursor:pointer;transition:all .15s}
 .btn-primary:hover{background:#d48402}
-.btn-outline{background:#fff;color:#4B5563;border:1px solid #D1D5DB;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:500;cursor:pointer}
+.btn-outline{background:#fff;color:#4B5563;border:1px solid #D1D5DB;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
 .btn-outline:hover{border-color:#E59303;color:#E59303}
+.note{font-size:12px;color:#86909C;background:#F9FAFB;border:1px dashed #E5E7EB;border-radius:8px;padding:12px 16px;margin-bottom:20px;line-height:1.8}
+.life{display:flex;align-items:center;gap:6px;font-size:12px;color:#6B7280;flex-wrap:wrap}
+.life b{background:#F3F4F6;border:1px solid #E5E7EB;border-radius:4px;padding:1px 6px;font-weight:500;color:#4B5563}
+.life b.on{background:#DCFCE7;border-color:#BBF7D0;color:#166534}
 </style>
 </head>
 <body>
@@ -62,6 +80,7 @@ tr.rowlink{cursor:pointer}
 <div class="sidebar-item" style="padding-left:36px;font-size:13px;">🏦 资金总览</div>
 <div class="sidebar-item active" style="padding-left:36px;font-size:13px;">🏢 收款账户</div>
 <div class="sidebar-item" style="padding-left:36px;font-size:13px;">💱 币种设置</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">🔗 渠道调用日志</div>
 <div class="sidebar-item"><span>₿</span> 加密货币</div>
 <div class="sidebar-item"><span>🔄</span> 兑换管理</div>
 <div class="sidebar-label">渠道</div>
@@ -78,125 +97,299 @@ tr.rowlink{cursor:pointer}
 <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;">
 <div>
 <h1 style="font-size:24px;font-weight:700;">收款账户</h1>
-<p style="font-size:13px;color:#86909C;margin-top:4px;">平台法币收款账户（与上游清算行开立）— 每账户对应一个清算网络；余额与流水见资金总览</p>
+<p style="font-size:13px;color:#86909C;margin-top:4px;">两层结构 — <b>平台通道账户</b>（平台与上游开立，按通道 × 币种，管生命周期与上游 KYB）／<b>用户收款账户</b>（客户级，按通道 × 币种汇总，下钻到客户）</p>
 </div>
-<button class="btn-outline" onclick="showToast('新增收款账户需先完成上游渠道 KYB(模拟)')">+ 新增收款账户</button>
+<div style="display:flex;gap:8px;">
+<a class="btn-outline" style="text-decoration:none;" href="03-Fiat-Treasury-Overview.html">← 资金总览</a>
+<button class="btn-outline" onclick="showToast('新增平台通道账户需先完成上游 KYB（模拟）')">+ 开通通道账户</button>
+</div>
 </div>
 
 <!-- Stats Row -->
-<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
-<div class="stat-card"><div class="stat-label">收款账户总数</div><div class="stat-value">3</div></div>
-<div class="stat-card"><div class="stat-label">覆盖币种</div><div class="stat-value">3</div></div>
-<div class="stat-card"><div class="stat-label">活跃账户</div><div class="stat-value" style="color:#166534;">3</div></div>
-<div class="stat-card"><div class="stat-label">上游渠道</div><div class="stat-value">3</div></div>
+<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;">
+<div class="stat-card"><div class="stat-label">平台通道账户（已开）</div><div class="stat-value">3</div><div class="stat-sub">Bridge 1 · OpenPayd 2</div></div>
+<div class="stat-card"><div class="stat-label">覆盖币种</div><div class="stat-value">3</div><div class="stat-sub">USD / EUR / GBP</div></div>
+<div class="stat-card"><div class="stat-label">活跃通道</div><div class="stat-value" style="color:#166534;">2</div><div class="stat-sub">Bridge · OpenPayd</div></div>
+<div class="stat-card"><div class="stat-label">用户收款账户（累计）</div><div class="stat-value">128</div><div class="stat-sub">Bridge 34 · OpenPayd 94</div></div>
+<div class="stat-card"><div class="stat-label">上游 KYB 复核中</div><div class="stat-value" style="color:#854D0E;">1</div><div class="stat-sub">OpenPayd GBP · 年度复核</div></div>
 </div>
 
-<div class="table-wrap">
+<div class="note">
+<strong>关键区别：</strong>原名「收款账户」把两类账户混在一张表里（且 3 行开户银行全为 Clear Bank）。实际存在两个层级 —— <b>平台通道账户</b>是平台与上游开立的户（Bridge workspace / VA、OpenPayd Payment Account），数量少、按 <b>通道 × 币种</b>、有状态生命周期和上游 KYB；<b>用户收款账户</b>是给每个客户开立的收款户（Bridge Virtual Account、OpenPayd Payment Account），数量随客户线性增长，只能汇总 + 下钻。二者字段口径、动作、权限都不同，故拆开。
+</div>
+
+<!-- Layer 1: Platform channel accounts -->
+<div class="sec-card">
+<div class="sec-head">
+<div>
+<div class="sec-title">① 平台通道账户 <span class="tag tag-gray" style="margin-left:0;">Platform</span></div>
+<div class="sec-sub">平台与上游开立 · 按 通道 × 币种 · 每账户一条上游 KYB（机构级）</div>
+</div>
+<span class="badge badge-ok">3 ACTIVE · 3 未开通</span>
+</div>
 <div class="table-scroll">
-<table>
+<table style="min-width:1500px;">
 <thead>
 <tr>
+<th>通道</th>
+<th>币种</th>
 <th>账户名称</th>
 <th>开户银行</th>
-<th>币种</th>
-<th>清算网络</th>
 <th>账户编号</th>
-<th>状态</th>
+<th>清算网络</th>
+<th>上游 KYB 主体</th>
+<th>KYB 状态</th>
+<th>账户状态</th>
+<th>生命周期</th>
 <th>创建时间</th>
 <th style="text-align:right;">操作</th>
 </tr>
 </thead>
 <tbody>
-<tr class="rowlink" onclick="openDetail('USD')">
+<tr class="rowlink" onclick="openDetail('bridge-usd')">
+<td><span class="tag tag-bridge" style="margin-left:0;">Bridge</span></td>
+<td><b>USD</b></td>
 <td style="font-weight:600;">Apex Markets Inc</td>
 <td>Clear Bank</td>
-<td><b>USD</b></td>
-<td><div class="scheme-tag"><span>Fedwire</span><span>Local USD</span></div></td>
 <td class="mono">VA-US-8821</td>
+<td><div class="scheme-tag"><span>Wire</span><span>ACH</span><span>FedNow</span></div></td>
+<td><span class="mono" style="font-size:12px;">Apex Markets Inc (US)</span></td>
+<td><span class="badge badge-ok">Approved</span></td>
 <td><span class="badge badge-ok">ACTIVE</span></td>
+<td><span class="life"><b class="on">ACTIVE</b></span></td>
 <td>2026-05-12 10:24</td>
-<td style="text-align:right;"><button class="link-btn" onclick="event.stopPropagation();openDetail('USD')">明细</button></td>
+<td style="text-align:right;"><button class="link-btn" onclick="event.stopPropagation();openDetail('bridge-usd')">明细</button></td>
 </tr>
-<tr class="rowlink" onclick="openDetail('EUR')">
+<tr class="rowlink" onclick="openDetail('op-eur')">
+<td><span class="tag tag-openpayd" style="margin-left:0;">OpenPayd</span></td>
+<td><b>EUR</b></td>
 <td style="font-weight:600;">Banking Circle</td>
 <td>Clear Bank</td>
-<td><b>EUR</b></td>
-<td><div class="scheme-tag"><span>SEPA</span><span>Local EUR</span></div></td>
 <td class="mono">int.acc-77F3K</td>
+<td><div class="scheme-tag"><span>SEPA</span><span>SEPA Instant</span></div></td>
+<td><span class="mono" style="font-size:12px;">Banking Circle S.A.</span></td>
+<td><span class="badge badge-ok">Approved</span></td>
 <td><span class="badge badge-ok">ACTIVE</span></td>
+<td><span class="life"><b class="on">ACTIVE</b></span></td>
 <td>2026-05-12 10:31</td>
-<td style="text-align:right;"><button class="link-btn" onclick="event.stopPropagation();openDetail('EUR')">明细</button></td>
+<td style="text-align:right;"><button class="link-btn" onclick="event.stopPropagation();openDetail('op-eur')">明细</button></td>
 </tr>
-<tr class="rowlink" onclick="openDetail('GBP')">
+<tr class="rowlink" onclick="openDetail('op-gbp')">
+<td><span class="tag tag-openpayd" style="margin-left:0;">OpenPayd</span></td>
+<td><b>GBP</b></td>
 <td style="font-weight:600;">Clear Junction</td>
 <td>Clear Bank</td>
-<td><b>GBP</b></td>
-<td><div class="scheme-tag"><span>FPS</span><span>CHAPS</span><span>SWIFT</span></div></td>
 <td class="mono">GB-VA-2214</td>
+<td><div class="scheme-tag"><span>FPS</span><span>CHAPS</span><span>SWIFT</span></div></td>
+<td><span class="mono" style="font-size:12px;">Clear Junction Ltd (UK)</span></td>
+<td><span class="badge badge-pending">Pending Review</span><div style="font-size:11px;color:#86909C;margin-top:2px;">年度复核 · 账户不受影响</div></td>
 <td><span class="badge badge-ok">ACTIVE</span></td>
+<td><span class="life"><b>PENDING</b> → <b class="on">ACTIVE</b></span></td>
 <td>2026-05-12 10:38</td>
-<td style="text-align:right;"><button class="link-btn" onclick="event.stopPropagation();openDetail('GBP')">明细</button></td>
+<td style="text-align:right;"><button class="link-btn" onclick="event.stopPropagation();openDetail('op-gbp')">明细</button></td>
+</tr>
+<tr class="row-off">
+<td><span class="tag tag-bridge" style="margin-left:0;">Bridge</span></td>
+<td><b>EUR</b></td>
+<td>—</td>
+<td>—</td>
+<td class="mono">—</td>
+<td><div class="scheme-tag"><span>SEPA</span><span>SEPA Instant</span></div></td>
+<td>—</td>
+<td>—</td>
+<td><span class="badge badge-off">未开通</span></td>
+<td><span class="life"><b>—</b></span></td>
+<td>—</td>
+<td style="text-align:right;"><button class="link-btn" onclick="applyChannel('Bridge','EUR')">申请开户</button></td>
+</tr>
+<tr class="row-off">
+<td><span class="tag tag-bridge" style="margin-left:0;">Bridge</span></td>
+<td><b>GBP</b></td>
+<td>—</td>
+<td>—</td>
+<td class="mono">—</td>
+<td><div class="scheme-tag"><span>FPS</span><span>CHAPS</span></div></td>
+<td>—</td>
+<td>—</td>
+<td><span class="badge badge-off">未开通</span></td>
+<td><span class="life"><b>—</b></span></td>
+<td>—</td>
+<td style="text-align:right;"><button class="link-btn" onclick="applyChannel('Bridge','GBP')">申请开户</button></td>
+</tr>
+<tr class="row-off">
+<td><span class="tag tag-openpayd" style="margin-left:0;">OpenPayd</span></td>
+<td><b>USD</b></td>
+<td>—</td>
+<td>—</td>
+<td class="mono">—</td>
+<td><div class="scheme-tag"><span>能力待确认</span></div></td>
+<td>—</td>
+<td>—</td>
+<td><span class="badge badge-off">未开通</span></td>
+<td><span class="life"><b>—</b></span></td>
+<td>—</td>
+<td style="text-align:right;"><span style="font-size:12px;color:#9CA3AF;">美元现由 Bridge 承担</span></td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
 
-<div style="font-size:12px;color:#86909C;background:#F9FAFB;border:1px dashed #E5E7EB;border-radius:8px;padding:10px 14px;margin-top:16px;line-height:1.7;">
-字段口径基于 OpenPayd Payment Account（/accounts）：Account ID / Bank Name / Provider / Currency / Scheme / Support MCCY / Status。每账户对应一条<b>上游 KYB</b>（机构级），账户停用不影响历史流水查询。演示数据，账户余额与当日流水见「资金总览」。
+<!-- Layer 2: User payment accounts -->
+<div class="sec-card">
+<div class="sec-head">
+<div>
+<div class="sec-title">② 用户收款账户 <span class="tag tag-gray" style="margin-left:0;">Customer</span></div>
+<div class="sec-sub">客户级收款账户（Bridge Virtual Account / OpenPayd Payment Account）· 按 通道 × 币种 汇总 · 点击「查看」下钻到客户列表</div>
+</div>
+<span class="badge badge-ok">128 户</span>
+</div>
+<div class="table-scroll">
+<table style="min-width:1200px;">
+<thead>
+<tr>
+<th>通道</th>
+<th>币种</th>
+<th>账户类型（上游叫法）</th>
+<th style="text-align:right;">账户数</th>
+<th>状态分布</th>
+<th style="text-align:right;">今日新开</th>
+<th>最近开立时间</th>
+<th style="text-align:right;">操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="tag tag-bridge" style="margin-left:0;">Bridge</span></td>
+<td><b>USD</b></td>
+<td>Virtual Account（USD）</td>
+<td style="text-align:right;font-weight:600;">34</td>
+<td><span class="badge badge-ok">ACTIVE 31</span> <span class="badge badge-pending">PENDING 2</span> <span class="badge badge-off">SUSPENDED 1</span></td>
+<td style="text-align:right;">3</td>
+<td>2026-09-08 09:24</td>
+<td style="text-align:right;"><button class="link-btn" onclick="openUsers('Bridge','USD',34,'31 / 2 / 1')">查看</button></td>
+</tr>
+<tr>
+<td><span class="tag tag-openpayd" style="margin-left:0;">OpenPayd</span></td>
+<td><b>EUR</b></td>
+<td>Payment Account（IBAN）</td>
+<td style="text-align:right;font-weight:600;">52</td>
+<td><span class="badge badge-ok">ACTIVE 48</span> <span class="badge badge-pending">PENDING 3</span> <span class="badge badge-off">SUSPENDED 1</span></td>
+<td style="text-align:right;">5</td>
+<td>2026-09-08 09:41</td>
+<td style="text-align:right;"><button class="link-btn" onclick="openUsers('OpenPayd','EUR',52,'48 / 3 / 1')">查看</button></td>
+</tr>
+<tr>
+<td><span class="tag tag-openpayd" style="margin-left:0;">OpenPayd</span></td>
+<td><b>GBP</b></td>
+<td>Payment Account（Sort Code）</td>
+<td style="text-align:right;font-weight:600;">42</td>
+<td><span class="badge badge-ok">ACTIVE 40</span> <span class="badge badge-pending">PENDING 1</span> <span class="badge badge-off">SUSPENDED 1</span></td>
+<td style="text-align:right;">2</td>
+<td>2026-09-08 08:52</td>
+<td style="text-align:right;"><button class="link-btn" onclick="openUsers('OpenPayd','GBP',42,'40 / 1 / 1')">查看</button></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="note">
+<strong>字段口径：</strong>平台通道账户 —— OpenPayd 侧对应 Payment Account（<span class="mono">GET /apiAdmin/openpayd/accounts</span>：Account ID / Bank Name / Provider / Currency / Scheme / Support MCCY / Status），Bridge 侧对应 workspace + Virtual Account 池（管理端接口<b>后端待建</b>）；用户收款账户 —— Bridge = Virtual Account（开户前置 base endorsement，见 C 端 USD 通道 PRD），OpenPayd = Payment Account（Linked Client 建档 → <span class="mono">POST /accounts</span> → PENDING → ACTIVE）。<b>状态统一映射</b>：PENDING / ACTIVE / FAILED / SUSPENDED / CLOSED（Bridge 无 FAILED）。账户停用不删除历史流水。
 </div>
 
 </div>
 
-<!-- Detail Modal -->
+<!-- Platform account detail modal -->
 <div class="modal-overlay" id="detailModal">
 <div class="modal">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-<div class="modal-title" id="dmTitle">收款账户明细</div>
-<span class="badge badge-ok">ACTIVE</span>
+<div class="modal-title" id="dmTitle">平台通道账户明细</div>
+<span class="badge badge-ok" id="dmStatus">ACTIVE</span>
 </div>
 <div class="section-head">Account</div>
+<div class="detail-row"><span class="k">通道 Provider</span><span class="v" id="dmProvider"></span></div>
 <div class="detail-row"><span class="k">Account Name</span><span class="v" id="dmName"></span></div>
 <div class="detail-row"><span class="k">Account ID</span><span class="v mono" id="dmId"></span></div>
-<div class="detail-row"><span class="k">Bank Name</span><span class="v">Clear Bank</span></div>
-<div class="detail-row"><span class="k">Provider</span><span class="v mono" id="dmProvider"></span></div>
+<div class="detail-row"><span class="k">Bank Name</span><span class="v" id="dmBank"></span></div>
 <div class="detail-row"><span class="k">Currency</span><span class="v" id="dmCcy"></span></div>
-<div class="detail-row"><span class="k">Scheme</span><span class="v" id="dmScheme"></span></div>
+<div class="detail-row"><span class="k">Scheme / Network</span><span class="v" id="dmScheme"></span></div>
 <div class="detail-row"><span class="k">Support MCCY</span><span class="v" id="dmMccy"></span></div>
 <div class="section-head" style="margin-top:14px;">Upstream KYB</div>
 <div class="detail-row"><span class="k">上游渠道主体</span><span class="v" id="dmEntity"></span></div>
-<div class="detail-row"><span class="k">KYB 状态</span><span class="v" style="color:#166534;">Approved</span></div>
+<div class="detail-row"><span class="k">KYB 状态</span><span class="v" id="dmKyb"></span></div>
 <div class="section-head" style="margin-top:14px;">Balance</div>
 <div class="detail-row"><span class="k">Actual Balance</span><span class="v" id="dmBal"></span></div>
 <div class="detail-row"><span class="k">Available Balance</span><span class="v" id="dmAvail"></span></div>
+<div class="section-head" style="margin-top:14px;">状态生命周期</div>
+<div class="detail-row"><span class="k">状态路径</span><span class="v life" id="dmLife"></span></div>
+<div class="detail-row"><span class="k">状态变更时间</span><span class="v" id="dmLifeTime"></span></div>
 <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px;">
-<button class="btn-outline" onclick="showToast('停用账户需二次确认且不可逆(模拟)')">停用账户</button>
+<button class="btn-outline" onclick="showToast('停用账户需二次确认，且不影响历史流水查询（模拟）')">停用账户</button>
+<button class="btn-outline" onclick="showToast('重试开户：将重新向上游提交开户请求（模拟）')">重试开户</button>
 <button class="btn-primary" onclick="document.getElementById('detailModal').classList.remove('active')">关闭</button>
 </div>
 </div>
 </div>
 
-<div id="toast" style="position:fixed;right:24px;bottom:24px;background:#1D2129;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;z-index:2000;opacity:0;transform:translateY(10px);transition:all .25s;pointer-events:none;"></div>
+<!-- User accounts modal -->
+<div class="modal-overlay" id="userModal">
+<div class="modal">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+<div class="modal-title" id="umTitle">用户收款账户</div>
+<span class="badge badge-ok" id="umCount">34 户</span>
+</div>
+<div class="detail-row"><span class="k">通道 × 币种</span><span class="v" id="umKey"></span></div>
+<div class="detail-row"><span class="k">状态分布（ACTIVE / PENDING / SUSPENDED）</span><span class="v" id="umDist"></span></div>
+<div class="section-head" style="margin-top:14px;">最近开立（示例 5 户）</div>
+<div class="detail-row"><span class="k">tz · C-WAEJ4T8G</span><span class="v mono" style="font-size:12px;">VA-US-8842 · ACTIVE · 2026-09-08</span></div>
+<div class="detail-row"><span class="k">qing liang · C-PJVTAFWG</span><span class="v mono" style="font-size:12px;">VA-US-6620 · ACTIVE · 2026-09-06</span></div>
+<div class="detail-row"><span class="k">zdz · C-FWCHT9TS</span><span class="v mono" style="font-size:12px;">VA-US-5560 · PENDING · 2026-09-05</span></div>
+<div class="detail-row"><span class="k">yoneco41 · C-KL2MNP9Q</span><span class="v mono" style="font-size:12px;">VA-US-7712 · ACTIVE · 2026-09-03</span></div>
+<div class="detail-row"><span class="k">kakaluote · C-F1XMCW74</span><span class="v mono" style="font-size:12px;">VA-US-4402 · SUSPENDED · 2026-08-29</span></div>
+<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px;">
+<button class="btn-outline" onclick="showToast('跳转客户列表并预筛选该通道 × 币种（模拟）')">在客户列表打开</button>
+<button class="btn-primary" onclick="document.getElementById('userModal').classList.remove('active')">关闭</button>
+</div>
+</div>
+</div>
+
+<div id="toast" style="position:fixed;right:24px;bottom:24px;background:#1D2129;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;z-index:2000;opacity:0;transform:translateY(10px);transition:all .25s;pointer-events:none;max-width:440px;"></div>
 
 <script>
 var ACCS = {
-  USD: {name:'Apex Markets Inc', id:'VA-US-8821', provider:'APEX', scheme:'Fedwire / Local USD', mccy:'USD', entity:'Apex Markets Inc (US)', bal:'$923,410.00', avail:'$923,410.00'},
-  EUR: {name:'Banking Circle', id:'int.acc-77F3K', provider:'BANKINGCIRCLE', scheme:'SEPA / Local EUR', mccy:'EUR', entity:'Banking Circle S.A.', bal:'€251,820.00', avail:'€251,820.00'},
-  GBP: {name:'Clear Junction', id:'GB-VA-2214', provider:'CLEARJUNCTION', scheme:'FPS / CHAPS / SWIFT', mccy:'GBP', entity:'Clear Junction Ltd (UK)', bal:'£97,460.00', avail:'£97,460.00'}
+  'bridge-usd': {provider:'Bridge', name:'Apex Markets Inc', id:'VA-US-8821', bank:'Clear Bank', ccy:'USD', scheme:'Wire / ACH / FedNow', mccy:'USD', entity:'Apex Markets Inc (US)', kyb:'Approved', bal:'$923,410.00', avail:'$923,410.00', life:'PENDING → ACTIVE', lifeTime:'2026-05-12 09:10 → 2026-05-12 10:24'},
+  'op-eur':     {provider:'OpenPayd', name:'Banking Circle', id:'int.acc-77F3K', bank:'Clear Bank', ccy:'EUR', scheme:'SEPA / SEPA Instant', mccy:'EUR', entity:'Banking Circle S.A.', kyb:'Approved', bal:'€251,820.00', avail:'€251,820.00', life:'PENDING → ACTIVE', lifeTime:'2026-05-12 09:18 → 2026-05-12 10:31'},
+  'op-gbp':     {provider:'OpenPayd', name:'Clear Junction', id:'GB-VA-2214', bank:'Clear Bank', ccy:'GBP', scheme:'FPS / CHAPS / SWIFT', mccy:'GBP', entity:'Clear Junction Ltd (UK)', kyb:'Pending Review', bal:'£97,460.00', avail:'£97,460.00', life:'PENDING → ACTIVE', lifeTime:'2026-05-12 09:22 → 2026-05-12 10:38'}
 };
-function openDetail(ccy) {
-  var a = ACCS[ccy];
-  document.getElementById('dmTitle').textContent = ccy + ' 收款账户明细';
+function openDetail(key) {
+  var a = ACCS[key];
+  document.getElementById('dmTitle').textContent = a.provider + ' · ' + a.ccy + ' 平台通道账户明细';
+  document.getElementById('dmProvider').textContent = a.provider;
   document.getElementById('dmName').textContent = a.name;
   document.getElementById('dmId').textContent = a.id;
-  document.getElementById('dmProvider').textContent = a.provider;
-  document.getElementById('dmCcy').textContent = a.ccy || a.mccy;
+  document.getElementById('dmBank').textContent = a.bank;
+  document.getElementById('dmCcy').textContent = a.ccy;
   document.getElementById('dmScheme').textContent = a.scheme;
   document.getElementById('dmMccy').textContent = a.mccy;
   document.getElementById('dmEntity').textContent = a.entity;
+  document.getElementById('dmKyb').textContent = a.kyb;
+  document.getElementById('dmKyb').style.color = a.kyb === 'Approved' ? '#166534' : '#854D0E';
   document.getElementById('dmBal').textContent = a.bal;
   document.getElementById('dmAvail').textContent = a.avail;
+  document.getElementById('dmLife').innerHTML = '<b>PENDING</b> → <b class="on">ACTIVE</b>';
+  document.getElementById('dmLifeTime').textContent = a.lifeTime;
   document.getElementById('detailModal').classList.add('active');
+}
+function openUsers(provider, ccy, n, dist) {
+  document.getElementById('umTitle').textContent = provider + ' · ' + ccy + ' 用户收款账户';
+  document.getElementById('umKey').textContent = provider + ' × ' + ccy;
+  document.getElementById('umCount').textContent = n + ' 户';
+  document.getElementById('umDist').textContent = dist;
+  document.getElementById('userModal').classList.add('active');
+}
+function applyChannel(provider, ccy) {
+  showToast('申请开通 ' + provider + ' ' + ccy + ' 通道账户 — 需提交上游 KYB（机构级），开户后自动出现在①列表（模拟）');
 }
 var toastEl = document.getElementById('toast');
 function showToast(msg) {
@@ -204,9 +397,10 @@ function showToast(msg) {
   toastEl.style.opacity = '1';
   toastEl.style.transform = 'translateY(0)';
   clearTimeout(toastEl._h);
-  toastEl._h = setTimeout(function(){ toastEl.style.opacity = '0'; toastEl.style.transform = 'translateY(10px)'; }, 2400);
+  toastEl._h = setTimeout(function(){ toastEl.style.opacity = '0'; toastEl.style.transform = 'translateY(10px)'; }, 2800);
 }
 document.getElementById('detailModal').addEventListener('click', function(e){ if (e.target === this) this.classList.remove('active'); });
+document.getElementById('userModal').addEventListener('click', function(e){ if (e.target === this) this.classList.remove('active'); });
 </script>
 </body>
 </html>

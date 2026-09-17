@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>渠道调用日志 - YASBee 管理端</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;color:#1D2129;background:#F3F4F6;line-height:1.5}
+.sidebar{width:260px;background:#1D2129;color:#fff;height:100vh;position:fixed;left:0;top:0;overflow-y:auto}
+.sidebar-header{padding:20px;font-size:20px;font-weight:700;color:#E59303;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-item{display:flex;align-items:center;gap:12px;padding:12px 20px;color:#9CA3AF;font-size:14px;cursor:pointer;transition:all .15s}
+.sidebar-item:hover{color:#fff;background:rgba(255,255,255,.05)}
+.sidebar-item.active{color:#E59303;background:rgba(229,147,3,.1);border-right:3px solid #E59303}
+.sidebar-label{padding:8px 20px 4px;font-size:11px;color:#6B7280;text-transform:uppercase;letter-spacing:1px}
+.main{margin-left:260px;padding:32px}
+.stat-card{background:#fff;border-radius:12px;border:1px solid #E5E7EB;padding:20px}
+.stat-value{font-size:25px;font-weight:700}
+.stat-label{font-size:13px;color:#86909C;margin-bottom:4px}
+.stat-sub{font-size:12px;color:#9CA3AF;margin-top:6px}
+.badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:500}
+.badge-ok{background:#DCFCE7;color:#166534}
+.badge-fail{background:#FEE2E2;color:#991B1B}
+.badge-pending{background:#FEF9C3;color:#854D0E}
+.badge-info{background:#DBEAFE;color:#1E40AF}
+.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
+.tag-bridge{background:#E0E7FF;color:#3730A3}
+.tag-openpayd{background:#CCFBF1;color:#0F766E}
+.tag-gray{background:#F3F4F6;color:#4B5563}
+.tag-warn{background:#FEF3C7;color:#92400E}
+.hdr{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px}
+.table-wrap{background:#fff;border-radius:12px;border:1px solid #E5E7EB}
+.table-scroll{overflow-x:auto;border-radius:12px}
+table{width:100%;border-collapse:collapse;min-width:1560px}
+th{text-align:left;padding:10px 12px;font-size:12px;font-weight:500;color:#6B7280;border-bottom:1px solid #E5E7EB;background:#F9FAFB;white-space:nowrap}
+td{padding:10px 12px;font-size:13px;border-bottom:1px solid #F3F4F6;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#F9FAFB}
+tr.row-retry td{background:#FFFBEB}
+.mono{font-family:SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+.filter-select{border:1px solid #D1D5DB;border-radius:8px;padding:8px 12px;font-size:14px;outline:none;cursor:pointer;background:#fff}
+.filter-input{border:1px solid #D1D5DB;border-radius:8px;padding:8px 12px;font-size:14px;outline:none;width:280px}
+.btn-outline{background:#fff;color:#4B5563;border:1px solid #D1D5DB;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:500;cursor:pointer}
+.btn-outline:hover{border-color:#E59303;color:#E59303}
+.btn-primary{background:#E59303;color:#fff;border:none;border-radius:8px;padding:6px 16px;font-size:13px;font-weight:500;cursor:pointer}
+.link-btn{background:none;border:none;color:#E59303;font-size:13px;font-weight:500;cursor:pointer;padding:0}
+.link-btn:hover{text-decoration:underline}
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 20px 16px}
+.page-btn{padding:6px 12px;border:1px solid #D1D5DB;border-radius:6px;background:#fff;cursor:pointer;font-size:13px;color:#4B5563}
+.page-btn.active{border-color:#E59303;background:#E59303;color:#fff}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;overflow-y:auto}
+.modal-overlay.active{display:flex;align-items:center;justify-content:center}
+.modal{background:#fff;border-radius:16px;padding:28px 32px;width:760px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.15);margin:24px auto}
+.modal-title{font-size:18px;font-weight:600}
+.detail-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #F3F4F6;font-size:13px}
+.detail-row:last-child{border-bottom:none}
+.detail-row .k{color:#86909C}
+.detail-row .v{font-weight:500;text-align:right}
+.section-head{font-size:14px;font-weight:600;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #E5E7EB}
+.code{background:#1D2129;color:#E5E7EB;border-radius:10px;padding:14px 16px;font-family:SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px;line-height:1.7;overflow-x:auto;white-space:pre}
+.status-strip{display:flex;align-items:center;gap:10px;margin-bottom:16px;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:10px;padding:10px 14px;font-size:13px}
+.status-strip .k{color:#86909C}
+.note{font-size:12px;color:#86909C;background:#F9FAFB;border:1px dashed #E5E7EB;border-radius:8px;padding:12px 16px;margin-top:16px;line-height:1.8}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+<div class="sidebar-header">YASBee 管理后台</div>
+<div class="sidebar-label">主菜单</div>
+<div class="sidebar-item"><span>🪪</span> 客户管理 ▾</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📈 概览</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">✅ 认证</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📋 客户列表</div>
+<div class="sidebar-item" style="color:#fff;"><span>💰</span> 法币管理 ▾</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📥 交易审核</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📋 交易记录</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">🏦 资金总览</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">🏢 收款账户</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">💱 币种设置</div>
+<div class="sidebar-item active" style="padding-left:36px;font-size:13px;">🔗 渠道调用日志</div>
+<div class="sidebar-item"><span>₿</span> 加密货币</div>
+<div class="sidebar-item"><span>🔄</span> 兑换管理</div>
+<div class="sidebar-label">渠道</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">📡 上游渠道</div>
+<div class="sidebar-item" style="padding-left:36px;font-size:13px;">🃏 卡片服务</div>
+<div class="sidebar-item"><span>💳</span> 卡片管理</div>
+<div class="sidebar-item"><span>📈</span> 投资</div>
+<div class="sidebar-item"><span>⚙️</span> 系统管理</div>
+<div class="sidebar-item"><span>📋</span> 我的任务</div>
+</div>
+
+<div class="main">
+
+<div class="hdr">
+<div>
+<h1 style="font-size:24px;font-weight:700;">渠道调用日志</h1>
+<p style="font-size:13px;color:#86909C;margin-top:4px;">法币通道（<b>Bridge / OpenPayd</b>）上游接口调用轨迹 — traceId / 接口 / 请求方 / 状态 / 耗时 / 重试 / 关联交易；支持按交易号或渠道交易号<b>反查</b>，用于排查「通道未回执」「Webhook 漏发」「上游报错」</p>
+</div>
+<a class="btn-outline" style="text-decoration:none;" href="02-Fiat-Transaction-List.html">← 交易记录</a>
+</div>
+
+<!-- Stats Row -->
+<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;">
+<div class="stat-card">
+<div class="stat-label">今日调用</div>
+<div class="stat-value">1,284</div>
+<div class="stat-sub">Bridge 703 · OpenPayd 581</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">成功率</div>
+<div class="stat-value" style="color:#166534;">99.1%</div>
+<div class="stat-sub">近 24 小时</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">平均耗时</div>
+<div class="stat-value">186<span style="font-size:14px;">ms</span></div>
+<div class="stat-sub">P95 742ms</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">失败待重试</div>
+<div class="stat-value" style="color:#991B1B;">3</div>
+<div class="stat-sub">Bridge 2 · OpenPayd 1</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">Webhook 漏发 / 补发</div>
+<div class="stat-value" style="color:#854D0E;">1 / 2</div>
+<div class="stat-sub">自动补发已开启</div>
+</div>
+</div>
+
+<!-- Filters -->
+<div style="background:#fff;border-radius:12px;border:1px solid #E5E7EB;padding:16px 20px;margin-bottom:20px;">
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+<select class="filter-select" id="fCh" style="width:160px;" onchange="filterLogs()">
+<option value="all">全部通道</option>
+<option value="Bridge">Bridge</option>
+<option value="OpenPayd">OpenPayd</option>
+</select>
+<select class="filter-select" id="fType" style="width:180px;" onchange="filterLogs()">
+<option value="all">全部调用类型</option>
+<option value="API 请求">API 请求</option>
+<option value="Webhook 回调">Webhook 回调</option>
+<option value="定时任务">定时任务</option>
+</select>
+<select class="filter-select" id="fStatus" style="width:150px;" onchange="filterLogs()">
+<option value="all">全部状态</option>
+<option value="成功">成功</option>
+<option value="失败">失败</option>
+<option value="重试中">重试中</option>
+<option value="漏发补发">漏发补发</option>
+</select>
+<input class="filter-input" id="fSearch" placeholder="traceId / 交易号 / 渠道交易号 / 客户" oninput="filterLogs()">
+<div style="margin-left:auto;display:flex;gap:8px;">
+<button class="btn-outline" onclick="alert('导出调用日志 CSV (原型) — 含 traceId / 接口 / 状态 / 耗时 / 关联交易')">📥 导出 CSV</button>
+</div>
+</div>
+</div>
+
+<!-- Log Table -->
+<div class="table-wrap">
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>traceId</th>
+<th>通道</th>
+<th>类型</th>
+<th>接口 / 事件</th>
+<th>触发来源</th>
+<th>关联交易</th>
+<th>状态</th>
+<th>HTTP</th>
+<th>耗时</th>
+<th>重试</th>
+<th style="text-align:right;">操作</th>
+</tr>
+</thead>
+<tbody>
+<tr data-ch="OpenPayd" data-type="Webhook 回调" data-status="成功" data-search="trc_8f3c21d4a1 FIAT-09WQ2XC4VBNM7KJ2L8PA0SD3F5 OP-PI-20260908-9F21 cai">
+<td class="mono" style="font-size:12px;">2026-09-08 09:41:12</td>
+<td class="mono" style="font-size:12px;">trc_8f3c21d4a1</td>
+<td><span class="tag tag-openpayd">OpenPayd</span></td>
+<td>Webhook 回调</td>
+<td class="mono" style="font-size:12px;">payin.processing → payin.completed</td>
+<td>上游推送</td>
+<td class="mono" style="font-size:12px;">FIAT-09WQ2XC4VBNM7KJ2L8PA0SD3F5</td>
+<td><span class="badge badge-ok">成功</span></td>
+<td class="mono">200</td>
+<td>96ms</td>
+<td>—</td>
+<td style="text-align:right;"><button class="link-btn" onclick="openLog(this)">详情</button></td>
+</tr>
+<tr data-ch="OpenPayd" data-type="API 请求" data-status="成功" data-search="trc_2b7d90ac55 OP-PO-20260908-4C81 fdrt">
+<td class="mono" style="font-size:12px;">2026-09-08 09:40:12</td>
+<td class="mono" style="font-size:12px;">trc_2b7d90ac55</td>
+<td><span class="tag tag-openpayd">OpenPayd</span></td>
+<td>API 请求</td>
+<td class="mono" style="font-size:12px;">POST /payouts</td>
+<td>平台运营审批</td>
+<td class="mono" style="font-size:12px;">FIAT-0C6Y8L2Q4S7UN9XW1ZB3DF5HJ7K</td>
+<td><span class="badge badge-ok">成功</span></td>
+<td class="mono">201</td>
+<td>412ms</td>
+<td>—</td>
+<td style="text-align:right;"><button class="link-btn" onclick="openLog(this)">详情</button></td>
+</tr>
+<tr data-ch="Bridge" data-type="Webhook 回调" data-status="成功" data-search="trc_5e9a03bd07 FIAT-01C3O0N2MDLKHTGZ9X8W7V6U5T4S3 bridge_col_5e9a03bd qing liang">
+<td class="mono" style="font-size:12px;">2026-09-08 09:38:44</td>
+<td class="mono" style="font-size:12px;">trc_5e9a03bd07</td>
+<td><span class="tag tag-bridge">Bridge</span></td>
+<td>Webhook 回调</td>
+<td class="mono" style="font-size:12px;">virtual_account.deposit → transfer.completed</td>
+<td>上游推送</td>
+<td class="mono" style="font-size:12px;">FIAT-01C3O0N2MDLKHTGZ9X8W7V6U5T4S3</td>
+<td><span class="badge badge-ok">成功</span></td>
+<td class="mono">200</td>
+<td>88ms</td>
+<td>—</td>
+<td style="text-align:right;"><button class="link-btn" onclick="openLog(this)">详情</button></td>
+</tr>
+<tr class="row-retry" data-ch="Bridge" data-type="定时任务" data-status="重试中" data-search="trc_7d2b4419c2 FIAT-01B2N1M0LCKJGSFZ8X7W6V5U4T3S2R bridge_off_7d2b4419 kakaluote">
+<td class="mono" style="font-size:12px;">2026-09-08 09:31:05</td>
+<td class="mono" style="font-size:12px;">trc_7d2b4419c2</td>
+<td><span class="tag tag-bridge">Bridge</span></td>
+<td>定时任务</td>
+<td class="mono" style="font-size:12px;">POST /transfers（出金重试 · 第 3 次）</td>
+<td>补偿任务</td>
+<td class="mono" style="font-size:12px;">FIAT-01B2N1M0LCKJGSFZ8X7W6V5U4T3S2R</td>
+<td><span class="badge badge-pending">重试中</span></td>
+<td class="mono">503</td>
+<td>3,002ms</td>
+<td><span class="tag tag-warn">2 / 3</span></td>
+<td style="text-align:right;"><button class="link-btn" onclick="openLog(this)">详情</button></td>
+</tr>
+<tr class="row-retry" data-ch="OpenPayd" data-type="Webhook 回调" data-status="漏发补发" data-search="trc_c41f88b6e9 OP-PI-20260907-4A11C8 FIAT-01J9XW7PLQK2MZNAB4C8D0E5F6 cai">
+<td class="mono" style="font-size:12px;">2026-09-08 09:12:38</td>
+<td class="mono" style="font-size:12px;">trc_c41f88b6e9</td>
+<td><span class="tag tag-openpayd">OpenPayd</span></td>
+<td>Webhook 回调</td>
+<td class="mono" style="font-size:12px;">payin.completed（漏发补拉 · 对账发现）</td>
+<td>对账补拉</td>
+<td class="mono" style="font-size:12px;">FIAT-01J9XW7PLQK2MZNAB4C8D0E5F6</td>
+<td><span class="badge badge-info">漏发补发</span></td>
+<td class="mono">200</td>
+<td>154ms</td>
+<td>1 / 1</td>
+<td style="text-align:right;"><button class="link-btn" onclick="openLog(this)">详情</button></td>
+</tr>
+<tr data-ch="Bridge" data-type="API 请求" data-status="失败" data-search="trc_1a4f7e66b3 FIAT-01E5R2Q1POG0NKMVAZ9Y8X7W6V5 bridge_col_1a4f7e66 yuis">
+<td class="mono" style="font-size:12px;">2026-09-08 08:58:19</td>
+<td class="mono" style="font-size:12px;">trc_1a4f7e66b3</td>
+<td><span class="tag tag-bridge">Bridge</span></td>
+<td>API 请求</td>
+<td class="mono" style="font-size:12px;">POST /external_accounts</td>
+<td>客户提交 EA</td>
+<td class="mono" style="font-size:12px;">EA-ADD-20260908-005</td>
+<td><span class="badge badge-fail">失败</span></td>
+<td class="mono">422</td>
+<td>268ms</td>
+<td>—</td>
+<td style="text-align:right;"><button class="link-btn" onclick="openLog(this)">详情</button></td>
+</tr>
+<tr data-ch="OpenPayd" data-type="API 请求" data-status="成功" data-search="trc_6d2f10ac84 EUR Payment Account cai POST /accounts">
+<td class="mono" style="font-size:12px;">2026-09-08 08:52:41</td>
+<td class="mono" style="font-size:12px;">trc_6d2f10ac84</td>
+<td><span class="tag tag-openpayd">OpenPayd</span></td>
+<td>API 请求</td>
+<td class="mono" style="font-size:12px;">POST /accounts（开 Payment Account）</td>
+<td>客户开户</td>
+<td class="mono" style="font-size:12px;">C-8QX2S0LC · EUR</td>
+<td><span class="badge badge-ok">成功</span></td>
+<td class="mono">201</td>
+<td>534ms</td>
+<td>—</td>
+<td style="text-align:right;"><button class="link-btn" onclick="openLog(this)">详情</button></td>
+</tr>
+<tr data-ch="OpenPayd" data-type="API 请求" data-status="失败" data-search="trc_91b0cc3372 GB Payment Account 123 POST /beneficiaries">
+<td class="mono" style="font-size:12px;">2026-09-08 08:47:03</td>
+<td class="mono" style="font-size:12px;">trc_91b0cc3372</td>
+<td><span class="tag tag-openpayd">OpenPayd</span></td>
+<td>API 请求</td>
+<td class="mono" style="font-size:12px;">POST /beneficiaries</td>
+<td>客户提交 EA</td>
+<td class="mono" style="font-size:12px;">EA-ADD-20260908-002</td>
+<td><span class="badge badge-fail">失败</span></td>
+<td class="mono">400</td>
+<td>301ms</td>
+<td>—</td>
+<td style="text-align:right;"><button class="link-btn" onclick="openLog(this)">详情</button></td>
+</tr>
+<tr data-ch="Bridge" data-type="API 请求" data-status="成功" data-search="trc_31f8cc0207 FIAT-01G7U5T4RSI2MYPODA0E1F2C3B4 bridge_va_31f8cc02 zdz GET /virtual_accounts">
+<td class="mono" style="font-size:12px;">2026-09-08 08:31:09</td>
+<td class="mono" style="font-size:12px;">trc_31f8cc0207</td>
+<td><span class="tag tag-bridge">Bridge</span></td>
+<td>API 请求</td>
+<td class="mono" style="font-size:12px;">GET /virtual_accounts/{id}/deposits</td>
+<td>平台轮询</td>
+<td class="mono" style="font-size:12px;">FIAT-01G7U5T4RSI2MYPODA0E1F2C3B4</td>
+<td><span class="badge badge-ok">成功</span></td>
+<td class="mono">200</td>
+<td>142ms</td>
+<td>—</td>
+<td style="text-align:right;"><button class="link-btn" onclick="openLog(this)">详情</button></td>
+</tr>
+<tr data-ch="OpenPayd" data-type="定时任务" data-status="成功" data-search="trc_4a77e1b903 对账任务 GET /transactions">
+<td class="mono" style="font-size:12px;">2026-09-08 08:00:02</td>
+<td class="mono" style="font-size:12px;">trc_4a77e1b903</td>
+<td><span class="tag tag-openpayd">OpenPayd</span></td>
+<td>定时任务</td>
+<td class="mono" style="font-size:12px;">GET /transactions（日对账拉取）</td>
+<td>对账任务</td>
+<td class="mono" style="font-size:12px;">—（批量）</td>
+<td><span class="badge badge-ok">成功</span></td>
+<td class="mono">200</td>
+<td>1,842ms</td>
+<td>—</td>
+<td style="text-align:right;"><button class="link-btn" onclick="openLog(this)">详情</button></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="pagination">
+<div style="font-size:13px;color:#86909C;" id="logCount">Showing 1 to 10 of 1,284 logs</div>
+<div style="display:flex;gap:4px;">
+<button class="page-btn">‹</button>
+<button class="page-btn active">1</button>
+<button class="page-btn">2</button>
+<button class="page-btn">3</button>
+<button class="page-btn">•••</button>
+<button class="page-btn">129</button>
+<button class="page-btn">›</button>
+</div>
+</div>
+</div>
+
+<div class="note">
+<strong>字段口径：</strong>对应现网 <span class="mono">GET /apiAdmin/openpayd/api-logs</span>（OpenPayd 通道调用日志，入参 traceId / limit）——<b>该接口后端已上线</b>，本页为其管理端界面；<b>Bridge 侧同结构预留</b>（后端待建，故本页已含 Bridge 行示意，接口路径与事件名均为示意占位）。请求 / 响应体中的密钥、账号、证件等敏感字段一律<b>脱敏</b>展示（<span class="mono">••••</span>）。反查路径：交易记录 → 详情（上游侧 traceId）→ 本页按 traceId 定位；反之亦可从本页跳回关联交易。
+</div>
+
+</div>
+
+<!-- Log Detail Modal -->
+<div class="modal-overlay" id="logModal">
+<div class="modal">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+<div class="modal-title" id="lgTitle">调用详情</div>
+<span style="font-size:24px;cursor:pointer;color:#86909C;" onclick="closeModal()">✕</span>
+</div>
+<div class="status-strip">
+<span class="k">状态:</span><span class="badge badge-ok" id="lgStatus">成功</span>
+<span class="k" style="margin-left:16px;">通道:</span><b id="lgCh">—</b>
+<span class="k" style="margin-left:16px;">HTTP:</span><b id="lgHttp">—</b>
+<span class="k" style="margin-left:16px;">耗时:</span><b id="lgCost">—</b>
+</div>
+<div class="section-block">
+<div class="section-head">调用信息</div>
+<div class="detail-row"><span class="k">traceId</span><span class="v mono" id="lgTrace"></span></div>
+<div class="detail-row"><span class="k">时间</span><span class="v" id="lgTime"></span></div>
+<div class="detail-row"><span class="k">类型</span><span class="v" id="lgType"></span></div>
+<div class="detail-row"><span class="k">接口 / 事件</span><span class="v mono" id="lgApi"></span></div>
+<div class="detail-row"><span class="k">触发来源</span><span class="v" id="lgSrc"></span></div>
+<div class="detail-row"><span class="k">关联交易</span><span class="v mono" id="lgTx"></span></div>
+<div class="detail-row"><span class="k">重试</span><span class="v" id="lgRetry"></span></div>
+</div>
+<div class="section-block">
+<div class="section-head">Request <span style="font-weight:400;color:#86909C;font-size:12px;">敏感字段已脱敏</span></div>
+<div class="code">{
+  "idempotencyKey": "••••-••••-4f2c",
+  "accountId": "•••• 3091",
+  "amount": { "currency": "EUR", "value": "2300.00" },
+  "beneficiary": { "name": "•••• SARL", "iban": "•••• 4471" },
+  "paymentType": "SEPA",
+  "reference": "INV-2026-0891"
+}</div>
+</div>
+<div class="section-block">
+<div class="section-head">Response</div>
+<div class="code">{
+  "transactionId": "OP-PO-20260908-4C81",
+  "status": "PROCESSING",
+  "createdAt": "2026-09-08T09:40:12Z"
+}</div>
+</div>
+<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px;">
+<button class="btn-outline" onclick="showToast('跳转到关联交易详情（模拟）')">查看关联交易</button>
+<button class="btn-outline" onclick="showToast('已提交手动重试（模拟）— 上游幂等键复用，不会重复出金')">手动重试</button>
+<button class="btn-primary" onclick="closeModal()">关闭</button>
+</div>
+</div>
+</div>
+
+<div id="toast" style="position:fixed;right:24px;bottom:24px;background:#1D2129;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;z-index:2000;opacity:0;transform:translateY(10px);transition:all .25s;pointer-events:none;max-width:460px;"></div>
+
+<script>
+function openLog(btn) {
+  var tr = btn.closest('tr');
+  var c = tr.cells;
+  document.getElementById('lgTrace').textContent = c[1].textContent.trim();
+  document.getElementById('lgTime').textContent = c[0].textContent.trim();
+  document.getElementById('lgCh').textContent = tr.getAttribute('data-ch');
+  document.getElementById('lgType').textContent = tr.getAttribute('data-type');
+  document.getElementById('lgApi').textContent = c[4].textContent.trim();
+  document.getElementById('lgSrc').textContent = c[5].textContent.trim();
+  document.getElementById('lgTx').textContent = c[6].textContent.trim();
+  document.getElementById('lgStatus').textContent = tr.getAttribute('data-status');
+  document.getElementById('lgHttp').textContent = c[8].textContent.trim();
+  document.getElementById('lgCost').textContent = c[9].textContent.trim();
+  document.getElementById('lgRetry').textContent = c[10].textContent.trim();
+  document.getElementById('lgTitle').textContent = tr.getAttribute('data-ch') + ' · 调用详情';
+  document.getElementById('logModal').classList.add('active');
+}
+function closeModal(){ document.getElementById('logModal').classList.remove('active'); }
+document.getElementById('logModal').addEventListener('click', function(e){ if (e.target === this) closeModal(); });
+
+function filterLogs() {
+  var ch = document.getElementById('fCh').value;
+  var type = document.getElementById('fType').value;
+  var status = document.getElementById('fStatus').value;
+  var q = document.getElementById('fSearch').value.toLowerCase();
+  var rows = document.querySelectorAll('tbody tr');
+  var visible = 0;
+  rows.forEach(function(r){
+    var ok = (ch === 'all' || r.getAttribute('data-ch') === ch)
+      && (type === 'all' || r.getAttribute('data-type') === type)
+      && (status === 'all' || r.getAttribute('data-status') === status)
+      && (!q || r.getAttribute('data-search').toLowerCase().indexOf(q) >= 0);
+    r.style.display = ok ? '' : 'none';
+    if (ok) visible++;
+  });
+  document.getElementById('logCount').textContent = 'Showing ' + visible + ' of 1,284 logs（本页 10 条演示数据）';
+}
+
+var toastEl = document.getElementById('toast');
+function showToast(msg) {
+  toastEl.textContent = msg;
+  toastEl.style.opacity = '1';
+  toastEl.style.transform = 'translateY(0)';
+  clearTimeout(toastEl._h);
+  toastEl._h = setTimeout(function(){ toastEl.style.opacity = '0'; toastEl.style.transform = 'translateY(10px)'; }, 2600);
+}
+</script>
+</body>
+</html>
