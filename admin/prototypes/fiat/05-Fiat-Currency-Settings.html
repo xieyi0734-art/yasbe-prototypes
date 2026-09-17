@@ -48,6 +48,22 @@ tbody tr:hover td{background:#FAFAFB}
 body.showcost .cost-col{display:table-cell}
 .ctrl{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:12px 20px;margin-bottom:16px}
 .ctrl label{font-size:13px;color:#4B5563;display:flex;align-items:center;gap:8px;cursor:pointer}
+.badge-off{background:#F3F4F6;color:#6B7280}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;overflow-y:auto}
+.modal-overlay.active{display:block}
+.modal{background:#fff;border-radius:16px;padding:28px 32px;width:680px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.15);margin:24px auto}
+.modal-title{font-size:18px;font-weight:600}
+.detail-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #F3F4F6;font-size:13px}
+.detail-row .k{color:#6B7280}
+.detail-row .v{font-weight:500;text-align:right}
+.btn-primary{background:#E59303;color:#fff;border:none;border-radius:8px;padding:8px 20px;font-size:14px;font-weight:500;cursor:pointer}
+.btn-primary:hover{background:#CF8402}
+.section-head{font-size:12px;font-weight:600;color:#86909C;letter-spacing:.5px;margin-bottom:6px}
+.fm-2{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px}
+.fm-item{display:flex;flex-direction:column;gap:6px}
+.fm-item label{font-size:12px;color:#6B7280}
+.fm-item input,.fm-item select{border:1px solid #D1D5DB;border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;color:#1D2129;background:#fff}
+.fm-item input:focus,.fm-item select:focus{outline:none;border-color:#E59303}
 </style>
 </head>
 <body>
@@ -82,27 +98,23 @@ body.showcost .cost-col{display:table-cell}
 <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;">
 <div>
 <h1 style="font-size:24px;font-weight:700;">币种设置</h1>
-<p style="font-size:13px;color:#86909C;margin-top:4px;">费率与限额 · <b>费率归属层级已由「币种」改为「通道 × 币种 × 清算网络 rails」</b> — 同币种不同 rails 成本与时效不同，配置即时生效</p>
+<p style="font-size:13px;color:#86909C;margin-top:4px;">费率与限额 · 按通道 × 币种 × rails 配置</p>
 </div>
-<button class="btn-outline" onclick="showToast('开通新币种 / 新 rails 需先开通对应平台通道账户（见「收款账户」）(模拟)')">+ 开通币种 / rails</button>
+<button class="btn-outline" onclick="openNewRail()">+ 开通币种 / rails</button>
 </div>
 
 <div class="ctrl">
-<label><input type="checkbox" id="costChk" onchange="document.body.classList.toggle('showcost', this.checked)"> 显示通道成本（内部口径，不对外展示）</label>
-<span style="margin-left:auto;font-size:12px;color:#86909C;">对外费率 = 客户账单口径；通道成本 = 上游结算口径，差额即毛利</span>
+<label><input type="checkbox" id="costChk" onchange="document.body.classList.toggle('showcost', this.checked)"> 显示通道成本</label>
 </div>
 
-<div class="note">
-<strong>本次变化：</strong>① 费率从「按币种」下沉到 <b>通道 × 币种 × rails</b>（USD 的 Wire / ACH / FedNow、EUR 的 SEPA / SEPA Instant、GBP 的 FPS / CHAPS 费率与成本各不相同）；② 新增 <b>退回 / 退款费</b>（对应 OpenPayd 上游 Cancelled）与 <b>FX 兑换费</b>（法币 → YASBee）；③ 限额明确到层级：平台级 ≤ 通道级 ≤ 客户级（客户级只可收紧）；④ 金额档位仍为线上实测口径（≤ 50,000 / &gt; 50,000），<b>费率数值为演示占位</b>，定版前按线上配置核对。
-</div>
 
 <!-- Bridge USD -->
 <div class="sec-card">
 <div class="sec-head">
-<div class="sec-title"><span class="tag tag-bridge" style="margin-left:0;">Bridge</span> <span style="background:#E5E7EB;border-radius:8px;padding:2px 10px;font-size:14px;">$</span> USD <span style="font-size:12px;font-weight:400;color:#86909C;">美元 · Wire / ACH / FedNow · 内建归集</span></div>
+<div class="sec-title"><span class="tag tag-bridge" style="margin-left:0;">Bridge</span> <span style="background:#E5E7EB;border-radius:8px;padding:2px 10px;font-size:14px;">$</span> USD <span style="font-size:12px;font-weight:400;color:#86909C;">美元 · Wire / ACH / FedNow</span></div>
 <div style="display:flex;align-items:center;gap:12px;">
-<span class="badge badge-ok">ENABLED</span>
-<div class="toggle on" onclick="showToast('Bridge USD 通道启用状态切换（模拟）')"></div>
+<span class="badge badge-ok" id="tgBadge-Bridge-USD">ENABLED</span>
+<div class="toggle on" onclick="openToggle('Bridge','USD',this)"></div>
 </div>
 </div>
 <div class="sec-body">
@@ -118,7 +130,7 @@ body.showcost .cost-col{display:table-cell}
 <td class="mono">0.50%</td>
 <td class="mono">$0.00</td>
 <td class="mono cost-col" style="color:#6B7280;">0.20%</td>
-<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+<td style="text-align:right;"><td style="text-align:right;"><button class="edit-link" onclick='openFee({"ch": "Bridge", "ccy": "USD", "type": "入金 Deposit Fee", "rails": "Wire", "tier": "≤ 50,000", "rate": "0.50%", "fixed": "$0.00", "cost": "0.20%"})'>编辑</button></td></td>
 </tr>
 <tr>
 <td style="font-weight:600;">入金 Deposit Fee</td>
@@ -127,7 +139,7 @@ body.showcost .cost-col{display:table-cell}
 <td class="mono">0.30%</td>
 <td class="mono">$0.00</td>
 <td class="mono cost-col" style="color:#6B7280;">0.10%</td>
-<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+<td style="text-align:right;"><td style="text-align:right;"><button class="edit-link" onclick='openFee({"ch": "Bridge", "ccy": "USD", "type": "入金 Deposit Fee", "rails": "Wire", "tier": "> 50,000", "rate": "0.30%", "fixed": "$0.00", "cost": "0.10%"})'>编辑</button></td></td>
 </tr>
 <tr>
 <td style="font-weight:600;">入金 Deposit Fee</td>
@@ -136,7 +148,7 @@ body.showcost .cost-col{display:table-cell}
 <td class="mono">0.40%</td>
 <td class="mono">$0.00</td>
 <td class="mono cost-col" style="color:#6B7280;">0.12%</td>
-<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+<td style="text-align:right;"><td style="text-align:right;"><button class="edit-link" onclick='openFee({"ch": "Bridge", "ccy": "USD", "type": "入金 Deposit Fee", "rails": "ACH / FedNow", "tier": "≤ 50,000", "rate": "0.40%", "fixed": "$0.00", "cost": "0.12%"})'>编辑</button></td></td>
 </tr>
 <tr>
 <td style="font-weight:600;">出金 Withdrawal Fee</td>
@@ -145,7 +157,7 @@ body.showcost .cost-col{display:table-cell}
 <td class="mono">0.50%</td>
 <td class="mono">$25.00</td>
 <td class="mono cost-col" style="color:#6B7280;">0.25% + $12.00</td>
-<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+<td style="text-align:right;"><td style="text-align:right;"><button class="edit-link" onclick='openFee({"ch": "Bridge", "ccy": "USD", "type": "出金 Withdrawal Fee", "rails": "Wire", "tier": "≤ 50,000", "rate": "0.50%", "fixed": "$25.00", "cost": "0.25% + $12.00"})'>编辑</button></td></td>
 </tr>
 <tr>
 <td style="font-weight:600;">出金 Withdrawal Fee</td>
@@ -154,7 +166,7 @@ body.showcost .cost-col{display:table-cell}
 <td class="mono">0.30%</td>
 <td class="mono">$25.00</td>
 <td class="mono cost-col" style="color:#6B7280;">0.15% + $12.00</td>
-<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+<td style="text-align:right;"><td style="text-align:right;"><button class="edit-link" onclick='openFee({"ch": "Bridge", "ccy": "USD", "type": "出金 Withdrawal Fee", "rails": "Wire", "tier": "> 50,000", "rate": "0.30%", "fixed": "$25.00", "cost": "0.15% + $12.00"})'>编辑</button></td></td>
 </tr>
 <tr>
 <td style="font-weight:600;">退回 / 退款费 Return Fee</td>
@@ -163,7 +175,7 @@ body.showcost .cost-col{display:table-cell}
 <td class="mono">—</td>
 <td class="mono">$30.00</td>
 <td class="mono cost-col" style="color:#6B7280;">$18.00</td>
-<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+<td style="text-align:right;"><td style="text-align:right;"><button class="edit-link" onclick='openFee({"ch": "Bridge", "ccy": "USD", "type": "退回 / 退款费 Return Fee", "rails": "Wire", "tier": "—", "rate": "—", "fixed": "$30.00", "cost": "$18.00"})'>编辑</button></td></td>
 </tr>
 <tr>
 <td style="font-weight:600;">归集费 Collection Fee <span class="tag tag-gray">上游内建</span></td>
@@ -172,23 +184,20 @@ body.showcost .cost-col{display:table-cell}
 <td class="mono">0.10%</td>
 <td class="mono">—</td>
 <td class="mono cost-col" style="color:#6B7280;">上游价差包含</td>
-<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+<td style="text-align:right;"><td style="text-align:right;"><button class="edit-link" onclick='openFee({"ch": "Bridge", "ccy": "USD", "type": "归集费 Collection Fee 上游内建", "rails": "fiat → USDC/Base", "tier": "—", "rate": "0.10%", "fixed": "—", "cost": "上游价差包含"})'>编辑</button></td></td>
 </tr>
 </tbody>
 </table>
-<div style="font-size:12px;color:#86909C;margin-top:14px;border-top:1px solid #F3F4F6;padding-top:12px;">
-限额：单笔入金下限 $100，单笔出金上限 $100,000；客户每日累计出金上限 $250,000。平台通道账户：<span class="mono">VA-US-8821 · Apex Markets Inc</span> · 归集目标：平台托管钱包（USDC/Base）
-</div>
 </div>
 </div>
 
 <!-- OpenPayd EUR -->
 <div class="sec-card">
 <div class="sec-head">
-<div class="sec-title"><span class="tag tag-openpayd" style="margin-left:0;">OpenPayd</span> <span style="background:#E5E7EB;border-radius:8px;padding:2px 10px;font-size:14px;">€</span> EUR <span style="font-size:12px;font-weight:400;color:#86909C;">欧元 · SEPA / SEPA Instant · 无内建归集</span></div>
+<div class="sec-title"><span class="tag tag-openpayd" style="margin-left:0;">OpenPayd</span> <span style="background:#E5E7EB;border-radius:8px;padding:2px 10px;font-size:14px;">€</span> EUR <span style="font-size:12px;font-weight:400;color:#86909C;">欧元 · SEPA / SEPA Instant</span></div>
 <div style="display:flex;align-items:center;gap:12px;">
-<span class="badge badge-ok">ENABLED</span>
-<div class="toggle on" onclick="showToast('OpenPayd EUR 通道启用状态切换（模拟）')"></div>
+<span class="badge badge-ok" id="tgBadge-OpenPayd-EUR">ENABLED</span>
+<div class="toggle on" onclick="openToggle('OpenPayd','EUR',this)"></div>
 </div>
 </div>
 <div class="sec-body">
@@ -204,7 +213,7 @@ body.showcost .cost-col{display:table-cell}
 <td class="mono">0.50%</td>
 <td class="mono">€0.00</td>
 <td class="mono cost-col" style="color:#6B7280;">0.15%</td>
-<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+<td style="text-align:right;"><td style="text-align:right;"><button class="edit-link" onclick='openFee({"ch": "OpenPayd", "ccy": "EUR", "type": "入金 Pay In", "rails": "SEPA", "tier": "≤ 50,000", "rate": "0.50%", "fixed": "€0.00", "cost": "0.15%"})'>编辑</button></td></td>
 </tr>
 <tr>
 <td style="font-weight:600;">入金 　Pay In</td>
@@ -213,7 +222,7 @@ body.showcost .cost-col{display:table-cell}
 <td class="mono">0.30%</td>
 <td class="mono">€0.00</td>
 <td class="mono cost-col" style="color:#6B7280;">0.10%</td>
-<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+<td style="text-align:right;"><td style="text-align:right;"><button class="edit-link" onclick='openFee({"ch": "OpenPayd", "ccy": "EUR", "type": "入金 Pay In", "rails": "SEPA", "tier": "> 50,000", "rate": "0.30%", "fixed": "€0.00", "cost": "0.10%"})'>编辑</button></td></td>
 </tr>
 <tr>
 <td style="font-weight:600;">入金 　Pay In</td>
@@ -222,7 +231,7 @@ body.showcost .cost-col{display:table-cell}
 <td class="mono">0.60%</td>
 <td class="mono">€0.00</td>
 <td class="mono cost-col" style="color:#6B7280;">0.30%</td>
-<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+<td style="text-align:right;"><td style="text-align:right;"><button class="edit-link" onclick='openFee({"ch": "OpenPayd", "ccy": "EUR", "type": "入金 Pay In", "rails": "SEPA Instant", "tier": "≤ 50,000", "rate": "0.60%", "fixed": "€0.00", "cost": "0.30%"})'>编辑</button></td></td>
 </tr>
 <tr>
 <td style="font-weight:600;">出金 　Payout</td>
@@ -231,7 +240,7 @@ body.showcost .cost-col{display:table-cell}
 <td class="mono">0.50%</td>
 <td class="mono">€15.00</td>
 <td class="mono cost-col" style="color:#6B7280;">€6.00</td>
-<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+<td style="text-align:right;"><td style="text-align:right;"><button class="edit-link" onclick='openFee({"ch": "OpenPayd", "ccy": "EUR", "type": "出金 Payout", "rails": "SEPA", "tier": "≤ 50,000", "rate": "0.50%", "fixed": "€15.00", "cost": "€6.00"})'>编辑</button></td></td>
 </tr>
 <tr>
 <td style="font-weight:600;">出金 　Payout</td>
@@ -240,7 +249,7 @@ body.showcost .cost-col{display:table-cell}
 <td class="mono">0.60%</td>
 <td class="mono">€18.00</td>
 <td class="mono cost-col" style="color:#6B7280;">€9.00</td>
-<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+<td style="text-align:right;"><td style="text-align:right;"><button class="edit-link" onclick='openFee({"ch": "OpenPayd", "ccy": "EUR", "type": "出金 Payout", "rails": "SEPA Instant", "tier": "≤ 50,000", "rate": "0.60%", "fixed": "€18.00", "cost": "€9.00"})'>编辑</button></td></td>
 </tr>
 <tr>
 <td style="font-weight:600;">出金 　Payout</td>
@@ -249,7 +258,7 @@ body.showcost .cost-col{display:table-cell}
 <td class="mono">0.30%</td>
 <td class="mono">€15.00</td>
 <td class="mono cost-col" style="color:#6B7280;">€6.00</td>
-<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+<td style="text-align:right;"><td style="text-align:right;"><button class="edit-link" onclick='openFee({"ch": "OpenPayd", "ccy": "EUR", "type": "出金 Payout", "rails": "SEPA", "tier": "> 50,000", "rate": "0.30%", "fixed": "€15.00", "cost": "€6.00"})'>编辑</button></td></td>
 </tr>
 <tr>
 <td style="font-weight:600;">退回 / 退款费 Return Fee</td>
@@ -258,7 +267,7 @@ body.showcost .cost-col{display:table-cell}
 <td class="mono">—</td>
 <td class="mono">€12.00</td>
 <td class="mono cost-col" style="color:#6B7280;">€5.00</td>
-<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+<td style="text-align:right;"><td style="text-align:right;"><button class="edit-link" onclick='openFee({"ch": "OpenPayd", "ccy": "EUR", "type": "退回 / 退款费 Return Fee", "rails": "SEPA", "tier": "—", "rate": "—", "fixed": "€12.00", "cost": "€5.00"})'>编辑</button></td></td>
 </tr>
 <tr>
 <td style="font-weight:600;">FX 兑换费 <span class="tag tag-gray">平台自建</span></td>
@@ -267,23 +276,20 @@ body.showcost .cost-col{display:table-cell}
 <td class="mono">0.30%</td>
 <td class="mono">—</td>
 <td class="mono cost-col" style="color:#6B7280;">上游价差</td>
-<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+<td style="text-align:right;"><td style="text-align:right;"><button class="edit-link" onclick='openFee({"ch": "OpenPayd", "ccy": "EUR", "type": "FX 兑换费 平台自建", "rails": "EUR → YASBee", "tier": "—", "rate": "0.30%", "fixed": "—", "cost": "上游价差"})'>编辑</button></td></td>
 </tr>
 </tbody>
 </table>
-<div style="font-size:12px;color:#86909C;margin-top:14px;border-top:1px solid #F3F4F6;padding-top:12px;">
-限额：单笔入金下限 €100，单笔出金上限 €100,000；客户每日累计出金上限 €250,000。平台通道账户：<span class="mono">int.acc-77F3K · Banking Circle</span> · 归集：无内建，平台自建兑换（<span class="mono">convert/fiat-to-yasbee</span>）
-</div>
 </div>
 </div>
 
 <!-- OpenPayd GBP -->
 <div class="sec-card">
 <div class="sec-head">
-<div class="sec-title"><span class="tag tag-openpayd" style="margin-left:0;">OpenPayd</span> <span style="background:#E5E7EB;border-radius:8px;padding:2px 10px;font-size:14px;">£</span> GBP <span style="font-size:12px;font-weight:400;color:#86909C;">英镑 · FPS / CHAPS · 无内建归集</span></div>
+<div class="sec-title"><span class="tag tag-openpayd" style="margin-left:0;">OpenPayd</span> <span style="background:#E5E7EB;border-radius:8px;padding:2px 10px;font-size:14px;">£</span> GBP <span style="font-size:12px;font-weight:400;color:#86909C;">英镑 · FPS / CHAPS</span></div>
 <div style="display:flex;align-items:center;gap:12px;">
-<span class="badge badge-ok">ENABLED</span>
-<div class="toggle on" onclick="showToast('OpenPayd GBP 通道启用状态切换（模拟）')"></div>
+<span class="badge badge-ok" id="tgBadge-OpenPayd-GBP">ENABLED</span>
+<div class="toggle on" onclick="openToggle('OpenPayd','GBP',this)"></div>
 </div>
 </div>
 <div class="sec-body">
@@ -299,7 +305,7 @@ body.showcost .cost-col{display:table-cell}
 <td class="mono">0.50%</td>
 <td class="mono">£0.00</td>
 <td class="mono cost-col" style="color:#6B7280;">0.15%</td>
-<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+<td style="text-align:right;"><td style="text-align:right;"><button class="edit-link" onclick='openFee({"ch": "OpenPayd", "ccy": "GBP", "type": "入金 Pay In", "rails": "FPS", "tier": "≤ 50,000", "rate": "0.50%", "fixed": "£0.00", "cost": "0.15%"})'>编辑</button></td></td>
 </tr>
 <tr>
 <td style="font-weight:600;">入金 　Pay In</td>
@@ -308,7 +314,7 @@ body.showcost .cost-col{display:table-cell}
 <td class="mono">0.30%</td>
 <td class="mono">£0.00</td>
 <td class="mono cost-col" style="color:#6B7280;">0.10%</td>
-<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+<td style="text-align:right;"><td style="text-align:right;"><button class="edit-link" onclick='openFee({"ch": "OpenPayd", "ccy": "GBP", "type": "入金 Pay In", "rails": "FPS", "tier": "> 50,000", "rate": "0.30%", "fixed": "£0.00", "cost": "0.10%"})'>编辑</button></td></td>
 </tr>
 <tr>
 <td style="font-weight:600;">出金 　Payout</td>
@@ -317,7 +323,7 @@ body.showcost .cost-col{display:table-cell}
 <td class="mono">0.50%</td>
 <td class="mono">£20.00</td>
 <td class="mono cost-col" style="color:#6B7280;">£8.00</td>
-<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+<td style="text-align:right;"><td style="text-align:right;"><button class="edit-link" onclick='openFee({"ch": "OpenPayd", "ccy": "GBP", "type": "出金 Payout", "rails": "FPS", "tier": "≤ 50,000", "rate": "0.50%", "fixed": "£20.00", "cost": "£8.00"})'>编辑</button></td></td>
 </tr>
 <tr>
 <td style="font-weight:600;">出金 　Payout</td>
@@ -326,7 +332,7 @@ body.showcost .cost-col{display:table-cell}
 <td class="mono">0.30%</td>
 <td class="mono">£20.00</td>
 <td class="mono cost-col" style="color:#6B7280;">£8.00</td>
-<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+<td style="text-align:right;"><td style="text-align:right;"><button class="edit-link" onclick='openFee({"ch": "OpenPayd", "ccy": "GBP", "type": "出金 Payout", "rails": "FPS", "tier": "> 50,000", "rate": "0.30%", "fixed": "£20.00", "cost": "£8.00"})'>编辑</button></td></td>
 </tr>
 <tr>
 <td style="font-weight:600;">出金 　Payout</td>
@@ -335,7 +341,7 @@ body.showcost .cost-col{display:table-cell}
 <td class="mono">0.70%</td>
 <td class="mono">£30.00</td>
 <td class="mono cost-col" style="color:#6B7280;">£16.00</td>
-<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+<td style="text-align:right;"><td style="text-align:right;"><button class="edit-link" onclick='openFee({"ch": "OpenPayd", "ccy": "GBP", "type": "出金 Payout", "rails": "CHAPS", "tier": "≤ 50,000", "rate": "0.70%", "fixed": "£30.00", "cost": "£16.00"})'>编辑</button></td></td>
 </tr>
 <tr>
 <td style="font-weight:600;">退回 / 退款费 Return Fee</td>
@@ -344,7 +350,7 @@ body.showcost .cost-col{display:table-cell}
 <td class="mono">—</td>
 <td class="mono">£15.00</td>
 <td class="mono cost-col" style="color:#6B7280;">£6.00</td>
-<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+<td style="text-align:right;"><td style="text-align:right;"><button class="edit-link" onclick='openFee({"ch": "OpenPayd", "ccy": "GBP", "type": "退回 / 退款费 Return Fee", "rails": "FPS", "tier": "—", "rate": "—", "fixed": "£15.00", "cost": "£6.00"})'>编辑</button></td></td>
 </tr>
 <tr>
 <td style="font-weight:600;">FX 兑换费 <span class="tag tag-gray">平台自建</span></td>
@@ -353,13 +359,10 @@ body.showcost .cost-col{display:table-cell}
 <td class="mono">0.30%</td>
 <td class="mono">—</td>
 <td class="mono cost-col" style="color:#6B7280;">上游价差</td>
-<td style="text-align:right;"><button class="edit-link" onclick="showToast('编辑档位费率(模拟)')">编辑</button></td>
+<td style="text-align:right;"><td style="text-align:right;"><button class="edit-link" onclick='openFee({"ch": "OpenPayd", "ccy": "GBP", "type": "FX 兑换费 平台自建", "rails": "GBP → YASBee", "tier": "—", "rate": "0.30%", "fixed": "—", "cost": "上游价差"})'>编辑</button></td></td>
 </tr>
 </tbody>
 </table>
-<div style="font-size:12px;color:#86909C;margin-top:14px;border-top:1px solid #F3F4F6;padding-top:12px;">
-限额：单笔入金下限 £100，单笔出金上限 £100,000；客户每日累计出金上限 £250,000。平台通道账户：<span class="mono">GB-VA-2214 · Clear Junction</span> · 归集：无内建，平台自建兑换
-</div>
 </div>
 </div>
 
@@ -367,12 +370,11 @@ body.showcost .cost-col{display:table-cell}
 <div class="sec-card">
 <div class="sec-head">
 <div class="sec-title">限额层级 <span class="tag tag-gray" style="margin-left:0;">Level</span></div>
-<span style="font-size:12px;color:#86909C;">客户级 ≤ 通道级 ≤ 平台级（客户级只可收紧，不可放宽）</span>
 </div>
 <div class="sec-body">
 <table>
 <thead>
-<tr><th>层级</th><th>适用范围</th><th>单笔下限</th><th>单笔上限</th><th>日累计出金上限</th><th>备注</th></tr>
+<tr><th>层级</th><th>适用范围</th><th>单笔下限</th><th>单笔上限</th><th>日累计出金上限</th><th>备注</th><th style="text-align:right;">操作</th></tr>
 </thead>
 <tbody>
 <tr>
@@ -382,6 +384,7 @@ body.showcost .cost-col{display:table-cell}
 <td>—</td>
 <td class="mono">$1,000,000</td>
 <td style="color:#6B7280;">全局风控兜底</td>
+<td style="text-align:right;"><button class="edit-link" onclick='openLimit("平台级","全部通道 / 币种","—","—","$1,000,000","全局风控兜底")'>编辑</button></td>
 </tr>
 <tr>
 <td><b>通道级</b></td>
@@ -390,6 +393,7 @@ body.showcost .cost-col{display:table-cell}
 <td class="mono">$100,000</td>
 <td class="mono">$250,000</td>
 <td style="color:#6B7280;">按通道 × 币种设定</td>
+<td style="text-align:right;"><button class="edit-link" onclick='openLimit("通道级","Bridge × USD","$100","$100,000","$250,000","按通道 × 币种设定")'>编辑</button></td>
 </tr>
 <tr>
 <td><b>通道级</b></td>
@@ -398,6 +402,7 @@ body.showcost .cost-col{display:table-cell}
 <td class="mono">€100,000</td>
 <td class="mono">€250,000</td>
 <td style="color:#6B7280;">按通道 × 币种设定</td>
+<td style="text-align:right;"><button class="edit-link" onclick='openLimit("通道级","OpenPayd × EUR","€100","€100,000","€250,000","按通道 × 币种设定")'>编辑</button></td>
 </tr>
 <tr>
 <td><b>通道级</b></td>
@@ -406,6 +411,7 @@ body.showcost .cost-col{display:table-cell}
 <td class="mono">£100,000</td>
 <td class="mono">£250,000</td>
 <td style="color:#6B7280;">按通道 × 币种设定</td>
+<td style="text-align:right;"><button class="edit-link" onclick='openLimit("通道级","OpenPayd × GBP","£100","£100,000","£250,000","按通道 × 币种设定")'>编辑</button></td>
 </tr>
 <tr>
 <td><b>客户级</b></td>
@@ -414,16 +420,105 @@ body.showcost .cost-col{display:table-cell}
 <td>可下调</td>
 <td>可下调</td>
 <td style="color:#6B7280;">只收紧；超限走人工复核</td>
+<td style="text-align:right;"><button class="edit-link" onclick='openLimit("客户级","单客户（按 KYB 等级 / 风险分级）","继承通道级","可下调","可下调","只收紧；超限走人工复核")'>编辑</button></td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
 
-<div class="note">
-<strong>说明：</strong>金额档位阈值 50,000 与两档结构为线上系统实测口径（Currency Settings）；<b>费率 / 固定费用 / 限额 / 通道成本数值为演示占位</b>，定版前需按线上配置与上游报价核对。费用由 C 端展示口径（入金 / 出金手续费）与后台配置同源；<b>通道成本列</b>仅在内部可见（不进入 C 端任何展示），用于毛核算与通道选择（未来按费率 / 时效做路由时，此列是决策依据）。
+
 </div>
 
+<!-- 编辑费率 -->
+<div class="modal-overlay" id="feeModal">
+<div class="modal">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+<div class="modal-title" id="fmTitle">编辑费率</div>
+<span class="badge badge-ok" id="fmRails">Wire</span>
+</div>
+<div class="section-head">配置对象</div>
+<div class="detail-row"><span class="k">通道 Provider</span><span class="v" id="fmCh"></span></div>
+<div class="detail-row"><span class="k">币种 Currency</span><span class="v" id="fmCcy"></span></div>
+<div class="detail-row"><span class="k">费用类型 Fee Type</span><span class="v" id="fmType"></span></div>
+<div class="detail-row"><span class="k">金额档位 Tier</span><span class="v" id="fmTier"></span></div>
+<div class="section-head" style="margin-top:16px;">费率配置</div>
+<div class="fm-2">
+<div class="fm-item"><label>对外费率（%）</label><input id="fmRate"></div>
+<div class="fm-item"><label>固定费用</label><input id="fmFixed"></div>
+<div class="fm-item"><label>通道成本（%）</label><input id="fmCost"></div>
+<div class="fm-item"><label>通道成本固定费</label><input id="fmCostFixed"></div>
+<div class="fm-item"><label>生效方式</label><select id="fmEff"><option>立即生效</option><option>定时生效</option></select></div>
+<div class="fm-item"><label>客户账单展示</label><select id="fmShow"><option>展示</option><option>不展示</option></select></div>
+</div>
+<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:22px;">
+<button class="btn-outline" onclick="closeModal('feeModal')">取消</button>
+<button class="btn-primary" onclick="saveFee()">保存</button>
+</div>
+</div>
+</div>
+
+<!-- 编辑限额 -->
+<div class="modal-overlay" id="limitModal">
+<div class="modal" style="width:560px;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+<div class="modal-title" id="lmTitle">限额配置</div>
+<span class="badge badge-warn" id="lmLv">平台级</span>
+</div>
+<div class="detail-row"><span class="k">适用范围</span><span class="v" id="lmScope"></span></div>
+<div class="section-head" style="margin-top:16px;">限额配置</div>
+<div class="fm-2">
+<div class="fm-item"><label>单笔下限</label><input id="lmMin"></div>
+<div class="fm-item"><label>单笔上限</label><input id="lmMax"></div>
+<div class="fm-item"><label>日累计出金上限</label><input id="lmDaily"></div>
+<div class="fm-item"><label>备注</label><input id="lmNote"></div>
+</div>
+<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:22px;">
+<button class="btn-outline" onclick="closeModal('limitModal')">取消</button>
+<button class="btn-primary" onclick="saveLimit()">保存</button>
+</div>
+</div>
+</div>
+
+<!-- 通道启用 / 停用确认 -->
+<div class="modal-overlay" id="toggleModal">
+<div class="modal" style="width:520px;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+<div class="modal-title" id="tgTitle">停用通道</div>
+<span class="badge badge-warn">通道状态</span>
+</div>
+<div class="detail-row"><span class="k">通道 Provider</span><span class="v" id="tgCh"></span></div>
+<div class="detail-row"><span class="k">币种 Currency</span><span class="v" id="tgCcy"></span></div>
+<div class="detail-row"><span class="k">当前状态</span><span class="v" id="tgNow"></span></div>
+<div class="detail-row"><span class="k">切换为</span><span class="v" id="tgNext"></span></div>
+<div id="tgWarn" style="font-size:12px;color:#86909C;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;padding:10px 14px;margin-top:14px;"></div>
+<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:22px;">
+<button class="btn-outline" onclick="closeModal('toggleModal')">取消</button>
+<button class="btn-primary" onclick="confirmToggle()">确认</button>
+</div>
+</div>
+</div>
+
+<!-- 开通币种 / rails -->
+<div class="modal-overlay" id="railModal">
+<div class="modal" style="width:560px;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+<div class="modal-title">开通币种 / rails</div>
+<span class="badge badge-ok">New</span>
+</div>
+<div class="fm-2">
+<div class="fm-item"><label>通道 Provider</label><select id="nrCh"><option>Bridge</option><option>OpenPayd</option></select></div>
+<div class="fm-item"><label>币种 Currency</label><select id="nrCcy"><option>USD</option><option>EUR</option><option>GBP</option></select></div>
+<div class="fm-item"><label>清算网络 rails</label><select id="nrRails"><option>Wire</option><option>ACH</option><option>FedNow</option><option>SEPA</option><option>SEPA Instant</option><option>FPS</option><option>CHAPS</option></select></div>
+<div class="fm-item"><label>平台通道账户</label><select id="nrAcc"><option>VA-US-8821 · Apex Markets Inc</option><option>int.acc-77F3K · Banking Circle</option><option>GB-VA-2214 · Clear Junction</option><option>未开通（需先申请开户）</option></select></div>
+<div class="fm-item"><label>生效方式</label><select id="nrEff"><option>立即生效</option><option>定时生效</option></select></div>
+<div class="fm-item"><label>客户可见</label><select id="nrShow"><option>是</option><option>否</option></select></div>
+</div>
+<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:22px;">
+<button class="btn-outline" onclick="closeModal('railModal')">取消</button>
+<button class="btn-primary" onclick="submitRail()">提交申请</button>
+</div>
+</div>
 </div>
 
 <div id="toast" style="position:fixed;right:24px;bottom:24px;background:#1D2129;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;z-index:2000;opacity:0;transform:translateY(10px);transition:all .25s;pointer-events:none;max-width:440px;"></div>
@@ -437,6 +532,76 @@ function showToast(msg) {
   clearTimeout(toastEl._h);
   toastEl._h = setTimeout(function(){ toastEl.style.opacity = '0'; toastEl.style.transform = 'translateY(10px)'; }, 2600);
 }
+var pendingToggle = null;
+function closeModal(id){document.getElementById(id).classList.remove('active');}
+function closeAll(){['feeModal','limitModal','toggleModal','railModal'].forEach(function(id){var e=document.getElementById(id);if(e)e.classList.remove('active');});}
+function openFee(d){
+  document.getElementById('fmTitle').textContent = d.ch + ' · ' + d.ccy + ' · ' + d.type;
+  document.getElementById('fmRails').textContent = d.rails;
+  document.getElementById('fmCh').textContent = d.ch;
+  document.getElementById('fmCcy').textContent = d.ccy;
+  document.getElementById('fmType').textContent = d.type;
+  document.getElementById('fmTier').textContent = d.tier;
+  var parts = (d.cost || '').split(' + ');
+  document.getElementById('fmRate').value = d.rate;
+  document.getElementById('fmFixed').value = d.fixed;
+  document.getElementById('fmCost').value = parts[0];
+  document.getElementById('fmCostFixed').value = parts.length > 1 ? parts[1] : '';
+  closeAll();
+  document.getElementById('feeModal').classList.add('active');
+}
+function saveFee(){
+  var who = document.getElementById('fmCh').textContent + ' ' + document.getElementById('fmCcy').textContent;
+  var val = document.getElementById('fmRate').value + ' + ' + document.getElementById('fmFixed').value;
+  closeModal('feeModal');
+  showToast('已保存：' + who + ' · 对外费率 ' + val + '（模拟）');
+}
+function openLimit(lv, scope, min, max, daily, note){
+  document.getElementById('lmTitle').textContent = '限额配置 · ' + lv;
+  document.getElementById('lmLv').textContent = lv;
+  document.getElementById('lmScope').textContent = scope;
+  document.getElementById('lmMin').value = min;
+  document.getElementById('lmMax').value = max;
+  document.getElementById('lmDaily').value = daily;
+  document.getElementById('lmNote').value = note;
+  closeAll();
+  document.getElementById('limitModal').classList.add('active');
+}
+function saveLimit(){
+  var lv = document.getElementById('lmLv').textContent;
+  var r = document.getElementById('lmMin').value + ' ~ ' + document.getElementById('lmMax').value;
+  closeModal('limitModal');
+  showToast('已保存：' + lv + ' 单笔 ' + r + '（模拟）');
+}
+function openToggle(ch, ccy, el){
+  pendingToggle = {ch:ch, ccy:ccy, el:el, off:el.classList.contains('on')};
+  document.getElementById('tgTitle').textContent = pendingToggle.off ? '停用通道' : '启用通道';
+  document.getElementById('tgCh').textContent = ch;
+  document.getElementById('tgCcy').textContent = ccy;
+  document.getElementById('tgNow').textContent = pendingToggle.off ? 'ENABLED' : 'DISABLED';
+  document.getElementById('tgNext').textContent = pendingToggle.off ? 'DISABLED' : 'ENABLED';
+  document.getElementById('tgWarn').textContent = pendingToggle.off ? '停用后该通道不再受理新出入金，已提交订单继续处理' : '启用后该通道立即恢复受理新出入金';
+  closeAll();
+  document.getElementById('toggleModal').classList.add('active');
+}
+function confirmToggle(){
+  var o = pendingToggle;
+  if (!o) return;
+  if (o.off) { o.el.classList.remove('on'); } else { o.el.classList.add('on'); }
+  var bd = document.getElementById('tgBadge-' + o.ch + '-' + o.ccy);
+  if (bd) { bd.textContent = o.off ? 'DISABLED' : 'ENABLED'; bd.className = 'badge ' + (o.off ? 'badge-off' : 'badge-ok'); }
+  closeModal('toggleModal');
+  showToast(o.ch + ' ' + o.ccy + ' 通道已' + (o.off ? '停用' : '启用') + '（模拟）');
+}
+function openNewRail(){closeAll();document.getElementById('railModal').classList.add('active');}
+function submitRail(){
+  var ch = document.getElementById('nrCh').value, ccy = document.getElementById('nrCcy').value, rl = document.getElementById('nrRails').value;
+  closeModal('railModal');
+  showToast('已提交开户申请：' + ch + ' · ' + ccy + ' · ' + rl + '（模拟）');
+}
+['feeModal','limitModal','toggleModal','railModal'].forEach(function(id){
+  document.getElementById(id).addEventListener('click', function(e){ if (e.target === this) this.classList.remove('active'); });
+});
 </script>
 </body>
 </html>

@@ -114,7 +114,7 @@ tr:hover td{background:#F9FAFB}
 <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;">
 <div>
 <h1 style="font-size:24px;font-weight:700;">交易记录</h1>
-<p style="font-size:13px;color:#86909C;margin-top:4px;">法币出入金全量流水（Deposits &amp; Withdrawals）· 新增 <b>通道 / 渠道交易号 / 上游状态</b> 三列 — 平台状态与上游状态分开表达，PROCESSING 可在此页发起审核</p>
+<p style="font-size:13px;color:#86909C;margin-top:4px;">法币出入金全量流水（Deposits &amp; Withdrawals）</p>
 </div>
 <a class="btn-outline" style="text-decoration:none;" href="01-Fiat-Review-Queue.html">← 待办队列</a>
 </div>
@@ -144,7 +144,7 @@ tr:hover td{background:#F9FAFB}
 <div class="stat-card">
 <div class="stat-label">本月手续费</div>
 <div class="stat-value">$1,240.00</div>
-<div class="stat-sub">平台对外费率口径</div>
+<div class="stat-sub">平台对外费率</div>
 </div>
 </div>
 
@@ -394,9 +394,6 @@ tr:hover td{background:#F9FAFB}
 </div>
 </div>
 
-<div class="note">
-<strong>状态口径：</strong>① <b>平台状态</b>（Status）由平台账本定义：<span class="mono">PROCESSING / COMPLETED / REJECTED / CANCELLED / FAILED</span>；<b>上游状态</b>为通道返回口径，两者不一一对应 — Bridge 入金完成后进入<b>归集</b>（fiat → USDC/Base 托管钱包），OpenPayd 为纯法币账户（归集由平台自建）；② OpenPayd 上游存在 <span class="mono">Cancelled</span>（对应退款/重试），已映射为平台 <b>CANCELLED</b> 并可原路退回；③ <b>渠道交易号</b>为上游交易标识（Bridge collection/offramp 号 · OpenPayd Pay In / Payout 号），演示占位，用于与「渠道调用日志」的 traceId 对照排查。
-</div>
 
 </div>
 
@@ -529,7 +526,7 @@ function filterTable() {
     r.style.display = ok ? '' : 'none';
     if (ok) visible++;
   });
-  document.getElementById('recCount').textContent = visible + ' transactions available (本页 12 条演示数据)';
+  document.getElementById('recCount').textContent = visible + ' transactions available （本页 12 条）';
 }
 filterTable();
 </script>

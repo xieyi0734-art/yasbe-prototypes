@@ -112,7 +112,7 @@ tr:hover td{background:#F9FAFB}
 <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;">
 <div>
 <h1 style="font-size:24px;font-weight:700;">交易审核</h1>
-<p style="font-size:13px;color:#86909C;margin-top:4px;">待办队列（PROCESSING）· <b>法币通道 = Bridge（USD 等）/ OpenPayd（EUR / GBP 等）</b> — 顶部按通道筛选，队列内以「通道」列区分；同名规则由平台统一强制，每条标出判定方（平台 / 上游）</p>
+<p style="font-size:13px;color:#86909C;margin-top:4px;">待处理审核单 · 按类型分队列，可按通道筛选</p>
 </div>
 <a class="btn-outline" style="text-decoration:none;" href="02-Fiat-Transaction-List.html">查看交易记录 →</a>
 </div>
@@ -155,7 +155,6 @@ tr:hover td{background:#F9FAFB}
 <div class="sec-head">
 <div>
 <div class="sec-title">入金待审队列 <span class="tag tag-ok" style="margin-left:8px;">Deposit</span></div>
-<div class="sec-sub"><b>Bridge</b>：非同名入金挂账复核（同名入金系统自动入账，不进队列）；<b>OpenPayd</b>：Pay In 待运营确认（同名 / 非同名均需确认，非同名挂账）。<b>挂账 HOLD 为平台级机制、两通道统一适用</b>（7 天未补证自动退款，已补证单停表待复核）</div>
 </div>
 <span class="sec-count" id="cntDeposit">6 单待审</span>
 </div>
@@ -279,7 +278,6 @@ tr:hover td{background:#F9FAFB}
 <div class="sec-head">
 <div>
 <div class="sec-title">出金待审队列 <span class="tag" style="margin-left:8px;background:#EFF6FF;color:#1D4ED8;">Withdrawal</span></div>
-<div class="sec-sub">出金目标<b>仅限正常状态（已核验）的同名外部账户</b>，系统已按该规则过滤并校验资金；批准后 Bridge 提交上游汇款 / OpenPayd 提交 Payout（SEPA · FASTER_PAYMENTS · CHAPS）</div>
 </div>
 <span class="sec-count" id="cntWithdraw" style="color:#1D4ED8;background:#EFF6FF;">5 单待审</span>
 </div>
@@ -388,7 +386,6 @@ tr:hover td{background:#F9FAFB}
 <div class="sec-head">
 <div>
 <div class="sec-title">EA 添加审核队列 <span class="tag tag-purple" style="margin-left:8px;">External Account</span></div>
-<div class="sec-sub">同名申请系统自动创建成功（不进队列）；此处仅为<b>非同名申请</b>。判定方：Bridge 由上游校验 external account；OpenPayd 由平台按「父受益人 + 银行受益人」两层校验 — 同意=账户创建成功（标记仅入金来源）/ 驳回=创建失败</div>
 </div>
 <span class="sec-count" id="cntEaAdd" style="color:#5B21B6;background:#EDE9FE;">4 单待审</span>
 </div>
@@ -472,9 +469,6 @@ tr:hover td{background:#F9FAFB}
 </div>
 </div>
 
-<div class="note">
-<strong>口径说明：</strong>① <b>通道（Provider）</b>为法币上游通道，与「渠道」分组下的<b>卡片渠道</b>（Interlace / TestPay / CardNet）不是同一概念；② <b>同名核验</b>对外统一由平台强制（Bridge 侧由上游代劳 external account / KYC 校验，OpenPayd 侧上游不校验 sender，故判定方不同，队列内逐单标注）；③ 审批动作落点：OpenPayd 走 <span class="mono">POST /apiAdmin/openpayd/payins/{id}/review</span> · <span class="mono">POST /apiAdmin/openpayd/payouts/{id}/review</span>，Bridge 侧管理端接口<b>后端待建</b>（本期仅表达流程与字段，不产生假动作）；④ 上游调用轨迹见「渠道调用日志」页。
-</div>
 
 </div>
 

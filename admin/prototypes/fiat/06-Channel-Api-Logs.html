@@ -95,7 +95,7 @@ tr.row-retry td{background:#FFFBEB}
 <div class="hdr">
 <div>
 <h1 style="font-size:24px;font-weight:700;">渠道调用日志</h1>
-<p style="font-size:13px;color:#86909C;margin-top:4px;">法币通道（<b>Bridge / OpenPayd</b>）上游接口调用轨迹 — traceId / 接口 / 请求方 / 状态 / 耗时 / 重试 / 关联交易；支持按交易号或渠道交易号<b>反查</b>，用于排查「通道未回执」「Webhook 漏发」「上游报错」</p>
+<p style="font-size:13px;color:#86909C;margin-top:4px;">Bridge / OpenPayd 上游接口调用轨迹</p>
 </div>
 <a class="btn-outline" style="text-decoration:none;" href="02-Fiat-Transaction-List.html">← 交易记录</a>
 </div>
@@ -335,9 +335,6 @@ tr.row-retry td{background:#FFFBEB}
 </div>
 </div>
 
-<div class="note">
-<strong>字段口径：</strong>对应现网 <span class="mono">GET /apiAdmin/openpayd/api-logs</span>（OpenPayd 通道调用日志，入参 traceId / limit）——<b>该接口后端已上线</b>，本页为其管理端界面；<b>Bridge 侧同结构预留</b>（后端待建，故本页已含 Bridge 行示意，接口路径与事件名均为示意占位）。请求 / 响应体中的密钥、账号、证件等敏感字段一律<b>脱敏</b>展示（<span class="mono">••••</span>）。反查路径：交易记录 → 详情（上游侧 traceId）→ 本页按 traceId 定位；反之亦可从本页跳回关联交易。
-</div>
 
 </div>
 
@@ -429,7 +426,7 @@ function filterLogs() {
     r.style.display = ok ? '' : 'none';
     if (ok) visible++;
   });
-  document.getElementById('logCount').textContent = 'Showing ' + visible + ' of 1,284 logs（本页 10 条演示数据）';
+  document.getElementById('logCount').textContent = 'Showing ' + visible + ' of 1,284 logs（本页 10 条）';
 }
 
 var toastEl = document.getElementById('toast');

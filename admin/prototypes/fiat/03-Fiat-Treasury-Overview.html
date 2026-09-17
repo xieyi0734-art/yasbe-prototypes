@@ -94,7 +94,7 @@ tbody tr.rowlink{cursor:pointer}
 <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;">
 <div>
 <h1 style="font-size:24px;font-weight:700;">资金总览</h1>
-<p style="font-size:13px;color:#86909C;margin-top:4px;">平台级资金视图 · <b>通道 × 币种</b> 矩阵 — 客户账本 / 平台通道账户 / 归集水位三方核对，对账闭环</p>
+<p style="font-size:13px;color:#86909C;margin-top:4px;">平台级资金视图 · 通道 × 币种矩阵</p>
 </div>
 <div style="display:flex;gap:8px;">
 <a class="btn-outline" style="text-decoration:none;" href="04-Fiat-Bank-Accounts.html">收款账户 →</a>
@@ -107,7 +107,7 @@ tbody tr.rowlink{cursor:pointer}
 <div class="stat-card">
 <div class="stat-label">客户总资产（法币）</div>
 <div class="stat-value">$1,272,690</div>
-<div class="stat-sub">客户账本口径（ledger 汇总）</div>
+<div class="stat-sub">ledger 汇总</div>
 </div>
 <div class="stat-card">
 <div class="stat-label">审核中冻结（出金）</div>
@@ -122,12 +122,12 @@ tbody tr.rowlink{cursor:pointer}
 <div class="stat-card">
 <div class="stat-label">通道账户余额合计</div>
 <div class="stat-value">$1,272,690</div>
-<div class="stat-sub">Bridge + OpenPayd 到账口径</div>
+<div class="stat-sub">上游到账余额</div>
 </div>
 <div class="stat-card">
 <div class="stat-label">归集在途（Bridge → USDC/Base）</div>
 <div class="stat-value" style="color:#3730A3;">$212,500</div>
-<div class="stat-sub">仅 Bridge 内建归集；OpenPayd 无</div>
+<div class="stat-sub">Bridge 内建 · OpenPayd 无</div>
 </div>
 </div>
 
@@ -136,7 +136,6 @@ tbody tr.rowlink{cursor:pointer}
 <div class="sec-head">
 <div>
 <div class="sec-title"><span class="tag tag-bridge" style="margin-left:0;">Bridge</span> 通道资金视图</div>
-<div class="sec-sub">入金到账后<b>自动归集</b>为 USDC/Base 至平台托管钱包（上游内建）；出金从平台托管钱包 Offramp 到客户同名 external account</div>
 </div>
 <span class="badge badge-ok">对账一致</span>
 </div>
@@ -161,7 +160,7 @@ tbody tr.rowlink{cursor:pointer}
 <td><b>USD</b></td>
 <td><div style="font-weight:600;">Apex Markets Inc</div><div class="mono" style="font-size:11px;color:#86909C;">VA-US-8821 · Clear Bank</div></td>
 <td><span class="tag tag-gray">Wire</span> <span class="tag tag-gray">ACH</span> <span class="tag tag-gray">FedNow</span></td>
-<td class="num">$923,410.00<span class="sub">到账口径</span></td>
+<td class="num">$923,410.00</td>
 <td class="num">$923,410.00</td>
 <td class="num" style="color:#854D0E;">$9,800.00</td>
 <td class="num" style="color:#166534;">$913,610.00</td>
@@ -211,7 +210,6 @@ tbody tr.rowlink{cursor:pointer}
 <div class="sec-head">
 <div>
 <div class="sec-title"><span class="tag tag-openpayd" style="margin-left:0;">OpenPayd</span> 通道资金视图</div>
-<div class="sec-sub">纯法币账户（Payment Account）— <b>无内建归集</b>，法币→YASBee 兑换由平台自建（<span class="mono">convert/fiat-to-yasbee</span>）</div>
 </div>
 <span class="badge badge-ok">对账一致</span>
 </div>
@@ -236,7 +234,7 @@ tbody tr.rowlink{cursor:pointer}
 <td><b>EUR</b></td>
 <td><div style="font-weight:600;">Banking Circle</div><div class="mono" style="font-size:11px;color:#86909C;">int.acc-77F3K · Clear Bank</div></td>
 <td><span class="tag tag-gray">SEPA</span> <span class="tag tag-gray">SEPA Instant</span></td>
-<td class="num">€251,820.00<span class="sub">到账口径</span></td>
+<td class="num">€251,820.00</td>
 <td class="num">€251,820.00</td>
 <td class="num" style="color:#854D0E;">€3,500.00</td>
 <td class="num" style="color:#166534;">€248,320.00</td>
@@ -249,7 +247,7 @@ tbody tr.rowlink{cursor:pointer}
 <td><b>GBP</b></td>
 <td><div style="font-weight:600;">Clear Junction</div><div class="mono" style="font-size:11px;color:#86909C;">GB-VA-2214 · Clear Bank</div></td>
 <td><span class="tag tag-gray">FPS</span> <span class="tag tag-gray">CHAPS</span> <span class="tag tag-gray">SWIFT</span></td>
-<td class="num">£97,460.00<span class="sub">到账口径</span></td>
+<td class="num">£97,460.00</td>
 <td class="num">£97,460.00</td>
 <td class="num" style="color:#854D0E;">£1,000.00</td>
 <td class="num" style="color:#166534;">£96,460.00</td>
@@ -275,9 +273,6 @@ tbody tr.rowlink{cursor:pointer}
 </table>
 </div>
 
-<div class="note">
-<strong>对账说明：</strong>三个口径需同时成立 —— ① <b>客户账本</b>（法币 ledger 汇总的客户总存款 / 冻结 / 可用）；② <b>平台通道账户</b>（上游到账余额，Bridge VA / OpenPayd Payment Account）；③ <b>归集水位</b>（Bridge 托管钱包 USDC/Base，OpenPayd 不适用）。差异来源归类：<b>处理中出入金</b>（计入冻结，结算后入账）·<b>归集在途</b>（Bridge 已到账未入钱包）·<b>通道未回执</b>（上游状态落后于平台状态，见「渠道调用日志」）·<b>上游取消/退款</b>（OpenPayd Cancelled）。<span style="color:#9CA3AF;">金额为演示数据；USD 走 Bridge、EUR/GBP 走 OpenPayd 是当前实现选择，非能力边界（两通道 EUR/GBP 能力重叠，可做路由或降级）。</span>
-</div>
 
 </div>
 
