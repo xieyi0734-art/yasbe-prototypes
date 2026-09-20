@@ -1,0 +1,54 @@
+# 已知漏登欠账基线（tools/check_registry.py --write-baseline 生成）
+# 每补登记一个就删一行；本文件内条目不阻塞 push。
+# 2026-09-18 追加：prd/PRD-代理体系改造-v4.0.md 仍为 2026-09-17 人工审核口径，与新版原型不一致（登记后会让链接指向过时口径），待出 v4.1 同步「电子签名存证 / 自动审核 / 兜底值」后再登记并移出本清单
+prd/PRD-代理体系改造-v4.0.md
+admin/prototypes/customer/10-Customer-Detail-Referrals-Tab-v2.html
+client/prototypes/bank-virtual-account/01-用户开通虚拟账户.html
+client/prototypes/bank-virtual-account/02-法币账户-多渠道多账户.html
+client/prototypes/card-management/22-B端-批量充值.html
+client/prototypes/card-management/23-B端-卡片提现.html
+client/prototypes/card-management/24-C端-开卡记录.html
+client/prototypes/card-management/25-B端-开卡记录.html
+client/prototypes/risk-management/风险管理-CA风控Case.html
+prd/站内通知/站内通知原型.html
+prototypes/Notifications-Center.html
+prototypes/加密出入金风险扫描/2026-09-14_加密出入金风险扫描_管理端.html
+client/prototypes/bank-virtual-account/PRD-法币账户-欧元英镑-OpenPayd通道-v0.1.md
+client/prototypes/bank-virtual-account/PRD-虚拟账户-USD通道-v0.1.md
+prd/KYC开卡拒绝原因-用户提示映射.md
+prd/Merkle-Science-加密出入金风险扫描-需求梳理与注意点.md
+prd/PRD-B端卡片-批量充值-提现.md
+prd/PRD-二次验证-出金.md
+prd/PRD-分销返佣与客户奖励系统-yasbee+-v2.0.md
+prd/PRD-分销返佣与客户奖励系统-yasbee-points-v3.0.md
+prd/PRD-加密出入金钱包风险扫描-Merkle-Science-v1.0.md
+prd/YASBe Card模块PRD v1.4.md
+prd/v1.0/Card模块账务功能_PRD_v1.0.md
+prd/v1.0/Card模块账务管理_PRD_v1.0.md
+prd/v1.0/Card模块账务管理端_PRD_v1.0.md
+prd/v1.0/KYC_KYB-开卡字段拆分建议.md
+prd/v1.0/YASBee-Card-Module-Admin-PRD.md
+prd/v1.0/YASBee_卡片介绍页_PRD_v1.0.md
+prd/v1.0/card模块-管理端PRD.md
+prd/v2.0/Card模块账务功能_PRD_v2.0.md
+prd/v3.0/Card模块账务功能_PRD_v3.0.md
+prd/加密出入金风险扫描-整体验收审计.md
+prd/平台KYC-KYB二次审核优化PRD-v1.0.md
+prd/站内通知/站内通知功能PRD.md
+prd/管理端优化/法币渠道整合-验收报告-v1.md
+prd/管理端优化/法币渠道整合-验收报告-v2.md
+prd/管理端优化/法币渠道整合-验收报告-v3.md
+prd/管理端优化/法币渠道整合-验收清单-v0.1.md
+prd/管理端优化/法币渠道整合-验收清单-v0.2.md
+prd/管理端优化/法币渠道整合-验收清单-v0.3.md
+prd/管理端优化/法币渠道整合-验收清单-v0.4.md
+prd/管理端优化/法币渠道整合-验收清单-v0.5.md
+prd/管理端优化/法币渠道整合-验收清单-v0.6.md
+prd/管理端优化/管理端法币模块-渠道整合评审稿-v0.1.md
+prd/管理端优化/管理端现状与优化建议.md
+prd/管理端优化/管理端通知中心设计.md
+prd/管理端优化/管理端通知系统-需求梳理.md
+prototypes/dashboard-eprd.md
+prototypes/dashboard-prd.md
+prototypes/dashboard-prd_new.md
+prototypes/dashboard-prd_v1.1.md
