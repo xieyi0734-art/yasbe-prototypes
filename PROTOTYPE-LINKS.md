@@ -13,6 +13,7 @@
 **二次核对（2026-09-17 · `tools/check_registry.py --online` 自动跑）**：106 条线上链接全部 HTTP 200，其中 104 条与本地字节完全一致（线上为 LF 版）；2 条不符为本地已改未推
 **三次核对（2026-09-18 · 代理体系 15 页 push 后）**：登记 122 条 —— 一致 118 条 / 非 200 共 0 条 / 字节不符 3 条（均为「本地已改未推」的其他模块存量：`admin/prototypes/channel/07-Channel-Management.html`、`prototypes/加密出入金风险扫描/2026-09-11_加密出入金风险扫描_客户端.html`、`client/prototypes/card-management/21-B端-卡片管理.html`）；本次新增 15 条（§3-A 7 条 + §3-C 8 条）全部 HTTP 200 且与本地字节完全一致
 **四次核对（2026-09-20 · 加密出入金风险扫描 push 后· `tools/check_registry.py --online`）**：登记 122 条 —— 一致 120 条 / 非 200 共 0 条 / 字节不符 2 条（均为其他模块「本地已改未推」存量：`admin/prototypes/channel/07-Channel-Management.html`、`client/prototypes/card-management/21-B端-卡片管理.html`）；本次新登记 1 条（§7 管理端 2026-09-14 版首次入库）、`2026-09-11_…_客户端.html` 字节不符已消除；另同步 3 份 PRD（PRD v1.4 / 需求梳理 / 验收审计 v1.3）
+**五次核对（2026-09-20 · 法币虚拟账户 push 后 · `tools/check_registry.py --online`）**：登记 124 条 —— 一致 115 条 / 非 200 共 0 条 / 字节不符 9 条（全部为其他模块「本地已改未推」存量：`prototypes/返佣和奖励/` 7 页（2026-09-20 13:50 本地修改，未 push）、`admin/prototypes/channel/07-Channel-Management.html`、`client/prototypes/card-management/21-B端-卡片管理.html`）；本次新登记 2 条（§8 `01-用户开通虚拟账户.html`、`02-法币账户-多渠道多账户.html`）全部 HTTP 200 且与本地字节完全一致；另同步 2 份 PRD（虚拟账户-USD通道 v0.8 / 法币账户-欧元英镑-OpenPayd通道 v0.3）
 
 本次整理动作：① 分组由「存储目录」改为「端别 · 业务模块」；② 逐条实测线上 HTTP 状态，失效链接移入 §14 不再散落各表；③ 按 git 提交记录刷新 11 条「最后更新」；④ 补登记 3 条此前遗漏的线上页面；⑤ 修复原 §12 因空行导致断层的表格；⑥ 新增 `prototypes/README.md` 流程规范与 `tools/check_registry.py` 三闸自检
 
