@@ -139,14 +139,15 @@
 
 ---
 
-## 7. 🔎 专题 · 加密出入金风险扫描（3）
+## 7. 🔎 专题 · 加密出入金风险扫描（4）
 
 *`prototypes/加密出入金风险扫描/`（Merkle Science）*
 
 | 原型名称 | 功能 | 最后更新 | 链接 |
 |---|---|---|---|
+| 加密出入金风险扫描 · 管理端（最新） 🆕 | 加密货币 · 交易审核：risk_level 六等级映射（0–2 自动通过 / 3–5 转人工，阈值 3）+ 16 列含退款状态 + 拒绝理由落库 + 重新扫描 | 2026-09-14 | [2026-09-14_加密出入金风险扫描_管理端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/加密出入金风险扫描/2026-09-14_加密出入金风险扫描_管理端.html) |
 | 加密出入金风险扫描 · 客户端 | Crypto Wallet（资产总览 + 资产列表 + 交易记录，深色 #FFCA00）+ 充值/提现弹窗 + 钱包风险扫描（审核中/已拒绝） | 2026-09-11 | [2026-09-11_加密出入金风险扫描_客户端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/加密出入金风险扫描/2026-09-11_加密出入金风险扫描_客户端.html) |
-| 加密出入金风险扫描 · 客户端（首版） 🆕 | Crypto Wallet 首版：资产总览 + 交易记录 + 钱包风险扫描 | 2026-09-11 | [2026-09-10_加密出入金风险扫描_客户端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/加密出入金风险扫描/2026-09-10_加密出入金风险扫描_客户端.html) |
+| 加密出入金风险扫描 · 客户端（首版） | Crypto Wallet 首版：资产总览 + 交易记录 + 钱包风险扫描 | 2026-09-11 | [2026-09-10_加密出入金风险扫描_客户端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/加密出入金风险扫描/2026-09-10_加密出入金风险扫描_客户端.html) |
 | 加密出入金风险扫描 · 管理端 | 加密货币 · 交易审核：入金/出金两条风控队列 + Merkle 风险明细 + 批准/拒绝处置 | 2026-09-10 | [2026-09-10_加密出入金风险扫描_管理端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/加密出入金风险扫描/2026-09-10_加密出入金风险扫描_管理端.html) |
 
 ---
@@ -298,7 +299,7 @@
 | 交易记录 | `cyro-website/transactions.html` | 有 | 目录被 `.gitignore` 排除，从未部署 |
 | 提现 | `cyro-website/withdraw.html` | 有 | 目录被 `.gitignore` 排除，从未部署 |
 
-**B. 本地存在但从未登记、线上也 404（11 条）**
+**B. 本地存在但从未登记、线上也 404（10 条）**
 
 - `client/prototypes/bank-virtual-account/01-用户开通虚拟账户.html`
 - `client/prototypes/bank-virtual-account/02-法币账户-多渠道多账户.html`
@@ -310,7 +311,6 @@
 - `client/prototypes/card-management/25-B端-开卡记录.html`
 - `client/prototypes/risk-management/风险管理-CA风控Case.html`
 - `prototypes/Notifications-Center.html`
-- `prototypes/加密出入金风险扫描/2026-09-14_加密出入金风险扫描_管理端.html`
 
 **处理建议**：代币官网（`cyro-website/`）与卡片独立版（`card-prototypes/`）若仍需对外演示，请指定目标仓库/分支后重新部署；`10-Customer-Detail-Referrals-Tab-v2` 与 `bank-virtual-account` 系列旧版确认废弃的话，建议删除本地文件并从本文件移除登记。
 

@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>加密风险扫描 — YASBee 管理端</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+--primary:#E59303;--bg:#F8F9FB;--card:#FFFFFF;--border:#E5E8EB;--border-light:#F0F1F3;
+--text:#1D2129;--text-2:#86909C;--r-card:14px;--r-ctl:8px;--r-modal:10px;
+--success:#22C55E;--danger:#EF4444;--warn:#FAAD14;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Roboto,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.sidebar{width:288px;background:var(--card);border-radius:var(--r-card);box-shadow:0 1px 2px rgba(16,24,40,.05);position:fixed;left:12px;top:12px;bottom:12px;overflow-y:auto;padding:12px}
+.sidebar::-webkit-scrollbar{width:6px}
+.sidebar::-webkit-scrollbar-thumb{background:#E5E8EB;border-radius:3px}
+.brand{display:flex;align-items:center;gap:10px;padding:6px 10px 14px}
+.brand-logo{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#E59303,#FE5707);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px;flex:none}
+.brand-name{font-size:15px;font-weight:600;line-height:1.2}
+.brand-sub{font-size:11px;color:var(--text-2)}
+.nav-group{margin-bottom:4px}
+.nav-group-title{display:flex;align-items:center;justify-content:space-between;height:40px;padding:0 10px;border-radius:var(--r-ctl);font-size:14px;font-weight:600;color:var(--text);cursor:pointer}
+.nav-group-title:hover{background:#F7F8FA}
+.nav-group-title .chev{color:#C9CDD4;font-size:11px;transition:transform .15s}
+.nav-group.open .nav-group-title .chev{transform:rotate(90deg)}
+.nav-sub{display:none;padding-left:8px}
+.nav-group.open .nav-sub{display:block}
+.nav-item{display:flex;align-items:center;gap:8px;height:40px;padding:0 10px;border-radius:var(--r-ctl);font-size:14px;color:#4E5969;cursor:pointer;margin-bottom:2px}
+.nav-item:hover{background:#F7F8FA;color:var(--text)}
+.nav-item.active{background:#FFF7E6;color:var(--primary);font-weight:500}
+.nav-dot{width:5px;height:5px;border-radius:50%;background:#D9DCE1;flex:none}
+.nav-item.active .nav-dot{background:var(--primary)}
+.main{margin-left:312px;padding:12px 20px 40px 0}
+.topbar{height:44px;background:var(--card);border-radius:var(--r-card);box-shadow:0 1px 2px rgba(16,24,40,.05);display:flex;align-items:center;gap:6px;padding:0 10px;margin-bottom:12px}
+.tab{display:flex;align-items:center;gap:8px;height:30px;padding:0 12px;border-radius:var(--r-ctl);font-size:13px;color:#4E5969;cursor:pointer}
+.tab:hover{background:#F7F8FA}
+.tab.active{background:#FFF7E6;color:var(--primary);font-weight:500}
+.tab .x{color:#C9CDD4;font-size:12px}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px;padding-right:6px}
+.avatar{width:28px;height:28px;border-radius:50%;background:#FFF1D6;color:#B77A00;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600}
+.user-mail{font-size:12px;color:var(--text-2)}
+.avatar-wrap{display:flex;align-items:center;gap:8px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:var(--r-card);padding:16px 18px}
+.stat-label{font-size:13px;color:var(--text-2);margin-bottom:6px}
+.stat-value{font-size:24px;font-weight:600;line-height:1.2}
+.stat-value.warn{color:#B45309}
+.stat-value.danger{color:var(--danger)}
+.stat-hint{font-size:12px;color:var(--text-2);margin-top:4px}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--r-card);padding:20px 24px 24px}
+.page-title{font-size:18px;font-weight:600;margin-bottom:5px}
+.page-desc{font-size:13px;color:var(--text-2);margin-bottom:18px;line-height:1.6}
+.filters{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;padding-bottom:16px;border-bottom:1px solid var(--border-light);margin-bottom:14px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field-label{font-size:12px;color:var(--text-2)}
+.input,.select{height:36px;border:1px solid var(--border);border-radius:var(--r-ctl);background:#fff;font-size:13px;color:var(--text);padding:0 10px;outline:none;font-family:inherit}
+.input{width:232px}
+.select{min-width:132px;cursor:pointer}
+.input:focus,.select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(229,147,3,.12)}
+.date-range{display:flex;align-items:center;gap:6px}
+.date-range .input{width:142px}
+.arrow{color:var(--text-2)}
+.btn{height:36px;padding:0 16px;border-radius:var(--r-ctl);font-size:13px;font-weight:500;cursor:pointer;border:1px solid transparent;font-family:inherit;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:#D08402}
+.btn-ghost{background:#fff;color:#4E5969;border-color:var(--border)}
+.btn-ghost:hover{border-color:var(--primary);color:var(--primary)}
+.btn-success{background:var(--success);color:#fff}
+.btn-success:hover{background:#1CA34D}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-danger:hover{background:#DC2626}
+.btn-sm{height:30px;padding:0 12px;font-size:12px;border-radius:var(--r-ctl)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.table-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.table-count{font-size:13px;color:var(--text-2)}
+.table-count b{color:var(--text);font-weight:600}
+.table-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:1940px}
+th{text-align:left;font-size:14px;font-weight:500;color:var(--text-2);padding:0 12px 10px 0;white-space:nowrap;border-bottom:1px solid var(--border-light)}
+td{padding:13px 12px 13px 0;font-size:13px;border-bottom:1px solid var(--border-light);white-space:nowrap;color:var(--text)}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#FAFBFC}
+/* 操作列：最后一个固定列（技能约定），横向滚动时始终可见 */
+th:last-child,td:last-child{position:sticky;right:0;background:#fff;padding-left:14px;box-shadow:-10px 0 10px -10px rgba(16,24,40,.14)}
+thead th:last-child{z-index:3}
+tbody tr:hover td:last-child{background:#FAFBFC}
+.mono{font-family:SFMono-Regular,Menlo,Consolas,monospace;font-size:12px}
+.dim{color:var(--text-2)}
+.addr{font-family:SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;color:#4E5969}
+.amt{font-weight:600}
+.tag{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 9px;border-radius:6px;font-size:12px;font-weight:500}
+.tag-dot{width:5px;height:5px;border-radius:50%;background:currentColor}
+.tag-red{background:#FEE2E2;color:#991B1B}
+.tag-amber{background:#FEF3C7;color:#92400E}
+.tag-blue{background:#DBEAFE;color:#1E40AF}
+.tag-green{background:#DCFCE7;color:#166534}
+.tag-gray{background:#F2F3F5;color:#4E5969}
+.link{color:var(--primary);cursor:pointer;font-weight:500}
+.link:hover{text-decoration:underline}
+.pager{display:flex;align-items:center;justify-content:space-between;margin-top:14px;font-size:13px;color:var(--text-2)}
+.pager-right{display:flex;align-items:center;gap:8px}
+.pg-btn{min-width:32px;height:32px;border:1px solid var(--border);background:#fff;border-radius:var(--r-ctl);font-size:13px;color:#4E5969;cursor:pointer;padding:0 8px}
+.pg-btn:hover:not(:disabled){border-color:var(--primary);color:var(--primary)}
+.pg-btn.active{background:var(--primary);border-color:var(--primary);color:#fff}
+.pg-btn:disabled{opacity:.45;cursor:not-allowed}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;overflow-y:auto}
+.modal-overlay.active{display:flex;align-items:flex-start;justify-content:center;padding:48px 16px 40px}
+.modal{background:#fff;border-radius:var(--r-modal);width:672px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.15);display:flex;flex-direction:column;max-height:calc(100vh - 88px)}
+.modal-head{padding:18px 24px 14px;border-bottom:1px solid var(--border-light);position:relative}
+.modal-title{font-size:18px;font-weight:600}
+.modal-sub{font-size:12px;color:var(--text-2);margin-top:4px;font-family:SFMono-Regular,Menlo,Consolas,monospace}
+.modal-close{position:absolute;right:18px;top:16px;width:28px;height:28px;border-radius:6px;border:none;background:transparent;color:#86909C;font-size:16px;cursor:pointer;line-height:1}
+.modal-close:hover{background:#F2F3F5}
+.modal-body{padding:18px 24px;overflow-y:auto}
+.modal-foot{display:flex;justify-content:flex-end;gap:10px;padding:14px 24px 18px;border-top:1px solid var(--border-light)}
+.pill-row{display:flex;justify-content:center;margin-bottom:16px}
+.pill{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 14px;border-radius:14px;font-size:13px;font-weight:500}
+.f-group{display:grid;grid-template-columns:1fr;gap:14px}
+.f-label{font-size:13px;color:var(--text-2);margin-bottom:6px}
+.f-value{height:40px;line-height:38px;background:#F5F5F5;border:1px solid #EBECEF;border-radius:var(--r-ctl);padding:0 12px;font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.f-value.wrap{height:auto;line-height:1.6;padding:10px 12px;white-space:normal;word-break:break-all}
+.f-hint{font-size:12px;color:#B45309;margin-top:6px}
+.f-sum{background:#FAFAFA;border:1px solid var(--border-light);border-radius:10px;padding:12px 14px;display:grid;gap:8px;margin-top:18px}
+.f-sum-row{display:flex;justify-content:space-between;font-size:13px}
+.f-sum-row .k{color:var(--text-2)}
+.f-sum-row .v{font-weight:600}
+.f-sum-row.total{border-top:1px dashed var(--border);padding-top:9px;margin-top:2px}
+.risk-block{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:18px}
+.risk-head{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:#FAFBFC;border-bottom:1px solid var(--border-light);gap:10px}
+.risk-head-title{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+.risk-src{font-size:12px;color:var(--text-2);font-weight:400}
+.risk-body{padding:14px}
+.risk-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px}
+.risk-kv .k{font-size:12px;color:var(--text-2);margin-bottom:4px}
+.risk-kv .v{font-size:13px;font-weight:500}
+.gate{margin-top:14px;border-radius:8px;padding:11px 14px;font-size:13px;display:flex;gap:10px;align-items:flex-start}
+.gate.block{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B}
+.gate.pass{background:#F0FDF4;border:1px solid #BBF7D0;color:#166534}
+.gate.pause{background:#F7F8FA;border:1px solid #E5E6EB;color:#4E5969}
+.gate b{font-weight:600}
+.gate-reason{font-size:12px;margin-top:3px;opacity:.9;line-height:1.5}
+.kya-note{font-size:12px;color:var(--text-2);margin-top:12px;border-top:1px dashed var(--border-light);padding-top:10px;line-height:1.6}
+.section-title{font-size:13px;font-weight:600;margin:0 0 12px;padding-bottom:8px;border-bottom:1px solid var(--border-light)}
+.reject-box{display:none;margin-top:16px;background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:12px}
+.reject-box.show{display:block}
+.reject-box .f-label{color:#991B1B}
+textarea.input{width:100%;height:auto;min-height:70px;padding:9px 12px;line-height:1.6;resize:vertical}
+.badge-scanning{display:inline-flex;align-items:center;gap:5px;color:#1E40AF}
+.spin{width:10px;height:10px;border:1.5px solid #BFDBFE;border-top-color:#1E40AF;border-radius:50%;animation:sp .7s linear infinite;display:inline-block}
+@keyframes sp{to{transform:rotate(360deg)}}
+.toast{position:fixed;right:24px;bottom:24px;background:#1D2129;color:#fff;padding:11px 18px;border-radius:8px;font-size:13px;z-index:2000;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none;max-width:420px}
+.toast.show{opacity:1;transform:translateY(0)}
+.stat-value.success{color:var(--success)}
+.stat-hint b{color:var(--text);font-weight:600}
+.rule-strip{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;background:#FAFBFC;border:1px solid var(--border-light);border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:var(--text-2)}
+.rule-strip .rule-title{font-size:13px;font-weight:600;color:var(--text)}
+.rule-strip .rule-item{display:inline-flex;align-items:center;gap:7px;flex-wrap:wrap}
+.rule-strip code{font-family:SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;background:#F2F3F5;border-radius:4px;padding:1px 5px;color:#4E5969}
+.refund-block{margin-top:14px;border:1px solid #BFDBFE;background:#EFF6FF;border-radius:8px;padding:12px 14px}
+.refund-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;font-weight:600;color:#1E40AF;margin-bottom:10px}
+.refund-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px 16px}
+.refund-kv .k{font-size:12px;color:#3B82F6;margin-bottom:3px}
+.refund-kv .v{font-size:13px;font-weight:500;color:#1E3A8A;word-break:break-all}
+.approve-box{display:none;margin-top:16px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:12px}
+.approve-box.show{display:block}
+.approve-box .f-label{color:#166534}
+.exposure-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px 16px;margin-top:4px}
+.exposure-kv .k{font-size:12px;color:var(--text-2);margin-bottom:3px}
+.exposure-kv .v{font-size:13px;font-weight:500;word-break:break-all}
+.reason-block{margin-top:14px;border:1px solid #FECACA;background:#FEF2F2;border-radius:8px;padding:12px 14px}
+.reason-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;font-weight:600;color:#991B1B;margin-bottom:8px}
+.reason-sync{font-size:11px;font-weight:500;color:#B45309;background:#FEF3C7;border:1px solid #FDE68A;border-radius:20px;padding:2px 9px;white-space:nowrap}
+.reason-text{font-size:13px;color:#7F1D1D;line-height:1.65;white-space:pre-wrap}
+</style>
+</head>
+<body>
+
+<!-- ===== 侧边栏（现网实测 288px 白色悬浮卡 · radius 14px · 导航项 40px/radius 8px · 激活 #E59303+浅金底）===== -->
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-logo">Y</div>
+    <div>
+      <div class="brand-name">YASBEE</div>
+      <div class="brand-sub">管理后台</div>
+    </div>
+  </div>
+
+  <nav>
+    <div class="nav-group" data-group="customer">
+      <div class="nav-group-title" onclick="toggleGroup(this)">客户管理 <span class="chev">&#9654;</span></div>
+      <div class="nav-sub">
+        <div class="nav-item" onclick="nav2(this,'客户概览')"><span class="nav-dot"></span>概览</div>
+        <div class="nav-item" onclick="nav2(this,'认证审核')"><span class="nav-dot"></span>认证审核</div>
+        <div class="nav-item" onclick="nav2(this,'客户列表')"><span class="nav-dot"></span>客户列表</div>
+        <div class="nav-item" onclick="nav2(this,'风险管理')"><span class="nav-dot"></span>风险管理</div>
+        <div class="nav-item" onclick="nav2(this,'黑名单管理')"><span class="nav-dot"></span>黑名单管理</div>
+      </div>
+    </div>
+
+    <div class="nav-group" data-group="fiat">
+      <div class="nav-group-title" onclick="toggleGroup(this)">法币管理 <span class="chev">&#9654;</span></div>
+      <div class="nav-sub">
+        <div class="nav-item" onclick="nav2(this,'货币设置')"><span class="nav-dot"></span>货币设置</div>
+        <div class="nav-item" onclick="nav2(this,'银行账户')"><span class="nav-dot"></span>银行账户</div>
+        <div class="nav-item" onclick="nav2(this,'法币交易')"><span class="nav-dot"></span>法币交易</div>
+      </div>
+    </div>
+
+    <div class="nav-group open" data-group="crypto">
+      <div class="nav-group-title" onclick="toggleGroup(this)">加密货币管理 <span class="chev">&#9654;</span></div>
+      <div class="nav-sub">
+        <div class="nav-item" onclick="nav2(this,'加密货币定价')"><span class="nav-dot"></span>加密货币定价</div>
+        <div class="nav-item" onclick="nav2(this,'归集记录')"><span class="nav-dot"></span>归集记录</div>
+        <div class="nav-item" onclick="nav2(this,'加密货币钱包')"><span class="nav-dot"></span>加密货币钱包</div>
+        <div class="nav-item" onclick="nav2(this,'加密货币交易')"><span class="nav-dot"></span>加密货币交易</div>
+        <div class="nav-item" onclick="nav2(this,'加密货币账单')"><span class="nav-dot"></span>加密货币账单</div>
+        <div class="nav-item active"><span class="nav-dot"></span>加密风险扫描</div>
+      </div>
+    </div>
+
+    <div class="nav-group" data-group="risk">
+      <div class="nav-group-title" onclick="toggleGroup(this)">风控管理 <span class="chev">&#9654;</span></div>
+      <div class="nav-sub">
+        <div class="nav-item" onclick="nav2(this,'规则管理')"><span class="nav-dot"></span>规则管理</div>
+        <div class="nav-item" onclick="nav2(this,'风控事件')"><span class="nav-dot"></span>风控事件</div>
+      </div>
+    </div>
+  </nav>
+</aside>
+
+<!-- ===== 主区 ===== -->
+<main class="main">
+
+  <!-- 顶部标签栏（现网实测 44px 白底 radius 14px）-->
+  <div class="topbar">
+    <div class="tab" onclick="toast('原型中仅实现「加密风险扫描」页')">客户概览 <span class="x">&#10005;</span></div>
+    <div class="tab active">加密风险扫描 <span class="x">&#10005;</span></div>
+    <div class="topbar-right">
+      <span class="user-mail">xieyi0734@gmail.com</span>
+      <div class="avatar">DX</div>
+    </div>
+  </div>
+
+  <!-- 统计卡（数值由页面数据实时计算）-->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label">待人工复核（3–5 级）</div>
+      <div class="stat-value danger" id="s-manual">0</div>
+      <div class="stat-hint">不自动通过 · 须风控经理处置</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">已自动通过（0–2 级）</div>
+      <div class="stat-value success" id="s-auto">0</div>
+      <div class="stat-hint">系统自动放行，无需人工</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">筛查未完成</div>
+      <div class="stat-value warn" id="s-incomplete">0</div>
+      <div class="stat-hint">待扫描 <b id="s-pending">0</b> · 扫描中 <b id="s-scanning">0</b> · 失败 <b id="s-failed">0</b></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">退款处理中</div>
+      <div class="stat-value" id="s-refund">0</div>
+      <div class="stat-hint">入金拒绝后自动退款</div>
+    </div>
+  </div>
+
+  <!-- 列表面板 -->
+  <section class="panel">
+    <h1 class="page-title">加密风险扫描</h1>
+    <p class="page-desc">对加密出入金的<strong>对手方钱包地址</strong>执行 Merkle Science 地址风险筛查（Address Screening · KYA）· 入金筛查来源地址、出金筛查提现地址 · 分级处置：<strong>0–2 级自动通过</strong>，<strong>3–5 级不自动通过、转风控人工复核</strong> · 入金被拒后由后台自动原路退款</p>
+
+    <div class="rule-strip">
+      <span class="rule-title">自动处置规则</span>
+      <span class="rule-item"><span class="tag tag-green">0–2 级 · 自动通过</span><code>0 No Risk Detected</code><code>1 Info</code><code>2 Caution</code></span>
+      <span class="rule-item"><span class="tag tag-red">3–5 级 · 不自动通过</span><code>3 Medium</code><code>4 High</code><code>5 Critical</code><span>转人工复核</span></span>
+      <span class="rule-item"><span class="tag tag-blue">入金被拒</span><span>后台自动原路退款，无需人工</span></span>
+    </div>
+
+    <div class="filters">
+      <div class="field">
+        <span class="field-label">关键词</span>
+        <input class="input" id="f-kw" placeholder="按 ID / 客户 / 钱包地址搜索">
+      </div>
+      <div class="field">
+        <span class="field-label">类型</span>
+        <select class="select" id="f-type">
+          <option value="">全部类型</option>
+          <option value="充值">充值</option>
+          <option value="提现">提现</option>
+        </select>
+      </div>
+      <div class="field">
+        <span class="field-label">风险等级</span>
+        <select class="select" id="f-risk">
+          <option value="">全部等级</option>
+          <option value="0">0 · 无风险 No Risk Detected</option>
+          <option value="1">1 · 低风险 Info</option>
+          <option value="2">2 · 低风险 Caution</option>
+          <option value="3">3 · 中风险 Medium</option>
+          <option value="4">4 · 高风险 High</option>
+          <option value="5">5 · 高风险 Critical</option>
+          <option value="none">未扫描</option>
+        </select>
+      </div>
+      <div class="field">
+        <span class="field-label">扫描状态</span>
+        <select class="select" id="f-scan">
+          <option value="">全部状态</option>
+          <option value="待扫描">待扫描</option>
+          <option value="扫描中">扫描中</option>
+          <option value="已完成">已完成</option>
+          <option value="失败">失败</option>
+        </select>
+      </div>
+      <div class="field">
+        <span class="field-label">交易状态</span>
+        <select class="select" id="f-status">
+          <option value="">全部状态</option>
+          <option value="处理中">处理中</option>
+          <option value="转账中">转账中</option>
+          <option value="已完成">已完成</option>
+          <option value="已拒绝">已拒绝</option>
+        </select>
+      </div>
+      <div class="field">
+        <span class="field-label">筛选时间</span>
+        <div class="date-range">
+          <input class="input" type="date" id="f-from" value="2026-09-13">
+          <span class="arrow">&rarr;</span>
+          <input class="input" type="date" id="f-to" value="2026-09-14">
+        </div>
+      </div>
+      <div class="field">
+        <span class="field-label">&nbsp;</span>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-primary" onclick="applyFilter()">搜索</button>
+          <button class="btn btn-ghost" onclick="resetFilter()">重置</button>
+          <button class="btn btn-ghost" onclick="toast('已创建导出任务，完成后可在下载中心获取 CSV')">导出</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-head">
+      <div class="table-count">共 <b id="t-total">0</b> 笔交易</div>
+    </div>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>客户 ID</th>
+            <th>客户名称</th>
+            <th>类型</th>
+            <th>资产</th>
+            <th>链</th>
+            <th>金额</th>
+            <th>手续费</th>
+            <th>对手方钱包地址</th>
+            <th>风险等级</th>
+            <th>筛查结果</th>
+            <th>扫描状态</th>
+            <th>扫描时间</th>
+            <th>交易状态</th>
+            <th>退款状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="pager">
+      <div id="pager-info">显示第 0 到 0 条，共 0 条记录</div>
+      <div class="pager-right">
+        <select class="select" id="page-size" onchange="pageSize=+this.value;page=1;render()">
+          <option value="10">10 条/页</option>
+          <option value="20">20 条/页</option>
+          <option value="50">50 条/页</option>
+        </select>
+        <div id="pager-pages" style="display:flex;gap:6px"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ===== 详情 / 复审弹窗（现网实测：672px · radius 10px · 标题 18px/600 + 分隔线 · 字段框 #f5f5f5 h40 · 通过 #22c55e / 拒绝 #ef4444）===== -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="m-title">交易详情</div>
+      <div class="modal-sub" id="m-sub"></div>
+      <button class="modal-close" onclick="closeModal()">&#10005;</button>
+    </div>
+    <div class="modal-body" id="m-body"></div>
+    <div class="modal-foot">
+      <button class="btn btn-success" id="m-approve" onclick="doApprove()">通过</button>
+      <button class="btn btn-danger" id="m-reject" onclick="toggleReject()">拒绝</button>
+      <button class="btn btn-ghost" onclick="closeModal()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+/* ============================================================
+   数据源
+   · 交易字段口径对齐现网「加密货币交易」页（id / 客户ID / 客户名称 / 类型 /
+     资产 / 链 / 金额 / 手续费 / 交易时间 / 交易状态）
+   · 风险字段取自 Merkle Science Address Screening（KYA）官方返回：
+     risk_level（Integer 0–5）/ risk_level_verbose（String）
+   ============================================================ */
+/* Merkle Science · Address Screening（KYA）· v4.2 Stable */
+const MS_API_BASE = 'https://api.merklescience.com/api/v4.2';   // 版本号可配（当前 Stable）
+const MS_ADDR_ENDPOINT = MS_API_BASE + '/addresses/';
+const MS_RISK_VERBOSE = ['No Risk Detected','Info','Caution','Medium','High','Critical'];
+const AUTO_PASS_MAX = 2;            // 0–2 自动通过；3–5 不自动通过
+const RISK_TIER = ['无风险','低风险','低风险','中风险','高风险','高风险'];
+const RISK_TAG  = ['tag-green','tag-blue','tag-blue','tag-amber','tag-red','tag-red'];
+const CHAIN_CODE = { Ethereum:1 };  // 官方文档仅确认 blockchain=1 为 Ethereum，其余以 Supported Blockchains 接口为准
+
+const DATA = [
+ // 0 id / 1 客户ID / 2 客户名称 / 3 类型 / 4 资产 / 5 链 / 6 金额 / 7 手续费 / 8 对手方钱包地址
+ // 9 risk_level(0–5 · null=未扫描) / 10 risk_level_verbose / 11 筛查结果（对手方实体 · exposure_type）
+ // 12 扫描状态 / 13 扫描时间 / 14 交易时间 / 15 交易状态 / 16 退款状态
+ ["CRYPTO-01KQZE6APJ1T9RCRR8HMQEDR4K","CUST-887213","张伟","充值","USDT","Tron",12500,0,"TQ5dNk2pR7sVfJh9WxLm4YzA8cEb6GuKq1",5,"Critical","Garantex · direct","已完成","2026-09-14 10:23","2026-09-14 10:22","处理中","-"],
+ ["CRYPTO-01KQZD3K7M2P8WQ4TVN6HXB2F","CUST-441902","李静","提现","TRX","Tron",3200,12,"0x7A3f9C2b5E8d1F4a6B7c9D0e2F3a4B5c6D7e8F91",4,"High","Tornado Cash · indirect","已完成","2026-09-14 09:59","2026-09-14 09:58","处理中","-"],
+ ["CRYPTO-01KQZ9VX2N4M7KQ1PL3RT6YU8I","CUST-112048","王强","充值","USDT","Ethereum",800,3.2,"0x91Cd4E7b2A5f8C1d3B6e9F0a2C4d7E8f1A3b5C90",0,"No Risk Detected","无对手方暴露","已完成","2026-09-14 09:42","2026-09-14 09:41","已完成","-"],
+ ["CRYPTO-01KQZ7PLQ3R8WQ2MN5VB9CX4Z","CUST-663517","陈晓芸","提现","USDT","Tron",15000,15,"TKh8Pq3rLm5Nv7Xy9Za1Bc3De5Fg7Hi9Jk2",null,"-","-","扫描中","-","2026-09-14 09:35","处理中","-"],
+ ["CRYPTO-01KQZ6NB4V2C5X8Z1QW3ER7YT9","CUST-220934","刘洋","充值","BTC","Bitcoin",0.42,0,"bc1qar7f3m9k2p5v8x1z4n6q0w3e7r2t5y8u1i4o6",2,"Caution","无对手方暴露","已完成","2026-09-14 09:13","2026-09-14 09:12","已完成","-"],
+ ["CRYPTO-01KQZ5MK3J7H2G5F8D1S4A7Q0W","CUST-778124","赵敏","提现","ETH","Ethereum",2.5,0.008,"0x2Fb9A4c7E0d3B6a9C2f5E8b1D4a7F0c3B6e9A2d5",0,"No Risk Detected","无对手方暴露","已完成","2026-09-14 08:56","2026-09-14 08:55","已完成","-"],
+ ["CRYPTO-01KQZ4JH2G6F9D3S7A1Q5W8E0R","CUST-334561","孙浩","充值","USDT","Ethereum",6400,4.1,"0xDd41F6b9C2e5A8d1B4f7E0a3C6d9F2b5E8a1C4d7",3,"Medium","Darknet 关联地址 · indirect","已完成","2026-09-14 08:48","2026-09-14 08:47","处理中","-"],
+ ["CRYPTO-01KQZ3HG1F5E9D2S6A0Q4W7E3R","CUST-990237","周琳","提现","USDT","Tron",980,6.5,"TVn2Mq5rKp8Ls1Nv4Xy7Za0Bc3De6Fg9Hi2",0,"No Risk Detected","无对手方暴露","已完成","2026-09-14 08:31","2026-09-14 08:30","已完成","-"],
+ ["CRYPTO-01KQZ2GF0E4D8C1B5A9Z3Y7X2W","CUST-556812","吴磊","充值","TRX","Tron",220,0,"0x5Aa7B2c5D8e1F4a7B0c3D6e9F2a5B8c1D4e7F0a3",null,"-","-","失败","2026-09-14 08:22","2026-09-14 08:21","处理中","-"],
+ ["CRYPTO-01KQZ1FE9D3C7B0A4Z8Y2X6W1V","CUST-118459","郑雪","提现","USDT","Ethereum",4300,3.8,"0xBf73C6e9A2d5F8b1E4c7A0d3F6b9E2c5A8d1F4b7",2,"Caution","无对手方暴露","已完成","2026-09-14 08:03","2026-09-14 08:02","转账中","-"],
+ ["CRYPTO-01KQZ0ED8C2B6A9Z3Y7X1W5V0U","CUST-447023","冯建","充值","USDT","Tron",2600,0,"TQ9mJk2Lp5Nv8Xy1Za4Bc7De0Fg3Hi6Kl9",null,"-","-","待扫描","-","2026-09-14 07:58","处理中","-"],
+ ["CRYPTO-01KQYZDC7B1A5Z8Y2X6W0V4U9T","CUST-225670","何静怡","提现","BTC","Bitcoin",0.018,0.0002,"bc1qm3k8p2v5x7z0n4q6r9t1y3u5i7o8a2s4d6f0",1,"Info","无对手方暴露","已完成","2026-09-14 07:45","2026-09-14 07:44","已完成","-"],
+ ["CRYPTO-01KQYYCB6A0Z4Y7X1W5V9U3T8S","CUST-889341","许文涛","充值","USDT","Ethereum",18700,11.2,"0x77EaF4b7C0d3A6e9B2f5C8d1E4a7B0c3D6e9F2a5",5,"Critical","Hydra Market · direct","已完成","2026-09-14 07:32","2026-09-14 07:31","处理中","-"],
+ ["CRYPTO-01KQYXBA5Z9Y3X7W1V5U9T4S8R","CUST-661208","沈玉洁","提现","TRX","Tron",760,3,"0x1Cc4D7e0F3a6B9c2E5d8F1a4C7e0B3d6F9a2C5e8",0,"No Risk Detected","无对手方暴露","已完成","2026-09-13 22:15","2026-09-13 22:14","已完成","-"],
+ ["CRYPTO-01KQYWAZ4Y8X2W6V0U4T8S3R7Q","CUST-773490","韩磊","充值","USDT","Tron",3100,0,"TWp8Qr1St4Uv7Wx0Yz3Ab6Cd9Ef2Gh5Ij8",3,"Medium","混币器关联地址 · indirect","已完成","2026-09-13 21:51","2026-09-13 21:50","处理中","-"],
+ ["CRYPTO-01KQYVZY3X7W1V5U9T3S7R2Q6P","CUST-119067","杨帆","提现","USDT","Ethereum",540,2.4,"0x4Ee9F2a5C8d1B4e7A0c3F6d9B2e5A8c1F4d7B0e3",0,"No Risk Detected","无对手方暴露","已完成","2026-09-13 21:07","2026-09-13 21:06","已拒绝","-"],
+ ["CRYPTO-01KQYUYX2W6V0U4T8S2R6Q1P5N","CUST-882135","徐佳","充值","ETH","Ethereum",1.2,0.003,"0x9Bb2C5e8A1d4F7b0E3c6A9d2F5b8E1c4A7d0F3b6",2,"Caution","无对手方暴露","已完成","2026-09-13 20:39","2026-09-13 20:38","已完成","-"],
+ ["CRYPTO-01KQYTXW1V5U9T3S7R1Q5P0N4M","CUST-445812","曹志明","提现","USDT","Tron",22000,20,"TLq5Rw8Ey1Tu4Ip7Oa0Sd3Fg6Hj9Kl2Zx5",4,"High","Sanctioned Entity · direct","已完成","2026-09-13 19:28","2026-09-13 19:27","处理中","-"],
+ ["CRYPTO-01KQYSWV0U4T8S2R6Q0P4N9M3L","CUST-667903","谢承恩","充值","USDT","Ethereum",1500,1.9,"0x6Fd0A3c6E9b2D5f8A1c4E7b0D3f6A9c2E5b8D1f4",0,"No Risk Detected","无对手方暴露","已完成","2026-09-13 18:56","2026-09-13 18:55","已完成","-"],
+ ["CRYPTO-01KQYRUV9T3S7R1Q5P9N4M8L2K","CUST-330178","卢晓峰","提现","TRX","Tron",410,2,"0x83AaB6d9F2c5E8b1D4a7C0f3B6e9D2a5F8c1B4e7",null,"-","-","待扫描","-","2026-09-13 18:12","处理中","-"],
+ ["CRYPTO-01KQYQTU8S2R6Q0P4N8M3L7K1J","CUST-991456","袁媛","充值","USDT","Tron",7200,0,"TBx3Ny6Qv9Ws2Zh5Ak8Dm1Gp4Jr7Lt0Cx3",null,"-","-","扫描中","-","2026-09-13 17:52","处理中","-"],
+ ["CRYPTO-01KQYPST7R1Q5P9N3M7L2K6J0I","CUST-224089","邓文彬","提现","USDT","Ethereum",960,3.1,"0x0Ca6E9b2D5f8A1c4E7b0D3f6A9c2E5b8D1f4A7c0",1,"Info","无对手方暴露","已完成","2026-09-13 17:41","2026-09-13 17:40","已完成","-"],
+ ["CRYPTO-01KQZ8NM5V3C6X9Z2QW4ER8YT1","CUST-553190","曹佳","充值","USDT","Ethereum",4800,2.6,"0xAa1Bb2Cc3Dd4Ee5Ff6Gg7Hh8Ii9Jj0Kk1Ll2Mm3",4,"High","Sanctioned Mixer · direct","已完成","2026-09-13 16:22","2026-09-13 16:20","已拒绝","已退款"],
+ ["CRYPTO-01KQZ7LM4U2B5W8Y1PV3DQ7XS0","CUST-664820","邱磊","充值","USDT","Tron",9500,6,"TBq7Wx3Ed6Rf9Tg2Yh5Uj8Kk1Ll4Mm7Nn0",5,"Critical","Garantex · direct","已完成","2026-09-13 15:08","2026-09-13 15:05","已拒绝","退款中"]
+];
+
+let page = 1, pageSize = 10, view = DATA.map((d,i)=>({d,i}));
+let current = null;
+
+/* ---------- 工具 ---------- */
+function hexHash(seed,len){ const cs='0123456789abcdef'; let x=0;
+  for(let i=0;i<seed.length;i++) x=(x*31+seed.charCodeAt(i))>>>0;
+  let h=''; for(let i=0;i<len;i++){ x=(x*1103515245+12345)>>>0; h+=cs[(x>>>16)&15]; } return h; }
+function txHash(d){ return '0x'+hexHash(d[0],64); }
+function shKey(d){ return 'SH-'+hexHash(d[0],20).toUpperCase(); }
+function shortAddr(a){ return (!a||a==='-')?'-':(a.length>16? a.slice(0,8)+'…'+a.slice(-6) : a); }
+function cleanAttr(v){ return String(v).split('"').join(''); }
+function fmtAmt(n){ const s=String(n); let dec = s.indexOf('.')>=0 ? s.split('.')[1].length : 2;
+  if(dec>8) dec=8;   /* 防御：minimumFractionDigits 不得大于 maximumFractionDigits */
+  return Number(n).toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:8}); }
+function isScanned(lv){ return lv!==null && lv!==undefined; }
+function autoPassLv(lv){ return isScanned(lv) && lv<=AUTO_PASS_MAX; }
+function riskTag(lv){
+  if(!isScanned(lv)) return '<span class="tag tag-gray">未扫描</span>';
+  return '<span class="tag '+RISK_TAG[lv]+'" style="padding:0;background:transparent"><span class="tag-dot"></span>'+lv+' '+MS_RISK_VERBOSE[lv]+'</span>'; }
+function tierTag(lv){
+  if(!isScanned(lv)) return '<span class="tag tag-gray">未扫描</span>';
+  return '<span class="tag '+RISK_TAG[lv]+'">'+RISK_TIER[lv]+'</span>'; }
+function resultTag(res){
+  if(!res||res==='-') return '<span class="tag tag-gray">-</span>';
+  if(res.indexOf('无对手方暴露')===0) return '<span class="tag tag-green">无对手方暴露</span>';
+  return '<span class="tag '+(res.indexOf('direct')>=0?'tag-red':'tag-amber')+'">'+res+'</span>'; }
+function refundTag(s){
+  if(!s||s==='-') return '<span class="dim">-</span>';
+  const c={'退款中':'tag-blue','已退款':'tag-green','退款失败':'tag-red'}[s]||'tag-gray';
+  return '<span class="tag '+c+'">'+s+'</span>'; }
+function scanTag(s){
+  if(s==='扫描中') return '<span class="badge-scanning"><span class="spin"></span>扫描中</span>';
+  const c={'待扫描':'tag-gray','已完成':'tag-green','失败':'tag-red'}[s]||'tag-gray';
+  return '<span class="tag '+c+'">'+s+'</span>'; }
+function statusTag(s){ const c={'处理中':'tag-amber','转账中':'tag-blue','已完成':'tag-green','已拒绝':'tag-gray'}[s]||'tag-gray';
+  return '<span class="tag '+c+'">'+s+'</span>'; }
+function outcome(d){
+  const lv=d[9], s=d[12];
+  if(s==='扫描中') return {mode:'wait',allow:false,reason:'MS 地址筛查进行中，结果返回后方可判定处置结论。'};
+  if(s==='待扫描') return {mode:'wait',allow:false,reason:'尚未提交 MS 地址筛查，请先执行扫描。'};
+  if(s==='失败')   return {mode:'wait',allow:false,reason:'MS 地址筛查失败（接口无响应/超时），请点击「重新扫描」后再判定。'};
+  if(autoPassLv(lv)){
+    if(d[15]==='已拒绝') return {mode:'readonly',allow:false,reason:'该笔交易已被人工拒绝（风险等级本落在自动通过区间，属人工干预），仅供查看。'};
+    return {mode:'auto',allow:false,reason:'risk_level '+lv+'（'+MS_RISK_VERBOSE[lv]+'）≤ '+AUTO_PASS_MAX+'，落在自动通过区间，系统已自动放行，无需人工审批。'}; }
+  if(!isScanned(lv)) return {mode:'readonly',allow:false,reason:'该笔交易状态为「'+d[15]+'」，不在待审状态，仅供查看。'};
+  if(d[15]!=='处理中') return {mode:'readonly',allow:false,reason:'该笔交易状态为「'+d[15]+'」，风险等级已由人工处置完毕，仅供查看。'};
+  return {mode:'manual',allow:true,reason:'risk_level '+lv+'（'+MS_RISK_VERBOSE[lv]+'）≥ '+(AUTO_PASS_MAX+1)+'，不自动通过，须风控经理复核并出具意见后方可放行。'}; }
+function exkv(k,v){ return '<div class="exposure-kv"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>'; }
+function rkv(k,v){ return '<div class="refund-kv"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>'; }
+function mockUsd(d,salt){ const h=parseInt(hexHash('usd'+salt+d[0],8),16); return Math.round((h%900000)) / 100 + 10000; }
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(function(){t.classList.remove('show');},2600); }
+function toggleGroup(el){ el.parentElement.classList.toggle('open'); }
+function nav2(el,name){ const ns=document.querySelectorAll('.nav-item');
+  for(let i=0;i<ns.length;i++) ns[i].classList.remove('active');
+  el.classList.add('active'); toast('原型中仅实现「加密风险扫描」页，'+name+' 为现网既有页面'); }
+
+/* ---------- 列表渲染（筛选 + 分页 + 统计卡现算） ---------- */
+function render(){
+  const kw=document.getElementById('f-kw').value.trim().toLowerCase();
+  const type=document.getElementById('f-type').value, risk=document.getElementById('f-risk').value;
+  const scan=document.getElementById('f-scan').value, status=document.getElementById('f-status').value;
+  const from=document.getElementById('f-from').value, to=document.getElementById('f-to').value;
+
+  view = DATA.map(function(d,i){ return {d:d,i:i}; }).filter(function(o){
+    const d=o.d;
+    if(kw && (d[0]+d[1]+d[2]+d[8]).toLowerCase().indexOf(kw)<0) return false;
+    if(type && d[3]!==type) return false;
+    if(risk){ if(risk==='none'){ if(isScanned(d[9])) return false; } else if(String(d[9])!==risk) return false; }
+    if(scan && d[12]!==scan) return false;
+    if(status && d[15]!==status) return false;
+    const day=d[14].slice(0,10);
+    if(from && day<from) return false;
+    if(to && day>to) return false;
+    return true; });
+
+  const total=view.length, maxPage=Math.max(1,Math.ceil(total/pageSize));
+  if(page>maxPage) page=maxPage;
+  const start=(page-1)*pageSize, rows=view.slice(start,start+pageSize);
+
+  document.getElementById('tbody').innerHTML = rows.map(function(o){
+    const d=o.d;
+    const action='<span class="link" onclick="openDetail('+o.i+')">'+((d[15]==='处理中'&&(d[3]==='充值'||d[3]==='提现'))?'复审':'查看')+'</span>';
+    return '<tr>'
+      +'<td class="mono">'+d[0]+'</td>'
+      +'<td class="mono dim">'+d[1]+'</td>'
+      +'<td>'+d[2]+'</td>'
+      +'<td>'+d[3]+'</td>'
+      +'<td>'+d[4]+'</td>'
+      +'<td>'+d[5]+'</td>'
+      +'<td class="amt">'+fmtAmt(d[6])+'</td>'
+      +'<td class="dim">'+fmtAmt(d[7])+'</td>'
+      +'<td class="addr" title="'+cleanAttr(d[8])+'">'+shortAddr(d[8])+'</td>'
+      +'<td title="'+(isScanned(d[9])?('映射档位：'+RISK_TIER[d[9]]):'未扫描')+'">'+riskTag(d[9])+'</td>'
+      +'<td>'+resultTag(d[11])+'</td>'
+      +'<td>'+scanTag(d[12])+'</td>'
+      +'<td class="dim">'+d[13]+'</td>'
+      +'<td>'+statusTag(d[15])+'</td>'
+      +'<td>'+refundTag(d[16])+'</td>'
+      +'<td>'+action+'</td>'
+      +'</tr>'; }).join('');
+
+  if(!rows.length) document.getElementById('tbody').innerHTML='<tr><td colspan="16" style="text-align:center;color:#86909C;padding:40px 0">暂无符合条件的数据</td></tr>';
+
+  document.getElementById('t-total').textContent = total;
+  document.getElementById('pager-info').textContent = '显示第 '+(total?start+1:0)+' 到 '+Math.min(start+pageSize,total)+' 条，共 '+total+' 条记录';
+  let pg='<button class="pg-btn" '+(page===1?'disabled':'')+' onclick="go('+(page-1)+')">上一页</button>';
+  for(let p=1;p<=maxPage;p++) pg+='<button class="pg-btn '+(p===page?'active':'')+'" onclick="go('+p+')">'+p+'</button>';
+  pg+='<button class="pg-btn" '+(page===maxPage?'disabled':'')+' onclick="go('+(page+1)+')">下一页</button>';
+  document.getElementById('pager-pages').innerHTML=pg;
+
+  document.getElementById('s-manual').textContent = DATA.filter(function(d){return isScanned(d[9]) && d[9]>AUTO_PASS_MAX && d[15]==='处理中';}).length;
+  document.getElementById('s-auto').textContent   = DATA.filter(function(d){return autoPassLv(d[9]) && d[15]!=='已拒绝';}).length;
+  document.getElementById('s-incomplete').textContent = DATA.filter(function(d){return !isScanned(d[9]);}).length;
+  document.getElementById('s-pending').textContent  = DATA.filter(function(d){return d[12]==='待扫描';}).length;
+  document.getElementById('s-scanning').textContent = DATA.filter(function(d){return d[12]==='扫描中';}).length;
+  document.getElementById('s-failed').textContent   = DATA.filter(function(d){return d[12]==='失败';}).length;
+  document.getElementById('s-refund').textContent   = DATA.filter(function(d){return d[16]==='退款中';}).length;
+}
+function go(p){ page=p; render(); }
+function applyFilter(){ page=1; render(); toast('已按条件筛选'); }
+function resetFilter(){
+  const ids=['f-kw','f-type','f-risk','f-scan','f-status'];
+  for(let i=0;i<ids.length;i++) document.getElementById(ids[i]).value='';
+  document.getElementById('f-from').value='2026-09-13'; document.getElementById('f-to').value='2026-09-14';
+  page=1; render(); toast('筛选条件已重置'); }
+
+/* ---------- 详情 / 复审弹窗 ---------- */
+function fbox(label,value,hint){
+  return '<div><div class="f-label">'+label+'</div>'
+    +'<div class="f-value" title="'+cleanAttr(value)+'">'+value+'</div>'
+    +(hint?'<div class="f-hint">'+hint+'</div>':'')+'</div>'; }
+function kv(k,v){ return '<div class="risk-kv"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>'; }
+function closeModal(){ document.getElementById('modal').classList.remove('active'); }
+function toggleReject(){ const b=document.getElementById('reject-box'); if(b) b.classList.toggle('show'); }
+
+function openDetail(i){
+  const d=DATA[i]; current=i;
+  const isW=(d[3]==='提现'), oc=outcome(d);
+  document.getElementById('m-title').textContent=(isW?'提现详情':'充值详情');
+  document.getElementById('m-sub').textContent=d[0];
+
+  const gm=({auto:{t:'已自动通过',cls:'pass',ic:'&#10004;'},
+             manual:{t:'不自动通过 · 转人工复核',cls:'block',ic:'&#9888;'},
+             wait:{t:'待筛查完成 · 暂不判定',cls:'block',ic:'&#9203;'},
+             readonly:{t:'仅供查看',cls:'pause',ic:'&#8505;'}})[oc.mode] || {t:'仅供查看',cls:'pause',ic:'&#8505;'};
+
+  const ex=(function(){
+    const p=(d[11]||'').split(' · ');
+    if(!isScanned(d[9]) || d[9]===0 || p.length<2) return null;
+    return {entity:p[0], exposure:p[1]};
+  })();
+
+  let risk='<div class="risk-block">'
+    +'<div class="risk-head"><div class="risk-head-title">MS 风险信息 <span class="risk-src">Merkle Science · Address Screening（KYA）</span></div>'
+    +'<div style="display:flex;align-items:center;gap:10px">'+scanTag(d[12])
+    +'<button class="btn btn-ghost" style="height:30px;padding:0 12px" onclick="doRescan()">重新扫描</button></div></div>'
+    +'<div class="risk-body"><div class="risk-grid">'
+    +kv('risk_level（官方整数等级）',riskTag(d[9]))
+    +kv('risk_level_verbose（官方文案）',isScanned(d[9])?MS_RISK_VERBOSE[d[9]]:'-')
+    +kv('映射档位（业务四档）',tierTag(d[9]))
+    +kv('筛查结果（对手方暴露）',resultTag(d[11]))
+    +kv('扫描状态 / 扫描时间',scanTag(d[12])+' <span class="dim" style="margin-left:6px">'+d[13]+'</span>')
+    +kv('自动处置判定','<span class="tag '+(oc.mode==='auto'?'tag-green':(oc.mode==='manual'?'tag-red':'tag-gray'))+'">'+gm.t+'</span>')
+    +'</div>'
+    +(ex? '<div class="section-title" style="margin:16px 0 10px">风险来源明细 <span class="risk-src">MS 返回字段 originator / beneficiary</span></div>'
+      +'<div class="exposure-grid">'
+      +exkv('exposure_type（暴露类型）',ex.exposure)
+      +exkv('tag_name_verbose（对手方实体）',ex.entity)
+      +exkv('total_incoming_value_usd（对手方历史流入）','$'+fmtAmt(mockUsd(d,1)))
+      +exkv('total_outgoing_value_usd（对手方历史流出）','$'+fmtAmt(mockUsd(d,2)))
+      +exkv('tags.owner（地址归属）',ex.exposure==='direct'?'受制裁实体自有地址':'第三方关联地址（CEX / 混币器）')
+      +exkv('digital_assets（涉及资产）',d[4])
+      +'</div>' : '')
+    +'<div class="gate '+gm.cls+'" style="margin-top:14px"><div style="flex:none">'+gm.ic+'</div>'
+    +'<div><b>处置结论：'+gm.t+'</b>'
+    +'<div class="gate-reason">'+oc.reason+'</div></div></div>'
+    +(d[12]==='失败'?'<div class="gate block" style="margin-top:10px"><div style="flex:none">&#9888;</div><div><b>筛查失败原因</b><div class="gate-reason">调用 Merkle Science <span class="mono">POST '+MS_ADDR_ENDPOINT+'</span> 无响应（HTTP 504），未取得筛查结果。</div></div></div>':'')
+    +'<div class="kya-note">扫描接口：Merkle Science Address Screening（KYA）<span class="mono">POST '+MS_ADDR_ENDPOINT+'</span>&nbsp;·&nbsp;'
+    +'请求参数：<span class="mono">identifier</span>='+cleanAttr(d[8])+'（对手方地址）+ <span class="mono">blockchain</span>='+(CHAIN_CODE[d[5]]||'以官方 Supported Blockchains 为准')+'（'+d[5]+'）；<span class="mono">type</span> / <span class="mono">customer_id</span> 为可选项且官方明确不影响风险等级，本流程不传&nbsp;·&nbsp;'
+    +'扫描对象：'+(isW?'提现地址':'来源钱包地址')+'&nbsp;·&nbsp;'
+    +'等级映射：risk_level 0–5（No Risk Detected / Info / Caution / Medium / High / Critical），官方映射文档 <span class="mono">reference/risk-levels</span>&nbsp;·&nbsp;仅筛查钱包地址，不调用 Transaction Screening。</div>'
+    +'</div></div>';
+
+  let fields = isW
+    ? fbox('钱包类型','Self-custody')+fbox('钱包名称','YASBEE 出金钱包')+fbox('钱包持有人姓名','YASBEE PTE. LTD.')
+      +fbox('选择币种',d[4]+'（'+d[5]+'）')
+      +fbox('提现地址','<span class="addr">'+d[8]+'</span>','请确认地址正确。地址错误将导致资产不可逆损失。')
+      +fbox('交易 Hash','<span class="mono">'+txHash(d)+'</span>')+fbox('链 / blockchain',d[5]+'（'+(CHAIN_CODE[d[5]]||'链码以官方为准')+'）')
+      +fbox('提现金额',fmtAmt(d[6])+' '+d[4],'可用余额: 30.0000 '+d[4])
+      +fbox('网络费用',fmtAmt(d[7])+' '+d[4],'预计到账时间：10-30 分钟')
+    : fbox('钱包类型','Exchange Wallet')+fbox('钱包名称','YASBEE 归集钱包')+fbox('钱包持有人姓名','YASBEE PTE. LTD.')
+      +fbox('选择币种',d[4]+'（'+d[5]+'）')
+      +fbox('来源钱包地址','<span class="addr">'+d[8]+'</span>','该地址为资金入账来源，MS 筛查未完成前不得放行。')
+      +fbox('目标钱包地址','<span class="addr">0xYASBEE'+hexHash('target'+d[0],34)+'</span>')
+      +fbox('交易 Hash','<span class="mono">'+txHash(d)+'</span>')
+      +fbox('Safeheron 交易 Key','<span class="mono">'+shKey(d)+'</span>')
+      +fbox('链 / blockchain',d[5]+'（'+(CHAIN_CODE[d[5]]||'链码以官方为准')+'）')
+      +fbox('充值金额',fmtAmt(d[6])+' '+d[4])+fbox('网络费用',fmtAmt(d[7])+' '+d[4]);
+
+  const sum = isW
+    ? '<div class="f-sum">'
+      +'<div class="f-sum-row"><span class="k">提现金额</span><span class="v">'+fmtAmt(d[6])+' '+d[4]+'</span></div>'
+      +'<div class="f-sum-row"><span class="k">费用</span><span class="v">'+fmtAmt(d[7])+' '+d[4]+'</span></div>'
+      +'<div class="f-sum-row total"><span class="k">总扣除金额</span><span class="v">'+fmtAmt(Number(d[6])+Number(d[7]))+' '+d[4]+'</span></div></div>'
+    : '<div class="f-sum">'
+      +'<div class="f-sum-row"><span class="k">充值金额</span><span class="v">'+fmtAmt(d[6])+' '+d[4]+'</span></div>'
+      +'<div class="f-sum-row"><span class="k">网络费用</span><span class="v">'+fmtAmt(d[7])+' '+d[4]+'</span></div>'
+      +'<div class="f-sum-row total"><span class="k">实际到账</span><span class="v">'+fmtAmt(Number(d[6])-Number(d[7]))+' '+d[4]+'</span></div></div>';
+
+  const refundBlock = (!isW && (d[15]==='已拒绝' || (d[16] && d[16]!=='-')))
+    ? '<div class="refund-block">'
+      +'<div class="refund-head"><span>自动退款处理（后台任务 · 无需人工）</span>'+refundTag(d[16])+'</div>'
+      +'<div class="refund-grid">'
+      +rkv('触发规则','入金审批拒绝后自动触发')
+      +rkv('退款方式','原路退回至来源钱包地址')
+      +rkv('退回地址','<span class="mono">'+cleanAttr(d[8])+'</span>')
+      +rkv('退款金额',fmtAmt(Math.max(0,Number(d[6])-Number(d[7])))+' '+d[4]+'（充值金额 − 网络费）')
+      +rkv('退款状态',refundTag(d[16]))
+      +rkv('退款 Hash','<span class="mono">0x'+hexHash('refund'+d[0],64)+'</span>')
+      +'</div>'
+      +'<div class="kya-note" style="border-top:none;padding-top:8px;margin-top:8px">退款由后台自动任务执行，不占用风控人工；若来源地址拒收或链上不支持退回，状态置「退款失败」并生成风控事件转人工跟进。</div>'
+      +'</div>'
+    : '';
+
+  const rejectReason = REJECT_REASONS[d[0]] || '';
+  const reasonBlock = (d[15]==='已拒绝' && rejectReason)
+    ? '<div class="reason-block">'
+      +'<div class="reason-head"><span>拒绝原因（审批填写 · 必填）</span><span class="reason-sync">已同步至客户端详情</span></div>'
+      +'<div class="reason-text">'+cleanAttr(rejectReason)+'</div>'
+      +'</div>'
+    : '';
+
+  document.getElementById('m-body').innerHTML =
+    '<div class="pill-row">'+statusTag(d[15])+((d[16]&&d[16]!=='-')?' '+refundTag(d[16]):'')+'</div>'
+    +risk
+    +'<div class="section-title">'+(isW?'提现信息':'充值信息')+'</div>'
+    +'<div class="f-grid">'+fields+'</div>'+sum
+    +reasonBlock
+    +refundBlock
+    +(oc.mode==='manual'
+      ? '<div class="approve-box" id="approve-box"><div class="f-label">复核意见（必填 · risk_level ≥ 3 需风控经理签署）</div>'
+        +'<textarea class="input" id="app-reason" placeholder="请说明放行依据（例如客户资金来源已核验），将记录至审核日志"></textarea>'
+        +'<div style="display:flex;gap:10px;margin-top:10px"><button class="btn btn-success" onclick="confirmApprove()">确认放行</button>'
+        +'<button class="btn btn-ghost" onclick="toggleApprove()">取消</button></div></div>'
+      : '')
+    +(d[15]==='已拒绝'
+      ? ''
+      : '<div class="reject-box" id="reject-box"><div class="f-label">拒绝原因（必填）</div>'
+        +'<textarea class="input" id="rej-reason" placeholder="请填写拒绝原因，将记录至审核日志'+(isW?'':'；入金拒绝后后台将自动原路退款')+'"></textarea>'
+        +'<div style="display:flex;gap:10px;margin-top:10px"><button class="btn btn-danger" onclick="confirmReject()">确认拒绝'+(isW?'':'并触发自动退款')+'</button>'
+        +'<button class="btn btn-ghost" onclick="toggleReject()">取消</button></div></div>')
+    +'<div class="kya-note" style="margin-top:14px">处置规则：risk_level 0–2（No Risk Detected / Info / Caution）→ <b>系统自动通过</b>，无需人工；risk_level 3–5（Medium / High / Critical）→ <b>不自动通过</b>，须风控经理复核：放行需填写复核意见、拒绝需填写原因，状态置「已拒绝」。'+(isW?'':'<b>入金被拒后由后台自动发起原路退款</b>（退款中 → 已退款 / 退款失败），无需人工触发。')+'以上动作均写入审核日志。</div>';
+
+  const btn=document.getElementById('m-approve');
+  btn.textContent = oc.mode==='auto' ? '已自动通过' : (oc.mode==='manual' ? '复核通过' : '通过');
+  btn.disabled=!oc.allow; btn.title = oc.allow?'':oc.reason;
+  const rb=document.getElementById('m-reject');
+  rb.disabled=!oc.allow; rb.title = oc.allow?'':oc.reason;
+  document.getElementById('modal').classList.add('active');
+}
+function doApprove(){
+  const d=DATA[current], oc=outcome(d);
+  if(!oc.allow){ toast('无法审批：'+oc.reason); return; }
+  if(oc.mode==='manual'){ toggleApprove(); return; }
+  d[15]='已完成'; closeModal(); render();
+  toast('已通过：'+d[0]+'，交易状态置为「已完成」，已写入审核日志');
+}
+function confirmApprove(){
+  const t=document.getElementById('app-reason'), v=(t&&t.value||'').trim();
+  if(!v){ toast('risk_level '+DATA[current][9]+' 属人工复核区间，请填写复核意见'); return; }
+  const d=DATA[current]; d[15]='已完成'; closeModal(); render();
+  toast('已放行：'+d[0]+'（risk_level '+d[9]+' · 复核意见已记录至审核日志）');
+}
+function toggleApprove(){ const b=document.getElementById('approve-box'); if(b) b.classList.toggle('show'); }
+// 拒绝原因存储：管理端审批填写 → 落库 → 同步至客户端详情回显（原型以内存对象模拟）
+const REJECT_REASONS = {
+  'CRYPTO-01KQYVZY3X7W1V5U9T3S7R2Q6P':'该笔提现的收款地址经人工复核存在关联风险，风控决定主动拒绝出金。资金未发生转移，已退回客户可用余额。',
+  'CRYPTO-01KQZ8NM5V3C6X9Z2QW4ER8YT1':'入金来源钱包对手方为受制裁混币器（Sanctioned Mixer），risk_level 4 High，拒绝入金并原路退款。',
+  'CRYPTO-01KQZ7LM4U2B5W8Y1PV3DQ7XS0':'入金来源地址关联制裁实体 Garantex，risk_level 5 Critical，拒绝入金并原路退款。'
+};
+function confirmReject(){
+  const t=document.getElementById('rej-reason'), v=(t&&t.value||'').trim();
+  if(!v){ toast('请填写拒绝原因'); return; }
+  const d=DATA[current]; d[15]='已拒绝';
+  REJECT_REASONS[d[0]]=v;
+  const isDeposit=(d[3]==='充值');
+  if(isDeposit){ d[16]='退款中'; }
+  closeModal(); render();
+  if(isDeposit){
+    toast('已拒绝：'+d[0]+'，拒绝原因已记录并同步至客户端详情，后台已自动发起退款（原路退回 '+shortAddr(d[8])+'）');
+    setTimeout(function(){
+      if(d[16]==='退款中'){ d[16]='已退款'; render();
+        toast('自动退款完成：'+d[0]+' 已退回 '+shortAddr(d[8])+'（后台任务，无需人工）'); }
+    },3200);
+  } else {
+    toast('已拒绝：'+d[0]+' 拒绝原因已记录并同步至客户端详情');
+  }
+}
+function doRescan(){
+  const d=DATA[current];
+  d[12]='扫描中'; d[13]='-'; render(); openDetail(current);
+  toast('已提交 MS 地址筛查：POST '+MS_ADDR_ENDPOINT);
+  setTimeout(function(){
+    const n=new Date();
+    const pad=function(x){ return (x<10?'0':'')+x; };
+    d[12]='已完成'; d[13]=n.getFullYear()+'-'+pad(n.getMonth()+1)+'-'+pad(n.getDate())+' '+pad(n.getHours())+':'+pad(n.getMinutes());
+    if(!isScanned(d[9])){ d[9]=0; d[11]='无对手方暴露'; }
+    d[10]=MS_RISK_VERBOSE[d[9]];
+    let msg;
+    if(autoPassLv(d[9])){ d[15]='已完成'; msg='risk_level '+d[9]+'（'+d[10]+'）→ 自动通过，状态置为「已完成」'; }
+    else { msg='risk_level '+d[9]+'（'+d[10]+'）→ 不自动通过，已转风控人工复核'; }
+    render(); openDetail(current); toast('MS 地址筛查已完成：'+msg);
+  },1800);
+}
+document.getElementById('modal').addEventListener('click',function(e){ if(e.target.id==='modal') closeModal(); });
+document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeModal(); });
+render();
+</script>
+</body>
+</html>

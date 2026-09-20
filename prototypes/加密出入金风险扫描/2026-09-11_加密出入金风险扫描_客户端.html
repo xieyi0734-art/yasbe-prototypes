@@ -238,6 +238,12 @@ tbody tr:hover td{background:rgba(255,255,255,0.02)}
 .result-badge.declined{background:rgba(234,67,53,0.14);color:var(--red)}
 .result-badge.success{background:rgba(52,168,83,0.14);color:var(--green)}
 
+/* 拒绝原因回显（管理端审批理由 → 客户端详情） */
+.reason-box{margin:0 0 20px;text-align:left;background:rgba(234,67,53,0.08);border:1px solid rgba(234,67,53,0.28);border-radius:10px;padding:12px 14px}
+.reason-box .rb-label{font-size:11px;font-weight:600;color:var(--red);letter-spacing:.02em;margin-bottom:6px}
+.reason-box .rb-text{font-size:13px;color:var(--text-2);line-height:1.65;white-space:pre-wrap}
+.reason-box .rb-from{font-size:11px;color:var(--text-4);margin-top:8px;padding-top:8px;border-top:1px solid rgba(234,67,53,0.18)}
+
 /* 演示场景条 */
 .demo-bar{display:flex;align-items:center;gap:10px;margin-bottom:20px;padding:10px 14px;background:rgba(255,202,0,0.05);border:1px dashed rgba(255,202,0,0.25);border-radius:12px;font-size:12px;color:var(--text-3);flex-wrap:wrap}
 .demo-bar .seg{display:flex;gap:4px;margin-left:auto}
@@ -523,7 +529,7 @@ var currentFilter = 'all';
 var txData = [
   { id:'CRYP-008', type:'withdrawal', asset:'USDT', net:'TRON (TRC20)', amt:'-997.00', status:'processing', date:'2026-09-11 14:32:08' },
   { id:'CRYP-007', type:'deposit',    asset:'USDT', net:'TRON (TRC20)', amt:'+500.00',  status:'completed', date:'2026-09-11 11:05:41' },
-  { id:'CRYP-006', type:'withdrawal', asset:'BTC',  net:'Bitcoin',      amt:'-0.0100',  status:'rejected',  date:'2026-09-10 18:22:15' },
+  { id:'CRYP-006', type:'withdrawal', asset:'BTC',  net:'Bitcoin',      amt:'-0.0100',  status:'rejected',  date:'2026-09-10 18:22:15', reason:'该笔提现的收款地址经风险系统筛查，关联受制裁实体，未通过合规审核。资金已保留在您的可用余额中，未产生任何扣款。' },
   { id:'CRYP-005', type:'deposit',    asset:'USDC', net:'Ethereum (ERC20)', amt:'+1200.00', status:'completed', date:'2026-09-10 09:47:03' },
   { id:'CRYP-004', type:'withdrawal', asset:'ETH',  net:'Ethereum',     amt:'-0.5000',  status:'completed', date:'2026-09-09 16:18:52' },
   { id:'CRYP-003', type:'deposit',    asset:'BTC',  net:'Bitcoin',      amt:'+0.0500',  status:'processing', date:'2026-09-09 10:30:27' },
@@ -576,17 +582,25 @@ function openTxDetail(id){
   if(!t) return;
   var s = statusMap[t.status];
   var detail = '';
+  var extra = '';
   if(t.status==='processing'){
     detail = '该笔交易正在接受合规审核，审核通过后自动完成。';
   } else if(t.status==='rejected'){
     detail = '该笔交易未通过风险审核，资金已保留在账户。';
+    if(t.reason){
+      extra = '<div class="reason-box">'
+        +'<div class="rb-label">拒绝原因 · Rejection Reason</div>'
+        +'<div class="rb-text">'+t.reason+'</div>'
+        +'<div class="rb-from">该原因由风控审核人员填写，仅用于说明本次驳回依据。</div>'
+        +'</div>';
+    }
   } else {
     detail = '该笔交易已完成。';
   }
   showResult(t.status==='rejected'?'declined':(t.status==='processing'?'pending':'success'),
     (t.status==='processing'?'审核中':(t.status==='rejected'?'已拒绝':'已完成')),
     t.type==='withdrawal'?'提现':'充值',
-    detail);
+    detail, extra);
 }
 
 // 弹窗开关
@@ -608,17 +622,21 @@ function submitWithdraw(){
     document.getElementById('scanOverlay').classList.remove('show');
     if(currentScene==='ok'){ showResult('success','已完成','提现','风险扫描通过，提现已提交，预计 10–30 分钟到账。'); }
     else if(currentScene==='risk'){ showResult('pending','审核中','提现','本次提现正在接受合规审核，审核通过后将自动完成出账，请耐心等待。'); }
-    else { showResult('declined','已拒绝','提现','经审核，本次提现未能通过风险审核，出金失败，资金已保留在您的账户。'); }
+    else { showResult('declined','已拒绝','提现','经审核，本次提现未能通过风险审核，出金失败，资金已保留在您的账户。',
+      '<div class="reason-box"><div class="rb-label">拒绝原因 · Rejection Reason</div>'
+      +'<div class="rb-text">该笔提现的收款地址经风险系统筛查，关联受制裁实体，未通过合规审查。资金已退回您的可用余额，未产生任何扣款。</div>'
+      +'<div class="rb-from">该原因由风控审核人员填写，仅用于说明本次驳回依据。</div></div>'); }
   }, 1600);
 }
 
-function showResult(type, badge, kind, desc){
+function showResult(type, badge, kind, desc, extra){
   var icons = {pending:'⏳', declined:'✕', success:'✓'};
   document.getElementById('resultModal').innerHTML =
     '<div class="result-icon '+type+'">'+icons[type]+'</div>'+
     '<div class="result-badge '+type+'">'+kind+' · '+badge+'</div>'+
     '<div class="result-title">'+(kind==='提现'?'提现':'充值')+badge+'</div>'+
     '<div class="result-desc">'+desc+'</div>'+
+    (extra||'')+
     '<button class="btn-outline" onclick="closeResult()">知道了</button>';
   document.getElementById('resultOverlay').classList.add('show');
 }
