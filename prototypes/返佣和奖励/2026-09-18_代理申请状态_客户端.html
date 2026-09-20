@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>代理申请状态 | YASBee</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif;
+  background:#191b1f;color:#fff;min-height:100vh;font-size:14px;line-height:1.5}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  background:#2c2c2c;border-bottom:1px solid rgba(255,255,255,.06);padding:0 28px;min-height:60px;position:sticky;top:0;z-index:50}
+.brand{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:700;letter-spacing:.3px}
+.brand .mark{width:22px;height:22px;border-radius:7px;background:#FFCA00;color:#1F2329;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.top-right{display:flex;align-items:center;gap:12px}
+.top-right .avatar{width:30px;height:30px;border-radius:50%;background:#FFCA00;color:#000;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+.container{max-width:1160px;margin:0 auto;padding:28px 24px 80px}
+.crumb{font-size:12.5px;color:rgba(255,255,255,.4);margin-bottom:14px}
+.crumb a{color:rgba(255,255,255,.62);text-decoration:none}
+.crumb a:hover{color:#FFCA00}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.page-head h1{font-size:23px;font-weight:700}
+.page-head p{color:rgba(255,255,255,.5);font-size:13px;margin-top:6px}
+.switch-bar{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.sw-label{font-size:11.5px;color:rgba(255,255,255,.35)}
+.seg{display:inline-flex;gap:3px;padding:3px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09)}
+.seg-btn{appearance:none;font-family:inherit;font-size:12.5px;font-weight:700;color:rgba(255,255,255,.6);
+  background:transparent;border:0;border-radius:8px;padding:7px 16px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.seg-btn:hover{color:#fff}
+.seg-btn.active{background:#FFCA00;color:#000}
+.shero{position:relative;overflow:hidden;border-radius:18px;padding:28px 30px;margin-bottom:20px;border:1px solid;display:flex;gap:26px;align-items:center;flex-wrap:wrap}
+.shero.pending{border-color:rgba(255,202,0,.35);background:linear-gradient(120deg,#26210f,#1f2128 70%)}
+.shero.passed{border-color:rgba(74,222,128,.35);background:linear-gradient(120deg,#12261a,#1f2128 70%)}
+.shero .s-ico{width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.shero.pending .s-ico{background:rgba(255,202,0,.13);border:1px solid rgba(255,202,0,.4)}
+.shero.passed .s-ico{background:rgba(74,222,128,.13);border:1px solid rgba(74,222,128,.4)}
+.shero .s-main{flex:1;min-width:280px}
+.shero h2{font-size:21px;font-weight:800;margin-bottom:8px}
+.shero .s-desc{font-size:13px;color:rgba(255,255,255,.6);line-height:1.75;max-width:680px}
+.shero .s-actions{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;border-radius:999px;padding:5px 13px;margin-bottom:12px}
+.badge.pending{color:#FFCA00;background:rgba(255,202,0,.12);border:1px solid rgba(255,202,0,.35)}
+.badge.passed{color:#4ade80;background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.35)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;border-radius:10px;
+  padding:11px 20px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;text-decoration:none}
+.btn-gold{background:#FFCA00;color:#1F2329}
+.btn-gold:hover{opacity:.88}
+.btn-ghost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);color:#fff}
+.btn-ghost:hover{border-color:rgba(255,202,0,.5);color:#FFCA00}
+.btn-sm{padding:8px 14px;font-size:12.5px;border-radius:9px}
+.grid2{display:grid;grid-template-columns:1.35fr 1fr;gap:18px;align-items:start}
+.card{background:#1f2128;border:1px solid rgba(255,255,255,.10);border-radius:16px;overflow:hidden;margin-bottom:18px}
+.card-h{padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.card-h h3{font-size:14.5px;font-weight:700}
+.card-h .hint{font-size:11.5px;color:rgba(255,255,255,.4)}
+.card-b{padding:20px}
+.tl{position:relative;padding-left:26px}
+.tl::before{content:"";position:absolute;left:7px;top:6px;bottom:6px;width:1px;background:rgba(255,255,255,.12)}
+.tl-i{position:relative;padding-bottom:22px}
+.tl-i:last-child{padding-bottom:0}
+.tl-i .dot{position:absolute;left:-26px;top:2px;width:15px;height:15px;border-radius:50%;border:1.5px solid rgba(255,255,255,.2);background:#1f2128;display:flex;align-items:center;justify-content:center;font-size:9px;color:#1F2329}
+.tl-i.done .dot{background:#4ade80;border-color:#4ade80}
+.tl-i.cur .dot{background:#FFCA00;border-color:#FFCA00;box-shadow:0 0 0 4px rgba(255,202,0,.14)}
+.tl-i .t-t{font-size:13px;font-weight:700;color:#fff;margin-bottom:3px}
+.tl-i.todo .t-t{color:rgba(255,255,255,.42)}
+.tl-i .t-d{font-size:12px;color:rgba(255,255,255,.45);line-height:1.7}
+.tl-i.cur .t-d{color:rgba(255,202,0,.75)}
+.kv{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;padding:9px 0;border-bottom:1px dashed rgba(255,255,255,.08)}
+.kv:last-child{border-bottom:none}
+.kv .k{color:rgba(255,255,255,.45)}
+.kv .v{color:rgba(255,255,255,.85);font-weight:600;text-align:right}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{text-align:left;padding:10px 18px;font-size:12px;color:rgba(255,255,255,.45);font-weight:500;border-bottom:1px solid rgba(255,255,255,.10);white-space:nowrap}
+tbody td{padding:13px 18px;border-bottom:1px solid rgba(255,255,255,.08);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:rgba(255,255,255,.02)}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;border-radius:6px;padding:3px 9px}
+.chip.gray{background:rgba(255,255,255,.06);color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.10)}
+.chip.gold{background:rgba(255,202,0,.12);color:#FFCA00;border:1px solid rgba(255,202,0,.3)}
+.chip.green{background:rgba(74,222,128,.12);color:#4ade80;border:1px solid rgba(74,222,128,.3)}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.note{display:flex;gap:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);border-radius:12px;padding:13px 16px;font-size:12.5px;color:rgba(255,255,255,.62);line-height:1.75;margin-top:4px}
+.note b{color:#FFCA00}
+.hidden{display:none}
+/* ===== 签署存证 ===== */
+.cert{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start}
+.sig-img{width:240px;height:104px;background:#fff;border-radius:10px;border:1px solid rgba(255,255,255,.16);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;overflow:hidden}
+.sig-img svg{width:90%;height:72%}
+.sig-img .stamp{position:absolute;right:7px;bottom:6px;font-size:9px;color:#8b8f96;letter-spacing:.4px}
+.cert-info{flex:1;min-width:250px}
+.cert-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#4ade80;
+  background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.32);border-radius:999px;padding:4px 11px;margin-bottom:10px}
+.hash{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:rgba(255,255,255,.6);word-break:break-all}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="mark">Y</span>YASBee</div>
+  <div class="top-right"><span class="avatar">A</span></div>
+</div>
+
+<div class="container">
+  <div class="crumb"><a href="#">Rewards</a> / <a href="2026-09-18_代理申请入口_客户端.html">代理中心</a> / 申请状态</div>
+
+  <div class="page-head">
+    <div>
+      <h1>代理申请结果</h1>
+      <p>协议签署完成后由系统即时自动核验，通过即开通代理身份并按平台兜底返佣值生效。</p>
+    </div>
+  </div>
+
+  <div class="switch-bar">
+    <span class="sw-label">状态演示（原型用）：</span>
+    <div class="seg">
+      <button class="seg-btn active" data-v="auto" onclick="showState('auto')">自动核验通过 · 已开通</button>
+      <button class="seg-btn" data-v="manual" onclick="showState('manual')">自动核验未通过 · 转人工</button>
+    </div>
+  </div>
+
+  <!-- ===== 状态 A：自动核验通过 · 已开通 ===== -->
+  <div id="st-auto">
+    <div class="shero passed">
+      <div class="s-ico">✅</div>
+      <div class="s-main">
+        <span class="badge passed">● 系统自动审核通过 · 代理身份已开通</span>
+        <h2>恭喜，您已成为 YASBee 代理</h2>
+        <div class="s-desc">您的协议已于 <b style="color:#4ade80">2026-09-18 14:32</b> 签署完成，系统即时自动核验通过，代理编号 <b style="color:#4ade80">AG-8842</b>。代理身份与返佣方案（平台兜底值）即刻生效，无需等待人工审核。</div>
+        <div class="s-actions">
+          <a class="btn btn-gold" href="2026-09-18_代理中心_客户端.html">进入代理中心</a>
+          <a class="btn btn-ghost" href="#">查看返佣方案</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-h"><h3>电子签名与签署存证</h3><span class="hint">由平台留存 · 不可修改</span></div>
+        <div class="card-b">
+          <div class="cert">
+            <div class="sig-img" id="sigBox">
+              <svg viewBox="0 0 240 104" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22 74 C34 40 44 30 52 34 C60 38 52 62 44 72 C56 66 66 54 72 46 C70 58 74 68 84 66 C94 64 100 52 106 42 C102 60 104 70 116 68 C128 66 136 54 142 44 C138 62 142 72 154 68 C166 64 172 50 178 40 C176 58 182 70 196 64 C206 60 212 52 218 44"
+                  fill="none" stroke="#1a1c20" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="stamp">Alex Chen · 手写签名</span>
+            </div>
+            <div class="cert-info">
+              <div class="cert-badge">✓ 已留存存证</div>
+              <div class="kv"><span class="k">存证编号</span><span class="v mono">ES-20260918-4F7A2C</span></div>
+              <div class="kv"><span class="k">协议版本</span><span class="v">代理合作协议 v1.1</span></div>
+              <div class="kv"><span class="k">签署时间</span><span class="v">2026-09-18 14:32:07 (GMT+8)</span></div>
+              <div class="kv"><span class="k">签署 IP</span><span class="v mono">203.0.113.42</span></div>
+              <div class="kv"><span class="k">签署设备</span><span class="v">Chrome 128 · macOS</span></div>
+            </div>
+          </div>
+          <div style="margin-top:14px">
+            <div class="kv" style="border-bottom:none"><span class="k">协议文本摘要（SHA-256）</span></div>
+            <div class="hash">a93f1c7d4b2e8f60c5a17d93e6b4f0281c73d5e9a0b6f4712c8d35e97a1b6f42</div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+            <button class="btn btn-ghost btn-sm" onclick="alert('存证明细：签名图像、签署人身份、签署时间戳、IP、设备指纹、协议版本与文本摘要，均可在线调阅。')">查看存证明细</button>
+            <button class="btn btn-ghost btn-sm" onclick="alert('原型演示：下载签署存证 PDF（含签名图像与存证信息）。')">下载存证 PDF</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><h3>开通记录</h3></div>
+        <div class="card-b">
+          <div class="tl">
+            <div class="tl-i done"><span class="dot">✓</span>
+              <div class="t-t">发起代理申请</div>
+              <div class="t-d">2026-09-18 14:30 · 代理中心</div>
+            </div>
+            <div class="tl-i done"><span class="dot">✓</span>
+              <div class="t-t">签署协议并留存电子签名</div>
+              <div class="t-d">2026-09-18 14:32 · 手写签名 · 存证 ES-20260918-4F7A2C</div>
+            </div>
+            <div class="tl-i done"><span class="dot">✓</span>
+              <div class="t-t">系统自动核验通过</div>
+              <div class="t-d">2026-09-18 14:32 · 实名已认证 ✓ · 合规风险校验通过 ✓ · 用时 1.2 秒</div>
+            </div>
+            <div class="tl-i done"><span class="dot">✓</span>
+              <div class="t-t">代理身份开通 · 兜底返佣生效</div>
+              <div class="t-d">2026-09-18 14:32 · 全部卡产品按平台兜底值生效</div>
+            </div>
+            <div class="tl-i cur"><span class="dot"></span>
+              <div class="t-t">商务返佣二次调整（按需）</div>
+              <div class="t-d">商务经理将依据您的展业情况，就开卡/充值返 U 比例做二次调整；未调整项继续按兜底值执行</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h3>已生效返佣方案</h3><span class="hint">平台兜底值自动套用 · 商务可二次调整</span></div>
+      <table>
+        <thead>
+          <tr><th>卡产品</th><th>渠道</th><th>开卡返佣（USDT）</th><th>充值返佣</th><th>来源</th><th>生效时间</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Standard Debit Card</td><td>Stripe</td><td class="mono">$5.00 / 单</td><td class="mono">0.30%</td><td><span class="chip gold">平台兜底</span></td><td>2026-09-18 14:32</td></tr>
+          <tr><td>Premium Rewards Card</td><td>Stripe</td><td class="mono">$8.00 / 单</td><td class="mono">0.35%</td><td><span class="chip gold">平台兜底</span></td><td>2026-09-18 14:32</td></tr>
+          <tr><td>Gold Elite Card</td><td>Stripe</td><td class="mono">$6.00 / 单</td><td class="mono">0.25%</td><td><span class="chip gold">平台兜底</span></td><td>2026-09-18 14:32</td></tr>
+          <tr><td>Travel Prepaid Card</td><td>Interlace</td><td class="mono">$6.00 / 单</td><td class="mono">0.25%</td><td><span class="chip gold">平台兜底</span></td><td>2026-09-18 14:32</td></tr>
+          <tr><td>Business Expense Card</td><td>Marqeta</td><td class="mono">$6.00 / 单</td><td class="mono">0.25%</td><td><span class="chip gold">平台兜底</span></td><td>2026-09-18 14:32</td></tr>
+          <tr><td>Flexible Prepaid</td><td>Marqeta</td><td class="mono">$6.00 / 单</td><td class="mono">0.25%</td><td><span class="chip gold">平台兜底</span></td><td>2026-09-18 14:32</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note">
+      <span>ℹ️</span>
+      <div>开通即按<b>平台兜底返佣值</b>生效，因此无需等待商务对接即可开始展业。<b>Points 返点</b>同样按平台兜底值计算。商务经理后续调整的返 U 比例自调整生效之时起，仅对生效后新发生的业务适用。</div>
+    </div>
+  </div>
+
+  <!-- ===== 状态 B：自动核验未通过 · 转人工 ===== -->
+  <div id="st-manual" class="hidden">
+    <div class="shero pending">
+      <div class="s-ico">⏳</div>
+      <div class="s-main">
+        <span class="badge pending">● 自动核验未通过 · 已转人工复核</span>
+        <h2>系统未能自动通过，已转商务人工复核</h2>
+        <div class="s-desc">协议签署与电子签名存证已完成（存证编号 ES-20260918-4F7A2C），但系统自动核验发现：<b style="color:#FFCA00">实名证件有效期已过期</b>，无法自动通过。商务经理将在 1 个工作日内联系您处理。</div>
+        <div class="s-actions">
+          <button class="btn btn-gold" onclick="alert('原型演示：跳转实名认证页面重新上传证件。')">前往更新实名信息</button>
+          <a class="btn btn-ghost" href="#">联系客服</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-h"><h3>自动核验明细</h3><span class="hint">2026-09-18 14:32:08</span></div>
+        <div class="card-b">
+          <div class="kv"><span class="k">协议已签署 · 电子签名已留存</span><span class="v"><span class="chip green">通过</span></span></div>
+          <div class="kv"><span class="k">实名信息已认证</span><span class="v"><span class="chip gold">异常 · 证件有效期已过期</span></span></div>
+          <div class="kv"><span class="k">合规 / 风控风险校验</span><span class="v"><span class="chip green">通过</span></span></div>
+          <div class="kv"><span class="k">当前处理方式</span><span class="v">转商务人工复核</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>下一步</h3></div>
+        <div class="card-b">
+          <div class="kv"><span class="k">更新实名信息后</span><span class="v">系统重新自动核验</span></div>
+          <div class="kv"><span class="k">预计开通时间</span><span class="v">更新后即时</span></div>
+          <div class="kv"><span class="k">协议是否需重签</span><span class="v">无需重签</span></div>
+        </div>
+        <div class="card-b" style="padding-top:0">
+          <div class="note" style="margin-top:0">
+            <span>ℹ️</span>
+            <div>电子签名与协议存证<b>长期有效</b>，更新实名信息后无需重复签署。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showState(v){
+  ['auto','manual'].forEach(function(k){
+    document.getElementById('st-'+k).classList.toggle('hidden', k!==v);
+  });
+  document.querySelectorAll('.seg-btn').forEach(function(b){
+    b.classList.toggle('active', b.dataset.v===v);
+  });
+}
+</script>
+</body>
+</html>

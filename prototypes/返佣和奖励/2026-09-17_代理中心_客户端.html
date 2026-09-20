@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>代理中心 | YASBee</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif;
+  background:#191b1f;color:#fff;min-height:100vh;font-size:14px;line-height:1.5}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  background:#2c2c2c;border-bottom:1px solid rgba(255,255,255,.06);padding:0 28px;min-height:60px;position:sticky;top:0;z-index:50}
+.brand{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:700;letter-spacing:.3px}
+.brand .mark{width:22px;height:22px;border-radius:7px;background:#FFCA00;color:#1F2329;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.top-right{display:flex;align-items:center;gap:12px;font-size:13px;color:rgba(255,255,255,.75);flex-wrap:wrap}
+.token-pill{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:6px 14px;white-space:nowrap}
+.token-pill.cash{background:rgba(255,202,0,.12);border:1px solid rgba(255,202,0,.35)}
+.token-pill.cash .t-name{color:#FFCA00}
+.token-pill.points{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14)}
+.token-pill .t-name{font-weight:800;font-size:13px}
+.token-pill .t-val{font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
+.token-pill .t-unit{font-size:11px;color:rgba(255,255,255,.55);font-weight:600}
+.top-right .avatar{width:30px;height:30px;border-radius:50%;background:#FFCA00;color:#000;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+.container{max-width:1160px;margin:0 auto;padding:28px 24px 80px}
+.crumb{font-size:12.5px;color:rgba(255,255,255,.4);margin-bottom:14px}
+.crumb a{color:rgba(255,255,255,.62);text-decoration:none}
+.crumb a:hover{color:#FFCA00}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.page-head h1{font-size:24px;font-weight:700;display:flex;align-items:center;gap:10px}
+.page-head p{color:rgba(255,255,255,.5);font-size:13px;margin-top:5px}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;border-radius:6px;padding:3px 9px}
+.chip.gray{background:rgba(255,255,255,.06);color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.10)}
+.chip.gold{background:rgba(255,202,0,.12);color:#FFCA00;border:1px solid rgba(255,202,0,.3)}
+.chip.green{background:rgba(74,222,128,.12);color:#4ade80;border:1px solid rgba(74,222,128,.3)}
+.chip.red{background:rgba(248,113,113,.12);color:#f87171;border:1px solid rgba(248,113,113,.3)}
+.lv{background:rgba(255,202,0,.14);border:1px solid rgba(255,202,0,.4);color:#FFCA00;font-size:11px;font-weight:700;padding:3px 11px;border-radius:999px}
+/* stats */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:#1f2128;border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:14px 16px}
+.stat-card .s-label{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:6px}
+.stat-card .s-value{font-size:22px;font-weight:700;letter-spacing:-.2px;font-variant-numeric:tabular-nums}
+.stat-card .s-value.gold{color:#FFCA00}
+.stat-card .s-value.green{color:#4ade80}
+.stat-card .s-value .unit{font-size:13px;font-weight:600;color:rgba(255,255,255,.45);margin-left:4px}
+.stat-card .s-sub{font-size:11.5px;color:rgba(255,255,255,.38);margin-top:6px}
+/* panels */
+.card{background:#1f2128;border:1px solid rgba(255,255,255,.10);border-radius:16px;overflow:hidden;margin-bottom:20px}
+.card-h{padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.card-h h3{font-size:14.5px;font-weight:700}
+.card-h .hint{font-size:11.5px;color:rgba(255,255,255,.4)}
+.card-b{padding:20px}
+.two-col{display:grid;grid-template-columns:1.55fr 1fr;gap:20px;align-items:center}
+.link-box{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:11px 14px}
+.link-box .lk{flex:1;font-size:12.5px;color:rgba(255,255,255,.72);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:ui-monospace,Menlo,monospace}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;border-radius:9px;padding:8px 16px;
+  font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;text-decoration:none;white-space:nowrap}
+.btn-gold{background:#FFCA00;color:#1F2329}
+.btn-gold:hover{opacity:.88}
+.btn-ghost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);color:#fff}
+.btn-ghost:hover{border-color:rgba(255,202,0,.5);color:#FFCA00}
+.copy-tip{font-size:11.5px;color:#4ade80;margin-top:8px;display:none}
+.funnel{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.fs{flex:1;min-width:88px;text-align:center;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:11px 6px}
+.fs .fn{font-size:17px;font-weight:800;font-variant-numeric:tabular-nums}
+.fs .fl{font-size:11px;color:rgba(255,255,255,.42);margin-top:3px}
+.qr-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:16px}
+.qr{width:118px;height:118px;border-radius:8px;background:repeating-conic-gradient(#0f1114 0% 25%,#fff 0% 50%) 0 0/20px 20px;background-clip:content-box;padding:5px;box-shadow:inset 0 0 0 5px #fff,inset 0 0 0 7px #0f1114}
+.qr-cap{font-size:11.5px;color:rgba(255,255,255,.42);text-align:center;line-height:1.6}
+/* segment */
+.seg{display:inline-flex;gap:3px;padding:3px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09)}
+.seg-btn{appearance:none;font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.2px;color:rgba(255,255,255,.6);
+  background:transparent;border:0;border-radius:8px;padding:7px 16px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.seg-btn:hover{color:#fff}
+.seg-btn.active{background:#FFCA00;color:#000}
+/* table */
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{text-align:left;padding:10px 18px;font-size:12px;color:rgba(255,255,255,.45);font-weight:500;border-bottom:1px solid rgba(255,255,255,.10);white-space:nowrap}
+tbody td{padding:13px 18px;border-bottom:1px solid rgba(255,255,255,.08);vertical-align:middle;white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:rgba(255,255,255,.02)}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.amt-pos{color:#4ade80;font-weight:700}
+.amt-neg{color:#f87171;font-weight:700}
+.pg{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 18px;border-top:1px solid rgba(255,255,255,.08);font-size:12px;color:rgba(255,255,255,.42);flex-wrap:wrap}
+.pg-btns{display:flex;gap:5px}
+.pg-b{padding:5px 11px;border:1px solid rgba(255,255,255,.14);border-radius:7px;background:transparent;color:rgba(255,255,255,.7);font-size:12px;cursor:pointer;font-family:inherit}
+.pg-b:hover{border-color:rgba(255,202,0,.5);color:#FFCA00}
+.pg-b.on{background:#FFCA00;border-color:#FFCA00;color:#000;font-weight:700}
+.note{display:flex;gap:10px;background:rgba(255,202,0,.07);border:1px solid rgba(255,202,0,.22);border-radius:12px;padding:13px 16px;font-size:12.5px;color:rgba(255,255,255,.68);line-height:1.75}
+.note b{color:#FFCA00}
+.hidden{display:none}
+@media(max-width:900px){.stats-row{grid-template-columns:1fr 1fr}.two-col{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="mark">Y</span>YASBee</div>
+  <div class="top-right">
+    <span class="token-pill cash"><span class="t-name">Cash</span><span class="t-val">$1,284.60</span></span>
+    <span class="token-pill points"><span class="t-name">Points</span><span class="t-val">2,460.00</span><span class="t-unit">yasbee+</span></span>
+    <span class="avatar">A</span>
+  </div>
+</div>
+
+<div class="container">
+  <div class="crumb"><a href="#">Rewards</a> / 代理中心</div>
+
+  <div class="page-head">
+    <div>
+      <h1>代理中心 <span class="lv">⭐ 认证代理</span></h1>
+      <p>代理编号 AG-8842 · 返佣方案生效于 2026-09-17 16:20</p>
+    </div>
+    <a class="btn btn-ghost" href="2026-09-17_代理申请状态_客户端.html">查看返佣方案</a>
+  </div>
+
+  <!-- 统计条 -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="s-label">累计 USDT 返佣</div>
+      <div class="s-value gold">$325.30</div>
+      <div class="s-sub">开卡返佣 + 充值返佣（含追回）</div>
+    </div>
+    <div class="stat-card">
+      <div class="s-label">累计 Points 返点</div>
+      <div class="s-value green">560.00<span class="unit">yasbee+</span></div>
+      <div class="s-sub">开卡返点 400 · 充值返点 160</div>
+    </div>
+    <div class="stat-card">
+      <div class="s-label">下级客户数</div>
+      <div class="s-value">128</div>
+      <div class="s-sub">有效开卡 63 人</div>
+    </div>
+    <div class="stat-card">
+      <div class="s-label">本月新增下级</div>
+      <div class="s-value">24</div>
+      <div class="s-sub">较上月 +8</div>
+    </div>
+  </div>
+
+  <!-- 推广工具 -->
+  <div class="card">
+    <div class="card-h">
+      <h3>🔗 专属推广链接</h3>
+      <span class="hint">客户通过您的链接注册，关系保护期内有效</span>
+    </div>
+    <div class="card-b">
+      <div class="two-col">
+        <div>
+          <div class="link-box">
+            <span>🔗</span>
+            <span class="lk" id="linkText">https://customer.beeznis.com/register?agent=AG-8842</span>
+            <button class="btn btn-ghost" onclick="copyLink()">复制</button>
+            <button class="btn btn-gold" onclick="alert('分享面板：复制链接 / 下载二维码 / 分享到社交平台')">分享</button>
+          </div>
+          <div class="copy-tip" id="copyTip">✅ 链接已复制到剪贴板</div>
+          <div class="funnel">
+            <div class="fs"><div class="fn">412</div><div class="fl">点击</div></div>
+            <div class="fs"><div class="fn">96</div><div class="fl">注册</div></div>
+            <div class="fs"><div class="fn">63</div><div class="fl">有效开卡</div></div>
+            <div class="fs"><div class="fn">15.3%</div><div class="fl">开卡转化率</div></div>
+          </div>
+        </div>
+        <div class="qr-wrap">
+          <div class="qr"></div>
+          <div class="qr-cap">推广二维码 · 扫码直达注册页</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 返佣记录 -->
+  <div class="card">
+    <div class="card-h">
+      <h3>📑 返佣记录</h3>
+      <div class="seg">
+        <button class="seg-btn active" data-v="usdt" onclick="showTab('usdt')">USDT 返佣</button>
+        <button class="seg-btn" data-v="points" onclick="showTab('points')">Points 返点</button>
+      </div>
+    </div>
+
+    <!-- USDT -->
+    <div id="tab-usdt">
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr><th>时间</th><th>事件</th><th>下级客户</th><th>卡产品</th><th>USDT 返佣</th><th>状态</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="mono">2026-09-16 10:22</td><td>开卡返佣</td><td>Marco L.***</td><td>Gold Elite Card</td><td class="amt-pos">+$60.00</td><td><span class="chip green">已结算</span></td></tr>
+            <tr><td class="mono">2026-09-16 14:03</td><td>充值返佣</td><td>Marco L.***</td><td>Gold Elite Card</td><td class="amt-pos">+$0.60</td><td><span class="chip green">已结算</span></td></tr>
+            <tr><td class="mono">2026-09-15 09:15</td><td>充值返佣</td><td>Ada W.***</td><td>Premium Rewards Card</td><td class="amt-pos">+$1.75</td><td><span class="chip green">已结算</span></td></tr>
+            <tr><td class="mono">2026-09-14 18:40</td><td>开卡返佣</td><td>Kevin T.***</td><td>Standard Debit Card</td><td class="amt-pos">+$5.00</td><td><span class="chip gold">待结算</span></td></tr>
+            <tr><td class="mono">2026-09-13 11:02</td><td>Clawback 追回</td><td>Kevin T.***</td><td>Standard Debit Card</td><td class="amt-neg">-$5.00</td><td><span class="chip red">已追回</span></td></tr>
+            <tr><td class="mono">2026-09-12 16:28</td><td>充值返佣</td><td>Ada W.***</td><td>Travel Prepaid Card</td><td class="amt-pos">+$6.13</td><td><span class="chip green">已结算</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pg">
+        <span>共 86 条记录 · 累计返佣 $325.30</span>
+        <div class="pg-btns">
+          <button class="pg-b">上一页</button>
+          <button class="pg-b on">1</button>
+          <button class="pg-b">2</button>
+          <button class="pg-b">3</button>
+          <button class="pg-b">下一页</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Points -->
+    <div id="tab-points" class="hidden">
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr><th>时间</th><th>业务类型</th><th>业务信息</th><th>奖励</th><th>状态</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="mono">2026-09-16 10:22</td><td>开卡返点</td><td>Marco L.*** 开通 Gold Elite Card</td><td class="amt-pos">+60.00 yasbee+</td><td><span class="chip green">已入账</span></td></tr>
+            <tr><td class="mono">2026-09-16 14:03</td><td>充值返点</td><td>Marco L.*** 充值 $200</td><td class="amt-pos">+4.00 yasbee+</td><td><span class="chip green">已入账</span></td></tr>
+            <tr><td class="mono">2026-09-15 09:15</td><td>充值返点</td><td>Ada W.*** 充值 $500</td><td class="amt-pos">+10.00 yasbee+</td><td><span class="chip green">已入账</span></td></tr>
+            <tr><td class="mono">2026-09-14 18:40</td><td>开卡返点</td><td>Kevin T.*** 开通 Standard Debit Card</td><td class="amt-pos">+5.00 yasbee+</td><td><span class="chip gold">待入账</span></td></tr>
+            <tr><td class="mono">2026-09-13 11:02</td><td>奖励撤回</td><td>Kevin T.*** 退卡，开卡返点撤回</td><td class="amt-neg">-5.00 yasbee+</td><td><span class="chip red">已撤回</span></td></tr>
+            <tr><td class="mono">2026-09-12 16:28</td><td>充值返点</td><td>Ada W.*** 充值 $2,450</td><td class="amt-pos">+49.00 yasbee+</td><td><span class="chip green">已入账</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pg">
+        <span>共 64 条记录 · 累计 560.00 yasbee+</span>
+        <div class="pg-btns">
+          <button class="pg-b">上一页</button>
+          <button class="pg-b on">1</button>
+          <button class="pg-b">2</button>
+          <button class="pg-b">下一页</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 我的返佣比例 -->
+  <div class="card">
+    <div class="card-h">
+      <h3>📊 我的返佣比例</h3>
+      <span class="hint">按卡产品单独配置 · 调整请联系商务经理</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>卡产品</th><th>渠道</th><th>开卡返佣（USDT）</th><th>充值返佣（USDT）</th><th>来源</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Standard Debit Card</td><td>Stripe</td><td class="mono">$5.00 / 单</td><td class="mono">0.30%</td><td><span class="chip gold">单独配置</span></td></tr>
+          <tr><td>Premium Rewards Card</td><td>Stripe</td><td class="mono">$8.00 / 单</td><td class="mono">0.35%</td><td><span class="chip gold">单独配置</span></td></tr>
+          <tr><td>Gold Elite Card</td><td>Stripe</td><td class="mono">$60.00 / 单</td><td class="mono">0.20%</td><td><span class="chip gold">单独配置</span></td></tr>
+          <tr><td>Travel Prepaid Card</td><td>Interlace</td><td class="mono">$6.00 / 单</td><td class="mono">0.25%</td><td><span class="chip gray">平台默认</span></td></tr>
+          <tr><td>Business Expense Card</td><td>Marqeta</td><td class="mono">$6.00 / 单</td><td class="mono">0.25%</td><td><span class="chip gray">平台默认</span></td></tr>
+          <tr><td>Flexible Prepaid</td><td>Marqeta</td><td class="mono">$6.00 / 单</td><td class="mono">0.25%</td><td><span class="chip gray">平台默认</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="note">
+    <span>ℹ️</span>
+    <div>返佣以 <b>USDT</b> 结算，Points 返点计入 yasbee+ 奖励记录。比例调整<b>仅对调整生效后新发生的业务</b>适用，调整前已产生的返佣不受影响。客户退卡或发生异常时，对应返佣将自动追回。</div>
+  </div>
+</div>
+
+<script>
+function showTab(v){
+  document.getElementById('tab-usdt').classList.toggle('hidden', v!=='usdt');
+  document.getElementById('tab-points').classList.toggle('hidden', v!=='points');
+  document.querySelectorAll('.seg-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.v===v); });
+}
+function copyLink(){
+  var t = document.getElementById('copyTip');
+  t.style.display = 'block';
+  setTimeout(function(){ t.style.display='none'; }, 2000);
+}
+</script>
+</body>
+</html>

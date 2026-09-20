@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>代理返佣调整 - YASBee Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', -apple-system, sans-serif; background: #f5f6fa; color: #1a1d29; }
+.header { background: #fff; padding: 18px 32px; border-bottom: 1px solid #eef0f4; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.header h1 { font-size: 20px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+.header p { font-size: 13px; color: #6b7280; margin-top: 4px; }
+.crumb { font-size: 12.5px; color: #9ca3af; padding: 14px 32px 0; }
+.crumb a { color: #6b7280; text-decoration: none; }
+.crumb a:hover { color: #E59303; }
+.container { max-width: 1560px; margin: 0 auto; padding: 18px 32px 120px; }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; border: none; cursor: pointer; transition: all .2s; text-decoration: none; font-family: inherit; white-space: nowrap; }
+.btn-primary { background: #E59303; color: #fff; }
+.btn-primary:hover { background: #d08400; }
+.btn-secondary { background: #f3f4f6; color: #374151; }
+.btn-secondary:hover { background: #e5e7eb; }
+.btn-outline { background: #fff; border: 1px solid #e5e7eb; color: #374151; }
+.btn-outline:hover { border-color: #E59303; color: #E59303; }
+.btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 6px; }
+.pill { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 600; }
+.pill-signed { background: #eff6ff; color: #2563eb; }
+.pill-ok { background: #d1fae5; color: #059669; }
+.pill-gray { background: #f3f4f6; color: #6b7280; }
+.layout { display: grid; grid-template-columns: 400px 1fr; gap: 18px; align-items: start; margin-top: 16px; }
+.card { background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.04); overflow: hidden; margin-bottom: 18px; }
+.card-h { padding: 15px 20px; border-bottom: 1px solid #eef0f4; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.card-h h3 { font-size: 14.5px; font-weight: 600; }
+.card-h .hint { font-size: 12px; color: #9ca3af; font-weight: 400; }
+.card-b { padding: 18px 20px; }
+.info-line { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px dashed #eef0f4; font-size: 13px; }
+.info-line:last-child { border-bottom: none; }
+.info-line .k { color: #6b7280; flex-shrink: 0; }
+.info-line .v { font-weight: 600; text-align: right; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.perm-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 16px; background: #f9fafb; border: 1px solid #eef0f4; border-radius: 10px; margin-bottom: 12px; }
+.perm-row .pt { font-size: 13.5px; font-weight: 600; }
+.perm-row .pd { font-size: 12px; color: #6b7280; margin-top: 3px; line-height: 1.65; }
+.switch { position: relative; width: 46px; height: 26px; flex-shrink: 0; }
+.switch input { display: none; }
+.slider { position: absolute; inset: 0; background: #d1d5db; border-radius: 999px; cursor: pointer; transition: .2s; }
+.slider::before { content: ""; position: absolute; width: 20px; height: 20px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: .2s; }
+.switch input:checked + .slider { background: #E59303; }
+.switch input:checked + .slider::before { transform: translateX(20px); }
+.switch input:disabled + .slider { opacity: .55; cursor: not-allowed; }
+table { width: 100%; border-collapse: collapse; }
+thead { background: #f9fafb; }
+th { padding: 11px 14px; text-align: left; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: .03em; border-bottom: 1px solid #eef0f4; white-space: nowrap; }
+th.center, td.center { text-align: center; }
+td { padding: 12px 14px; font-size: 13px; border-bottom: 1px solid #f3f4f6; vertical-align: middle; white-space: nowrap; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: #fdfdfd; }
+.pct-input { width: 92px; text-align: center; border: 1px solid #d1d5db; border-radius: 6px; padding: 7px 8px; font-size: 13px; font-family: inherit; color: #1a1d29; }
+.pct-input:focus { outline: none; border-color: #E59303; box-shadow: 0 0 0 3px rgba(229,147,3,.10); }
+.pct-input::placeholder { color: #c4c9d4; }
+.def-val { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #6b7280; }
+.src-tag { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+.src-tag.custom { background: #fef3c7; color: #92400e; }
+.src-tag.def { background: #f3f4f6; color: #9ca3af; }
+.notice { display: flex; gap: 10px; background: #FFF7ED; border: 1px solid #FED7AA; border-radius: 10px; padding: 12px 15px; font-size: 12.5px; color: #9A3412; line-height: 1.75; margin-top: 14px; }
+.notice.blue { background: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
+.notice b { font-weight: 700; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group label { font-size: 12px; color: #6b7280; font-weight: 500; }
+.form-group textarea { padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 13px; font-family: inherit; outline: none; resize: vertical; min-height: 76px; }
+.form-group textarea:focus { border-color: #E59303; box-shadow: 0 0 0 3px rgba(229,147,3,.08); }
+.tl { position: relative; padding-left: 22px; }
+.tl::before { content: ""; position: absolute; left: 6px; top: 6px; bottom: 8px; width: 1px; background: #eef0f4; }
+.tl-i { position: relative; padding-bottom: 16px; }
+.tl-i:last-child { padding-bottom: 0; }
+.tl-i .dot { position: absolute; left: -22px; top: 3px; width: 13px; height: 13px; border-radius: 50%; border: 2px solid #d1d5db; background: #fff; }
+.tl-i.done .dot { background: #059669; border-color: #059669; }
+.tl-i.cur .dot { background: #F59E0B; border-color: #F59E0B; box-shadow: 0 0 0 4px rgba(245,158,11,.15); }
+.tl-i .t-t { font-size: 13px; font-weight: 600; }
+.tl-i .t-d { font-size: 12px; color: #9ca3af; margin-top: 2px; line-height: 1.6; }
+/* 签署存证 */
+.cert { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start; }
+.sig-img { width: 190px; height: 84px; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; overflow: hidden; }
+.sig-img svg { width: 90%; height: 70%; }
+.sig-img .stamp { position: absolute; right: 6px; bottom: 4px; font-size: 8.5px; color: #9ca3af; letter-spacing: .3px; }
+.cert-info { flex: 1; min-width: 190px; }
+.hash { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: #6b7280; word-break: break-all; line-height: 1.6; }
+.action-bar { position: fixed; left: 0; right: 0; bottom: 0; background: #fff; border-top: 1px solid #eef0f4; padding: 14px 32px; display: flex; justify-content: space-between; align-items: center; gap: 14px; box-shadow: 0 -2px 12px rgba(0,0,0,.04); z-index: 80; flex-wrap: wrap; }
+.action-bar .ab-left { font-size: 12.5px; color: #6b7280; }
+.action-bar .ab-right { display: flex; gap: 10px; }
+@media (max-width: 1200px) { .layout { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>代理返佣调整 <span class="pill pill-ok">● 已自动开通</span></h1>
+    <p>代理身份已由系统自动核验开通并按平台兜底值生效；此处仅做返 U 比例二次调整，无需审核动作</p>
+  </div>
+  <div style="display:flex;gap:10px;">
+    <a class="btn btn-outline" href="2026-09-18_代理管理_管理端.html">← 返回列表</a>
+  </div>
+</div>
+<div class="crumb"><a href="2026-09-18_代理管理_管理端.html">代理管理</a> / 返佣调整</div>
+
+<div class="container">
+<div class="layout">
+
+  <!-- ============ 左列：代理信息 ============ -->
+  <div>
+    <div class="card">
+      <div class="card-h"><h3>代理信息</h3><span class="pill pill-ok">已开通 · 兜底值生效</span></div>
+      <div class="card-b">
+        <div class="info-line"><span class="k">申请人</span><span class="v">陈立言</span></div>
+        <div class="info-line"><span class="k">账号邮箱</span><span class="v mono" style="font-size:12px">chenliyan@example.com</span></div>
+        <div class="info-line"><span class="k">手机号</span><span class="v mono">138****6217</span></div>
+        <div class="info-line"><span class="k">代理编号</span><span class="v mono">AG-8842</span></div>
+        <div class="info-line"><span class="k">实名状态</span><span class="v"><span class="pill pill-ok">已认证</span></span></div>
+        <div class="info-line"><span class="k">协议签署时间</span><span class="v">2026-09-18 14:32</span></div>
+        <div class="info-line"><span class="k">自动核验 / 开通时间</span><span class="v">2026-09-18 14:32（用时 1.2 秒）</span></div>
+        <div class="info-line"><span class="k">当前返佣来源</span><span class="v">3 项二次调整 · 3 项平台兜底</span></div>
+        <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-outline btn-sm" onclick="alert('调阅用户签署的协议全文（原型演示）')">查看协议全文</button>
+          <button class="btn btn-outline btn-sm" onclick="alert('查看该用户历史卡片业务与下级关系（原型演示）')">用户业务记录</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h3>电子签名与签署存证</h3><span class="hint">平台留存 · 仅可调阅</span></div>
+      <div class="card-b">
+        <div class="cert">
+          <div class="sig-img">
+            <svg viewBox="0 0 240 104" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22 74 C34 40 44 30 52 34 C60 38 52 62 44 72 C56 66 66 54 72 46 C70 58 74 68 84 66 C94 64 100 52 106 42 C102 60 104 70 116 68 C128 66 136 54 142 44 C138 62 142 72 154 68 C166 64 172 50 178 40 C176 58 182 70 196 64 C206 60 212 52 218 44"
+                fill="none" stroke="#1a1c20" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="stamp">陈立言 · 手写签名</span>
+          </div>
+          <div class="cert-info">
+            <div class="info-line"><span class="k">存证编号</span><span class="v mono" style="font-size:12px">ES-20260918-4F7A2C</span></div>
+            <div class="info-line"><span class="k">协议版本</span><span class="v">代理合作协议 v1.1</span></div>
+            <div class="info-line"><span class="k">签署时间</span><span class="v">2026-09-18 14:32:07</span></div>
+            <div class="info-line"><span class="k">签署 IP</span><span class="v mono">203.0.113.42</span></div>
+            <div class="info-line"><span class="k">签署设备</span><span class="v">Chrome 128 · macOS</span></div>
+          </div>
+        </div>
+        <div style="margin-top:12px;">
+          <div style="font-size:12px;color:#6b7280;margin-bottom:4px;">协议文本摘要（SHA-256）</div>
+          <div class="hash">a93f1c7d4b2e8f60c5a17d93e6b4f0281c73d5e9a0b6f4712c8d35e97a1b6f42</div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
+          <button class="btn btn-outline btn-sm" onclick="alert('存证明细：签名图像、签署人身份、时间戳、IP、设备指纹、协议版本与文本摘要。存证不可修改、不可删除。')">查看存证明细</button>
+          <button class="btn btn-outline btn-sm" onclick="alert('原型演示：下载签署存证 PDF（含签名图像与存证信息）。')">下载存证 PDF</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h3>流程记录</h3><span class="hint">无人工审核环节</span></div>
+      <div class="card-b">
+        <div class="tl">
+          <div class="tl-i done"><span class="dot"></span>
+            <div class="t-t">用户提交代理申请</div>
+            <div class="t-d">2026-09-18 14:30 · 客户端代理中心</div>
+          </div>
+          <div class="tl-i done"><span class="dot"></span>
+            <div class="t-t">签署《代理合作协议》v1.1 并留存电子签名</div>
+            <div class="t-d">2026-09-18 14:32 · IP 203.0.113.42 · 存证 ES-20260918-4F7A2C</div>
+          </div>
+          <div class="tl-i done"><span class="dot"></span>
+            <div class="t-t">系统自动核验通过</div>
+            <div class="t-d">2026-09-18 14:32 · 实名 ✓ 合规 ✓ · 系统自动，无人工审核</div>
+          </div>
+          <div class="tl-i done"><span class="dot"></span>
+            <div class="t-t">代理身份开通 · 平台兜底值生效</div>
+            <div class="t-d">2026-09-18 14:32 · 全部卡产品按兜底值生效</div>
+          </div>
+          <div class="tl-i cur"><span class="dot"></span>
+            <div class="t-t">返 U 比例二次调整</div>
+            <div class="t-d">当前步骤 · 按卡产品覆盖兜底值，留空项继续按兜底值执行</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h3>调整说明</h3><span class="hint">写入操作日志 · 不向用户展示</span></div>
+      <div class="card-b">
+        <div class="form-group">
+          <label>调整原因 / 依据（必填）</label>
+          <textarea id="adjReason" placeholder="例如：已电话沟通，因该代理金卡展业量突出，同意将 Gold Elite Card 开卡返 U 上调至 $8.00/单，其余卡产品维持平台兜底值。">已电话沟通：该代理金卡展业量突出，同意将 Gold Elite Card 开卡返 U 上调至 $8.00/单，其余卡产品维持平台兜底值。</textarea>
+        </div>
+        <div style="font-size:11.5px;color:#9ca3af;margin-top:8px;">保存调整时该原因必填，并连同修改前后数值一并写入操作日志。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 右列：返佣二次调整 ============ -->
+  <div>
+    <div class="card">
+      <div class="card-h"><h3>代理身份</h3><span class="hint">由系统自动开通，本页不可变更</span></div>
+      <div class="card-b">
+        <div class="perm-row">
+          <div>
+            <div class="pt">代理身份：已开通</div>
+            <div class="pd">2026-09-18 14:32 系统自动核验通过并开通，客户端「代理中心」已解锁。如需停用请返回列表操作。</div>
+          </div>
+          <label class="switch"><input type="checkbox" checked disabled><span class="slider"></span></label>
+        </div>
+        <div class="perm-row" style="margin-bottom:0;">
+          <div>
+            <div class="pt">Points 返点：按平台兜底值生效</div>
+            <div class="pd">Points 兜底值为平台统一配置，不支持代理级差异化调整；随开通即时生效，计入用户 yasbee+ 奖励记录。</div>
+          </div>
+          <label class="switch"><input type="checkbox" checked disabled><span class="slider"></span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h">
+        <h3>返 U 比例二次调整（按卡产品覆盖兜底值）</h3>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="hint">留空 = 按平台兜底值执行</span>
+          <button class="btn btn-secondary btn-sm" onclick="resetAll()">全部恢复为兜底值</button>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>卡产品</th>
+            <th class="center">渠道</th>
+            <th class="center">兜底开卡返佣<br><span style="font-weight:400;text-transform:none;letter-spacing:0">USD / 单</span></th>
+            <th class="center">兜底充值返佣<br><span style="font-weight:400;text-transform:none;letter-spacing:0">% 充值金额</span></th>
+            <th class="center">调整后开卡返佣<br><span style="font-weight:400;text-transform:none;letter-spacing:0">USD / 单</span></th>
+            <th class="center">调整后充值返佣<br><span style="font-weight:400;text-transform:none;letter-spacing:0">% 充值金额</span></th>
+            <th class="center">当前来源</th>
+          </tr>
+        </thead>
+        <tbody id="cardRows">
+          <tr>
+            <td>Standard Debit Card</td><td class="center">Stripe</td>
+            <td class="center def-val">$6.00</td><td class="center def-val">0.25%</td>
+            <td class="center"><input class="pct-input" data-def="6.00" placeholder="6.00" value="5.00"></td>
+            <td class="center"><input class="pct-input" data-def="0.25" placeholder="0.25" value="0.30"></td>
+            <td class="center"><span class="src-tag custom">商务调整</span></td>
+          </tr>
+          <tr>
+            <td>Premium Rewards Card</td><td class="center">Stripe</td>
+            <td class="center def-val">$6.00</td><td class="center def-val">0.25%</td>
+            <td class="center"><input class="pct-input" data-def="6.00" placeholder="6.00" value="8.00"></td>
+            <td class="center"><input class="pct-input" data-def="0.25" placeholder="0.25" value="0.35"></td>
+            <td class="center"><span class="src-tag custom">商务调整</span></td>
+          </tr>
+          <tr>
+            <td>Gold Elite Card</td><td class="center">Stripe</td>
+            <td class="center def-val">$6.00</td><td class="center def-val">0.25%</td>
+            <td class="center"><input class="pct-input" data-def="6.00" placeholder="6.00" value="60.00"></td>
+            <td class="center"><input class="pct-input" data-def="0.25" placeholder="0.25" value="0.20"></td>
+            <td class="center"><span class="src-tag custom">商务调整</span></td>
+          </tr>
+          <tr>
+            <td>Travel Prepaid Card</td><td class="center">Interlace</td>
+            <td class="center def-val">$6.00</td><td class="center def-val">0.25%</td>
+            <td class="center"><input class="pct-input" data-def="6.00" placeholder="6.00"></td>
+            <td class="center"><input class="pct-input" data-def="0.25" placeholder="0.25"></td>
+            <td class="center"><span class="src-tag def">平台兜底</span></td>
+          </tr>
+          <tr>
+            <td>Business Expense Card</td><td class="center">Marqeta</td>
+            <td class="center def-val">$6.00</td><td class="center def-val">0.25%</td>
+            <td class="center"><input class="pct-input" data-def="6.00" placeholder="6.00"></td>
+            <td class="center"><input class="pct-input" data-def="0.25" placeholder="0.25"></td>
+            <td class="center"><span class="src-tag def">平台兜底</span></td>
+          </tr>
+          <tr>
+            <td>Flexible Prepaid</td><td class="center">Marqeta</td>
+            <td class="center def-val">$6.00</td><td class="center def-val">0.25%</td>
+            <td class="center"><input class="pct-input" data-def="6.00" placeholder="6.00"></td>
+            <td class="center"><input class="pct-input" data-def="0.25" placeholder="0.25"></td>
+            <td class="center"><span class="src-tag def">平台兜底</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="padding:0 20px 20px;">
+        <div class="notice">
+          ⚡ <div><b>调整口径：</b>开卡返佣按 <b>USD / 单</b> 一次性计提；充值返佣为每笔充值金额的 <b>百分比</b>。<br>此处填写的值<b>覆盖</b>平台兜底值；<b>留空</b>的卡产品继续按兜底值执行。调整自保存之时起，<b>仅对之后新发生的下级业务</b>适用，不追溯已产生返佣。</div>
+        </div>
+        <div class="notice blue" style="margin-top:10px;">
+          📝 <div>所有调整都会写入<b>操作日志</b>（操作人、时间、卡产品、修改前后数值、调整原因），供争议追溯。Points 返点按平台兜底值执行，不在本页调整。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h3>调整历史（本代理）</h3><span class="hint">含系统自动开通记录</span></div>
+      <table>
+        <thead>
+          <tr>
+            <th>时间</th>
+            <th>操作人</th>
+            <th>变更项</th>
+            <th>调整前</th>
+            <th>调整后</th>
+            <th>调整原因</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">2026-09-18 14:33:51</td>
+            <td>admin@beeznis.com</td>
+            <td>Gold Elite Card · 开卡返佣</td>
+            <td class="mono" style="color:#9ca3af;text-decoration:line-through">兜底 $6.00</td>
+            <td class="mono" style="color:#059669;font-weight:700">$8.00</td>
+            <td>金卡展业量突出，电话沟通后上调</td>
+          </tr>
+          <tr>
+            <td class="mono">2026-09-18 14:32:07</td>
+            <td>system <span class="pill pill-gray">系统自动</span></td>
+            <td>代理身份开通 · 兜底值生效</td>
+            <td class="mono" style="color:#9ca3af;text-decoration:line-through">已签署协议</td>
+            <td class="mono" style="color:#059669;font-weight:700">已开通（6 项按兜底值）</td>
+            <td>自动核验通过（实名 ✓ 合规 ✓）</td>
+          </tr>
+          <tr>
+            <td class="mono">2026-09-18 14:32:07</td>
+            <td>system <span class="pill pill-gray">系统自动</span></td>
+            <td>电子签名存证留存</td>
+            <td class="mono" style="color:#9ca3af;text-decoration:line-through">未留存</td>
+            <td class="mono" style="color:#059669;font-weight:700">ES-20260918-4F7A2C</td>
+            <td>签署《代理合作协议》v1.1</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- 底部操作栏 -->
+<div class="action-bar">
+  <div class="ab-left">代理身份已自动开通，无需审核；调整保存后即时生效，仅对之后新发生的下级业务计算返佣。</div>
+  <div class="ab-right">
+    <button class="btn btn-secondary" onclick="resetAll()">恢复为平台兜底</button>
+    <button class="btn btn-primary" onclick="saveAdjust()">保存调整</button>
+  </div>
+</div>
+
+<script>
+function saveAdjust(){
+  var reason = document.getElementById('adjReason').value.trim();
+  if(!reason){ alert('请填写「调整原因 / 依据」，该原因会写入操作日志。'); return; }
+  var custom = 0, total = 0;
+  document.querySelectorAll('#cardRows tr').forEach(function(tr){
+    total++;
+    var inputs = tr.querySelectorAll('.pct-input');
+    var has = false;
+    inputs.forEach(function(x){ if(x.value.trim() !== '') has = true; });
+    if(has) custom++;
+  });
+  if(!confirm('确认保存本次返佣调整？\n\n二次调整：' + custom + ' 项 / 共 ' + total + ' 项卡产品\n其余 ' + (total - custom) + ' 项继续按平台兜底值执行\n\n调整仅对保存后新发生的下级业务适用。')) return;
+  alert('✅ 返佣调整已保存\n\n二次调整：' + custom + ' 项 · 平台兜底：' + (total - custom) + ' 项\n生效时间：即刻（仅对之后新发生的业务适用）\n调整原因已写入操作日志');
+  window.location.href = '2026-09-18_代理管理_管理端.html';
+}
+function resetAll(){
+  document.querySelectorAll('#cardRows .pct-input').forEach(function(i){ i.value = ''; });
+  document.querySelectorAll('#cardRows .src-tag').forEach(function(t){
+    t.textContent = '平台兜底';
+    t.className = 'src-tag def';
+  });
+  alert('已恢复为平台兜底值：全部卡产品的返 U 比例（开卡 $6.00 / 单、充值 0.25%）将按平台兜底值执行。');
+}
+// 输入即更新来源标签
+document.querySelectorAll('#cardRows tr').forEach(function(tr){
+  var inputs = tr.querySelectorAll('.pct-input'), tag = tr.querySelector('.src-tag');
+  if(!tag) return;
+  inputs.forEach(function(inp){
+    inp.addEventListener('input', function(){
+      var custom = false;
+      inputs.forEach(function(x){ if(x.value.trim() !== '') custom = true; });
+      tag.textContent = custom ? '商务调整' : '平台兜底';
+      tag.className = 'src-tag ' + (custom ? 'custom' : 'def');
+    });
+  });
+});
+</script>
+</body>
+</html>

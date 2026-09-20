@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>签署代理合作协议 | YASBee</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif;
+  background:#191b1f;color:#fff;min-height:100vh;font-size:14px;line-height:1.5}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  background:#2c2c2c;border-bottom:1px solid rgba(255,255,255,.06);padding:0 28px;min-height:60px;position:sticky;top:0;z-index:50}
+.brand{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:700;letter-spacing:.3px}
+.brand .mark{width:22px;height:22px;border-radius:7px;background:#FFCA00;color:#1F2329;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.top-right{display:flex;align-items:center;gap:12px;font-size:13px;color:rgba(255,255,255,.75)}
+.top-right .avatar{width:30px;height:30px;border-radius:50%;background:#FFCA00;color:#000;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+.container{max-width:1160px;margin:0 auto;padding:28px 24px 80px}
+.crumb{font-size:12.5px;color:rgba(255,255,255,.4);margin-bottom:14px}
+.crumb a{color:rgba(255,255,255,.62);text-decoration:none}
+.crumb a:hover{color:#FFCA00}
+.page-head{margin-bottom:20px}
+.page-head h1{font-size:23px;font-weight:700}
+.page-head p{color:rgba(255,255,255,.5);font-size:13px;margin-top:6px}
+.layout{display:grid;grid-template-columns:1fr 320px;gap:18px;align-items:start}
+/* 协议正文 */
+.doc{background:#1f2128;border:1px solid rgba(255,255,255,.10);border-radius:16px;overflow:hidden}
+.doc-head{padding:16px 22px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.doc-head h3{font-size:14.5px;font-weight:700}
+.doc-head .v{font-size:11.5px;color:rgba(255,255,255,.42)}
+.doc-body{max-height:520px;overflow-y:auto;padding:22px 24px;font-size:13px;line-height:2;color:rgba(255,255,255,.76)}
+.doc-body::-webkit-scrollbar{width:8px}
+.doc-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:4px}
+.doc-body h4{font-size:13.5px;font-weight:700;color:#fff;margin:20px 0 8px}
+.doc-body h4:first-child{margin-top:0}
+.doc-body p{margin-bottom:8px}
+.doc-body b{color:#FFCA00;font-weight:600}
+.doc-body .em{background:rgba(255,255,255,.05);border-left:2px solid rgba(255,202,0,.5);padding:10px 14px;border-radius:6px;margin:10px 0;font-size:12.5px;color:rgba(255,255,255,.66)}
+/* 侧栏 */
+.side{display:flex;flex-direction:column;gap:16px;position:sticky;top:80px}
+.card{background:#1f2128;border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:18px 18px 20px}
+.card h4{font-size:13.5px;font-weight:700;margin-bottom:12px}
+.kv{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;padding:7px 0;border-bottom:1px dashed rgba(255,255,255,.08)}
+.kv:last-child{border-bottom:none}
+.kv .k{color:rgba(255,255,255,.45)}
+.kv .v{color:rgba(255,255,255,.85);font-weight:600;text-align:right;word-break:break-all}
+.steps{display:flex;flex-direction:column;gap:12px;margin-top:2px}
+.st{display:flex;gap:10px;font-size:12.5px;color:rgba(255,255,255,.45)}
+.st.done{color:rgba(255,255,255,.8)}
+.st.cur{color:#FFCA00;font-weight:700}
+.st .sd{width:20px;height:20px;border-radius:50%;border:1px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:800;flex-shrink:0}
+.st.done .sd{background:rgba(74,222,128,.14);border-color:rgba(74,222,128,.45);color:#4ade80}
+.st.cur .sd{background:rgba(255,202,0,.16);border-color:rgba(255,202,0,.55);color:#FFCA00}
+/* 签署区 */
+.agree{display:flex;gap:11px;align-items:flex-start;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);
+  border-radius:12px;padding:14px 16px;cursor:pointer;transition:all .15s}
+.agree:hover{border-color:rgba(255,202,0,.4)}
+.agree.checked{border-color:rgba(255,202,0,.6);background:rgba(255,202,0,.08)}
+.box{width:18px;height:18px;border-radius:5px;border:1.5px solid rgba(255,255,255,.35);flex-shrink:0;margin-top:1px;
+  display:flex;align-items:center;justify-content:center;font-size:12px;color:#1F2329;transition:all .15s}
+.agree.checked .box{background:#FFCA00;border-color:#FFCA00}
+.agree .at{font-size:12.5px;color:rgba(255,255,255,.72);line-height:1.65}
+.agree .at a{color:#FFCA00;text-decoration:none}
+.sign-box{background:#1f2128;border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:18px}
+.sign-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.fld{display:flex;flex-direction:column;gap:5px}
+.fld label{font-size:11.5px;color:rgba(255,255,255,.45)}
+.fld input{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);border-radius:8px;color:#fff;
+  padding:9px 12px;font-size:13px;font-family:inherit;outline:none}
+.fld input:focus{border-color:rgba(255,202,0,.5)}
+.fld input:disabled{color:rgba(255,255,255,.55)}
+/* 手写签名板 */
+.pad-wrap{position:relative;margin-top:2px;border:1.5px dashed rgba(255,255,255,.25);border-radius:12px;overflow:hidden;background:#fff;transition:border-color .15s}
+.pad-wrap.signed{border:1.5px solid rgba(74,222,128,.65)}
+#pad{display:block;width:100%;height:190px;background:#fff;touch-action:none;cursor:crosshair}
+.pad-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;
+  pointer-events:none;color:#9aa0a6;font-size:13px}
+.pad-ph .big{font-size:15px;font-weight:600;color:#c2c6cc;letter-spacing:6px}
+.pad-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px}
+.pad-tip{font-size:11.5px;color:rgba(255,255,255,.45)}
+.sig-chip{font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5)}
+.sig-chip.on{background:rgba(74,222,128,.14);border-color:rgba(74,222,128,.5);color:#4ade80}
+.mini-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.78);
+  border-radius:8px;padding:5px 12px;font-size:12px;font-family:inherit;cursor:pointer;font-weight:600}
+.mini-btn:hover{border-color:#FFCA00;color:#FFCA00}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;border-radius:10px;
+  padding:12px 22px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;text-decoration:none;width:100%}
+.btn-gold{background:#FFCA00;color:#1F2329}
+.btn-gold:hover:not(:disabled){opacity:.88}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.tip{font-size:11.5px;color:rgba(255,255,255,.4);margin-top:10px;line-height:1.7;text-align:center}
+.evid{display:none}
+.evid.on{display:block}
+.evid .mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11.5px;color:#FFCA00;word-break:break-all}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.side{position:static}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="mark">Y</span>YASBee</div>
+  <div class="top-right"><span class="avatar">A</span></div>
+</div>
+
+<div class="container">
+  <div class="crumb"><a href="#">Rewards</a> / <a href="2026-09-18_代理申请入口_客户端.html">代理中心</a> / 签署协议</div>
+
+  <div class="page-head">
+    <h1>签署《YASBee 代理合作协议》</h1>
+    <p>完整阅读条款、勾选确认并以本人真实姓名手写电子签名后提交。系统将即时自动完成资格核验，通过后代理身份立即开通，电子签名与签署存证由平台留存。</p>
+  </div>
+
+  <div class="layout">
+    <!-- 协议正文 -->
+    <div class="doc">
+      <div class="doc-head">
+        <h3>YASBee 代理合作协议</h3>
+        <span class="v">版本 v1.1 · 生效日 2026-09-18</span>
+      </div>
+      <div class="doc-body">
+        <p>本协议由 YASBee（以下称「平台」）与申请成为代理的用户（以下称「代理方」）就代理推广合作事宜订立。代理方点击「确认签署并提交申请」即视为已完整阅读、理解并同意本协议全部条款。</p>
+
+        <h4>第一条　定义</h4>
+        <p>1.1 <b>代理方</b>：主动提交申请、签署本协议并经系统自动核验通过、具备推广平台卡片产品资格的用户。</p>
+        <p>1.2 <b>下级客户</b>：通过代理方专属推广链接完成注册，并在保护期内产生卡片业务关系的用户。</p>
+        <p>1.3 <b>返佣</b>：平台依据本协议及后台配置的返佣比例，就下级客户的卡片业务向代理方支付的佣金。</p>
+        <p>1.4 <b>兜底返佣比例</b>：平台统一设置的默认返佣与 Points 返点标准，在代理方未获单独调整时适用。</p>
+
+        <h4>第二条　代理资格与申请</h4>
+        <p>2.1 代理资格<b>不随注册自动获得</b>，须由用户主动提交申请、完成实名核验并签署本协议。协议签署提交后，平台系统<b>自动完成资格核验并即时开通</b>代理身份，无需人工审核等待。</p>
+        <p>2.2 代理方承诺所提交信息真实、准确、完整；信息变更应在 5 个工作日内更新。</p>
+        <p>2.3 平台有权基于合规、风控或业务原因不予开通申请（含系统自动核验未通过后转人工复核），或在其后暂停、终止代理资格。</p>
+        <p>2.4 <b>电子签名与存证</b>：本协议以电子方式签署。代理方在签署页手写录入的电子签名，连同签署时间、签署 IP、设备信息、协议版本及协议文本摘要，由平台作为<b>签署存证留存</b>，与书面签名具有同等效力。代理方可在「代理中心 · 协议与存证」查阅与下载。</p>
+
+        <h4>第三条　代理权限与展业</h4>
+        <p>3.1 代理方在代理资格生效后，可获得专属推广链接及推广素材，用于邀请客户使用平台卡片服务。</p>
+        <p>3.2 代理方应以自身名义独立开展推广，<b>不得以平台名义</b>对外签署合同、作出承诺或代为收取任何款项。</p>
+        <p>3.3 代理方不得擅自修改平台提供的推广素材中的费率、权益与合规声明。</p>
+
+        <h4>第四条　返佣标准与结算</h4>
+        <p>4.1 返佣比例按<b>卡产品维度</b>分别配置：同一代理方在不同卡产品上可适用不同的开卡返佣比例与充值返佣比例。</p>
+        <p>4.2 未单独配置的卡产品，自动适用平台设置的<b>兜底返佣比例</b>；平台新增卡产品上线时自动套用兜底值，无需逐个重新配置。</p>
+        <p>4.3 返佣以 <b>USDT</b> 结算；同时按平台兜底值产生 <b>Points（积分）返点</b>，计入奖励记录。</p>
+        <p>4.4 代理身份开通时，全部卡产品<b>即时按平台兜底值生效</b>。平台商务可基于代理方展业情况，对返U比例进行<b>二次调整</b>（按卡产品覆盖兜底值，未调整项继续按兜底值执行）；调整需记录原因并留存操作日志。</p>
+        <p>4.5 返佣比例调整自后台配置生效之时起，对生效后新发生的业务适用；<b>调整前已产生的返佣不受影响</b>。</p>
+        <div class="em">返佣系基于代理方推广服务支付的商业佣金，<b>不构成任何投资收益承诺或保本安排</b>。平台不承诺代理方的推广收入水平。</div>
+
+        <h4>第五条　客户归属与保护期</h4>
+        <p>5.1 经代理方专属链接注册的客户，在保护期内归属于该代理方。</p>
+        <p>5.2 客户归属以平台系统记录为准；同一客户存在多个推广来源时，以<b>首次有效归因</b>为准。</p>
+        <p>5.3 存在虚假注册、批量自邀、刷单等异常情形时，平台有权不予认定客户归属并追回已发返佣。</p>
+
+        <h4>第六条　合规与禁止行为</h4>
+        <p>6.1 代理方应遵守其所在地及业务所在地适用的反洗钱、反恐怖融资、制裁合规等法律法规。</p>
+        <p>6.2 禁止行为包括但不限于：虚假或夸大宣传；承诺收益、返本；使用敏感或违规素材；诱导客户提供虚假资料；协助规避平台风控或身份验证要求。</p>
+        <p>6.3 代理方违反前款约定的，平台有权立即暂停或终止代理资格，<b>追回相关返佣</b>，并追究相应责任。</p>
+
+        <h4>第七条　保密</h4>
+        <p>7.1 代理方对因履行本协议知悉的平台费率结构、返佣方案、客户信息等负有保密义务，未经书面同意不得向第三方披露。</p>
+
+        <h4>第八条　协议变更与终止</h4>
+        <p>8.1 平台调整本协议条款时，将通过代理中心或站内通知方式告知；代理方继续展业视为接受变更后的条款。</p>
+        <p>8.2 代理方可随时申请退出代理计划；退出后不再产生新的返佣，<b>已产生的应付返佣仍按约定结算</b>。</p>
+        <p>8.3 代理方存在严重违约或合规风险时，平台可立即终止本协议并暂停返佣结算。</p>
+
+        <h4>第九条　争议解决</h4>
+        <p>9.1 本协议的订立、效力、解释与争议解决适用平台注册地法律。</p>
+        <p>9.2 因本协议产生的争议，双方应先行友好协商；协商不成的，提交平台注册地有管辖权的机构解决。</p>
+      </div>
+    </div>
+
+    <!-- 侧栏 -->
+    <div class="side">
+      <div class="card">
+        <h4>申请信息</h4>
+        <div class="kv"><span class="k">申请账号</span><span class="v">alex.chen@example.com</span></div>
+        <div class="kv"><span class="k">实名状态</span><span class="v">已认证</span></div>
+        <div class="kv"><span class="k">当前身份</span><span class="v">普通用户</span></div>
+        <div class="kv"><span class="k">协议版本</span><span class="v">v1.1</span></div>
+      </div>
+
+      <div class="card">
+        <h4>流程进度</h4>
+        <div class="steps">
+          <div class="st done"><span class="sd">✓</span>发起代理申请</div>
+          <div class="st cur"><span class="sd">2</span>阅读并签署协议（电子签名）</div>
+          <div class="st"><span class="sd">3</span>系统自动核验（即时）</div>
+          <div class="st"><span class="sd">4</span>代理身份开通 · 兜底返佣生效</div>
+          <div class="st"><span class="sd">5</span>商务返佣二次调整（按需）</div>
+        </div>
+      </div>
+
+      <div class="card evid" id="evidCard">
+        <h4>签署存证（提交后留存）</h4>
+        <div class="kv"><span class="k">存证编号</span><span class="v mono">ES-20260918-4F7A2C</span></div>
+        <div class="kv"><span class="k">签署人</span><span class="v" id="evName">Alex Chen</span></div>
+        <div class="kv"><span class="k">签署时间</span><span class="v" id="evTime">2026-09-18 10:24:07 (GMT+8)</span></div>
+        <div class="kv"><span class="k">协议版本</span><span class="v">v1.1</span></div>
+        <div class="kv"><span class="k">签署 IP</span><span class="v">203.0.113.58</span></div>
+        <div class="kv"><span class="k">设备</span><span class="v">Chrome 141 / Windows</span></div>
+        <div class="kv"><span class="k">签名摘要</span><span class="v mono" id="evHash">sha256:a93f…c71d</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 签署区 -->
+  <div style="margin-top:18px">
+    <div class="agree" id="agreeRow" onclick="toggleAgree()">
+      <span class="box" id="agreeBox"></span>
+      <span class="at">我已完整阅读并同意 <a href="#" onclick="event.stopPropagation();return false;">《YASBee 代理合作协议》v1.1</a> 及 <a href="#" onclick="event.stopPropagation();return false;">《代理返佣规则说明（含兜底返佣比例）》</a>，并确认上述申请信息真实有效。</span>
+    </div>
+
+    <div class="sign-box" style="margin-top:14px">
+      <div class="fld" style="margin-bottom:14px">
+        <label>手写电子签名（必填）</label>
+        <div class="pad-wrap" id="padWrap">
+          <canvas id="pad" width="1120" height="380"></canvas>
+          <div class="pad-ph" id="padPh"><span class="big">在此签 名</span><span>请使用鼠标或手指，以本人真实姓名手写签名</span></div>
+        </div>
+        <div class="pad-bar">
+          <span class="pad-tip">签名将连同时间戳、IP、设备信息与协议摘要一并留存为签署存证，不可修改、不可撤销。</span>
+          <span style="display:flex;align-items:center;gap:8px">
+            <span class="sig-chip" id="sigChip">未签名</span>
+            <button class="mini-btn" type="button" onclick="clearPad()">清除重签</button>
+          </span>
+        </div>
+      </div>
+
+      <div class="sign-row">
+        <div class="fld"><label>签署人（须与实名一致）</label><input id="nameInput" value="Alex Chen" oninput="updateBtn()"></div>
+        <div class="fld"><label>签署日期</label><input value="2026-09-18" disabled></div>
+      </div>
+      <button class="btn btn-gold" id="signBtn" onclick="submitSign()" disabled>确认签署并提交申请</button>
+      <div class="tip">提交后系统即时自动核验并开通代理身份，返佣按平台<b style="color:#FFCA00">兜底值</b>立即生效；如自动核验未通过将转人工复核。协议与电子签名存证不可撤销。</div>
+    </div>
+  </div>
+</div>
+
+<script>
+var agreed = false, hasInk = false;
+
+var pad = document.getElementById('pad');
+var ctx = pad.getContext('2d');
+ctx.lineWidth = 3;
+ctx.lineCap = 'round';
+ctx.lineJoin = 'round';
+ctx.strokeStyle = '#14171c';
+var drawing = false;
+
+function padPos(e){
+  var r = pad.getBoundingClientRect();
+  var sx = pad.width / r.width, sy = pad.height / r.height;
+  var p = (e.touches && e.touches.length) ? e.touches[0] : e;
+  return { x: (p.clientX - r.left) * sx, y: (p.clientY - r.top) * sy };
+}
+function padStart(e){
+  e.preventDefault();
+  drawing = true;
+  var p = padPos(e);
+  ctx.beginPath();
+  ctx.moveTo(p.x, p.y);
+}
+function padMove(e){
+  if(!drawing){ return; }
+  e.preventDefault();
+  var p = padPos(e);
+  ctx.lineTo(p.x, p.y);
+  ctx.stroke();
+  if(!hasInk){
+    hasInk = true;
+    document.getElementById('padWrap').classList.add('signed');
+    document.getElementById('padPh').style.display = 'none';
+    document.getElementById('sigChip').textContent = '已签名';
+    document.getElementById('sigChip').classList.add('on');
+    document.getElementById('evidCard').classList.add('on');
+    updateBtn();
+  }
+}
+function padEnd(){ drawing = false; }
+
+pad.addEventListener('mousedown', padStart);
+pad.addEventListener('mousemove', padMove);
+window.addEventListener('mouseup', padEnd);
+pad.addEventListener('touchstart', padStart, {passive:false});
+pad.addEventListener('touchmove', padMove, {passive:false});
+pad.addEventListener('touchend', padEnd);
+
+function clearPad(){
+  ctx.clearRect(0, 0, pad.width, pad.height);
+  hasInk = false;
+  document.getElementById('padWrap').classList.remove('signed');
+  document.getElementById('padPh').style.display = 'flex';
+  document.getElementById('sigChip').textContent = '未签名';
+  document.getElementById('sigChip').classList.remove('on');
+  document.getElementById('evidCard').classList.remove('on');
+  updateBtn();
+}
+
+function toggleAgree(){
+  agreed = !agreed;
+  document.getElementById('agreeRow').classList.toggle('checked', agreed);
+  document.getElementById('agreeBox').textContent = agreed ? '✓' : '';
+  updateBtn();
+}
+
+function updateBtn(){
+  var named = document.getElementById('nameInput').value.trim().length > 0;
+  var ok = agreed && hasInk && named;
+  document.getElementById('signBtn').disabled = !ok;
+  if(hasInk){ document.getElementById('evName').textContent = document.getElementById('nameInput').value.trim() || 'Alex Chen'; }
+}
+
+function submitSign(){
+  if(document.getElementById('signBtn').disabled){ return; }
+  window.location.href = '2026-09-18_代理申请状态_客户端.html?state=opened';
+}
+</script>
+</body>
+</html>

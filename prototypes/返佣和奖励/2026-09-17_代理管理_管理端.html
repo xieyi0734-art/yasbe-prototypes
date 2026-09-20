@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>代理管理 - YASBee Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', -apple-system, sans-serif; background: #f5f6fa; color: #1a1d29; }
+.header { background: #fff; padding: 20px 32px; border-bottom: 1px solid #eef0f4; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.header h1 { font-size: 22px; font-weight: 600; }
+.header p { font-size: 13px; color: #6b7280; margin-top: 4px; }
+.subnav { background: #fff; border-bottom: 1px solid #eef0f4; padding: 0 32px; display: flex; gap: 4px; overflow-x: auto; }
+.subnav-item { padding: 14px 20px; font-size: 14px; font-weight: 500; color: #6b7280; cursor: pointer; text-decoration: none; border-bottom: 2px solid transparent; transition: all .15s; white-space: nowrap; }
+.subnav-item:hover { color: #1a1d29; }
+.subnav-item.active { color: #E59303; border-bottom-color: #E59303; font-weight: 600; }
+.container { max-width: 1500px; margin: 0 auto; padding: 24px 32px 60px; }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; border: none; cursor: pointer; transition: all .2s; text-decoration: none; font-family: inherit; white-space: nowrap; }
+.btn-primary { background: #E59303; color: #fff; }
+.btn-primary:hover { background: #d08400; }
+.btn-secondary { background: #f3f4f6; color: #374151; }
+.btn-secondary:hover { background: #e5e7eb; }
+.btn-outline { background: #fff; border: 1px solid #e5e7eb; color: #374151; }
+.btn-outline:hover { border-color: #E59303; color: #E59303; }
+.btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 6px; }
+.btn-danger { background: #fee2e2; color: #dc2626; }
+.btn-danger:hover { background: #fecaca; }
+.btn-ok { background: #d1fae5; color: #059669; }
+.btn-ok:hover { background: #a7f3d0; }
+/* ===== 统计条 ===== */
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+.stat { background: #fff; border-radius: 12px; padding: 16px 18px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+.stat .s-label { font-size: 12px; color: #6b7280; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.stat .s-value { font-size: 24px; font-weight: 700; letter-spacing: -.3px; }
+.stat .s-value.gold { color: #E59303; }
+.stat .s-value.green { color: #059669; }
+.stat .s-value.amber { color: #d97706; }
+.stat .s-sub { font-size: 11.5px; color: #9ca3af; margin-top: 4px; }
+/* ===== Tab ===== */
+.tabs { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+.tab { display: inline-flex; align-items: center; gap: 7px; padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: 500; color: #6b7280; background: #fff; border: 1px solid #eef0f4; cursor: pointer; transition: all .15s; }
+.tab:hover { border-color: #fcd34d; color: #1a1d29; }
+.tab.active { background: #E59303; border-color: #E59303; color: #fff; font-weight: 600; }
+.tab .cnt { font-size: 11.5px; font-weight: 700; background: #f3f4f6; color: #6b7280; border-radius: 999px; padding: 1px 8px; }
+.tab.active .cnt { background: rgba(255,255,255,.25); color: #fff; }
+.tab .cnt.alert { background: #fee2e2; color: #dc2626; }
+.tab.active .cnt.alert { background: rgba(255,255,255,.28); color: #fff; }
+/* ===== filters ===== */
+.filters { background: #fff; border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.04); display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+.filter-group { display: flex; flex-direction: column; gap: 4px; }
+.filter-group label { font-size: 12px; color: #6b7280; font-weight: 500; }
+.filter-group input, .filter-group select { padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; min-width: 170px; outline: none; transition: border-color .2s; font-family: inherit; background: #fff; }
+.filter-group input:focus, .filter-group select:focus { border-color: #E59303; box-shadow: 0 0 0 3px rgba(229,147,3,.08); }
+/* ===== table ===== */
+.table-wrapper { background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.04); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+thead { background: #f9fafb; }
+th { padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: .03em; border-bottom: 1px solid #eef0f4; white-space: nowrap; }
+td { padding: 14px 16px; font-size: 13px; border-bottom: 1px solid #f3f4f6; vertical-align: middle; white-space: nowrap; }
+tbody tr:hover td { background: #fdfdfd; }
+.avatar { width: 32px; height: 32px; border-radius: 50%; background: #fef3c7; color: #92400e; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; margin-right: 10px; vertical-align: middle; }
+.agent-cell { display: flex; align-items: center; }
+.agent-name { font-weight: 600; }
+.agent-email { font-size: 12px; color: #9ca3af; }
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 6px; font-size: 11.5px; font-weight: 500; }
+.badge-pending { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+.badge-active { background: #d1fae5; color: #059669; }
+.badge-rejected { background: #fee2e2; color: #dc2626; }
+.badge-off { background: #f3f4f6; color: #9ca3af; }
+.badge-signed { background: #eff6ff; color: #2563eb; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.ops { display: flex; gap: 6px; }
+.pagination { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-top: 1px solid #eef0f4; background: #fafbfc; flex-wrap: wrap; gap: 10px; }
+.pagination-info { font-size: 12px; color: #6b7280; }
+.pagination-btns { display: flex; gap: 4px; }
+.page-btn { padding: 6px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: #fff; font-size: 12px; color: #374151; cursor: pointer; transition: all .1s; font-family: inherit; }
+.page-btn:hover { border-color: #E59303; color: #E59303; }
+.page-btn.active { background: #E59303; color: #fff; border-color: #E59303; }
+/* 弹窗 */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 1000; overflow-y: auto; padding: 40px 16px; }
+.modal-overlay.active { display: flex; align-items: flex-start; justify-content: center; }
+.modal { background: #fff; border-radius: 16px; width: 100%; max-width: 640px; margin: auto; box-shadow: 0 20px 60px rgba(0,0,0,.12); }
+.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 28px; border-bottom: 1px solid #eef0f4; }
+.modal-header h2 { font-size: 17px; font-weight: 600; }
+.modal-close { width: 32px; height: 32px; border-radius: 8px; border: none; background: #f3f4f6; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #6b7280; }
+.modal-close:hover { background: #e5e7eb; }
+.modal-body { padding: 24px 28px; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 28px; border-top: 1px solid #eef0f4; }
+.form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.form-group label { font-size: 12px; color: #6b7280; font-weight: 500; }
+.form-group input, .form-group select, .form-group textarea { padding: 9px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; outline: none; font-family: inherit; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #E59303; box-shadow: 0 0 0 3px rgba(229,147,3,.08); }
+.info-line { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px dashed #eef0f4; font-size: 13px; }
+.info-line:last-child { border-bottom: none; }
+.info-line .k { color: #6b7280; }
+.info-line .v { font-weight: 600; }
+@media (max-width: 1100px) { .stats { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>代理管理</h1>
+    <p>承接客户端代理申请、审核开通与返佣配置</p>
+  </div>
+  <div style="display:flex;gap:10px;">
+    <button class="btn btn-outline" onclick="alert('导出当前筛选结果（原型演示）')">⬇ 导出</button>
+    <button class="btn btn-primary" onclick="alert('手动新增代理（保留原后台路径，用于存量用户补录）')">＋ 手动新增代理</button>
+  </div>
+</div>
+
+<div class="subnav">
+  <a class="subnav-item active" href="2026-09-17_代理管理_管理端.html">代理管理</a>
+  <a class="subnav-item" href="2026-09-17_代理返佣规则与日志_管理端.html">代理返佣规则</a>
+  <a class="subnav-item" href="2026-08-10_卡片代理返佣配置_管理端.html">卡片代理配置</a>
+  <a class="subnav-item" href="2026-08-11_返佣记录_管理端.html">返佣记录</a>
+  <a class="subnav-item" href="2026-08-10_结算记录_管理端.html">结算记录</a>
+</div>
+
+<div class="container">
+
+  <!-- 统计条 -->
+  <div class="stats">
+    <div class="stat">
+      <div class="s-label">⏳ 待处理申请</div>
+      <div class="s-value amber">3</div>
+      <div class="s-sub">已签署协议待商务对接</div>
+    </div>
+    <div class="stat">
+      <div class="s-label">✅ 已开通代理</div>
+      <div class="s-value green">5</div>
+      <div class="s-sub">其中 2 位本月新开通</div>
+    </div>
+    <div class="stat">
+      <div class="s-label">👥 代理下级客户总数</div>
+      <div class="s-value">286</div>
+      <div class="s-sub">有效开卡 148 人</div>
+    </div>
+    <div class="stat">
+      <div class="s-label">💰 本月已结算返佣</div>
+      <div class="s-value gold">$1,284.60</div>
+      <div class="s-sub">USDT 结算 · 含追回 -$12.00</div>
+    </div>
+  </div>
+
+  <!-- Tab -->
+  <div class="tabs">
+    <div class="tab" onclick="setTab(this)">全部 <span class="cnt">7</span></div>
+    <div class="tab active" onclick="setTab(this)">申请中 <span class="cnt alert">3</span></div>
+    <div class="tab" onclick="setTab(this)">已开通 <span class="cnt">3</span></div>
+    <div class="tab" onclick="setTab(this)">已拒绝 <span class="cnt">1</span></div>
+    <div class="tab" onclick="setTab(this)">已停用 <span class="cnt">0</span></div>
+  </div>
+
+  <!-- 筛选 -->
+  <div class="filters">
+    <div class="filter-group">
+      <label>搜索</label>
+      <input placeholder="姓名 / 邮箱 / 手机号 / 申请编号">
+    </div>
+    <div class="filter-group">
+      <label>协议签署</label>
+      <select><option>全部</option><option>已签署</option><option>未签署</option></select>
+    </div>
+    <div class="filter-group">
+      <label>申请时间</label>
+      <select><option>全部</option><option>今天</option><option>近 7 天</option><option>近 30 天</option></select>
+    </div>
+    <button class="btn btn-secondary" style="margin-left:auto;">重置</button>
+  </div>
+
+  <!-- 表格 -->
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>申请人</th>
+          <th>联系方式</th>
+          <th>实名状态</th>
+          <th>协议签署</th>
+          <th>申请时间</th>
+          <th>下级数</th>
+          <th>返佣方案</th>
+          <th>状态</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div class="agent-cell"><span class="avatar">陈</span>
+              <div><div class="agent-name">陈立言</div><div class="agent-email">chenliyan@example.com</div></div>
+            </div>
+          </td>
+          <td class="mono">138****6217</td>
+          <td><span class="badge badge-active">已认证</span></td>
+          <td><span class="badge badge-signed">已签署</span> <span style="font-size:11.5px;color:#9ca3af">09-17 14:32</span></td>
+          <td class="mono">2026-09-17 14:32</td>
+          <td>—</td>
+          <td>—</td>
+          <td><span class="badge badge-pending">● 申请中</span></td>
+          <td><div class="ops">
+            <a class="btn btn-primary btn-sm" href="2026-09-17_代理审核与返佣配置_管理端.html">审核 / 配置</a>
+            <button class="btn btn-outline btn-sm" onclick="openDetail('陈立言','chenliyan@example.com','138****6217','AG-APP-20260917-0413')">详情</button>
+          </div></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="agent-cell"><span class="avatar">王</span>
+              <div><div class="agent-name">王思远</div><div class="agent-email">wangsy@example.com</div></div>
+            </div>
+          </td>
+          <td class="mono">159****3382</td>
+          <td><span class="badge badge-active">已认证</span></td>
+          <td><span class="badge badge-signed">已签署</span> <span style="font-size:11.5px;color:#9ca3af">09-17 11:08</span></td>
+          <td class="mono">2026-09-17 11:08</td>
+          <td>—</td>
+          <td>—</td>
+          <td><span class="badge badge-pending">● 申请中</span></td>
+          <td><div class="ops">
+            <a class="btn btn-primary btn-sm" href="2026-09-17_代理审核与返佣配置_管理端.html">审核 / 配置</a>
+            <button class="btn btn-outline btn-sm" onclick="openDetail('王思远','wangsy@example.com','159****3382','AG-APP-20260917-0402')">详情</button>
+          </div></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="agent-cell"><span class="avatar">林</span>
+              <div><div class="agent-name">林可</div><div class="agent-email">linke@example.com</div></div>
+            </div>
+          </td>
+          <td class="mono">186****7704</td>
+          <td><span class="badge badge-active">已认证</span></td>
+          <td><span class="badge badge-signed">已签署</span> <span style="font-size:11.5px;color:#9ca3af">09-16 19:41</span></td>
+          <td class="mono">2026-09-16 19:41</td>
+          <td>—</td>
+          <td>—</td>
+          <td><span class="badge badge-pending">● 申请中</span></td>
+          <td><div class="ops">
+            <a class="btn btn-primary btn-sm" href="2026-09-17_代理审核与返佣配置_管理端.html">审核 / 配置</a>
+            <button class="btn btn-outline btn-sm" onclick="openDetail('林可','linke@example.com','186****7704','AG-APP-20260916-0398')">详情</button>
+          </div></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="agent-cell"><span class="avatar">A</span>
+              <div><div class="agent-name">Alex Chen</div><div class="agent-email">alex.chen@example.com</div></div>
+            </div>
+          </td>
+          <td class="mono">135****2201</td>
+          <td><span class="badge badge-active">已认证</span></td>
+          <td><span class="badge badge-signed">已签署</span> <span style="font-size:11.5px;color:#9ca3af">09-10 09:22</span></td>
+          <td class="mono">2026-09-10 09:22</td>
+          <td>128</td>
+          <td><span style="font-size:12px;color:#059669">3 项单独配置</span></td>
+          <td><span class="badge badge-active">● 已开通</span></td>
+          <td><div class="ops">
+            <a class="btn btn-outline btn-sm" href="2026-09-17_代理审核与返佣配置_管理端.html">返佣配置</a>
+            <button class="btn btn-outline btn-sm" onclick="alert('查看下级客户 / 返佣明细')">明细</button>
+            <button class="btn btn-danger btn-sm" onclick="alert('停用后该代理不再产生新返佣，已产生未结算部分仍按约定结算')">停用</button>
+          </div></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="agent-cell"><span class="avatar">M</span>
+              <div><div class="agent-name">Marco Liu</div><div class="agent-email">marco@example.com</div></div>
+            </div>
+          </td>
+          <td class="mono">137****8890</td>
+          <td><span class="badge badge-active">已认证</span></td>
+          <td><span class="badge badge-signed">已签署</span> <span style="font-size:11.5px;color:#9ca3af">09-08 15:03</span></td>
+          <td class="mono">2026-09-08 15:03</td>
+          <td>76</td>
+          <td><span style="font-size:12px;color:#6b7280">全部走平台默认</span></td>
+          <td><span class="badge badge-active">● 已开通</span></td>
+          <td><div class="ops">
+            <a class="btn btn-outline btn-sm" href="2026-09-17_代理审核与返佣配置_管理端.html">返佣配置</a>
+            <button class="btn btn-outline btn-sm" onclick="alert('查看下级客户 / 返佣明细')">明细</button>
+            <button class="btn btn-danger btn-sm" onclick="alert('停用后该代理不再产生新返佣，已产生未结算部分仍按约定结算')">停用</button>
+          </div></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="agent-cell"><span class="avatar">A</span>
+              <div><div class="agent-name">Ada Wang</div><div class="agent-email">ada.w@example.com</div></div>
+            </div>
+          </td>
+          <td class="mono">188****4451</td>
+          <td><span class="badge badge-active">已认证</span></td>
+          <td><span class="badge badge-signed">已签署</span> <span style="font-size:11.5px;color:#9ca3af">09-05 10:17</span></td>
+          <td class="mono">2026-09-05 10:17</td>
+          <td>52</td>
+          <td><span style="font-size:12px;color:#6b7280">全部走平台默认</span></td>
+          <td><span class="badge badge-active">● 已开通</span></td>
+          <td><div class="ops">
+            <a class="btn btn-outline btn-sm" href="2026-09-17_代理审核与返佣配置_管理端.html">返佣配置</a>
+            <button class="btn btn-outline btn-sm" onclick="alert('查看下级客户 / 返佣明细')">明细</button>
+            <button class="btn btn-danger btn-sm" onclick="alert('停用后该代理不再产生新返佣，已产生未结算部分仍按约定结算')">停用</button>
+          </div></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="agent-cell"><span class="avatar">K</span>
+              <div><div class="agent-name">Kevin Tan</div><div class="agent-email">kevin.t@example.com</div></div>
+            </div>
+          </td>
+          <td class="mono">150****9930</td>
+          <td><span class="badge badge-active">已认证</span></td>
+          <td><span class="badge badge-off">未签署</span></td>
+          <td class="mono">2026-09-04 16:50</td>
+          <td>—</td>
+          <td>—</td>
+          <td><span class="badge badge-rejected">● 已拒绝</span></td>
+          <td><div class="ops">
+            <button class="btn btn-outline btn-sm" onclick="openDetail('Kevin Tan','kevin.t@example.com','150****9930','AG-APP-20260904-0361')">查看原因</button>
+          </div></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="pagination">
+      <div class="pagination-info">共 7 条记录 · 当前筛选：申请中</div>
+      <div class="pagination-btns">
+        <button class="page-btn">上一页</button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">下一页</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 详情弹窗 -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>代理申请详情</h2>
+      <button class="modal-close" onclick="document.getElementById('detailModal').classList.remove('active')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="info-line"><span class="k">申请人</span><span class="v" id="d-name">—</span></div>
+      <div class="info-line"><span class="k">邮箱</span><span class="v mono" id="d-mail">—</span></div>
+      <div class="info-line"><span class="k">手机号</span><span class="v mono" id="d-phone">—</span></div>
+      <div class="info-line"><span class="k">申请编号</span><span class="v mono" id="d-id">—</span></div>
+      <div class="info-line"><span class="k">实名状态</span><span class="v">已认证（KYB 通过）</span></div>
+      <div class="info-line"><span class="k">协议签署</span><span class="v">已签署 · v1.0 · 2026-09-17 14:32</span></div>
+      <div class="info-line"><span class="k">签署 IP</span><span class="v mono">203.0.113.***</span></div>
+      <div style="margin-top:16px;background:#f9fafb;border:1px solid #eef0f4;border-radius:10px;padding:12px 14px;font-size:12.5px;color:#6b7280;line-height:1.75;">
+        协议签署记录已存证，可点击「查看协议」调阅用户签署版本全文。
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="document.getElementById('detailModal').classList.remove('active')">关闭</button>
+      <button class="btn btn-outline" onclick="alert('调阅协议全文（原型演示）')">查看协议</button>
+      <a class="btn btn-primary" href="2026-09-17_代理审核与返佣配置_管理端.html">前往审核</a>
+    </div>
+  </div>
+</div>
+
+<script>
+function setTab(el){
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  el.classList.add('active');
+}
+function openDetail(name, mail, phone, id){
+  document.getElementById('d-name').textContent = name;
+  document.getElementById('d-mail').textContent = mail;
+  document.getElementById('d-phone').textContent = phone;
+  document.getElementById('d-id').textContent = id;
+  document.getElementById('detailModal').classList.add('active');
+}
+</script>
+</body>
+</html>

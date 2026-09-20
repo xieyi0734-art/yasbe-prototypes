@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>代理申请状态 | YASBee</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif;
+  background:#191b1f;color:#fff;min-height:100vh;font-size:14px;line-height:1.5}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  background:#2c2c2c;border-bottom:1px solid rgba(255,255,255,.06);padding:0 28px;min-height:60px;position:sticky;top:0;z-index:50}
+.brand{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:700;letter-spacing:.3px}
+.brand .mark{width:22px;height:22px;border-radius:7px;background:#FFCA00;color:#1F2329;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.top-right{display:flex;align-items:center;gap:12px}
+.top-right .avatar{width:30px;height:30px;border-radius:50%;background:#FFCA00;color:#000;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+.container{max-width:1160px;margin:0 auto;padding:28px 24px 80px}
+.crumb{font-size:12.5px;color:rgba(255,255,255,.4);margin-bottom:14px}
+.crumb a{color:rgba(255,255,255,.62);text-decoration:none}
+.crumb a:hover{color:#FFCA00}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.page-head h1{font-size:23px;font-weight:700}
+.page-head p{color:rgba(255,255,255,.5);font-size:13px;margin-top:6px}
+/* state switcher（仅用于演示三态） */
+.switch-bar{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.sw-label{font-size:11.5px;color:rgba(255,255,255,.35)}
+.seg{display:inline-flex;gap:3px;padding:3px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09)}
+.seg-btn{appearance:none;font-family:inherit;font-size:12.5px;font-weight:700;color:rgba(255,255,255,.6);
+  background:transparent;border:0;border-radius:8px;padding:7px 16px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.seg-btn:hover{color:#fff}
+.seg-btn.active{background:#FFCA00;color:#000}
+/* status hero */
+.shero{position:relative;overflow:hidden;border-radius:18px;padding:28px 30px;margin-bottom:20px;border:1px solid;display:flex;gap:26px;align-items:center;flex-wrap:wrap}
+.shero.pending{border-color:rgba(255,202,0,.35);background:linear-gradient(120deg,#26210f,#1f2128 70%)}
+.shero.passed{border-color:rgba(74,222,128,.35);background:linear-gradient(120deg,#12261a,#1f2128 70%)}
+.shero.rejected{border-color:rgba(248,113,113,.32);background:linear-gradient(120deg,#2a1414,#1f2128 70%)}
+.shero .s-ico{width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.shero.pending .s-ico{background:rgba(255,202,0,.13);border:1px solid rgba(255,202,0,.4)}
+.shero.passed .s-ico{background:rgba(74,222,128,.13);border:1px solid rgba(74,222,128,.4)}
+.shero.rejected .s-ico{background:rgba(248,113,113,.13);border:1px solid rgba(248,113,113,.4)}
+.shero .s-main{flex:1;min-width:280px}
+.shero h2{font-size:21px;font-weight:800;margin-bottom:8px}
+.shero .s-desc{font-size:13px;color:rgba(255,255,255,.6);line-height:1.75;max-width:640px}
+.shero .s-actions{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;border-radius:999px;padding:5px 13px;margin-bottom:12px}
+.badge.pending{color:#FFCA00;background:rgba(255,202,0,.12);border:1px solid rgba(255,202,0,.35)}
+.badge.passed{color:#4ade80;background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.35)}
+.badge.rejected{color:#f87171;background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.32)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;border-radius:10px;
+  padding:11px 20px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;text-decoration:none}
+.btn-gold{background:#FFCA00;color:#1F2329}
+.btn-gold:hover{opacity:.88}
+.btn-ghost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);color:#fff}
+.btn-ghost:hover{border-color:rgba(255,202,0,.5);color:#FFCA00}
+.btn-red{background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.35);color:#f87171}
+.btn-red:hover{background:rgba(248,113,113,.2)}
+/* grid */
+.grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;align-items:start}
+.card{background:#1f2128;border:1px solid rgba(255,255,255,.10);border-radius:16px;overflow:hidden}
+.card-h{padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.card-h h3{font-size:14.5px;font-weight:700}
+.card-h .hint{font-size:11.5px;color:rgba(255,255,255,.4)}
+.card-b{padding:20px}
+/* timeline */
+.tl{position:relative;padding-left:26px}
+.tl::before{content:"";position:absolute;left:7px;top:6px;bottom:6px;width:1px;background:rgba(255,255,255,.12)}
+.tl-i{position:relative;padding-bottom:22px}
+.tl-i:last-child{padding-bottom:0}
+.tl-i .dot{position:absolute;left:-26px;top:2px;width:15px;height:15px;border-radius:50%;border:1.5px solid rgba(255,255,255,.2);background:#1f2128;display:flex;align-items:center;justify-content:center;font-size:9px;color:#1F2329}
+.tl-i.done .dot{background:#4ade80;border-color:#4ade80}
+.tl-i.cur .dot{background:#FFCA00;border-color:#FFCA00;box-shadow:0 0 0 4px rgba(255,202,0,.14)}
+.tl-i .t-t{font-size:13px;font-weight:700;color:#fff;margin-bottom:3px}
+.tl-i.todo .t-t{color:rgba(255,255,255,.42)}
+.tl-i .t-d{font-size:12px;color:rgba(255,255,255,.45);line-height:1.7}
+.tl-i.cur .t-d{color:rgba(255,202,0,.75)}
+/* kv list */
+.kv{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;padding:9px 0;border-bottom:1px dashed rgba(255,255,255,.08)}
+.kv:last-child{border-bottom:none}
+.kv .k{color:rgba(255,255,255,.45)}
+.kv .v{color:rgba(255,255,255,.85);font-weight:600;text-align:right}
+/* table */
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{text-align:left;padding:10px 18px;font-size:12px;color:rgba(255,255,255,.45);font-weight:500;border-bottom:1px solid rgba(255,255,255,.10);white-space:nowrap}
+tbody td{padding:13px 18px;border-bottom:1px solid rgba(255,255,255,.08);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:rgba(255,255,255,.02)}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;border-radius:6px;padding:3px 9px}
+.chip.gray{background:rgba(255,255,255,.06);color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.10)}
+.chip.gold{background:rgba(255,202,0,.12);color:#FFCA00;border:1px solid rgba(255,202,0,.3)}
+.chip.green{background:rgba(74,222,128,.12);color:#4ade80;border:1px solid rgba(74,222,128,.3)}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.note{display:flex;gap:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);border-radius:12px;padding:13px 16px;font-size:12.5px;color:rgba(255,255,255,.62);line-height:1.75;margin-top:16px}
+.note.warn{background:rgba(248,113,113,.06);border-color:rgba(248,113,113,.25)}
+.note b{color:#FFCA00}
+.hidden{display:none}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="mark">Y</span>YASBee</div>
+  <div class="top-right"><span class="avatar">A</span></div>
+</div>
+
+<div class="container">
+  <div class="crumb"><a href="#">Rewards</a> / <a href="2026-09-17_代理申请入口_客户端.html">代理中心</a> / 申请状态</div>
+
+  <div class="page-head">
+    <div>
+      <h1>代理申请</h1>
+      <p>申请提交后不可重复发起，如需补充材料请联系为您对接的商务经理。</p>
+    </div>
+  </div>
+
+  <div class="switch-bar">
+    <span class="sw-label">状态演示（原型用）：</span>
+    <div class="seg">
+      <button class="seg-btn active" data-v="pending" onclick="showState('pending')">审核中</button>
+      <button class="seg-btn" data-v="passed" onclick="showState('passed')">已通过</button>
+      <button class="seg-btn" data-v="rejected" onclick="showState('rejected')">已拒绝</button>
+    </div>
+  </div>
+
+  <!-- ===== 状态 A：审核中 ===== -->
+  <div id="st-pending">
+    <div class="shero pending">
+      <div class="s-ico">⏳</div>
+      <div class="s-main">
+        <span class="badge pending">● 待商务对接</span>
+        <h2>代理资格申请中，请等待商务经理联系</h2>
+        <div class="s-desc">您的申请已于 2026-09-17 14:32 提交，协议签署记录已存证。商务经理将在 <b style="color:#FFCA00">1–3 个工作日</b>内通过您预留的联系方式与您对接，沟通合作模式与返佣标准。</div>
+        <div class="s-actions">
+          <a class="btn btn-ghost" href="#">联系客服</a>
+          <button class="btn btn-red" onclick="alert('撤回申请后需重新签署协议，确认撤回？')">撤回申请</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-h"><h3>申请进度</h3><span class="hint">共 5 步</span></div>
+        <div class="card-b">
+          <div class="tl">
+            <div class="tl-i done"><span class="dot">✓</span>
+              <div class="t-t">发起代理申请</div>
+              <div class="t-d">2026-09-17 14:30 · 代理中心</div>
+            </div>
+            <div class="tl-i done"><span class="dot">✓</span>
+              <div class="t-t">签署代理合作协议</div>
+              <div class="t-d">2026-09-17 14:32 · 协议版本 v1.0</div>
+            </div>
+            <div class="tl-i cur"><span class="dot"></span>
+              <div class="t-t">平台审核 / 商务对接</div>
+              <div class="t-d">进行中 · 商务经理将于 1–3 个工作日内联系您</div>
+            </div>
+            <div class="tl-i todo"><span class="dot"></span>
+              <div class="t-t">洽谈返佣方案</div>
+              <div class="t-d">确定各卡产品的开卡返佣与充值返佣比例</div>
+            </div>
+            <div class="tl-i todo"><span class="dot"></span>
+              <div class="t-t">代理身份开通</div>
+              <div class="t-d">后台配置完成后解锁代理中心与返佣看板</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><h3>申请信息</h3></div>
+        <div class="card-b">
+          <div class="kv"><span class="k">申请编号</span><span class="v mono">AG-APP-20260917-0413</span></div>
+          <div class="kv"><span class="k">申请账号</span><span class="v">alex.chen@example.com</span></div>
+          <div class="kv"><span class="k">实名状态</span><span class="v">已认证</span></div>
+          <div class="kv"><span class="k">提交时间</span><span class="v">2026-09-17 14:32</span></div>
+          <div class="kv"><span class="k">协议版本</span><span class="v">v1.0</span></div>
+          <div class="kv"><span class="k">当前状态</span><span class="v"><span class="chip gold">待商务对接</span></span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note">
+      <span>ℹ️</span>
+      <div>审核期间<b>不会产生任何返佣</b>。代理身份自后台配置完成之时起生效，返佣仅对生效后新发生的下级业务计算。</div>
+    </div>
+  </div>
+
+  <!-- ===== 状态 B：已通过 ===== -->
+  <div id="st-passed" class="hidden">
+    <div class="shero passed">
+      <div class="s-ico">✅</div>
+      <div class="s-main">
+        <span class="badge passed">● 代理身份已开通</span>
+        <h2>恭喜，您已成为 YASBee 代理</h2>
+        <div class="s-desc">代理编号 <b style="color:#4ade80">AG-8842</b>，返佣方案已于 2026-09-17 配置生效。您现在可获取专属推广链接开展展业，并查看 USDT 返佣与 Points 返点记录。</div>
+        <div class="s-actions">
+          <a class="btn btn-gold" href="2026-09-17_代理中心_客户端.html">进入代理中心</a>
+          <a class="btn btn-ghost" href="#">查看返佣方案</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h3>已生效返佣方案</h3><span class="hint">按卡产品单独配置 · 最终以商务确认方案为准</span></div>
+      <table>
+        <thead>
+          <tr><th>卡产品</th><th>渠道</th><th>开卡返佣（USDT）</th><th>充值返佣（USDT）</th><th>来源</th><th>生效时间</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Standard Debit Card</td><td>Stripe</td><td class="mono">$5.00 / 单</td><td class="mono">0.30%</td><td><span class="chip gold">单独配置</span></td><td>2026-09-17 16:20</td></tr>
+          <tr><td>Premium Rewards Card</td><td>Stripe</td><td class="mono">$8.00 / 单</td><td class="mono">0.35%</td><td><span class="chip gold">单独配置</span></td><td>2026-09-17 16:20</td></tr>
+          <tr><td>Gold Elite Card</td><td>Stripe</td><td class="mono">$60.00 / 单</td><td class="mono">0.20%</td><td><span class="chip gold">单独配置</span></td><td>2026-09-17 16:20</td></tr>
+          <tr><td>Travel Prepaid Card</td><td>Interlace</td><td class="mono">$6.00 / 单</td><td class="mono">0.25%</td><td><span class="chip gray">平台默认</span></td><td>2026-09-17 16:20</td></tr>
+          <tr><td>Business Expense Card</td><td>Marqeta</td><td class="mono">$6.00 / 单</td><td class="mono">0.25%</td><td><span class="chip gray">平台默认</span></td><td>2026-09-17 16:20</td></tr>
+          <tr><td>Flexible Prepaid</td><td>Marqeta</td><td class="mono">$6.00 / 单</td><td class="mono">0.25%</td><td><span class="chip gray">平台默认</span></td><td>2026-09-17 16:20</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note">
+      <span>ℹ️</span>
+      <div>未单独配置的卡产品自动应用<b>平台默认返佣比例</b>；新增卡产品上线时同样默认应用该比例，如需差异化可联系商务经理调整。</div>
+    </div>
+  </div>
+
+  <!-- ===== 状态 C：已拒绝 ===== -->
+  <div id="st-rejected" class="hidden">
+    <div class="shero rejected">
+      <div class="s-ico">⚠️</div>
+      <div class="s-main">
+        <span class="badge rejected">● 申请未通过</span>
+        <h2>很抱歉，本次代理申请未通过</h2>
+        <div class="s-desc">审核时间 2026-09-17 16:05。原因：<span style="color:#f87171">当前账号暂无有效卡片业务记录，暂不满足代理准入条件。</span>您可在满足条件后重新提交申请，或联系客服了解具体准入要求。</div>
+        <div class="s-actions">
+          <a class="btn btn-gold" href="2026-09-17_代理协议签署_客户端.html">重新申请</a>
+          <a class="btn btn-ghost" href="#">联系客服</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-h"><h3>审核记录</h3></div>
+        <div class="card-b">
+          <div class="tl">
+            <div class="tl-i done"><span class="dot">✓</span>
+              <div class="t-t">发起代理申请</div><div class="t-d">2026-09-17 14:30</div>
+            </div>
+            <div class="tl-i done"><span class="dot">✓</span>
+              <div class="t-t">签署代理合作协议</div><div class="t-d">2026-09-17 14:32 · v1.0</div>
+            </div>
+            <div class="tl-i done"><span class="dot">✕</span>
+              <div class="t-t">审核未通过</div>
+              <div class="t-d">2026-09-17 16:05 · 审核人：商务 王** · 原因：暂无有效卡片业务记录</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>重新申请条件</h3></div>
+        <div class="card-b">
+          <div class="kv"><span class="k">实名认证</span><span class="v"><span class="chip green">已满足</span></span></div>
+          <div class="kv"><span class="k">有效卡片业务记录</span><span class="v"><span class="chip gray">未满足</span></span></div>
+          <div class="kv"><span class="k">无合规风险标记</span><span class="v"><span class="chip green">已满足</span></span></div>
+          <div class="kv"><span class="k">可重新申请时间</span><span class="v">2026-09-24 起</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note warn">
+      <span>⚠️</span>
+      <div>被拒绝的申请<b>不影响</b>您作为普通用户使用平台服务；如对审核结果有异议，可通过客服发起申诉。</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showState(v){
+  ['pending','passed','rejected'].forEach(function(k){
+    document.getElementById('st-'+k).classList.toggle('hidden', k!==v);
+  });
+  document.querySelectorAll('.seg-btn').forEach(function(b){
+    b.classList.toggle('active', b.dataset.v===v);
+  });
+}
+</script>
+</body>
+</html>

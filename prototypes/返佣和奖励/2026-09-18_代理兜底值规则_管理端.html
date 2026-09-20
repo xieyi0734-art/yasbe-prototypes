@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>代理兜底值规则与操作日志 - YASBee Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', -apple-system, sans-serif; background: #f5f6fa; color: #1a1d29; }
+.header { background: #fff; padding: 20px 32px; border-bottom: 1px solid #eef0f4; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.header h1 { font-size: 22px; font-weight: 600; }
+.header p { font-size: 13px; color: #6b7280; margin-top: 4px; }
+.subnav { background: #fff; border-bottom: 1px solid #eef0f4; padding: 0 32px; display: flex; gap: 4px; overflow-x: auto; }
+.subnav-item { padding: 14px 20px; font-size: 14px; font-weight: 500; color: #6b7280; cursor: pointer; text-decoration: none; border-bottom: 2px solid transparent; transition: all .15s; white-space: nowrap; }
+.subnav-item:hover { color: #1a1d29; }
+.subnav-item.active { color: #E59303; border-bottom-color: #E59303; font-weight: 600; }
+.container { max-width: 1500px; margin: 0 auto; padding: 24px 32px 60px; }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; border: none; cursor: pointer; transition: all .2s; text-decoration: none; font-family: inherit; white-space: nowrap; }
+.btn-primary { background: #E59303; color: #fff; }
+.btn-primary:hover { background: #d08400; }
+.btn-secondary { background: #f3f4f6; color: #374151; }
+.btn-secondary:hover { background: #e5e7eb; }
+.btn-outline { background: #fff; border: 1px solid #e5e7eb; color: #374151; }
+.btn-outline:hover { border-color: #E59303; color: #E59303; }
+.btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 6px; }
+.card { background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.04); overflow: hidden; margin-bottom: 18px; }
+.card-h { padding: 16px 20px; border-bottom: 1px solid #eef0f4; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.card-h h3 { font-size: 14.5px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.card-h h3 .idx { width: 22px; height: 22px; border-radius: 6px; background: #fef3c7; color: #92400e; font-size: 11.5px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
+.card-h .hint { font-size: 12px; color: #9ca3af; font-weight: 400; }
+.card-b { padding: 20px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group label { font-size: 12px; color: #6b7280; font-weight: 500; }
+.form-group .desc { font-size: 11.5px; color: #9ca3af; line-height: 1.6; }
+.fld { display: flex; align-items: stretch; }
+.fld input { flex: 1; padding: 9px 12px; border: 1px solid #d1d5db; border-right: none; border-radius: 8px 0 0 8px; font-size: 13px; font-family: inherit; outline: none; }
+.fld input:focus { border-color: #E59303; box-shadow: 0 0 0 3px rgba(229,147,3,.08); }
+.fld .unit { display: flex; align-items: center; padding: 0 13px; background: #f9fafb; border: 1px solid #d1d5db; border-radius: 0 8px 8px 0; font-size: 12.5px; color: #6b7280; font-weight: 600; }
+.row-inline { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.perm-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px 15px; background: #f9fafb; border: 1px solid #eef0f4; border-radius: 10px; margin-top: 14px; }
+.perm-row .pt { font-size: 13px; font-weight: 600; }
+.perm-row .pd { font-size: 12px; color: #6b7280; margin-top: 2px; line-height: 1.6; }
+.switch { position: relative; width: 46px; height: 26px; flex-shrink: 0; }
+.switch input { display: none; }
+.slider { position: absolute; inset: 0; background: #d1d5db; border-radius: 999px; cursor: pointer; transition: .2s; }
+.slider::before { content: ""; position: absolute; width: 20px; height: 20px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: .2s; }
+.switch input:checked + .slider { background: #E59303; }
+.switch input:checked + .slider::before { transform: translateX(20px); }
+.notice { display: flex; gap: 10px; border-radius: 10px; padding: 12px 15px; font-size: 12.5px; line-height: 1.75; margin-top: 16px; }
+.notice.amber { background: #FFF7ED; border: 1px solid #FED7AA; color: #9A3412; }
+.notice.blue { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+.notice b { font-weight: 700; }
+table { width: 100%; border-collapse: collapse; }
+thead { background: #f9fafb; }
+th { padding: 11px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: .03em; border-bottom: 1px solid #eef0f4; white-space: nowrap; }
+td { padding: 13px 16px; font-size: 13px; border-bottom: 1px solid #f3f4f6; vertical-align: middle; white-space: nowrap; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: #fdfdfd; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.old { color: #9ca3af; text-decoration: line-through; }
+.new { color: #059669; font-weight: 700; }
+.badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 6px; font-size: 11.5px; font-weight: 500; }
+.badge-gold { background: #fef3c7; color: #92400e; }
+.badge-gray { background: #f3f4f6; color: #6b7280; }
+.badge-green { background: #d1fae5; color: #059669; }
+.badge-red { background: #fee2e2; color: #dc2626; }
+.badge-blue { background: #eff6ff; color: #2563eb; }
+.pagination { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-top: 1px solid #eef0f4; background: #fafbfc; flex-wrap: wrap; gap: 10px; }
+.pagination-info { font-size: 12px; color: #6b7280; }
+.pagination-btns { display: flex; gap: 4px; }
+.page-btn { padding: 6px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: #fff; font-size: 12px; color: #374151; cursor: pointer; font-family: inherit; }
+.page-btn:hover { border-color: #E59303; color: #E59303; }
+.page-btn.active { background: #E59303; color: #fff; border-color: #E59303; }
+.filters { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+.filter-group { display: flex; flex-direction: column; gap: 4px; }
+.filter-group label { font-size: 12px; color: #6b7280; font-weight: 500; }
+.filter-group input, .filter-group select { padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; min-width: 160px; font-family: inherit; outline: none; background: #fff; }
+.filter-group input:focus, .filter-group select:focus { border-color: #E59303; box-shadow: 0 0 0 3px rgba(229,147,3,.08); }
+@media (max-width: 1000px) { .grid2, .row-inline { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>代理兜底值规则</h1>
+    <p>配置返 U 与 Points 的平台兜底值（全局默认）：代理身份自动开通时立即套用，商务可在此基础上对单个代理做二次调整</p>
+  </div>
+  <button class="btn btn-primary" onclick="alert('✅ 兜底值已保存，立即对自动开通的代理与未单独配置的卡产品生效')">保存兜底值</button>
+</div>
+
+<div class="subnav">
+  <a class="subnav-item" href="2026-09-18_代理管理_管理端.html">代理管理</a>
+  <a class="subnav-item active" href="2026-09-18_代理兜底值规则_管理端.html">代理兜底值规则</a>
+  <a class="subnav-item" href="2026-08-10_卡片代理返佣配置_管理端.html">卡片代理配置</a>
+  <a class="subnav-item" href="2026-08-11_返佣记录_管理端.html">返佣记录</a>
+  <a class="subnav-item" href="2026-08-10_结算记录_管理端.html">结算记录</a>
+</div>
+
+<div class="container">
+
+  <!-- ① 平台兜底返佣值（返 U） -->
+  <div class="card">
+    <div class="card-h">
+      <h3><span class="idx">1</span>平台兜底返佣值（返 U）</h3>
+      <span class="hint">代理身份自动开通时立即套用；未做二次调整的卡产品按此执行</span>
+    </div>
+    <div class="card-b">
+      <div class="grid2">
+        <div class="form-group">
+          <label>兜底开卡返佣</label>
+          <div class="fld"><input value="6.00"><span class="unit">USD / 单</span></div>
+          <div class="desc">客户开卡成功时，按此金额一次性计入代理返 U。自动审核通过并开通的代理立即按此值生效。</div>
+        </div>
+        <div class="form-group">
+          <label>兜底充值返佣</label>
+          <div class="fld"><input value="0.25"><span class="unit">% 充值金额</span></div>
+          <div class="desc">客户每笔充值金额乘以该比例，实时计提返 U。</div>
+        </div>
+      </div>
+
+      <div class="perm-row">
+        <div>
+          <div class="pt">新卡产品自动套用兜底值</div>
+          <div class="pd">开启后，后台新增卡产品上线时，所有代理自动获得该兜底返佣值，无需逐个重新配置。</div>
+        </div>
+        <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+      </div>
+
+      <div class="notice amber">
+        ⚡ <div><b>优先级说明：</b>代理二次调整值 <b>&gt;</b> 平台兜底值。商务做的二次调整按卡产品覆盖兜底值，未调整项继续按兜底值执行。兜底值修改<b>仅对修改生效后</b>新发生的业务适用，不影响已产生的返佣记录；调整会在下方操作日志中留痕。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② 平台兜底 Points 返点 -->
+  <div class="card">
+    <div class="card-h">
+      <h3><span class="idx">2</span>平台兜底 Points 返点（积分）</h3>
+      <span class="badge badge-gray">平台统一 · 不做代理级差异化</span>
+    </div>
+    <div class="card-b">
+      <div class="row-inline">
+        <div class="form-group">
+          <label>兜底充值返点比例</label>
+          <div class="fld"><input value="0.02"><span class="unit">% 充值金额</span></div>
+          <div class="desc">下级客户每笔充值，代理按此比例获得 Points 返点。</div>
+        </div>
+        <div class="form-group">
+          <label>兜底开卡返点</label>
+          <div class="fld"><input value="10"><span class="unit">yasbee+ / 单</span></div>
+          <div class="desc">下级客户开卡成功，代理按此固定值获得 Points 返点。</div>
+        </div>
+      </div>
+      <div class="notice blue" style="margin-top:16px;">
+        📌 <div>Points 兜底值为<b>平台统一配置</b>，对所有代理一致适用，代理身份自动开通时立即生效。本次仅<b>返 U 比例</b>支持按代理二次调整，Points 返点不支持代理级差异化。返点计入客户 yasbee+ 奖励记录，与 USDT 返 U 并行发放。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ 兜底值与二次调整的生效关系 -->
+  <div class="card">
+    <div class="card-h">
+      <h3><span class="idx">3</span>兜底值与二次调整的生效关系</h3>
+      <span class="hint">代理级二次调整入口：代理管理 → 返佣调整</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>优先级</th>
+          <th>生效值</th>
+          <th>配置方</th>
+          <th>何时生效</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge badge-green">1 · 优先</span></td>
+          <td>代理二次调整值（按卡产品覆盖兜底值）</td>
+          <td>商务经理</td>
+          <td>保存调整后即时生效，仅对之后新发生的业务适用</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-gold">2 · 兜底</span></td>
+          <td>平台兜底值（本页第 1 项 + 第 2 项）</td>
+          <td>平台运营</td>
+          <td>代理身份自动开通时立即套用；新增卡产品上线时自动套用</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-gray">3 · 变更</span></td>
+          <td>兜底值修改</td>
+          <td>平台运营</td>
+          <td>仅对修改生效后新发生的业务适用，不追溯已产生返佣</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ④ 操作日志 -->
+  <div class="card">
+    <div class="card-h">
+      <h3><span class="idx">4</span>兜底值 / 返佣配置操作日志</h3>
+      <span class="hint">记录代理身份自动开通、电子签名存证、兜底值变更与二次调整，用于争议追溯</span>
+    </div>
+    <div class="card-b" style="padding-bottom:0;">
+      <div class="filters">
+        <div class="filter-group">
+          <label>操作对象</label>
+          <input placeholder="代理编号 / 卡产品 / 操作人">
+        </div>
+        <div class="filter-group">
+          <label>变更项</label>
+          <select><option>全部</option><option>兜底开卡返佣</option><option>兜底充值返佣</option><option>兜底 Points 返点</option><option>代理二次调整</option><option>代理身份</option><option>电子签名存证</option><option>换绑/关系变更</option></select>
+        </div>
+        <div class="filter-group">
+          <label>时间范围</label>
+          <select><option>近 7 天</option><option>今天</option><option>近 30 天</option><option>全部</option></select>
+        </div>
+        <button class="btn btn-outline" style="margin-left:auto;" onclick="alert('导出操作日志 CSV（原型演示）')">⬇ 导出日志</button>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>操作时间</th>
+          <th>操作人</th>
+          <th>操作对象</th>
+          <th>变更项</th>
+          <th>修改前</th>
+          <th>修改后</th>
+          <th>来源 IP</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="mono">2026-09-18 14:32:07</td>
+          <td>system <span class="badge badge-gray">系统自动</span></td>
+          <td>代理 AG-8842 <span class="badge badge-blue">Alex Chen</span></td>
+          <td>电子签名存证</td>
+          <td class="old">未留存</td>
+          <td class="new mono">已留存 ES-20260918-4F7A2C（手写签名 · 协议 v1.1）</td>
+          <td class="mono">203.0.113.***</td>
+        </tr>
+        <tr>
+          <td class="mono">2026-09-18 14:32:07</td>
+          <td>system <span class="badge badge-gray">系统自动</span></td>
+          <td>代理 AG-8842 <span class="badge badge-blue">Alex Chen</span></td>
+          <td>代理身份</td>
+          <td class="old">已签署协议</td>
+          <td class="new">自动核验通过 · 已开通（兜底值生效）</td>
+          <td class="mono">203.0.113.***</td>
+        </tr>
+        <tr>
+          <td class="mono">2026-09-18 14:33:51</td>
+          <td>admin@beeznis.com</td>
+          <td>代理 AG-8842 <span class="badge badge-blue">Alex Chen</span></td>
+          <td>Gold Elite Card · 返 U 二次调整</td>
+          <td class="old mono">兜底 $6.00 / 单</td>
+          <td class="new mono">$8.00 / 单</td>
+          <td class="mono">203.0.113.***</td>
+        </tr>
+        <tr>
+          <td class="mono">2026-09-17 16:20:41</td>
+          <td>admin@beeznis.com</td>
+          <td>代理 AG-8842 <span class="badge badge-blue">Alex Chen</span></td>
+          <td>Gold Elite Card · 开卡返佣</td>
+          <td class="old mono">平台兜底 $6.00</td>
+          <td class="new mono">$60.00</td>
+          <td class="mono">203.0.113.***</td>
+        </tr>
+        <tr>
+          <td class="mono">2026-09-17 16:20:41</td>
+          <td>admin@beeznis.com</td>
+          <td>代理 AG-8842 <span class="badge badge-blue">Alex Chen</span></td>
+          <td>Standard Debit Card · 充值返佣</td>
+          <td class="old mono">平台兜底 0.25%</td>
+          <td class="new mono">0.30%</td>
+          <td class="mono">203.0.113.***</td>
+        </tr>
+        <tr>
+          <td class="mono">2026-09-17 11:45:18</td>
+          <td>ops.wang@beeznis.com</td>
+          <td>平台兜底值 <span class="badge badge-gold">全局</span></td>
+          <td>兜底充值返佣</td>
+          <td class="old mono">0.20%</td>
+          <td class="new mono">0.25%</td>
+          <td class="mono">198.51.100.***</td>
+        </tr>
+        <tr>
+          <td class="mono">2026-09-16 18:02:33</td>
+          <td>ops.wang@beeznis.com</td>
+          <td>代理 AG-7715 <span class="badge badge-blue">Marco Liu</span></td>
+          <td>Premium Rewards Card · 开卡返佣</td>
+          <td class="old mono">$5.00</td>
+          <td class="new mono">$8.00</td>
+          <td class="mono">198.51.100.***</td>
+        </tr>
+        <tr>
+          <td class="mono">2026-09-15 10:33:07</td>
+          <td>admin@beeznis.com</td>
+          <td>代理 AG-6612 <span class="badge badge-blue">Ada Wang</span></td>
+          <td>代理身份</td>
+          <td class="old">已开通</td>
+          <td class="new">已停用</td>
+          <td class="mono">203.0.113.***</td>
+        </tr>
+        <tr>
+          <td class="mono">2026-09-14 15:20:55</td>
+          <td>ops.wang@beeznis.com</td>
+          <td>平台兜底值 <span class="badge badge-gold">全局</span></td>
+          <td>兜底开卡返佣</td>
+          <td class="old mono">$5.00</td>
+          <td class="new mono">$6.00</td>
+          <td class="mono">198.51.100.***</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="pagination">
+      <div class="pagination-info">共 128 条记录 · 近 7 天 26 条</div>
+      <div class="pagination-btns">
+        <button class="page-btn">上一页</button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <button class="page-btn">下一页</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
