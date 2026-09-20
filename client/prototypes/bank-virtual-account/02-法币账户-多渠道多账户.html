@@ -712,22 +712,6 @@ body.hide-pmnote .pmnote{display:none!important}
         <div class="sec-label" data-i18n="step3L">确认信息</div>
         <div class="sec-label" style="margin-top:0" data-i18n="accNameL">账户名称</div>
         <input class="name-input" id="cfName" placeholder="请输入账户名称">
-        <div class="sec-label" style="margin-top:16px" data-i18n="destL">资金归集（平台托管）</div>
-        <div class="form-fields" style="margin-top:8px">
-          <div>
-            <label class="lbl" data-i18n="destCoin">归集稳定币</label>
-            <select class="input" id="destCoin" disabled><option value="USDC">USDC</option></select>
-          </div>
-          <div>
-            <label class="lbl" data-i18n="destRail">归集网络</label>
-            <select class="input" id="destRail" disabled><option value="Base">Base</option></select>
-          </div>
-          <div style="grid-column:1/-1">
-            <label class="lbl" data-i18n="destAddr">YASBe 官方托管钱包</label>
-            <input class="input" id="destAddr" readonly value="0x71C7656EC7ab88b098defB751B7401B5f6d8976F">
-            <div class="helper" data-i18n="destAddrHelp">入账资金将自动兑换为稳定币并归集至本平台官方托管钱包（地址由平台托管，无需填写个人钱包地址），折算后计入您的可用余额。</div>
-          </div>
-        </div>
         <div class="sec-label" style="margin-top:16px" data-i18n="obPreview">开通后将获得</div>
         <div class="fields" id="cfFields" style="margin-top:8px"></div>
         <div class="note-box" id="cfRefNote"></div>
@@ -1027,7 +1011,8 @@ const T = {
     f_bankName:'收款银行', f_bankAddress:'银行地址', f_holder:'账户持有人名称', f_accountNumber:'账户号码', f_routingNumber:'ABA 路由号码', f_iban:'IBAN', f_bic:'SWIFT / BIC', f_sortCode:'Sort Code', f_payInRef:'附言 Reference（必填）',
     // open flow
     obChoose:'已开通', accNameL:'账户名称',
-    destL:'资金归集（平台托管）', destCoin:'归集稳定币', destRail:'归集网络', destAddr:'YASBe 官方托管钱包', destAddrHelp:'入账资金将自动兑换为稳定币并归集至本平台官方托管钱包（地址由平台托管，无需填写个人钱包地址），折算后计入您的可用余额。',
+    destL:'资金归集（平台托管）', destCoin:'归集稳定币', destRail:'归集网络', destAddr:'YASBe 官方托管钱包',
+    cfAcquireHint:'账户开通成功后，系统将展示完整的收款信息（收款银行、账户号码、路由号码等），可直接复制用于收款。',
     obPreview:'开通后将获得', f_holderAddr:'账户持有人地址',
     openSuccess:'账户开通成功', crTitle:'正在开通您的账户…', crDesc:'通常只需几秒钟，请稍候',
     openSubmitted:'开户申请已提交，进入人工复核，最迟下一工作日反馈结果；复核通过后账户将自动开通。', kycApprovedPromote:'演示：复核已通过，「开通中」的账户已转为「已开通」。',
@@ -1163,7 +1148,8 @@ const T = {
     refNotNeeded:'Dedicated account — no memo required, funds match automatically.',
     f_bankName:'Beneficiary Bank', f_bankAddress:'Bank Address', f_holder:'Account Holder', f_accountNumber:'Account Number', f_routingNumber:'Routing (ABA)', f_iban:'IBAN', f_bic:'SWIFT / BIC', f_sortCode:'Sort Code', f_payInRef:'Reference (Required)',
     obChoose:'opened', accNameL:'Account name',
-    destL:'Fund settlement (platform custody)', destCoin:'Settled stablecoin', destRail:'Settlement network', destAddr:'YASBe official custody wallet', destAddrHelp:'Incoming funds auto-convert to stablecoin and are swept to the YASBe official custody wallet (platform-managed — no personal wallet address needed); the value is credited to your available balance.',
+    destL:'Fund settlement (platform custody)', destCoin:'Settled stablecoin', destRail:'Settlement network', destAddr:'YASBe official custody wallet',
+    cfAcquireHint:'Once your account is active, the full receiving details (bank, account number, routing number) will be shown here — ready to copy for deposits.',
     obPreview:'You will receive', f_holderAddr:'Beneficiary Address',
     openSuccess:'Account opened', crTitle:'Opening your account…', crDesc:'This usually takes a few seconds',
     openSubmitted:'Application submitted for manual review; you will be notified by the next business day and the account opens automatically once approved.', kycApprovedPromote:'Demo: review approved — the "Opening" account is now "Active".',
@@ -1806,19 +1792,17 @@ function renderConfirm(){
   const c=CURRENCIES.find(x=>x.code===flow.cur);
   flow.preview=mockAccount(flow.cur);
   const a=flow.preview;
-  // 到账去向固定为平台官方托管钱包（托管归集），用户无需填写任何个人钱包地址
-  document.getElementById('destCoin').value=(a.dest&&a.dest.coin)||'USDC';
-  document.getElementById('destRail').value=(a.dest&&a.dest.rail)||'Base';
-  document.getElementById('destAddr').value=(a.dest&&a.dest.addr)||PLATFORM_WALLET_ADDR;
   const fL={
     bankName:[t('f_bankName'),a.bank.bankName], bankAddress:[t('f_bankAddress'),a.bank.bankAddress],
-    holder:[t('f_holder'),accHolder(a)], holderAddr:[t('f_holderAddr'),a.bank.holderAddr],
+    holder:[t('f_holder'),accHolder(a)], holderAddr:[t('f_holderAddr'),a.bank.holderAddr[S.lang]||a.bank.holderAddr.zh],
     accountNumber:[t('f_accountNumber'),a.bank.accountNumber], routingNumber:[t('f_routingNumber'),a.bank.routingNumber],
     iban:[t('f_iban'),a.bank.iban], bic:[t('f_bic'),a.bank.bic], sortCode:[t('f_sortCode'),a.bank.sortCode], payInRef:[t('f_payInRef'),a.bank.payInRef]
   };
-  const fields=RAIL_FIELDS[a.rails[0]].filter(k=>fL[k]&&fL[k][1]).map(k=>`<div class="field"><span class="k">${fL[k][0]}</span><span class="v">${fL[k][1]}</span></div>`).join('');
+  // 开户成功后由通道返回的收款信息（银行/账号/路由/IBAN/附言）在开通前不可知，确认页不展示
+  const preIssued=['bankName','bankAddress','accountNumber','routingNumber','iban','bic','sortCode','payInRef'];
+  const fields=RAIL_FIELDS[a.rails[0]].filter(k=>fL[k]&&fL[k][1]&&preIssued.indexOf(k)<0).map(k=>`<div class="field"><span class="k">${fL[k][0]}</span><span class="v">${fL[k][1]}</span></div>`).join('');
   document.getElementById('cfName').value=defaultAccName(flow.cur);
-  document.getElementById('cfFields').innerHTML=`<div class="sec-label" style="margin-top:0">${c.flag} ${c.code} · ${a.rails.map(r=>t('r_'+r)).join(' / ')}</div>${fields}`;
+  document.getElementById('cfFields').innerHTML=`<div class="sec-label" style="margin-top:0">${c.flag} ${c.code} · ${a.rails.map(r=>t('r_'+r)).join(' / ')}</div>${fields}<div class="helper" style="margin-top:8px" data-i18n="cfAcquireHint">${t('cfAcquireHint')}</div>`;
   document.getElementById('cfRefNote').innerHTML=a.bank.payInRef?t('refNote'):t('refNotNeeded');
   // 说明文案按去向区分：已认证→即时开通（cfNoteReady）；首次提交且非人工复核→秒批即时开通（cfNoteInstant）；高风险/标注→随资料人工复核（cfNoteReview）
   const isUsd=flow.cur==='USD';
@@ -1879,8 +1863,7 @@ function updateObNextState(){
     }
     btn.disabled=!openpaydComplete(); return;
   }
-  const addr=document.getElementById('destAddr').value.trim();
-  let ok=!!(addr && document.getElementById('agreeBox').checked);
+  let ok=document.getElementById('agreeBox').checked;
   // 首次开户（未认证）已在第 2 步完成 Bridge 托管 ToS 签署并取得 signed_agreement_id
   if(flow.cur==='USD' && S.kyc!=='approved') ok=ok && !!tosSigned;
   btn.disabled=!ok;
@@ -1951,7 +1934,6 @@ function eaComplete(){return (EA_TYPE_FIELDS[eaf.type]||[]).every(k=>eaFieldErr(
 function bindEaValidators(){document.querySelectorAll('#eaFields [data-ea]').forEach(el=>{const box=document.createElement('div');box.className='err-msg';box.setAttribute('data-ea-err',el.getAttribute('data-ea')); el.parentNode.appendChild(box); const upd=()=>{const k=el.getAttribute('data-ea'); if(!(EA_TYPE_FIELDS[eaf.type]||[]).includes(k)){box.style.display='none';el.classList.remove('invalid');return;} const err=eaFieldErr(k); box.textContent=err||'';box.style.display=err?'block':'none'; el.classList.toggle('invalid',!!err); updateEaNext();}; el.addEventListener('blur',upd); el.addEventListener('input',upd); el.addEventListener('change',upd);});}
 function updateEaNext(){const b=document.getElementById('eaNext');if(!b)return; b.disabled=eaf.step===2?!eaComplete():!eaf.type;}
 function eaFocusErr(){for(const k of (EA_TYPE_FIELDS[eaf.type]||[])){const el=document.querySelector('#eaFields [data-ea="'+k+'"]');if(!el)continue; const err=eaFieldErr(k); if(err!==null){const box=document.querySelector('#eaFields [data-ea-err="'+k+'"]'); if(box){box.textContent=err;box.style.display='block';} el.classList.add('invalid');if(el.focus)el.focus();return;}}}
-document.getElementById('destAddr').addEventListener('input',updateObNextState);
 document.getElementById('agreeBox').addEventListener('change',updateObNextState);
 document.getElementById('agreeBridge').addEventListener('change',updateObNextState);
 ['input','change'].forEach(ev=>document.getElementById('kfForm').addEventListener(ev,()=>{ toggleTr(); renderSofDocs(); updateObNextState(); }));
@@ -2005,7 +1987,7 @@ function confirmCreate(){
     }
     const nm=document.getElementById('cfName').value.trim();
     a.name={zh:nm||defaultAccName(flow.cur), en:nm||defaultAccName(flow.cur)};
-    a.dest={coin:document.getElementById('destCoin').value, rail:document.getElementById('destRail').value, addr:document.getElementById('destAddr').value.trim()};
+    a.dest={coin:'USDC', rail:'Base', addr:PLATFORM_WALLET_ADDR};
     ACCOUNTS.push(a);
     if(willReview)a.status='PENDING';
     renderAll();

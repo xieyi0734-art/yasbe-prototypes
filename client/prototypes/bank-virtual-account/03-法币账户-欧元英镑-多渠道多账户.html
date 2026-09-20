@@ -1214,7 +1214,7 @@ function renderConfirm(){
   const a=flow.preview;
   const fL={
     bankName:[t('f_bankName'),a.bank.bankName], bankAddress:[t('f_bankAddress'),a.bank.bankAddress],
-    holder:[t('f_holder'),accHolder(a)], holderAddr:[t('f_holderAddr'),a.bank.holderAddr],
+    holder:[t('f_holder'),accHolder(a)], holderAddr:[t('f_holderAddr'),a.bank.holderAddr[S.lang]||a.bank.holderAddr.zh],
     accountNumber:[t('f_accountNumber'),a.bank.accountNumber],
     iban:[t('f_iban'),a.bank.iban], bic:[t('f_bic'),a.bank.bic], sortCode:[t('f_sortCode'),a.bank.sortCode], payInRef:[t('f_payInRef'),a.bank.payInRef]
   };
