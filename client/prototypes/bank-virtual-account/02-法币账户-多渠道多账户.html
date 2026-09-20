@@ -1,0 +1,2426 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>法币账户 · 多渠道多账户原型</title>
+<style>
+:root{
+  --app-bg:#F7F8FA; --card:#FAF9F7; --card-border:#E5E7EB;
+  --text:#1F2329; --muted:#6B7280; --muted-2:#9CA3AF; --sub:#F3F4F6;
+  --accent:#FFCA00; --accent-hover:#EEBD00; --accent-text:#1F2329;
+  --shadow:0 1px 2px rgba(16,18,22,.04),0 4px 16px rgba(16,18,22,.05);
+  --row-hover:#F6F7F9; --divider:#E7E9EC;
+  --green-bg:linear-gradient(90deg,rgba(46,204,113,.16),rgba(39,174,96,.16)); --green-bd:rgba(39,174,96,.42); --green-tx:#17824a;
+  --amber-bg:linear-gradient(90deg,rgba(245,158,11,.15),rgba(217,119,6,.15)); --amber-bd:rgba(217,119,6,.38); --amber-tx:#b45309;
+  --red-bg:linear-gradient(90deg,rgba(239,68,68,.13),rgba(220,38,38,.13)); --red-bd:rgba(220,38,38,.34); --red-tx:#b91c1c;
+  --gray-bg:linear-gradient(90deg,rgba(148,163,184,.16),rgba(100,116,139,.16)); --gray-bd:rgba(148,163,184,.4); --gray-tx:#64748b;
+  --overlay:rgba(15,17,20,.46);
+}
+[data-theme="dark"]{
+  --app-bg:#111418; --card:#1d2025; --card-border:rgba(255,255,255,.10);
+  --text:#f2f3f3; --muted:rgba(255,255,255,.55); --muted-2:rgba(255,255,255,.38); --sub:#23262c;
+  --shadow:none; --row-hover:rgba(255,255,255,.03); --divider:rgba(255,255,255,.08);
+  --green-bg:linear-gradient(90deg,rgba(34,197,94,.16),rgba(22,101,52,.16)); --green-bd:rgba(34,197,94,.34); --green-tx:#4ade80;
+  --amber-bg:linear-gradient(90deg,rgba(245,158,11,.14),rgba(120,80,10,.14)); --amber-bd:rgba(245,158,11,.3); --amber-tx:#fbbf24;
+  --red-bg:linear-gradient(90deg,rgba(239,68,68,.14),rgba(127,29,29,.14)); --red-bd:rgba(248,113,113,.3); --red-tx:#f87171;
+  --gray-bg:linear-gradient(90deg,rgba(148,163,184,.12),rgba(100,116,139,.12)); --gray-bd:rgba(148,163,184,.28); --gray-tx:#94a3b8;
+  --overlay:rgba(0,0,0,.62);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Inter","PingFang SC","Microsoft YaHei",-apple-system,sans-serif;background:var(--app-bg);color:var(--text);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+/* topbar */
+.topbar{display:flex;align-items:center;justify-content:space-between;height:56px;padding:0 24px;border-bottom:1px solid var(--divider);background:var(--card);position:sticky;top:0;z-index:40}
+.brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px}
+.brand .dot{width:22px;height:22px;border-radius:7px;background:var(--accent);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--accent-text)}
+.top-right{display:flex;align-items:center;gap:8px}
+.toggle{height:30px;padding:0 10px;border-radius:8px;border:1px solid var(--divider);background:transparent;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit}
+.toggle:hover{border-color:var(--accent)}
+/* page */
+.wrap{max-width:1160px;margin:0 auto;padding:28px 24px 80px}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.page-title{font-size:24px;font-weight:700;letter-spacing:-.3px}
+.page-sub{font-size:13px;color:var(--muted);margin-top:4px}
+.btn{height:42px;padding:0 18px;border-radius:10px;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:background .15s,opacity .15s}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-accent{background:var(--accent);color:var(--accent-text)}
+.btn-accent:hover:not(:disabled){background:var(--accent-hover)}
+.btn-ghost{background:var(--sub);color:var(--text);border:1px solid var(--divider)}
+.btn-ghost:hover:not(:disabled){border-color:var(--accent)}
+.btn-sm{height:34px;padding:0 14px;font-size:13px;border-radius:9px}
+/* summary */
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+.s-card{border:1px solid var(--card-border);border-radius:14px;background:var(--card);padding:14px 16px;box-shadow:var(--shadow)}
+.s-card .k{font-size:12px;color:var(--muted);margin-bottom:6px}
+.s-card .v{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.2px}
+.s-card .v small{font-size:13px;font-weight:500;color:var(--muted);margin-left:4px}
+/* currency group */
+.group{border:1px solid var(--card-border);border-radius:16px;background:var(--card);box-shadow:var(--shadow);margin-bottom:18px;overflow:hidden}
+.group-head{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--divider);flex-wrap:wrap}
+.group-head .gflag{width:34px;height:34px;border-radius:50%;overflow:hidden;border:1px solid var(--card-border);display:flex;align-items:center;justify-content:center;font-size:18px}
+.group-head .gname{font-size:16px;font-weight:700}
+.group-head .gtotal{margin-left:auto;font-size:13px;color:var(--muted)}
+.group-head .gtotal b{font-size:17px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;margin-left:6px}
+.group-body{display:grid;grid-template-columns:1fr;gap:12px;padding:14px 16px}
+/* account card */
+.acc{border:1px solid var(--divider);border-radius:14px;background:var(--card);padding:16px 18px;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;transition:border-color .15s,box-shadow .15s}
+.acc:hover{border-color:var(--accent)}
+.acc-left{min-width:0}
+.acc-name{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.acc-name .nm{font-size:15px;font-weight:700}
+.chip{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 9px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}
+.chip.green{background:var(--green-bg);color:var(--green-tx);border:1px solid var(--green-bd)}
+.chip.gray{background:var(--gray-bg);color:var(--gray-tx);border:1px solid var(--gray-bd)}
+.chip.amber{background:var(--amber-bg);color:var(--amber-tx);border:1px solid var(--amber-bd)}
+.acc-idline{margin-top:8px;font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.acc-idline b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}
+.acc-idline .sep{color:var(--muted-2)}
+.rails{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
+.mtag{height:20px;padding:0 8px;border-radius:999px;font-size:10.5px;font-weight:600;background:var(--sub);color:var(--muted);border:1px solid var(--divider)}
+.acc-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px;min-width:150px}
+.acc-bal{text-align:right}
+.acc-bal .num{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.3px}
+.acc-bal .cur{font-size:15px;font-weight:600;margin-right:2px}
+.acc-bal .note{font-size:11.5px;color:var(--muted);margin-top:2px}
+.acc-actions{display:flex;gap:8px}
+/* table */
+.table-card{border:1px solid var(--card-border);border-radius:16px;background:var(--card);box-shadow:var(--shadow);overflow:hidden}
+.table-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 20px 0;flex-wrap:wrap}
+.table-head h2{font-size:18px;font-weight:700}
+.filters{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:14px 20px}
+.f-tab{height:30px;padding:0 13px;border-radius:10px;border:none;background:transparent;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit}
+.f-tab.active{background:var(--accent);color:var(--accent-text);font-weight:600}
+.f-tab:hover:not(.active){background:var(--row-hover);color:var(--text)}
+table{width:100%;border-collapse:collapse}
+thead th{text-align:left;font-size:12px;font-weight:500;color:var(--muted);padding:10px 14px;border-bottom:1px solid var(--divider);white-space:nowrap}
+thead th.r{text-align:right}
+tbody td{padding:13px 14px;font-size:13px;border-bottom:1px solid var(--divider);white-space:nowrap;font-variant-numeric:tabular-nums}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--row-hover)}
+.tx-acc{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:12.5px}
+.amount.r{text-align:right}
+.amt-plus{color:var(--green-tx);font-weight:600}
+.amt-minus{color:var(--text);font-weight:600}
+.t-badge{display:inline-flex;align-items:center;gap:4px;height:23px;padding:0 9px;border-radius:999px;font-size:11px;font-weight:600}
+.t-badge.t-green{background:var(--green-bg);color:var(--green-tx);border:1px solid var(--green-bd)}
+.t-badge.t-gray{background:var(--gray-bg);color:var(--gray-tx);border:1px solid var(--gray-bd)}
+.t-badge.t-red{background:var(--red-bg);color:var(--red-tx);border:1px solid var(--red-bd)}
+.pag{display:flex;align-items:center;justify-content:flex-end;gap:12px;padding:12px 20px;font-size:12.5px;color:var(--muted);border-top:1px solid var(--divider)}
+/* form */
+.form-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+.lbl{font-size:12px;color:var(--muted);margin-bottom:5px;display:flex;align-items:center;gap:4px}
+.lbl-note{color:var(--muted-2);font-size:11px;font-weight:400}
+.lbl .req{color:var(--amber-tx)}
+.input{width:100%;height:40px;border:1px solid var(--divider);border-radius:10px;background:var(--card);color:var(--text);font-size:13.5px;padding:0 12px;font-family:inherit}
+.input:focus{outline:none;border-color:var(--accent)}
+select.input{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='%239CA3AF' stroke-width='1.5' fill='none' stroke-linecap='round'/></svg>");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;cursor:pointer}
+.helper{font-size:11.5px;color:var(--muted-2);margin-top:4px}
+.input.invalid{border-color:#e5484d;background:#fffafa}
+.input.invalid:focus{border-color:#e5484d;box-shadow:0 0 0 3px rgba(229,72,77,.12)}
+.err-msg{font-size:11px;color:#e5484d;margin-top:4px;display:none;line-height:1.4}
+.err-msg.show{display:block}
+/* kyc / compliance */
+.tr-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px;border:1px dashed var(--divider);border-radius:11px;background:var(--sub)}
+.tr-row .lbl{margin-top:0}
+.tr-row .helper{grid-column:1/-1}
+.kf-done{border:1px solid var(--green-bd);background:var(--green-bg);border-radius:12px;padding:14px 16px;margin-top:12px}
+.kf-done .fields .field{background:transparent;padding:0}
+.more-panel{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px;border:1px solid var(--divider);border-radius:11px;background:var(--sub);margin-top:10px}
+.more-toggle{font-size:12.5px}
+.name-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.img-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.img-3 .helper{margin-top:6px;font-size:11px;text-align:center}
+.name-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.img-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.img-2 .helper{margin-top:6px;font-size:11px;text-align:center}
+.input[type="file"]{height:auto;padding:8px 12px;color:var(--muted);font-size:12px}
+select.input[multiple]{appearance:none;background-image:none;height:auto;padding:6px 12px;cursor:default}
+/* withdrawal account section */
+.ea-sec{border:1px solid var(--card-border);border-radius:16px;background:var(--card);box-shadow:var(--shadow);margin:18px 0;padding:18px 20px}
+.ea-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.ea-title{font-size:18px;font-weight:700}
+.ea-sub{font-size:12.5px;color:var(--muted);margin-top:4px}
+.ea-list{display:flex;flex-direction:column;gap:10px}
+.ea{border:1px solid var(--divider);border-radius:12px;background:var(--card);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.ea-left{min-width:0;display:flex;flex-direction:column;gap:8px}
+.ea-name{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ea-name .nm{font-size:14px;font-weight:700}
+.ea-flag{font-size:18px}
+.ea-idline{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ea-idline b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}
+.ea-idline .sep{color:var(--muted-2)}
+.ea-right{display:flex;align-items:center;gap:10px}
+.ea-empty{border:1px dashed var(--muted-2);border-radius:12px;padding:22px;text-align:center;color:var(--muted);font-size:13px}
+/* overlay / modal */
+.overlay{position:fixed;inset:0;background:var(--overlay);z-index:100;display:none;align-items:flex-start;justify-content:center;padding:36px 16px;overflow-y:auto}
+.overlay.show{display:flex}
+.modal{width:100%;max-width:600px;background:var(--card);border:1px solid var(--card-border);border-radius:16px;box-shadow:0 20px 50px rgba(0,0,0,.28);margin:auto 0;animation:pop .18s ease-out}
+.modal.wide{max-width:680px}
+@keyframes pop{from{transform:translateY(8px) scale(.98);opacity:0}to{transform:none;opacity:1}}
+.m-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:22px 24px 0}
+.m-title{font-size:18px;font-weight:700}
+.m-sub{font-size:12.5px;color:var(--muted);margin-top:4px}
+.m-close{width:30px;height:30px;border-radius:8px;border:none;background:transparent;color:var(--muted);font-size:18px;cursor:pointer;font-family:inherit}
+.m-close:hover{background:var(--row-hover);color:var(--text)}
+.m-body{padding:20px 24px 24px}
+.m-foot{display:flex;gap:10px;justify-content:flex-end;align-items:center;padding:0 24px 22px}
+/* steps */
+.steps{display:flex;gap:8px;margin-bottom:18px}
+.step{flex:1;height:5px;border-radius:99px;background:var(--divider)}
+.step.on{background:var(--accent)}
+.sec-label{font-size:12px;font-weight:700;color:var(--muted);margin:16px 0 10px}
+.sec-label:first-child{margin-top:0}
+.cc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.cc{display:flex;flex-direction:column;gap:6px;border:1px solid var(--divider);border-radius:12px;padding:14px;cursor:pointer;transition:all .15s;background:var(--card)}
+.cc:hover{border-color:var(--accent)}
+.cc.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.cc.dis{opacity:.4;cursor:not-allowed}
+.cc .top{display:flex;align-items:center;justify-content:space-between}
+.cc .cc-flag{font-size:20px}
+.cc .cc-code{font-size:14px;font-weight:700}
+.cc .cc-note{font-size:11.5px;color:var(--muted);line-height:1.5}
+/* fields */
+.fields{display:flex;flex-direction:column;gap:9px}
+.field{display:flex;align-items:center;gap:12px;border:1px solid var(--divider);border-radius:11px;background:var(--sub);padding:10px 12px}
+.field .k{font-size:12.5px;color:var(--muted);flex-shrink:0;width:128px}
+.field .v{font-size:13px;font-weight:600;flex:1;text-align:left;word-break:break-all;font-variant-numeric:tabular-nums}
+.copy{width:28px;height:28px;border-radius:7px;border:1px solid var(--divider);background:var(--card);color:var(--muted);font-size:13px;cursor:pointer;font-family:inherit;flex-shrink:0}
+.copy:hover{border-color:var(--accent);color:var(--text)}
+.name-input{width:100%;height:40px;border:1px solid var(--divider);border-radius:10px;background:var(--card);color:var(--text);font-size:13.5px;padding:0 12px;font-family:inherit}
+.name-input:focus{outline:none;border-color:var(--accent)}
+/* rail tabs */
+.rail-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.rtab{height:32px;padding:0 14px;border-radius:10px;border:1px solid var(--divider);background:transparent;color:var(--muted);font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit}
+.rtab.active{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
+.rtab:hover:not(.active){border-color:var(--accent)}
+/* info rows / notes */
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
+.info{border:1px solid var(--divider);border-radius:10px;padding:10px 12px;background:var(--card)}
+.info .k{font-size:11.5px;color:var(--muted)}
+.info .v{font-size:12.5px;font-weight:600;margin-top:3px;line-height:1.4}
+.note-box{margin-top:14px;border-radius:11px;border:1px solid var(--divider);background:var(--sub);padding:12px 14px;font-size:12.5px;color:var(--muted);line-height:1.7}
+.note-box b{color:var(--text);font-weight:600}
+.note-box .warn{color:var(--amber-tx)}
+.notice{border-radius:11px;padding:11px 14px;font-size:12.5px;line-height:1.7;margin-top:12px}
+.notice b{font-weight:700}
+.notice.blue{background:rgba(72,120,255,.09);border:1px solid rgba(72,120,255,.34);color:var(--text)}
+.notice.blue b{color:#2f6bff}
+.notice.amber{background:rgba(255,171,0,.10);border:1px solid rgba(255,171,0,.42);color:var(--text)}
+.notice.amber b{color:var(--amber-tx)}
+.notice.red{background:var(--red-bg);border:1px solid var(--red-bd);color:var(--text)}
+.notice.red b{color:var(--red-tx)}
+.notice.green{background:var(--green-bg);border:1px solid var(--green-bd);color:var(--text)}
+.notice.green b{color:var(--green-tx)}
+.tos-chip{display:inline-flex;align-items:center;font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:99px;background:var(--amber-bg);border:1px solid var(--amber-bd);color:var(--amber-tx)}
+.tos-chip.ok{background:var(--green-bg);border-color:var(--green-bd);color:var(--green-tx)}
+.tos-urlbar{display:flex;align-items:flex-start;gap:8px;border:1px solid var(--divider);background:var(--sub);border-radius:9px;padding:8px 11px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:var(--muted);line-height:1.55;word-break:break-all;margin:2px 0 12px}
+.tos-host-tag{flex:0 0 auto;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:6px;background:rgba(72,120,255,.14);border:1px solid rgba(72,120,255,.4);color:#2f6bff;font-family:inherit}
+.wd-add{width:100%;border:1px dashed var(--muted-2);border-radius:12px;background:var(--card);color:var(--text);font-size:13px;font-weight:600;padding:13px;cursor:pointer;transition:border-color .15s,color .15s}
+.wd-add:hover{border-color:var(--accent);color:var(--accent)}
+.wd-sel{border-color:var(--accent)!important;box-shadow:0 0 0 1px var(--accent) inset}
+.wd-empty{border:1px dashed var(--muted-2);border-radius:12px;padding:20px;text-align:center;color:var(--muted);font-size:12.5px}
+/* balance split */
+.bal-split{display:flex;gap:0;border:1px solid var(--divider);border-radius:11px;overflow:hidden;margin-top:4px}
+.bal-split>div{flex:1;padding:10px 12px;background:var(--sub)}
+.bal-split>div+div{border-left:1px solid var(--divider)}
+.bal-split .k{font-size:11.5px;color:var(--muted)}
+.bal-split .v{font-size:14px;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums}
+/* agree */
+.agree{margin-top:16px;display:flex;align-items:flex-start;gap:10px;font-size:13px;cursor:pointer;user-select:none}
+.agree input{margin-top:3px;accent-color:var(--accent);width:15px;height:15px;cursor:pointer}
+.agree .lnk{color:var(--accent-text);text-decoration:underline}
+[data-theme="dark"] .agree .lnk{color:#FFCA00}
+/* creating */
+.creating-panel{display:flex;flex-direction:column;align-items:center;gap:16px;padding:40px 24px;text-align:center}
+.spinner{width:42px;height:42px;border-radius:50%;border:3px solid var(--divider);border-top-color:var(--accent);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.creating-panel .tt{font-size:16px;font-weight:700}
+.creating-panel .dd{font-size:13px;color:var(--muted)}
+/* toast */
+.toast{position:fixed;left:50%;bottom:34px;transform:translateX(-50%) translateY(20px);background:#1d2025;color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;z-index:300;opacity:0;pointer-events:none;transition:all .22s;box-shadow:0 8px 24px rgba(0,0,0,.28);white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* demo */
+.demo{position:fixed;right:16px;bottom:16px;z-index:80;width:236px;background:var(--card);border:1px solid var(--card-border);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.demo-head{padding:10px 14px;background:var(--accent);color:var(--accent-text);font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+[data-theme="dark"] .demo-head{color:#1F2329}
+.demo-body{padding:12px 14px;font-size:12px;display:flex;flex-direction:column;gap:10px}
+.demo-sec label{font-size:11px;color:var(--muted);display:block;margin-bottom:5px;font-weight:600}
+.demo-actions{display:flex;flex-direction:column;gap:6px}
+.dbtn{height:30px;border-radius:8px;border:1px solid var(--divider);background:transparent;color:var(--text);font-size:12px;cursor:pointer;font-family:inherit}
+.dbtn:hover{border-color:var(--accent)}
+.demo.collapsed .demo-body{display:none}
+.divider{height:1px;background:var(--divider);margin:2px 0}
+@media(max-width:720px){.summary{grid-template-columns:1fr 1fr}.cc-grid{grid-template-columns:1fr}.acc{grid-template-columns:1fr}.acc-right{align-items:flex-start;min-width:0}.wrap{padding:20px 14px 90px}}
+/* PM-NOTE: 原型备注统一格式 @HERMES */
+.pmnote{background:#14171c;border-left:3px solid #FFCA00;border-radius:6px;padding:10px 12px;margin:10px 0;font-size:13px;line-height:1.75;color:#c8ccd4}
+.pmnote b{color:#FFCA00;margin-right:8px}
+.pmnote.dem{border-left-color:#5b6472}
+.pmnote.dem b{color:#9aa3b2}
+body.hide-pmnote .pmnote{display:none!important}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="dot">Y</span>ASBe</div>
+  <div class="top-right">
+    <button class="toggle" id="langBtn">中 / EN</button>
+    <button class="toggle" id="pmnote-toggle" onclick="document.body.classList.toggle('hide-pmnote');this.textContent=document.body.classList.contains('hide-pmnote')?'显示备注':'隐藏备注';">隐藏备注</button>
+    <button class="toggle" id="themeBtn">🌓</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="page-head">
+    <div>
+      <h1 class="page-title" data-i18n="title">法币账户</h1>
+      <div class="page-sub" data-i18n="sub">管理您的法币收款账户与外部同名账户 · 入金到账自动匹配并计入余额</div>
+    </div>
+    <button class="btn btn-accent" id="openNewBtn" data-i18n="openNew">＋ 开通新账户</button>
+  </div>
+
+  <div class="summary">
+    <div class="s-card"><div class="k" data-i18n="sAccs">法币账户</div><div class="v" id="sAccs">4 <small data-i18n="sAccsU">个</small></div></div>
+    <div class="s-card"><div class="k" data-i18n="sBal">可用余额合计</div><div class="v" id="sBal">$1,659.31 <small data-i18n="sBalU">折算 USD</small></div></div>
+    <div class="s-card"><div class="k" data-i18n="sIn">本月入金</div><div class="v" id="sIn">$3,631.25 <small data-i18n="sInU">USD</small></div></div>
+    <div class="s-card"><div class="k" data-i18n="sOut">本月提现</div><div class="v" id="sOut">$500.00 <small data-i18n="sOutU">USD</small></div></div>
+  </div>
+
+  <div id="groups"></div>
+
+  <!-- ============ 外部同名账户（入金来源 / 出金收款目的地） ============ -->
+  <div class="ea-sec">
+    <div class="ea-head">
+      <div>
+        <div class="ea-title" data-i18n="eaTitle">外部同名账户</div>
+        <div class="ea-sub" data-i18n="eaSub">您本人（同名）名下的银行账户，可作为同名入金来源与出金收款 · 添加后按地区规则核验持有人姓名</div>
+      </div>
+      <button class="btn btn-accent btn-sm" id="addEaBtn" data-i18n="eaAdd">＋ 添加外部同名账户</button>
+    </div>
+    <div id="eaList"></div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-head">
+      <h2 data-i18n="txTitle">交易记录</h2>
+    </div>
+    <div class="filters">
+      <button class="f-tab active" data-f="all" data-i18n="fAll">全部</button>
+      <button class="f-tab" data-f="payin" data-i18n="fIn">入金</button>
+      <button class="f-tab" data-f="payout" data-i18n="fOut">提现</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th data-i18n="thTxId">交易 ID</th>
+          <th data-i18n="thAcc">账户</th>
+          <th data-i18n="thType">类型</th>
+          <th data-i18n="thRail">入金方式</th>
+          <th data-i18n="thCur">币种</th>
+          <th class="r" data-i18n="thAmount">金额</th>
+          <th class="r" data-i18n="thFee">费用</th>
+          <th data-i18n="thStatus">状态</th>
+          <th data-i18n="thRef">参考</th>
+          <th data-i18n="thDate">时间</th>
+          <th data-i18n="thView">查看</th>
+        </tr>
+      </thead>
+      <tbody id="txBody"></tbody>
+    </table>
+    <div class="pag" data-i18n="pag">显示 1 - 7，共 7 条记录</div>
+  </div>
+</div>
+
+<!-- ============ 开通新账户 MODAL ============ -->
+<div class="overlay" id="obModal">
+  <div class="modal wide">
+    <div class="m-head">
+      <div>
+        <div class="m-title" data-i18n="obTitle">开通新账户</div>
+        <div class="m-sub" data-i18n="obSub">选择币种与收款渠道，为您的账户开通专属收款账号</div>
+      </div>
+      <button class="m-close" data-close>×</button>
+    </div>
+    <div class="m-body">
+      <div class="helper" id="stepName" style="margin:-4px 0 9px;font-weight:600"></div>
+      <div class="steps" id="stepsBar"></div>
+
+      <!-- STEP 1 选择法币账户类型 -->
+      <div id="step1">
+        <div class="sec-label" data-i18n="step1L">选择法币账户类型</div>
+        <div class="note-box" style="margin-top:2px" data-i18n="accTypeNote">不同币种的收款账户由不同合作机构签发，开户所需资料略有差异。请选择要开通的账户类型。</div>
+        <div class="cc-grid" id="ccGrid"></div>
+      </div>
+
+      <!-- STEP 2 签署合作机构服务条款（Bridge 托管签署 · 仅美元首次开户） -->
+      <div id="stepTos" style="display:none">
+        <div class="sec-label" style="margin-top:0" data-i18n="tosStepL">签署合作机构服务条款</div>
+        <div class="note-box" style="margin-top:2px"><span data-i18n="tosLead1">美元收款账户由持牌支付机构</span> <b>Bridge</b> <span data-i18n="tosLead2">提供。开户前，请先签署《Bridge 服务条款》，签署完成后返回本页继续。</span></div>
+
+        <div class="notice blue" id="tosBox" style="margin-top:14px">
+          <div class="tos-chip" id="tosChip" data-i18n="tosChipUnsigned">待签署</div>
+          <div style="margin-top:11px">
+            <label class="agree" style="display:inline-flex;margin-top:0">
+              <input type="checkbox" id="agreeBridge" disabled>
+              <span style="line-height:1.5"><span data-i18n="agreeB1">我授权 YASBe 通过</span> <b>Bridge</b> <span data-i18n="agreeB2">为我完成实名认证与账户开立，并已阅读同意</span> <span class="lnk" data-i18n="agreeB3">《Bridge 服务条款》</span></span>
+            </label>
+          </div>
+          <button class="btn btn-accent btn-sm" type="button" id="tosGoSign" style="margin-top:12px" data-i18n="tosGoSign">前往签署</button>
+          <div class="helper" id="tosSignedState" style="display:none;margin-top:11px"></div>
+          <div class="helper" id="tosGateHint" style="display:none;margin-top:11px;color:var(--amber-tx)" data-i18n="tosGateHint">请先完成签署。</div>
+      <!-- PM-NOTE: 签署合作机构服务条款（原型用弹窗模拟外部跳转） -->
+      <div class="pmnote"><b>PM 备注</b>签署走 Bridge 托管页：调 POST /v0/customers/tos_links 取外链（session_token 短时效 + redirect_uri 回跳），签署回跳带 signed_agreement_id，提交开户时作为 tos_acceptance_link 回传；勾选框为只读回填（签署完成后自动勾选、不可手动改动）。生产为真实外部跳转。</div>
+        </div>
+      </div>
+
+      <!-- STEP 3 填写账户信息（按账户类型） -->
+      <div id="step2" style="display:none">
+        <div class="sec-label" data-i18n="step2L">填写账户信息</div>
+        <div class="notice red" id="noSvcNotice" style="display:none"></div>
+        <div class="notice amber" id="riskNotice" style="display:none"></div>
+        <div class="notice amber" id="flagNotice" style="display:none"></div>
+
+        <!-- USD：银行开户实名认证 -->
+        <div id="bridgeFields">
+          <div class="note-box" style="margin-top:2px" data-i18n="usdFormNote">美元账户需按美国合作银行要求完成实名认证。所填信息用于银行开户与反洗钱（AML）审核。</div>
+          <div class="notice blue" id="usNotice" style="display:none"></div>
+
+        <div class="kf-done" id="kfDone" style="display:none">
+          <div style="display:flex;align-items:center;gap:7px;font-weight:700" id="kfDoneTitle"></div>
+          <div class="fields" id="kfDoneFields" style="margin-top:10px"></div>
+          <div class="helper" id="kfDoneHint"></div>
+        </div>
+
+        <div class="notice red" id="kfRejNotice" style="display:none">
+          <div style="font-weight:700" id="kfRejTitle"></div>
+          <div style="margin:6px 0 12px;line-height:1.7" id="kfRejHint"></div>
+          <button class="btn btn-accent btn-sm" type="button" id="kfRetry"></button>
+        </div>
+
+        <div class="form-fields" id="kfForm" style="margin-top:10px">
+          <div style="grid-column:1/-1" class="name-3">
+            <div>
+              <label class="lbl" data-i18n="kfFirst">名（First name）<span class="req">*</span></label>
+              <input class="input" id="kfFirst" placeholder="XIAOMING">
+            </div>
+            <div>
+              <label class="lbl" data-i18n="kfMiddle">中间名（Middle）</label>
+              <input class="input" id="kfMiddle" placeholder="选填">
+            </div>
+            <div>
+              <label class="lbl" data-i18n="kfLast">姓（Last name）<span class="req">*</span></label>
+              <input class="input" id="kfLast" placeholder="LI">
+            </div>
+          </div>
+          <div style="grid-column:1/-1;display:none" id="kfNameTrRow" class="tr-row">
+            <div><label class="lbl" data-i18n="kfFirstTr">名（拼音）<span class="req">*</span></label><input class="input" id="kfFirstTr" placeholder="XIAOMING"></div>
+            <div><label class="lbl" data-i18n="kfMiddleTr">中间名（拼音）</label><input class="input" id="kfMiddleTr" placeholder=""></div>
+            <div><label class="lbl" data-i18n="kfLastTr">姓（拼音）<span class="req">*</span></label><input class="input" id="kfLastTr" placeholder="LI"></div>
+            <div class="helper" data-i18n="kfTrHint">持非拉丁字母姓名需提供拼音拼写，供银行与支付网络识别。</div>
+          </div>
+          <div>
+            <label class="lbl" data-i18n="kfDobL">出生日期<span class="req">*</span></label>
+            <input class="input" type="date" id="kfDob" value="1990-01-01">
+            <div class="helper" data-i18n="kfDobHint">须年满 18 周岁</div>
+          </div>
+          <div>
+            <label class="lbl" data-i18n="kfNationL">国籍<span class="req">*</span></label>
+            <select class="input" id="kfNation"></select>
+          </div>
+          <div style="grid-column:1/-1">
+            <label class="agree" style="display:inline-flex"><input type="checkbox" id="kfMultiCb"><span data-i18n="kfMultiL">持有多个国籍</span></label>
+          </div>
+          <div style="grid-column:1/-1;display:none" id="kfNationsRow">
+            <label class="lbl" data-i18n="kfNationsL">全部国籍（可多选）</label>
+            <select class="input" id="kfNations" multiple></select>
+            <div class="helper" data-i18n="kfNationsHint">请选择所有持有国籍（Ctrl / ⌘ 多选）</div>
+          </div>
+          <div>
+            <label class="lbl" data-i18n="kfEmailL">邮箱<span class="req">*</span></label>
+            <input class="input" id="kfEmail" type="email" placeholder="name@example.com">
+          </div>
+          <div>
+            <label class="lbl" data-i18n="kfPhoneL">手机号<span class="req">*</span></label>
+            <input class="input" id="kfPhone" placeholder="+86 138 0000 0000">
+            <div class="helper" data-i18n="kfPhoneHint">国际格式，如 +12223334444</div>
+          </div>
+          <div class="sec-label" style="grid-column:1/-1" data-i18n="kfIdSec">身份证明</div>
+          <div>
+            <label class="lbl" data-i18n="kfIdTypeL">证件类型<span class="req">*</span></label>
+            <select class="input" id="kfIdType"></select>
+          </div>
+          <div>
+            <label class="lbl" data-i18n="kfIdNoL">证件号码<span class="req">*</span></label>
+            <input class="input" id="kfIdNo" placeholder="请输入证件号码">
+            <div class="helper" data-i18n="kfIdIssue">签发国：所选国籍</div>
+          </div>
+          <div>
+            <label class="lbl" data-i18n="kfIdExpL">证件有效期</label>
+            <input class="input" type="date" id="kfIdExp">
+            <div class="helper" data-i18n="kfIdExpHint">长期有效可不填</div>
+          </div>
+          <div style="grid-column:1/-1">
+            <label class="lbl">证件照片<span class="req" id="kfIdImgReq">*</span> <span class="lbl-note" data-i18n="kfIdImgNote">（政府证件必传，税号类选传）</span></label>
+            <div class="img-3">
+              <div><input class="input" type="file" id="kfIdFront"><div class="helper" data-i18n="kfIdFront">证件正面</div></div>
+              <div><input class="input" type="file" id="kfIdBack"><div class="helper" data-i18n="kfIdBack">证件反面</div></div>
+              <div id="kfSelfieCell"><input class="input" type="file" id="kfSelfie"><div class="helper" data-i18n="kfSelfie">人脸自拍（活体核验）</div></div>
+            </div>
+            <div class="helper" data-i18n="kfIdImgHint">支持 JPG / PNG / HEIC，≤15MB。证件照片用于银行开户与实名核验。</div>
+            <div class="notice blue" id="selfieHost" style="display:none">
+              <div style="font-weight:700" data-i18n="selfieHostL">EEA 客户 · 人脸核验走托管流程</div>
+              <div style="margin:2px 0 10px" data-i18n="selfieHostT">欧洲经济区（EEA）客户的人脸活体核验须通过合作平台的托管核验页面完成，不支持在本页直接上传自拍。</div>
+              <button class="btn btn-accent btn-sm" type="button" id="selfieHostBtn" data-i18n="selfieHostGo">前往托管核验</button>
+            </div>
+            <div class="notice blue" id="usPhotoHost" style="display:none">
+              <div style="font-weight:700" data-i18n="usPhotoL">美国居民 · 政府证件照核验（强制）</div>
+              <div style="margin:2px 0 10px" data-i18n="usPhotoT">美国居民实名须完成政府证件照核验：通过托管核验页面（Persona）拍摄美国驾照 / 护照等政府签发的照片证件并完成人脸自拍。仅提供 SSN / ITIN 号码不满足实名要求，不存在「低流水免证件照」档位。</div>
+              <button class="btn btn-accent btn-sm" type="button" id="usPhotoGo" data-i18n="usPhotoGoL">前往托管核验</button>
+              <div class="helper" id="usPhotoState" style="margin-top:6px"></div>
+            </div>
+          </div>
+          <div style="grid-column:1/-1;display:none" id="eeaFields" class="more-panel">
+            <div class="sec-label" style="grid-column:1/-1;margin-top:0" data-i18n="eeaSecL">出生地与身份号码（EEA 要求）</div>
+            <div class="helper" style="grid-column:1/-1" data-i18n="eeaNote">根据欧洲经济区（EEA）开户合规要求：EEA 范围内客户需提供出生国家与城市、全部国籍、账户主要用途，并同时提供国民身份号（National ID）与税号（TIN）。</div>
+            <div>
+              <label class="lbl" data-i18n="birthCountryL">出生国家 / 地区<span class="req">*</span></label>
+              <select class="input" id="kfBirthCountry"></select>
+            </div>
+            <div>
+              <label class="lbl" data-i18n="birthCityL">出生城市（选填）</label>
+              <input class="input" id="kfBirthCity" placeholder="Paris">
+            </div>
+            <div class="helper" style="grid-column:1/-1" data-i18n="birthHint">出生国家为必填项；出生城市按欧盟 2027 年法规要求，建议一并提供。</div>
+            <div class="sec-label" style="grid-column:1/-1;margin-top:4px" data-i18n="kfNatTitle">身份号码</div>
+            <div>
+              <label class="lbl" data-i18n="natIdL">国民身份号（National ID）<span class="req">*</span></label>
+              <input class="input" id="kfNatId" placeholder="请输入国民身份号">
+              <div class="helper" id="kfNatIdHint"></div>
+            </div>
+            <div>
+              <label class="lbl" data-i18n="tinL">税号（TIN）<span class="req">*</span></label>
+              <input class="input" id="kfTin" placeholder="请输入税号">
+              <div class="helper" id="kfTinHint"></div>
+            </div>
+            <div class="helper" style="grid-column:1/-1" data-i18n="tinResMatch">税号必须由居住国（居民身份国家）签发，不能选择「无有效税号」。</div>
+            <div class="helper" style="grid-column:1/-1" data-i18n="dbVerifyNote">身份核验将对照政府数据库进行；如核验未通过，需补充居住地址证明或进行人脸活体自拍。</div>
+          </div>
+          <div style="grid-column:1/-1">
+            <label class="lbl" data-i18n="kfResL">所在国家 / 地区<span class="req">*</span></label>
+            <select class="input" id="kfRes"></select>
+          </div>
+          <div style="grid-column:1/-1">
+            <label class="lbl" data-i18n="kfAddrL">详细地址<span class="req">*</span></label>
+            <input class="input" id="kfAddr" placeholder="街道门牌">
+          </div>
+          <div style="grid-column:1/-1">
+            <label class="lbl" data-i18n="kfAddr2L">地址第二行（选填）</label>
+            <input class="input" id="kfAddr2" placeholder="公寓 / 楼层 / 单元等">
+          </div>
+          <div style="grid-column:1/-1;display:none" id="kfAddrTrRow" class="tr-row">
+            <div style="grid-column:1/-1"><label class="lbl" data-i18n="kfAddrTr">地址拼音<span class="req">*</span></label><input class="input" id="kfAddrTr" placeholder="街道门牌拼音"></div>
+            <div class="helper" data-i18n="kfTrHint">非拉丁字母地址需提供拼音拼写</div>
+          </div>
+          <div>
+            <label class="lbl" data-i18n="kfCityL">城市<span class="req">*</span></label>
+            <input class="input" id="kfCity" placeholder="上海">
+          </div>
+          <div>
+            <label class="lbl" data-i18n="kfStateL">省 / 州<span class="req" id="kfStateReq" style="display:none">*</span></label>
+            <input class="input" id="kfState" placeholder="上海">
+          </div>
+          <div>
+            <label class="lbl" data-i18n="kfZipL">邮政编码<span class="req">*</span></label>
+            <input class="input" id="kfZip" placeholder="200000">
+          </div>
+          <div>
+            <label class="lbl" data-i18n="kfPoaL">居住地址证明<span class="req" id="kfPoaReq" style="display:none">*</span></label>
+            <input class="input" id="kfPoa" type="file">
+            <div class="helper" data-i18n="kfPoaHint">如证件地址与居住地址不一致，需补充近 3 个月水电账单 / 银行账单。</div>
+            <div class="notice amber" id="kfPoaWhy" style="display:none"></div>
+          </div>
+          <div style="grid-column:1/-1" class="more-toggle" id="kfMoreToggle">
+            <label class="agree" style="display:inline-flex;cursor:default"><input type="checkbox" id="kfMoreCb" checked disabled><span data-i18n="kfMoreL">系统判定：您需补充填写以下资金用途信息（必填，无法自行关闭）</span></label>
+            <div class="helper" style="margin-left:25px" data-i18n="kfMoreSysHint">由平台根据您的实名资料、账户主要用途与资金画像自动判定；如需申诉请联系客服。</div>
+          </div>
+          <div style="grid-column:1/-1;display:none" id="kfCondRow" class="more-panel">
+            <div class="sec-label" style="grid-column:1/-1;margin-top:0" data-i18n="kfCondSecL">账户用途与就业信息</div>
+            <div>
+              <label class="lbl" data-i18n="kfEmpL">就业状态<span class="req">*</span></label>
+              <select class="input" id="kfEmp"></select>
+            </div>
+            <div>
+              <label class="lbl" data-i18n="kfPurposeL">账户主要用途<span class="req">*</span></label>
+              <select class="input" id="kfPurpose"></select>
+            </div>
+            <div style="grid-column:1/-1;display:none" id="kfPurposeOtherRow">
+              <label class="lbl" data-i18n="kfPurposeOtherL">用途说明<span class="req">*</span></label>
+              <input class="input" id="kfPurposeOther" placeholder="请说明账户主要用途">
+            </div>
+          </div>
+          <div style="grid-column:1/-1;display:none" id="kfSofRow" class="more-panel">
+            <div>
+              <label class="lbl" data-i18n="kfSofL">资金来源<span class="req">*</span></label>
+              <select class="input" id="kfSof"></select>
+            </div>
+            <div>
+              <label class="lbl" data-i18n="kfMonthlyL">预计每月资金往来<span class="req">*</span></label>
+              <select class="input" id="kfMonthly"></select>
+            </div>
+          </div>
+          <div style="grid-column:1/-1;display:none" id="kfMore" class="more-panel">
+            <div>
+              <label class="lbl" data-i18n="kfOccupL">职业<span class="req">*</span></label>
+              <select class="input" id="kfOccup"></select>
+              <div class="helper" data-i18n="kfOccupHint">标准职业代码（Bridge 职业清单）</div>
+            </div>
+            <div>
+              <label class="lbl" data-i18n="kfInterL">是否代他人收付资金<span class="req">*</span></label>
+              <select class="input" id="kfInter">
+                <option value="no" data-i18n="kfInterNo">否，本人账户</option>
+                <option value="yes" data-i18n="kfInterYes">是，代他人收付</option>
+              </select>
+            </div>
+          </div>
+          <div style="grid-column:1/-1;display:none" id="kfSofDocs" class="more-panel">
+            <div class="sec-label" style="grid-column:1/-1;margin-top:0" data-i18n="kfSofDocsSecL">资金来源材料</div>
+            <div style="grid-column:1/-1" class="more-toggle">
+              <label class="agree" style="display:inline-flex;cursor:default"><input type="checkbox" checked disabled><span id="kfSofDocsWhy"></span></label>
+              <div class="helper" style="margin-left:25px" data-i18n="kfSofDocsHint">以下材料由平台按您填写的信息自动判定，须在开户时一并上传。</div>
+            </div>
+            <div id="kfSofStatementCell" style="display:none">
+              <label class="lbl" data-i18n="kfSofStatementL">资金来源说明<span class="req">*</span></label>
+              <input class="input" id="kfSofStatementDoc" type="file">
+              <div class="helper" data-i18n="kfSofStatementH">请上传说明资金来源的书面说明文件。</div>
+            </div>
+            <div id="kfSofSalaryCell" style="display:none">
+              <label class="lbl" data-i18n="kfSofSalaryL">工资入账凭证<span class="req">*</span></label>
+              <input class="input" id="kfSofSalaryDoc" type="file">
+              <div class="helper" data-i18n="kfSofSalaryH">近 3 个月银行流水或工资单。</div>
+            </div>
+            <div id="kfSofPensionCell" style="display:none">
+              <label class="lbl" data-i18n="kfSofPensionL">养老金 / 退休金发放证明<span class="req">*</span></label>
+              <input class="input" id="kfSofPensionDoc" type="file">
+              <div class="helper" data-i18n="kfSofPensionH">发放机构出具的证明或近 3 个月入账记录。</div>
+            </div>
+            <div id="kfSofProofCell" style="display:none">
+              <label class="lbl" data-i18n="kfSofProofL">资金来源证明<span class="req">*</span></label>
+              <input class="input" id="kfSofProofDoc" type="file">
+              <div class="helper" data-i18n="kfSofProofH">银行流水、收入证明等可证明资金来源的材料。</div>
+            </div>
+          </div>
+        </div>
+        </div>
+
+        <!-- EUR / GBP：OpenPayd 开户资料 -->
+        <div id="openPaydFields" style="display:none">
+          <div class="note-box" style="margin-top:2px" data-i18n="opNote">欧元 / 英镑账户由欧洲合作机构签发，需填写以下开户资料用于开户与反洗钱（AML）审核；审核时效以合作机构回执为准。</div>
+          <div class="notice blue" id="euNotice" style="display:none"></div>
+          <div class="form-fields" id="opForm" style="margin-top:10px">
+            <div style="grid-column:1/-1">
+              <label class="lbl" data-i18n="opNameL">账户持有人姓名<span class="req">*</span></label>
+              <div class="name-2">
+                <input class="input" id="opFirst" placeholder="XIAOMING">
+                <input class="input" id="opLast" placeholder="LI">
+              </div>
+              <div class="helper" data-i18n="opNameHint">请使用与证件一致的英文 / 拼音姓名</div>
+            </div>
+            <div>
+              <label class="lbl" data-i18n="kfDobL">出生日期<span class="req">*</span></label>
+              <input class="input" type="date" id="opDob" value="1990-01-01">
+              <div class="helper" data-i18n="kfDobHint">须年满 18 周岁</div>
+            </div>
+            <div>
+              <label class="lbl" data-i18n="kfNationL">国籍<span class="req">*</span></label>
+              <select class="input" id="opNation"></select>
+            </div>
+            <div>
+              <label class="lbl" data-i18n="kfResL">所在国家 / 地区<span class="req">*</span></label>
+              <select class="input" id="opRes"></select>
+            </div>
+            <div>
+              <label class="lbl" data-i18n="kfEmailL">邮箱<span class="req">*</span></label>
+              <input class="input" id="opEmail" type="email" placeholder="name@example.com">
+            </div>
+            <div>
+              <label class="lbl" data-i18n="kfPhoneL">手机号<span class="req">*</span></label>
+              <input class="input" id="opPhone" placeholder="+44 7700 900123">
+              <div class="helper" data-i18n="opPhoneHint">国际格式，用于短信验证</div>
+            </div>
+            <div style="grid-column:1/-1">
+              <label class="lbl" data-i18n="kfAddrL">详细地址<span class="req">*</span></label>
+              <input class="input" id="opAddr" placeholder="街道门牌">
+            </div>
+            <div style="grid-column:1/-1">
+              <label class="lbl" data-i18n="kfAddr2L">地址第二行（选填）</label>
+              <input class="input" id="opAddr2" placeholder="公寓 / 楼层 / 单元等">
+            </div>
+            <div>
+              <label class="lbl" data-i18n="kfCityL">城市<span class="req">*</span></label>
+              <input class="input" id="opCity" placeholder="London">
+            </div>
+            <div>
+              <label class="lbl" data-i18n="kfStateL">省 / 州<span class="req" id="opStateReq" style="display:none">*</span></label>
+              <input class="input" id="opState" placeholder="England">
+            </div>
+            <div>
+              <label class="lbl" data-i18n="kfZipL">邮政编码<span class="req">*</span></label>
+              <input class="input" id="opZip" placeholder="NW1 6XE">
+            </div>
+            <div class="sec-label" style="grid-column:1/-1" data-i18n="opIdSec">身份证明</div>
+            <div>
+              <label class="lbl" data-i18n="opIdTypeL">证件类型<span class="req">*</span></label>
+              <select class="input" id="opIdType"></select>
+            </div>
+            <div>
+              <label class="lbl" data-i18n="opIdNoL">证件号码<span class="req">*</span></label>
+              <input class="input" id="opIdNo">
+              <div class="helper" data-i18n="opIdNoHint">非英文证件需同时提供英文翻译件</div>
+            </div>
+            <div style="grid-column:1/-1">
+              <label class="lbl">证件照片<span class="req">*</span> <span class="lbl-note" data-i18n="opIdImgNote">（第一证件必传正反面）</span></label>
+              <div class="img-2">
+                <div><input class="input" type="file" id="opIdFront"><div class="helper" data-i18n="opIdFront">证件正面</div></div>
+                <div><input class="input" type="file" id="opIdBack"><div class="helper" data-i18n="opIdBack">证件反面</div></div>
+              </div>
+              <div class="helper" data-i18n="opIdImgHint">支持 JPG / PNG / PDF，≤15MB</div>
+            </div>
+            <div style="grid-column:1/-1">
+              <label class="lbl" data-i18n="opPoaL">居住地址证明<span class="req">*</span></label>
+              <input class="input" id="opPoa" type="file">
+              <div class="helper" data-i18n="opPoaHint">近 3 个月水电账单或银行账单，需显示姓名与地址</div>
+            </div>
+            <div>
+              <label class="lbl" data-i18n="opEmpL">就业状态<span class="req">*</span></label>
+              <select class="input" id="opEmp"></select>
+            </div>
+            <div>
+              <label class="lbl" data-i18n="opSofL">资金来源<span class="req">*</span></label>
+              <select class="input" id="opSof"></select>
+            </div>
+            <div style="grid-column:1/-1">
+              <label class="lbl" data-i18n="opSignL">声明签署<span class="req">*</span></label>
+              <input class="input" id="opSign" placeholder="请输入姓名拼音">
+              <div class="helper" data-i18n="opSignHint">输入与证件一致的姓名拼音作为电子签名，确认所填信息真实有效并同意开户及反洗钱审核条款</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 确认 -->
+      <div id="step3" style="display:none">
+        <div class="sec-label" data-i18n="step3L">确认信息</div>
+        <div class="sec-label" style="margin-top:0" data-i18n="accNameL">账户名称</div>
+        <input class="name-input" id="cfName" placeholder="请输入账户名称">
+        <div class="sec-label" style="margin-top:16px" data-i18n="destL">资金归集（平台托管）</div>
+        <div class="form-fields" style="margin-top:8px">
+          <div>
+            <label class="lbl" data-i18n="destCoin">归集稳定币</label>
+            <select class="input" id="destCoin" disabled><option value="USDC">USDC</option></select>
+          </div>
+          <div>
+            <label class="lbl" data-i18n="destRail">归集网络</label>
+            <select class="input" id="destRail" disabled><option value="Base">Base</option></select>
+          </div>
+          <div style="grid-column:1/-1">
+            <label class="lbl" data-i18n="destAddr">YASBe 官方托管钱包</label>
+            <input class="input" id="destAddr" readonly value="0x71C7656EC7ab88b098defB751B7401B5f6d8976F">
+            <div class="helper" data-i18n="destAddrHelp">入账资金将自动兑换为稳定币并归集至本平台官方托管钱包（地址由平台托管，无需填写个人钱包地址），折算后计入您的可用余额。</div>
+          </div>
+        </div>
+        <div class="sec-label" style="margin-top:16px" data-i18n="obPreview">开通后将获得</div>
+        <div class="fields" id="cfFields" style="margin-top:8px"></div>
+        <div class="note-box" id="cfRefNote"></div>
+        <div class="note-box" id="cfNoteWrap">
+          <div id="cfNoteReady" data-i18n="cfNoteReady">资料已就绪。提交后将为您开立专属收款账户，账户开通后即可开始接收入金。到账处理与费用规则以服务协议为准。</div>
+          <div id="cfNoteInstant" style="display:none" data-i18n="cfNoteInstant">提交后将自动完成实名核验并即时开通账户（个人资料完整且非高风险时通常数秒内通过，无需人工等待）。账户开通后即可开始接收入金；若触发人工复核，最迟下一工作日反馈结果。</div>
+          <div id="cfNoteReview" style="display:none" data-i18n="cfNoteReview">您当前被系统判定为高风险 / 标注客户，本次将连同实名资料进入人工复核。复核通过后，账户状态由「开通中」转为「已开通」，届时方可开始接收入金；到账处理与费用规则以服务协议为准。</div>
+        </div>
+        <label class="agree">
+          <input type="checkbox" id="agreeBox">
+          <span><span data-i18n="agree1">我已阅读并同意</span> <span class="lnk" data-i18n="agree2">《YASBe 平台服务条款》与《隐私政策》</span></span>
+        </label>
+        <div class="notice green" id="tosReceipt" style="display:none"></div>
+      </div>
+    </div>
+    <div class="m-foot">
+      <button class="btn btn-ghost btn-sm" id="obBack" style="display:none" data-i18n="back">上一步</button>
+      <button class="btn btn-ghost btn-sm" data-close data-i18n="cancel">取消</button>
+      <button class="btn btn-accent btn-sm" id="obNext" data-i18n="next">下一步</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 添加外部同名账户 MODAL ============ -->
+<div class="overlay" id="eaModal">
+  <div class="modal wide">
+    <div class="m-head">
+      <div>
+        <div class="m-title" data-i18n="eaMTitle">添加外部同名账户</div>
+        <div class="m-sub" data-i18n="eaMSub">添加您本人（同名）名下的银行账户，用于同名入金与出金收款</div>
+      </div>
+      <button class="m-close" data-close>×</button>
+    </div>
+    <div class="m-body">
+      <div class="steps"><div class="step on" id="eaSt1"></div><div class="step" id="eaSt2"></div></div>
+
+      <div id="eaStep1">
+        <div class="sec-label" data-i18n="eaStep1L">1. 选择银行所在地区</div>
+        <div class="cc-grid" id="eaGrid"></div>
+        <div class="note-box" style="margin-top:14px" data-i18n="eaStep1Note">外部同名账户用于同名入金与接收出金款项；添加后平台将按地区规则核验持有人姓名（美国地区账户不做姓名核验）。</div>
+      </div>
+
+      <div id="eaStep2" style="display:none">
+        <div class="sec-label" data-i18n="eaStep2L">2. 填写账户信息</div>
+        <div class="note-box" style="margin-top:2px" data-i18n="eaSameOnly">仅支持添加您本人（同名）的银行账户。账户名称与持有人由系统自动取自您的实名认证信息，不可修改。</div>
+        <div class="form-fields" id="eaFields"></div>
+        <div class="note-box" id="eaVerifyNote" data-i18n="eaVerifyNote">核验方式按地区区分：美国账户无需持有人姓名核验，添加后即可使用；欧洲 / 英国账户将进行持有人姓名匹配核验（通常数秒至数个工作日），核验通过前不可用于出金（接收本平台款项）。</div>
+      </div>
+    </div>
+    <div class="m-foot">
+      <button class="btn btn-ghost btn-sm" id="eaBack" style="display:none" data-i18n="back">上一步</button>
+      <button class="btn btn-ghost btn-sm" data-close data-i18n="cancel">取消</button>
+      <button class="btn btn-accent btn-sm" id="eaNext" data-i18n="next">下一步</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 出金（提现）MODAL ============ -->
+<div class="overlay" id="wdModal">
+  <div class="modal wide">
+    <div class="m-head">
+      <div>
+        <div class="m-title" data-i18n="wdTitle">提现</div>
+        <div class="m-sub" data-i18n="wdSub">从所选法币账户提现至您的同名银行账户</div>
+      </div>
+      <button class="m-close" data-close>×</button>
+    </div>
+    <div class="m-body">
+      <div class="steps"><div class="step on" id="wdSt1"></div><div class="step" id="wdSt2"></div></div>
+
+      <div id="wdStep1">
+        <div class="sec-label" data-i18n="wdStep1L">1. 选择外部同名账户（收款）</div>
+        <div class="note-box" style="margin-top:2px" data-i18n="wdEaNote">提现仅支持提至您本人（同名）的银行账户，须与法币账户币种一致。</div>
+        <div class="ea-list" id="wdList" style="margin-top:12px"></div>
+        <button class="wd-add" id="wdAddBtn" style="margin-top:10px" data-i18n="wdAdd">＋ 添加外部同名账户</button>
+      </div>
+
+      <div id="wdStep2" style="display:none">
+        <div class="sec-label" data-i18n="wdStep2L">2. 确认金额</div>
+        <div class="fields" id="wdSum" style="margin-top:8px"></div>
+        <div class="sec-label" style="margin-top:16px" data-i18n="wdAmt">提现金额</div>
+        <div class="form-fields" style="margin-top:6px">
+          <div>
+            <label class="lbl" data-i18n="wdAmt"><span class="req">*</span>提现金额</label>
+            <input class="input" id="wdAmount" type="number" min="0" step="0.01" placeholder="0.00">
+            <div class="helper" id="wdAvailHint"></div>
+          </div>
+          <div>
+            <label class="lbl" data-i18n="wdFee">预估手续费</label>
+            <div class="helper" id="wdFeeVal" style="font-size:13.5px;font-weight:600;margin-top:9px">—</div>
+          </div>
+          <div style="grid-column:1/-1">
+            <label class="lbl" data-i18n="wdReceive">预计到账</label>
+            <div class="helper" id="wdReceiveVal" style="font-size:13.5px;font-weight:600;margin-top:9px">—</div>
+            <div class="helper" id="wdArriveVal" data-i18n="wdArrive">预计到账时间</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="m-foot">
+      <button class="btn btn-ghost btn-sm" id="wdBack" style="display:none" data-i18n="back">上一步</button>
+      <button class="btn btn-ghost btn-sm" data-close data-i18n="cancel">取消</button>
+      <button class="btn btn-accent btn-sm" id="wdNext" data-i18n="next">下一步</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 账户详情 / 入金 MODAL ============ -->
+<div class="overlay" id="accModal">
+  <div class="modal wide">
+    <div class="m-head">
+      <div>
+        <div class="m-title" id="amTitle">账户详情</div>
+        <div class="m-sub" id="amSub"></div>
+      </div>
+      <button class="m-close" data-close>×</button>
+    </div>
+    <div class="m-body">
+      <div id="amTabs"></div>
+      <div id="amBody"></div>
+    </div>
+    <div class="m-foot">
+      <button class="btn btn-ghost btn-sm" data-close data-i18n="close">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CREATING ============ -->
+<div class="overlay" id="creatingOverlay">
+  <div class="modal" style="max-width:420px">
+    <div class="creating-panel">
+      <div class="spinner"></div>
+      <div class="tt" id="crTitle">正在开通您的账户…</div>
+      <div class="dd" id="crDesc">通常只需几秒钟，请稍候</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Bridge 托管 ToS 签署（演示模拟托管页） ============ -->
+<div class="overlay" id="tosModal">
+  <div class="modal" style="max-width:520px">
+    <div class="m-head">
+      <div>
+        <div class="m-title" data-i18n="tosTitle">签署《Bridge 服务条款》</div>
+        <div class="m-sub" data-i18n="tosSub">Bridge 托管签署</div>
+      </div>
+      <button class="m-close" data-close>×</button>
+    </div>
+    <div class="m-body">
+      <div class="tos-urlbar"><span class="tos-host-tag" data-i18n="tosHostTag">合作机构页面</span><span id="tosUrl">https://dashboard.bridge.xyz/accept-terms-of-service</span></div>
+      <div class="note-box" style="margin-top:2px" data-i18n="tosBody">本条款由 Bridge 提供并托管。签署成功后即可返回 YASBe 继续开户。</div>
+      <!-- PM-NOTE: 托管签署页为外部跳转（演示用弹窗模拟） -->
+      <div class="pmnote"><b>PM 备注</b>真实外链由 POST /v0/customers/tos_links 返回，形如 https://dashboard.bridge.xyz/accept-terms-of-service?session_token=…&amp;redirect_uri=…（token 短时效，须即时跳转）；回跳参数含 signed_agreement_id。</div>
+      <div class="helper" id="tosReturning" style="display:none;margin-top:12px;color:var(--green-tx);font-weight:600"></div>
+    </div>
+    <div class="m-foot">
+      <button class="btn btn-ghost btn-sm" data-close data-i18n="cancel">取消</button>
+      <button class="btn btn-accent btn-sm" id="tosAccept" data-i18n="tosAccept">同意并签署</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ============ DEMO ============ -->
+<div class="demo" id="demoPanel">
+  <div class="demo-head" id="demoHead">演示控制 <span id="demoArrow">▾</span></div>
+  <div class="demo-body">
+    <div class="demo-actions">
+      <button class="dbtn" id="dOpen" data-i18n="dOpen">打开「开通新账户」</button>
+      <button class="dbtn" id="dDeposit" data-i18n="dDeposit">打开「收款账户信息」（美元）</button>
+      <button class="dbtn" id="dWithdraw" data-i18n="dWithdraw">打开「提现」（美元）</button>
+      <button class="dbtn" id="dEa" data-i18n="dEa">打开「添加外部同名账户」</button>
+      <button class="dbtn" id="dReset" data-i18n="dReset">重置</button>
+    </div>
+    <div class="demo-sec">
+      <label>实名认证状态</label>
+      <select class="input" id="dKyc" style="height:34px;font-size:12px">
+        <option value="notSubmitted">未认证（显示认证表单）</option>
+        <option value="underReview">人工复核中（最迟下一工作日）</option>
+        <option value="rejected">已拒绝（显示拒因，可重提）</option>
+        <option value="approved">已认证（显示认证摘要）</option>
+      </select>
+    </div>
+    <div class="demo-sec">
+      <label style="display:flex;align-items:center;gap:6px;margin-bottom:0;font-weight:600"><input type="checkbox" id="dRisk"> <span data-i18n="dRiskL">高风险客户（模拟系统判定，展开资金用途信息）</span></label>
+    </div>
+    <div class="demo-sec">
+      <label style="display:flex;align-items:center;gap:6px;margin-bottom:0;font-weight:600"><input type="checkbox" id="dFlag"> <span data-i18n="dFlag">标注客户（flag）</span></label>
+    </div>
+    <div class="demo-sec">
+      <label data-i18n="dCountry">用户所在国家 / 地区（自动判断）</label>
+      <select class="input" id="dCountry" style="height:34px;font-size:12px">
+        <option value="USA">🇺🇸 美国</option>
+        <option value="CHN" selected>🇨🇳 中国</option>
+        <option value="HKG">🇭🇰 中国香港</option>
+        <option value="GBR">🇬🇧 英国</option>
+        <option value="DEU">🇩🇪 德国</option>
+        <option value="FRA">🇫🇷 法国</option>
+        <option value="ISL">🇮🇸 冰岛</option>
+        <option value="NOR">🇳🇴 挪威</option>
+        <option value="LIE">🇱🇮 列支敦士登</option>
+        <option value="CAN">🇨🇦 加拿大</option>
+        <option value="OTH">其他</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================= STATE ================= */
+const SYS_USER='XIAOMING LI'; // 系统实名认证用户名（用于同名账户）
+const PLATFORM_WALLET_ADDR='0x71C7656EC7ab88b098defB751B7401B5f6d8976F'; // YASBe 官方托管收款钱包（平台自持，入金自动归集于此）
+const S = { lang:'zh', activeAcc:null, activeRail:null, kyc:'notSubmitted', risk:false, flagged:false, profile:null, country:'CHN' };
+let tosSigned=null; // Bridge 托管 ToS 签署回传的 signed_agreement_id
+let tosSignedAt=null; // 签署时间（本地时区，演示用）
+
+/* ================= I18N ================= */
+const T = {
+  zh:{
+    title:'法币账户', sub:'管理您的法币收款账户与外部同名账户 · 入金到账自动匹配并计入余额',
+    openNew:'＋ 开通新账户', sAccs:'法币账户', sAccsU:'个', sBal:'可用余额合计', sBalU:'折算 USD', sIn:'本月入金', sInU:'USD', sOut:'本月提现', sOutU:'USD',
+    txTitle:'交易记录', fAll:'全部', fIn:'入金', fOut:'提现',
+    thTxId:'交易 ID', thAcc:'账户', thType:'类型', thRail:'入金方式', thCur:'币种', thAmount:'金额', thFee:'费用', thStatus:'状态', thRef:'参考', thDate:'时间', thView:'查看',
+    pag:'显示 1 - 7，共 7 条记录',
+    obTitle:'开通新账户', obSub:'选择账户类型并填写开户信息，开通专属收款账户',
+    step1L:'选择法币账户类型', step2L:'填写账户信息', step3L:'确认信息',
+    accTypeNote:'不同币种的收款账户由不同合作机构签发，开户所需资料略有差异。请选择要开通的账户类型。',
+    usdFormNote:'美元账户需按美国合作银行要求完成实名认证。所填信息用于银行开户与反洗钱（AML）审核。',
+    opNote:'欧元 / 英镑账户由欧洲合作机构签发，需填写以下开户资料用于开户与反洗钱（AML）审核；审核时效以合作机构回执为准。',
+    kfNote:'根据监管要求，开通虚拟账户前需完成实名认证。所填信息用于银行开户与反洗钱（AML）审核。',
+    kfDoneTitle:'已完成实名认证', kfDoneHint:'认证信息已通过审核，可直接开通账户。如需修改请联系客服。',
+    kfReviewTitle:'实名认证复核中', kfReviewHint:'您的实名认证进入人工复核，最迟将于下一工作日反馈结果；复核通过后即可继续开通账户，结果将以站内消息 / 邮件通知您。',
+    kfRejTitle:'实名认证被拒绝', kfRejHint:'实名认证未通过，暂无法开通美元收款账户。<br>可分享原因（reason）：无法核实您提供的身份 / 证件信息。常见情形：证件号码或税号（TIN）填写有误——此类错误会<b>立即拒绝</b>，不会进入人工审核。<br>请核对证件号码、出生日期与税号（TIN）后重新提交；如需协助请联系客服。',
+    kfRetry:'修改资料并重新提交',
+    kfFirst:'名（First name）', kfLast:'姓（Last name）', kfFirstTr:'名（拼音）', kfLastTr:'姓（拼音）', kfTrHint:'非拉丁字母的姓名 / 地址需提供拼音拼写，供银行与支付网络识别。',
+    kfMiddle:'中间名（Middle）', kfMiddleTr:'中间名（拼音）',
+    kfMultiL:'持有多个国籍', kfNationsL:'全部国籍（可多选）', kfNationsHint:'请选择所有持有国籍（Ctrl / ⌘ 多选）',
+    kfPhoneL:'手机号', kfPhoneHint:'国际格式，如 +12223334444',
+    kfIdSec:'身份证明', kfIdIssue:'签发国：所选国籍', kfIdImgNote:'（政府证件必传，税号类选传）', kfIdFront:'证件正面', kfIdBack:'证件反面', kfSelfie:'人脸自拍（活体核验）', kfIdImgHint:'支持 JPG / PNG / PDF / HEIC / TIF，证件照单张 ≤15MB（正反面合计 ≤24MB），尺寸 ≥200×200px。证件照片用于银行开户与实名核验。',
+    kfAddr2L:'地址第二行（选填）',
+    kfPurposeOtherL:'用途说明', kfOccupHint:'标准职业代码（Bridge 职业清单）',
+    kfDobL:'出生日期', kfDobHint:'须年满 18 周岁', kfNationL:'国籍', kfIdTypeL:'证件类型', kfIdNoL:'证件号码', kfIdExpL:'证件有效期', kfIdExpHint:'长期有效可不填', kfEmailL:'邮箱', kfResL:'所在国家 / 地区', kfAddrL:'详细地址', kfAddrTr:'地址拼音', kfCityL:'城市', kfStateL:'省 / 州', kfZipL:'邮政编码', kfPoaL:'居住地址证明', kfPoaHint:'如证件地址与居住地址不一致，需补充近 3 个月水电账单 / 银行账单。',
+    opNameL:'账户持有人姓名', opNameHint:'请使用与证件一致的英文 / 拼音姓名', opPhoneHint:'国际格式，用于短信验证',
+    opIdSec:'身份证明', opIdTypeL:'证件类型', opIdNoL:'证件号码', opIdNoHint:'非英文证件需同时提供英文翻译件', opIdImgNote:'（第一证件必传正反面）', opIdFront:'证件正面', opIdBack:'证件反面', opIdImgHint:'支持 JPG / PNG / PDF，≤15MB',
+    opPoaL:'居住地址证明', opPoaHint:'近 3 个月水电账单或银行账单，需显示姓名与地址',
+    opEmpL:'就业状态', opSofL:'资金来源', opSignL:'声明签署', opSignHint:'输入与证件一致的姓名拼音作为电子签名，确认所填信息真实有效并同意开户及反洗钱审核条款',
+    kfCondSecL:'账户用途与就业信息',
+    kfMoreL:'系统判定：您需补充填写以下资金用途信息（必填，无法自行关闭）', kfMoreSysHint:'由平台根据您的实名资料、账户主要用途与资金画像自动判定；如需申诉请联系客服。',
+    kfOccupL:'职业', kfEmpL:'就业状态', kfSofL:'资金来源', kfPurposeL:'账户主要用途', kfMonthlyL:'预计每月资金往来', kfInterL:'是否代他人收付资金', kfInterNo:'否，本人账户', kfInterYes:'是，代他人收付',
+    occ_other:'其他',
+    emp_employed:'受雇', emp_homemaker:'家庭主理人', emp_retired:'退休', emp_self_employed:'自雇 / 自由职业', emp_student:'学生', emp_unemployed:'待业',
+    sof_salary:'工资收入', sof_savings:'个人储蓄', sof_investments_loans:'投资 / 贷款', sof_gifts:'赠与', sof_inheritance:'遗产继承', sof_pension_retirement:'养老金 / 退休金', sof_government_benefits:'政府补助', sof_company_funds:'公司资金', sof_ecommerce_reseller:'电商转售', sof_sale_of_assets_real_estate:'资产出售 / 房产', sof_gambling_proceeds:'博彩收益', sof_someone_elses_funds:'他人资金',
+    pur_personal_or_living_expenses:'个人生活开销', pur_ecommerce_retail_payments:'电商零售收款', pur_investment_purposes:'投资理财', pur_operating_a_company:'企业经营', pur_receive_salary:'工资收款', pur_receive_payment_for_freelancing:'自由职业收款', pur_payments_to_friends_or_family_abroad:'向海外亲友汇款', pur_purchase_goods_and_services:'购买商品与服务', pur_protect_wealth:'资产保值', pur_charitable_donations:'慈善捐赠', pur_other:'其他',
+    '0_4999':'低于 5,000 USD / 月', '5000_9999':'5,000 - 9,999 USD / 月', '10000_49999':'10,000 - 49,999 USD / 月', '50000_plus':'50,000 USD 以上 / 月',
+    id_ssn:'SSN 社会安全号', id_itin:'ITIN 个人税号', id_ricn:'居民身份证', id_passport:'护照', id_tin:'税号（TIN）', id_national_id:'国民身份证', id_hkid:'香港身份证', id_nino:'国民保险号', id_utr:'纳税人参考号', id_sin:'社会保险号', id_nric:'国民登记身份证', id_fin:'外国人身份号', id_mn:'个人编号', id_tfn:'税号（TFN）', id_steuer_id:'税号（Steuer-ID）', id_idnr:'个人税号（IDNR）', id_spi:'社保号', id_rrn:'居民登记号', id_cpf:'CPF', id_curp:'CURP', id_ine:'INE', id_rfc:'RFC', id_pan:'PAN', id_drivers_license:'驾照',
+    next:'下一步', back:'上一步', cancel:'取消', close:'关闭', confirmOpen:'确认开通',
+    cfNoteReady:'资料已就绪。提交后将为您开立专属收款账户，账户开通后即可开始接收入金。到账处理与费用规则以服务协议为准。',
+    cfNoteInstant:'提交后将自动完成实名核验并即时开通账户（个人资料完整且非高风险时通常数秒内通过，无需人工等待）。账户开通后即可开始接收入金；若触发人工复核，最迟下一工作日反馈结果。',
+    cfNoteReview:'您当前被系统判定为高风险 / 标注客户，本次将连同实名资料进入人工复核。复核通过后，账户状态由「开通中」转为「已开通」，届时方可开始接收入金；到账处理与费用规则以服务协议为准。',
+    agree1:'我已阅读并同意', agree2:'《YASBe 平台服务条款》与《隐私政策》',
+    agreeB1:'我授权 YASBe 通过', agreeB2:'为我完成实名认证与账户开立，并已阅读同意', agreeB3:'《Bridge 服务条款》',
+    tosGoSign:'前往签署', tosSignedOk:'✓ 已完成《Bridge 服务条款》签署', tosSignedHint:'签署编号：',
+    tosTitle:'签署《Bridge 服务条款》', tosSub:'Bridge 托管签署',
+    tosAccept:'同意并签署',
+    tosBody:'本条款由 Bridge 提供并托管。签署成功后即可返回 YASBe 继续开户。',
+    stepOf:'第 {n} 步 / 共 {m} 步',
+    sCurrency:'选择法币账户类型', sTos:'签署合作机构服务条款', sInfo:'填写账户信息', sConfirm:'确认开通',
+    tosStepL:'签署合作机构服务条款',
+    tosLead1:'美元收款账户由持牌支付机构', tosLead2:'提供。开户前，请先签署《Bridge 服务条款》，签署完成后返回本页继续。',
+    tosChipUnsigned:'待签署', tosChipSigned:'已签署',
+    tosGateHint:'请先完成签署。',
+    tosSignedAt:'签署时间 ',
+    tosSignedMeta:'已签署《Bridge 服务条款》 · 签署编号：',
+    tosHostTag:'合作机构页面',
+    tosReturning:'签署成功，正在返回 YASBe…',
+    tosSignedToast:'已完成《Bridge 服务条款》签署，可继续开户',
+    tosNeedSign:'请先完成签署',
+    // account modal
+    amDeposit:'收款账户信息', amView:'账户详情', railL:'入金方式', balL:'余额', accL:'账户信息',
+    amDepLead:'这是您本人名下的入金账户：请仅从您本人（同名）的银行账户向本账户转账入金。',
+    available:'可用余额', actual:'总余额', pending:'在途',
+    createdOn:'开户时间', status:'账户状态', holder:'账户持有人', primary:'默认账户', notPrimary:'备用账户',
+    stActive:'正常', stPending:'开通中', stSuspended:'已冻结', stClosed:'已关闭', stFailed:'开户失败',
+    pendAccNote:'审核通过后将生成专属收款账户号码。',
+    endorseSecL:'通道合规（endorsement）', endorseBase:'base 收款通道（USD）', endorseActive:'已开通', endorsePending:'待批准（开户审核通过后生效）',
+    endReqKyc:'个人实名认证', endReqTos:'服务条款签署（Terms v1）', endReqSanctions:'制裁名单筛查', endMet:'✓ 已满足',
+    endorsePendingNote:'开户申请经合作机构审核通过后，base 收款通道（endorsement）将自动可用，账户即可开始接收入金。',
+    futureReqNote:'当有新的合规要求时，平台会提前通知并标注生效日期（endorsement.future_requirements.effective_date）。示例：采用 Bridge 托管钱包收款的 EEA 客户，须在 2026-12-31 生效日前补全税号（TIN）等资料。',
+    primaryTag:'默认', deposit:'入金', withdraw:'提现', view:'详情',
+    // rails
+    r_ACH:'ACH 美国自动清算', r_FEDWIRE:'电汇 Fedwire', r_FEDNOW:'FedNow 实时', r_SEPA:'SEPA 欧洲转账', r_SEPA_INSTANT:'SEPA 即时转账', r_SWIFT:'SWIFT 国际电汇', r_FPS:'Faster Payments 即时', r_CHAPS:'CHAPS 大额转账', r_WIRE:'电汇 Wire',
+    arrive:'预计到账', cutoff:'当日截止', limit:'单笔限额', fee:'费用',
+    refNote:'本账户需在转账附言中填写 Reference 用于入账匹配；未填写将导致延迟入账。',
+    refNotNeeded:'本账户为专属账户，转账时无需填写附言/备注，系统自动匹配入账。',
+    // fields
+    f_bankName:'收款银行', f_bankAddress:'银行地址', f_holder:'账户持有人名称', f_accountNumber:'账户号码', f_routingNumber:'ABA 路由号码', f_iban:'IBAN', f_bic:'SWIFT / BIC', f_sortCode:'Sort Code', f_payInRef:'附言 Reference（必填）',
+    // open flow
+    obChoose:'已开通', accNameL:'账户名称',
+    destL:'资金归集（平台托管）', destCoin:'归集稳定币', destRail:'归集网络', destAddr:'YASBe 官方托管钱包', destAddrHelp:'入账资金将自动兑换为稳定币并归集至本平台官方托管钱包（地址由平台托管，无需填写个人钱包地址），折算后计入您的可用余额。',
+    obPreview:'开通后将获得', f_holderAddr:'账户持有人地址',
+    openSuccess:'账户开通成功', crTitle:'正在开通您的账户…', crDesc:'通常只需几秒钟，请稍候',
+    openSubmitted:'开户申请已提交，进入人工复核，最迟下一工作日反馈结果；复核通过后账户将自动开通。', kycApprovedPromote:'演示：复核已通过，「开通中」的账户已转为「已开通」。',
+    dOpen:'打开「开通新账户」', dDeposit:'打开「收款账户信息」（美元）', dWithdraw:'打开「提现」（美元）', dReset:'重置',
+    copied:'已复制', copiedAll:'已全部复制',
+    // country / risk 提示
+    usNotice:'🇺🇸 <b>美国用户提示：</b>根据美国银行监管要求，需填写美国州 / 省、SSN / ITIN 税号、身份证件照片及居住地址证明。所填信息用于银行开户与反洗钱（AML）审核。',
+    euNotice:'🇪🇺 <b>欧盟 / 欧洲经济区用户提示：</b>根据欧洲经济区（EEA）开户合规要求，需提供出生国家与全部国籍、国民身份号与税号（TIN），并说明账户主要用途与资金来源；身份信息将进行数据库核验。',
+    riskNotice:'⚠️ <b>高风险提示：</b>根据您的实名资料与资金画像，系统自动将您判定为高风险 / 大额资金往来客户（自动判定，无法自行关闭）。请完成下方职业、资金来源、账户主要用途等必填信息，方可继续开户。',
+    dCountry:'用户所在国家 / 地区（自动判断）',
+    // EEA / BBSA 身份要求
+    eeaSecL:'出生地与身份号码（EEA 要求）',
+    eeaNote:'根据欧洲经济区（EEA）开户合规要求：EEA 范围内客户需提供出生国家与城市、全部国籍、账户主要用途，并同时提供国民身份号（National ID）与税号（TIN）。人脸自拍须通过平台官方核验流程完成。',
+    birthCountryL:'出生国家 / 地区', birthCityL:'出生城市（选填）', birthHint:'出生国家为必填项；出生城市按欧盟 2027 年法规要求，建议一并提供。',
+    kfNatTitle:'身份号码', natIdL:'国民身份号（National ID）', natIdHint:'按居住国规定的国民身份号码类型填写',
+    tinL:'税号（TIN）', tinHint:'须由居住国税务机关签发', tinResMatch:'税号必须由居住国（居民身份国家）签发，不能选择「无有效税号」。',
+    dbVerifyNote:'身份核验将对照政府数据库进行；如核验未通过，需补充居住地址证明或进行人脸活体自拍。',
+    // EEA 人脸核验（托管流程）
+    selfieHostL:'EEA 客户 · 人脸核验走托管流程', selfieHostT:'欧洲经济区（EEA）客户的人脸活体核验须通过合作平台的托管核验页面完成，不支持在本页直接上传自拍。', selfieHostGo:'前往托管核验', selfieHostGoMsg:'正在打开合作平台托管核验页面（Persona）… 完成活体核验并返回后即可继续开户。',
+    // 不可服务国家拦截
+    noSvcNotice:'很抱歉，根据合作机构与监管支持范围，<b>%s</b> 所在用户当前无法开通收款账户，因此无法继续开户。如您近期变更了居住国 / 地区，请更新实名信息后再试。',
+    dRiskL:'高风险客户（模拟系统判定，展开资金用途信息）',
+    // form validation messages
+    errRequired:'该项为必填', errSelect:'请选择一项', errEmail:'请输入有效邮箱地址', errPhone:'请输入国际格式手机号，如 +8613800000000', errAge:'须年满 18 周岁', errMin4:'至少 4 个字符', errTr:'非拉丁字符姓名 / 地址需提供拼音', errState:'该国家 / 地区必填省 / 州', errIdPhoto:'请上传政府证件照片', errFile:'请上传文件', errSign:'电子签名须与证件姓名（拼音）一致', errRouting:'ABA 路由号码须为 9 位数字', errAcc8:'账户号码须为 8 位数字', errSort:'Sort Code 须为 6 位数字', errIban:'IBAN 无效，请检查号码或校验位', errBic:'SWIFT / BIC 须为 8 或 11 位字母数字', errStreet:'地址须为 3–35 个字符', errStreetNum:'美国地址须包含门牌号', errPobox:'地址不允许使用邮政信箱（PO Box / PMB）', errStateEa:'该国家 / 地区必填省 / 州', errCountry:'请选择国家 / 地区',
+    // 标注客户
+    flagNotice:'⚠️ <b>标注客户提示：</b>您的账户已被风控系统自动标注，需配合提供完整的身份与资金用途信息；以下为必填项，无法自行关闭。',
+    dFlag:'标注客户（flag）',
+    // 提现账户同名
+    eaNameL:'账户名称', eaHolderL:'账户持有人', eaLocked:'（不可修改）',
+    eaSameOnly:'仅支持添加您本人（同名）的银行账户。账户名称与持有人由系统自动取自您的实名认证信息，不可修改。',
+    // 出金
+    wdTitle:'提现', wdSub:'从所选法币账户提现至您的同名银行账户',
+    wdStep1L:'1. 选择外部同名账户（收款）', wdStep2L:'2. 确认金额',
+    wdEaNote:'提现仅支持提至您本人（同名）的银行账户，须与法币账户币种一致。',
+    wdAdd:'＋ 添加外部同名账户', wdNoEa:'暂无外部账户，请先添加您的同名银行账户。',
+    wdFrom:'提现账户', wdTo:'收款账户', wdAmt:'提现金额', wdFee:'预估手续费', wdReceive:'预计到账', wdArrive:'预计到账', wdConfirm:'确认提现',
+    wdSelTip:'请选择收款账户', wdSuccess:'提现申请已提交', wdMismatch:'币种不一致，暂不支持提现，请添加对应币种的同名账户',
+    noData:'暂无交易记录',
+    // withdrawal accounts
+    eaTitle:'外部同名账户', eaSub:'您本人（同名）名下的银行账户，可作为同名入金来源与出金收款 · 添加后按地区规则核验持有人姓名',
+    eaAdd:'＋ 添加外部同名账户', eaMTitle:'添加外部同名账户', eaMSub:'添加您本人（同名）名下的银行账户，用于同名入金与出金收款',
+    eaStep1L:'1. 选择银行所在地区', eaStep2L:'2. 填写账户信息',
+    eaStep1Note:'外部同名账户用于同名入金与接收出金款项；添加后平台将按地区规则核验持有人姓名（美国地区账户不做姓名核验）。',
+    eaVerifyNote:'核验方式按地区区分：美国账户无需持有人姓名核验，添加后即可使用；欧洲 / 英国账户将进行持有人姓名匹配核验（通常数秒至数个工作日），核验通过前不可用于出金（接收本平台款项）。',
+    eaConfirm:'确认添加', eaAdded:'外部同名账户已添加；持有人姓名核验进行中，核验通过后方可用于出金。', eaAddedUs:'外部同名账户已添加，可立即用于出金', eaVerified:'持有人姓名核验已通过，该外部同名账户现可用于出金', dEa:'打开「添加外部同名账户」',
+    // status
+    st_completed:'已完成', st_processing:'处理中', st_failed:'失败', st_returned:'已退回', st_cancelled:'已取消',
+    // type
+    /* 三种资金来源情形（系统自动判定 → 自动追加材料） */
+    kfSofDocsSecL:'资金来源材料', kfSofDocsHint:'以下材料由平台按您填写的信息自动判定，须在开户时一并上传。',
+    kfSofDocsWhy:'系统判定：因%s，您需补充上传以下材料（必填，无法自行关闭）',
+    kfSofCase_explain:'就业状态为「无业」且资金来源为「工资」', kfSofCase_pension:'资金来源为「养老金 / 退休金」', kfSofCase_proof:'预计每月资金往来为 5 万美元及以上',
+    kfSofStatementL:'资金来源说明', kfSofStatementH:'请上传说明资金来源的书面说明文件。',
+    kfSofSalaryL:'工资入账凭证', kfSofSalaryH:'近 3 个月银行流水或工资单。',
+    kfSofPensionL:'养老金 / 退休金发放证明', kfSofPensionH:'发放机构出具的证明或近 3 个月入账记录。',
+    kfSofProofL:'资金来源证明', kfSofProofH:'银行流水、收入证明等可证明资金来源的材料。',
+    errSofDoc:'请上传所需材料',
+    ty_payin:'入金', ty_payout:'提现', ty_exchange:'兑换', ty_return:'退回', ty_fee:'手续费'
+  },
+  en:{
+    title:'Fiat Accounts', sub:'Manage your fiat receiving accounts and same-name external accounts · deposits auto-match and credit your balance',
+    openNew:'＋ Open New Account', sAccs:'Fiat accounts', sAccsU:'', sBal:'Available balance', sBalU:'in USD', sIn:'Deposits (MTD)', sInU:'USD', sOut:'Withdrawals (MTD)', sOutU:'USD',
+    txTitle:'Transactions', fAll:'All', fIn:'Deposit', fOut:'Withdraw',
+    thTxId:'TX ID', thAcc:'Account', thType:'Type', thRail:'Method', thCur:'Cur', thAmount:'Amount', thFee:'Fee', thStatus:'Status', thRef:'Ref', thDate:'Date', thView:'View',
+    pag:'Showing 1 to 7 of 7 records',
+    obTitle:'Open New Account', obSub:'Choose an account type, fill in the required details, and open your dedicated receiving account',
+    step1L:'Choose currency', step2L:'Account details', step3L:'Confirm',
+    accTypeNote:'Different currency accounts are issued by different partner institutions, so the required details differ. Choose the account type to open.',
+    usdFormNote:'USD accounts require identity verification per the U.S. partner bank. Details are used for bank onboarding and AML screening.',
+    opNote:'EUR / GBP accounts are issued by a European partner institution. Fill in the details below for onboarding and AML review; processing time follows the partner institution.',
+    kfNote:'Identity verification is required before opening a virtual account. Details are used for bank onboarding and AML screening.',
+    kfDoneTitle:'Identity verified', kfDoneHint:'Your verified details are approved. You can open an account now. Contact support to change them.',
+    kfReviewTitle:'Identity verification under review', kfReviewHint:'Your identity details are under manual review; the result is provided by the next business day. Once approved you can continue opening accounts; the result will be sent by in-app message / email.',
+    kfRejTitle:'Identity verification rejected', kfRejHint:'Identity verification was not approved, so a USD account cannot be opened yet.<br>Shareable reason: we could not verify the identity / document details provided. Common cause: an incorrect document or Tax ID (TIN) — such errors cause an <b>immediate rejection</b>, skipping manual review.<br>Check the document number, date of birth and TIN, then resubmit. Contact support for help.',
+    kfRetry:'Edit details & resubmit',
+    kfFirst:'First name', kfLast:'Last name', kfFirstTr:'First name (transliteration)', kfLastTr:'Last name (transliteration)', kfTrHint:'Transliteration is required for non-Latin names / addresses so banks and payment networks can read them.',
+    kfMiddle:'Middle name', kfMiddleTr:'Middle name (transliteration)',
+    kfMultiL:'Hold multiple nationalities', kfNationsL:'All nationalities (multi-select)', kfNationsHint:'Select all nationalities held (Ctrl / Cmd multi-select)',
+    kfPhoneL:'Phone number', kfPhoneHint:'International format, e.g. +12223334444',
+    kfIdSec:'Identity document', kfIdIssue:'Issuing country: selected nationality', kfIdImgNote:'(Required for government ID, optional for tax IDs)', kfIdFront:'ID front', kfIdBack:'ID back', kfSelfie:'Selfie (liveness)', kfIdImgHint:'JPG / PNG / PDF / HEIC / TIF, ≤15MB per side (≤24MB total for both sides), ≥200×200px. Used for bank onboarding and identity verification.',
+    kfAddr2L:'Address line 2 (optional)',
+    kfPurposeOtherL:'Purpose description', kfOccupHint:'Standard occupation code (Bridge occupation list)',
+    kfDobL:'Date of birth', kfDobHint:'Must be at least 18', kfNationL:'Nationality', kfIdTypeL:'ID type', kfIdNoL:'ID number', kfIdExpL:'ID expiry', kfIdExpHint:'Optional if valid indefinitely', kfEmailL:'Email', kfResL:'Country / region of residence', kfAddrL:'Street address', kfAddrTr:'Address (transliteration)', kfCityL:'City', kfStateL:'Province / State', kfZipL:'Postal code', kfPoaL:'Proof of address', kfPoaHint:'Attach a utility or bank statement from the last 3 months if your ID address differs from your residence.',
+    opNameL:'Account holder name', opNameHint:'Use the English / pinyin name exactly as shown on the ID', opPhoneHint:'International format, used for SMS verification',
+    opIdSec:'Identity documents', opIdTypeL:'ID type', opIdNoL:'ID number', opIdNoHint:'A certified translation is required for non-English IDs', opIdImgNote:'(Required for the primary ID)', opIdFront:'ID front', opIdBack:'ID back', opIdImgHint:'JPG / PNG / PDF, ≤15MB',
+    opPoaL:'Proof of address', opPoaHint:'Utility or bank statement from the last 3 months showing your name and address',
+    opEmpL:'Employment status', opSofL:'Source of funds', opSignL:'Declaration & signature', opSignHint:'Type the pinyin name matching your ID as the electronic signature, confirming the details are true and agreeing to onboarding and AML terms',
+    kfCondSecL:'Account purpose & employment',
+    kfMoreL:'System determination: you must complete the source-of-funds details below (required, cannot be turned off)', kfMoreSysHint:'Determined automatically by the platform from your verified profile, account purpose and fund profile; contact support to appeal.',
+    kfOccupL:'Occupation', kfEmpL:'Employment status', kfSofL:'Source of funds', kfPurposeL:'Primary account purpose', kfMonthlyL:'Expected monthly volume', kfInterL:'Acting on behalf of someone else?', kfInterNo:'No, my own funds', kfInterYes:'Yes, third-party funds',
+    occ_other:'Other',
+    emp_employed:'Employed', emp_homemaker:'Homemaker', emp_retired:'Retired', emp_self_employed:'Self-employed', emp_student:'Student', emp_unemployed:'Unemployed',
+    sof_salary:'Salary', sof_savings:'Savings', sof_investments_loans:'Investments / loans', sof_gifts:'Gifts', sof_inheritance:'Inheritance', sof_pension_retirement:'Pension / retirement', sof_government_benefits:'Government benefits', sof_company_funds:'Company funds', sof_ecommerce_reseller:'E-commerce reseller', sof_sale_of_assets_real_estate:'Asset / property sale', sof_gambling_proceeds:'Gambling proceeds', sof_someone_elses_funds:"Someone else's funds",
+    pur_personal_or_living_expenses:'Personal / living expenses', pur_ecommerce_retail_payments:'E-commerce retail payments', pur_investment_purposes:'Investment purposes', pur_operating_a_company:'Operating a company', pur_receive_salary:'Receiving salary', pur_receive_payment_for_freelancing:'Freelance income', pur_payments_to_friends_or_family_abroad:'Payments to family / friends abroad', pur_purchase_goods_and_services:'Purchasing goods & services', pur_protect_wealth:'Protecting wealth', pur_charitable_donations:'Charitable donations', pur_other:'Other',
+    '0_4999':'Under $5,000 / month', '5000_9999':'$5,000 - $9,999 / month', '10000_49999':'$10,000 - $49,999 / month', '50000_plus':'Over $50,000 / month',
+    id_ssn:'SSN', id_itin:'ITIN', id_ricn:'Resident ID Card', id_passport:'Passport', id_tin:'Tax ID (TIN)', id_national_id:'National ID', id_hkid:'HKID', id_nino:'National Insurance No.', id_utr:'UTR', id_sin:'SIN', id_nric:'NRIC', id_fin:'FIN', id_mn:'My Number', id_tfn:'TFN', id_steuer_id:'Steuer-ID', id_idnr:'IDNR', id_spi:'Social Security No.', id_rrn:'RRN', id_cpf:'CPF', id_curp:'CURP', id_ine:'INE', id_rfc:'RFC', id_pan:'PAN', id_drivers_license:"Driver's license",
+    next:'Next', back:'Back', cancel:'Cancel', close:'Close', confirmOpen:'Confirm & Open',
+    cfNoteReady:'Your details are ready. We will open a dedicated receiving account on submission; you can start receiving deposits once it is active. Settlement and fees follow the service agreement.',
+    cfNoteInstant:'Identity verification completes automatically on submission and the account opens immediately (a complete, non-high-risk profile usually passes in seconds — no manual wait). You can start receiving deposits right away; if a manual review is triggered you will be notified by the next business day.',
+    cfNoteReview:'You are currently classified as high-risk / flagged, so this submission goes through manual review together with the account opening. Once approved, the account moves from "Opening" to "Active" and can start receiving deposits.',
+    agree1:'I have read and agree to the ', agree2:'YASBe Platform Terms & Privacy Policy',
+    agreeB1:'I authorize YASBe to use', agreeB2:'to complete identity verification and account opening on my behalf, and I have read and agree to the', agreeB3:'Bridge Terms of Service',
+    tosGoSign:'Sign', tosSignedOk:'✓ Bridge Terms of Service signed', tosSignedHint:'Agreement number: ',
+    tosTitle:'Sign the Bridge Terms of Service', tosSub:'Bridge-hosted signing',
+    tosAccept:'Agree & Sign',
+    tosBody:'This agreement is provided and hosted by Bridge. Once signed, you can return to YASBe to continue opening your account.',
+    stepOf:'Step {n} of {m}',
+    sCurrency:'Choose currency', sTos:'Sign partner service terms', sInfo:'Account details', sConfirm:'Confirm',
+    tosStepL:'Sign partner service terms',
+    tosLead1:'Your USD receiving account is provided and hosted by the licensed payment institution', tosLead2:'. Please sign the Bridge Terms of Service before opening your account, then return to this page to continue.',
+    tosChipUnsigned:'Not signed', tosChipSigned:'Signed',
+    tosGateHint:'Please sign first.',
+    tosSignedAt:'Signed at ',
+    tosSignedMeta:'Bridge Terms of Service signed · Agreement number: ',
+    tosHostTag:'Partner page',
+    tosReturning:'Signed — returning to YASBe…',
+    tosSignedToast:'Bridge Terms of Service signed — you can continue',
+    tosNeedSign:'Please sign first',
+    amDeposit:'Deposit Account', amView:'Account Details', railL:'Deposit method', balL:'Balance', accL:'Account',
+    amDepLead:'This is your own deposit account: please fund it only from your own (same-name) bank account.',
+    available:'Available', actual:'Total', pending:'Pending',
+    createdOn:'Opened', status:'Status', holder:'Holder', primary:'Primary', notPrimary:'Backup',
+    stActive:'Active', stPending:'Pending', stSuspended:'Suspended', stClosed:'Closed', stFailed:'Failed',
+    pendAccNote:'A dedicated account number is issued after approval.',
+    endorseSecL:'Endorsement compliance', endorseBase:'base receiving channel (USD)', endorseActive:'Approved', endorsePending:'Pending (activates after onboarding review)',
+    endReqKyc:'Identity verification', endReqTos:'Terms of Service (Terms v1)', endReqSanctions:'Sanctions screening', endMet:'✓ Met',
+    endorsePendingNote:'Once the account-opening request is approved by the partner institution, the base receiving endorsement activates automatically and the account can start receiving deposits.',
+    futureReqNote:'When a new compliance requirement is introduced, you will be notified in advance with its effective date (endorsement.future_requirements.effective_date). Example: EEA customers receiving into a Bridge custodial wallet must complete Tax ID (TIN) details before the 2026-12-31 effective date.',
+    primaryTag:'Primary', deposit:'Deposit', withdraw:'Withdraw', view:'Details',
+    r_ACH:'ACH', r_FEDWIRE:'Wire (Fedwire)', r_FEDNOW:'FedNow', r_SEPA:'SEPA Credit', r_SEPA_INSTANT:'SEPA Instant', r_SWIFT:'SWIFT', r_FPS:'Faster Payments', r_CHAPS:'CHAPS', r_WIRE:'Wire',
+    arrive:'Arrival', cutoff:'Cut-off', limit:'Limit', fee:'Fees',
+    refNote:'Include the Reference in the transfer memo for matching; missing it delays posting.',
+    refNotNeeded:'Dedicated account — no memo required, funds match automatically.',
+    f_bankName:'Beneficiary Bank', f_bankAddress:'Bank Address', f_holder:'Account Holder', f_accountNumber:'Account Number', f_routingNumber:'Routing (ABA)', f_iban:'IBAN', f_bic:'SWIFT / BIC', f_sortCode:'Sort Code', f_payInRef:'Reference (Required)',
+    obChoose:'opened', accNameL:'Account name',
+    destL:'Fund settlement (platform custody)', destCoin:'Settled stablecoin', destRail:'Settlement network', destAddr:'YASBe official custody wallet', destAddrHelp:'Incoming funds auto-convert to stablecoin and are swept to the YASBe official custody wallet (platform-managed — no personal wallet address needed); the value is credited to your available balance.',
+    obPreview:'You will receive', f_holderAddr:'Beneficiary Address',
+    openSuccess:'Account opened', crTitle:'Opening your account…', crDesc:'This usually takes a few seconds',
+    openSubmitted:'Application submitted for manual review; you will be notified by the next business day and the account opens automatically once approved.', kycApprovedPromote:'Demo: review approved — the "Opening" account is now "Active".',
+    dOpen:'Open "New Account" flow', dDeposit:'Open account details (USD)', dWithdraw:'Open "Withdraw" (USD)', dReset:'Reset',
+    copied:'Copied', copiedAll:'All copied',
+    // country / risk notice
+    usNotice:'🇺🇸 <b>U.S. user notice:</b> U.S. banking regulations require your state, SSN/ITIN, ID photos and proof of address. Used for bank onboarding and AML review.',
+    euNotice:'🇪🇺 <b>EU/EEA user notice:</b> Under the European Economic Area (EEA) onboarding requirements, provide your country of birth and all nationalities, a National ID and TIN, and state your account purpose and source of funds; identity is checked against databases.',
+    riskNotice:'⚠️ <b>High-risk notice:</b> Based on your verified profile and fund profile, the system has automatically determined that you are high-risk / high-volume (automatic decision, cannot be turned off). Complete the required occupation, source-of-funds and account-purpose details to continue opening an account.',
+    dCountry:'User country / region (auto-detected)',
+    // EEA / BBSA identity requirements
+    eeaSecL:'Place of birth & ID numbers (EEA)',
+    eeaNote:'Under European Economic Area (EEA) onboarding requirements, EEA customers must provide country and city of birth, all nationalities, account purpose, plus both a National ID and a Tax ID (TIN). The liveness selfie must be completed through the platform&#39;s official verification flow.',
+    birthCountryL:'Country of birth', birthCityL:'City of birth (optional)', birthHint:'Country of birth is required; city of birth becomes mandatory under EU law in 2027, so we recommend providing it now.',
+    kfNatTitle:'Identification numbers', natIdL:'National ID number', natIdHint:'Use the national ID type required by your country of residence',
+    tinL:'Tax ID (TIN)', tinHint:'Issued by the tax authority of your country of residence', tinResMatch:'The TIN must be issued by your country of residence; you cannot claim "no valid tax ID".',
+    dbVerifyNote:'Identity is verified against government databases; if the check fails, a proof of address or a live selfie may be required.',
+    // EEA liveness (hosted)
+    selfieHostL:'EEA customers · liveness runs through the hosted flow', selfieHostT:"EEA customers must complete the liveness selfie through the partner's hosted verification page; direct selfie upload is not supported on this page.", selfieHostGo:'Go to hosted verification', selfieHostGoMsg:'Opening the partner-hosted verification page (Persona)… Once liveness is completed and you return, you can continue opening the account.',
+    // unsupported country interception
+    noSvcNotice:'We are sorry — based on partner coverage and regulatory scope, users residing in <b>%s</b> cannot currently open a receiving account, so opening cannot continue. If you recently changed your country / region of residence, update your verified profile and try again.',
+    dRiskL:'High-risk customer (simulates system determination, expands fund-usage fields)',
+    // form validation messages
+    errRequired:'Required', errSelect:'Please select an option', errEmail:'Enter a valid email address', errPhone:'Enter an international phone number, e.g. +8613800000000', errAge:'Must be at least 18 years old', errMin4:'At least 4 characters', errTr:'Transliteration is required for non-Latin names / addresses', errState:'State / province is required for this country', errIdPhoto:'Please upload a government ID photo', errFile:'Please upload a file', errSign:'Signature must match the name (pinyin) on the ID', errRouting:'ABA routing number must be 9 digits', errAcc8:'Account number must be 8 digits', errSort:'Sort code must be 6 digits', errIban:'Invalid IBAN — check the number or check digits', errBic:'SWIFT / BIC must be 8 or 11 alphanumeric characters', errStreet:'Address must be 3–35 characters', errStreetNum:'U.S. addresses must include a street number', errPobox:'PO Box / PMB addresses are not allowed', errStateEa:'State / province is required for this country', errCountry:'Please select a country',
+    flagNotice:'⚠️ <b>Flagged customer notice:</b> Your account has been automatically flagged by the risk system. Provide complete identity and fund-usage details; the fields below are required and cannot be turned off.',
+    dFlag:'Flagged customer',
+    eaNameL:'Account name', eaHolderL:'Account holder', eaLocked:'(locked)',
+    eaSameOnly:'Only your own (same-name) bank accounts can be added. The account name and holder are taken from your verified profile and cannot be edited.',
+    wdTitle:'Withdraw', wdSub:'Withdraw from this fiat account to your own bank account',
+    wdStep1L:'1. Choose a same-name external account (recipient)', wdStep2L:'2. Confirm amount',
+    wdEaNote:'Withdrawals can only be sent to your own (same-name) bank account and must match the fiat account currency.',
+    wdAdd:'＋ Add same-name account', wdNoEa:'No external account yet. Add your own bank account first.',
+    wdFrom:'From', wdTo:'To', wdAmt:'Amount', wdFee:'Estimated fee', wdReceive:'You receive', wdArrive:'Estimated arrival', wdConfirm:'Confirm Withdraw',
+    wdSelTip:'Select a payout account', wdSuccess:'Withdrawal submitted', wdMismatch:'Currency mismatch — please add a same-name account in this currency',
+    noData:'No transactions',
+    eaTitle:'Same-Name External Accounts', eaSub:'Bank accounts in your own (same) name — the funding source for same-name deposits and the destination for payouts · holder name is verified after adding',
+    eaAdd:'＋ Add Same-Name External Account', eaMTitle:'Add Same-Name External Account', eaMSub:'Add a bank account in your own (same) name, used for same-name deposits and payout collection',
+    eaStep1L:'1. Choose bank location', eaStep2L:'2. Account details',
+    eaStep1Note:'Same-name external accounts fund deposits and receive payouts. After adding, the holder name is verified per bank-location rules (no holder-name check for U.S. accounts).',
+    eaVerifyNote:'Verification depends on location: U.S. accounts need no holder-name match and can be used immediately; EU / UK accounts go through holder-name matching (usually seconds to a few business days) and cannot be used for payouts (receiving funds from YASBe) until verified.',
+    eaConfirm:'Add Account', eaAdded:'Same-name external account added; holder-name verification in progress. Usable for payouts once verified.', eaAddedUs:'Same-name external account added and ready for payouts.', eaVerified:'Holder name verified — this same-name external account is now available for payouts.', dEa:'Open "Add Same-Name External Account"',
+    st_completed:'Completed', st_processing:'Processing', st_failed:'Failed', st_returned:'Returned', st_cancelled:'Cancelled',
+    /* source-of-funds cases: auto-detected, documents appended automatically */
+    kfSofDocsSecL:'Source of funds documents', kfSofDocsHint:'The items below are determined automatically from the information you provided and must be uploaded with this application.',
+    kfSofDocsWhy:'Required: because of %s, please upload the items below (mandatory)',
+    kfSofCase_explain:'employment status "unemployed" with salary as source of funds', kfSofCase_pension:'pension / retirement as source of funds', kfSofCase_proof:'expected monthly volume of USD 50,000 or more',
+    kfSofStatementL:'Source of funds statement', kfSofStatementH:'Upload a written statement explaining the source of funds.',
+    kfSofSalaryL:'Salary payment evidence', kfSofSalaryH:'Bank statements or payslips for the last 3 months.',
+    kfSofPensionL:'Pension / retirement benefit proof', kfSofPensionH:'Issuer letter or 3 months of benefit credits.',
+    kfSofProofL:'Proof of source of funds', kfSofProofH:'Bank statements, income proof or other documents showing the source of funds.',
+    errSofDoc:'Please upload the required document',
+    ty_payin:'Deposit', ty_payout:'Withdraw', ty_exchange:'Exchange', ty_return:'Return', ty_fee:'Fee'
+  }
+};
+function t(k){return (T[S.lang]&&T[S.lang][k]!==undefined)?T[S.lang][k]:(T.zh[k]||k);}
+function tt(k){return S.lang==='zh'?k.zh:k.en;}
+
+/* ================= 入金方式元数据 ================= */
+const RAILS = {
+  ACH:        {arrive:tt({zh:'1-2 个工作日',en:'1-2 business days'}),        cutoff:tt({zh:'—',en:'—'}),             limit:tt({zh:'—',en:'—'}),                  fee:tt({zh:'开发费 + 兑换费 + Gas 费（从入账中扣除）',en:'Developer + exchange + gas fee'}), ref:false},
+  FEDWIRE:    {arrive:tt({zh:'当日到账',en:'Same-day'}),                      cutoff:tt({zh:'美东 16:45 前',en:'4:45PM ET'}), limit:tt({zh:'—',en:'—'}),               fee:tt({zh:'开发费 + 兑换费 + Gas 费（从入账中扣除）',en:'Developer + exchange + gas fee'}), ref:false},
+  FEDNOW:     {arrive:tt({zh:'实时到账',en:'Instant'}),                       cutoff:tt({zh:'24/7',en:'24/7'}),          limit:tt({zh:'—',en:'—'}),                  fee:tt({zh:'开发费 + 兑换费 + Gas 费（从入账中扣除）',en:'Developer + exchange + gas fee'}), ref:false},
+  WIRE:       {arrive:tt({zh:'下一个工作日',en:'Next business day'}),         cutoff:tt({zh:'格林尼治 18:00 前',en:'6:00PM GMT'}), limit:tt({zh:'—',en:'—'}),         fee:tt({zh:'按渠道费率表',en:'Per channel fee schedule'}), ref:true},
+  SWIFT:      {arrive:tt({zh:'2-5 个工作日',en:'2-5 business days'}),          cutoff:tt({zh:'格林尼治 15:00 前',en:'3:00PM GMT'}), limit:tt({zh:'—',en:'—'}),            fee:tt({zh:'按渠道费率表',en:'Per channel fee schedule'}), ref:true},
+  SEPA:       {arrive:tt({zh:'2-3 小时（工作日）',en:'2-3 hours (business)'}), cutoff:tt({zh:'格林尼治 14:00 前',en:'2:00PM GMT'}), limit:tt({zh:'—',en:'—'}),          fee:tt({zh:'按渠道费率表',en:'Per channel fee schedule'}), ref:true},
+  SEPA_INSTANT:{arrive:tt({zh:'实时到账',en:'Instant'}),                      cutoff:tt({zh:'24/7',en:'24/7'}),          limit:tt({zh:'€100,000',en:'€100,000'}),   fee:tt({zh:'按渠道费率表',en:'Per channel fee schedule'}), ref:true},
+  FPS:        {arrive:tt({zh:'实时到账',en:'Instant'}),                       cutoff:tt({zh:'24/7/365',en:'24/7/365'}),   limit:tt({zh:'£1,000,000',en:'£1,000,000'}),fee:tt({zh:'按渠道费率表',en:'Per channel fee schedule'}), ref:true},
+  CHAPS:      {arrive:tt({zh:'1-2 小时（工作日）',en:'1-2 hours (business)'}), cutoff:tt({zh:'格林尼治 17:30 前',en:'5:30PM GMT'}), limit:tt({zh:'—',en:'—'}),       fee:tt({zh:'按渠道费率表',en:'Per channel fee schedule'}), ref:true}
+};
+
+/* 每个通道展示的字段顺序（严谨：按币种/渠道/通道决定） */
+const RAIL_FIELDS = {
+  ACH:      ['bankName','bankAddress','holder','holderAddr','accountNumber','routingNumber'],
+  FEDWIRE:  ['bankName','bankAddress','holder','holderAddr','accountNumber','routingNumber'],
+  FEDNOW:   ['bankName','bankAddress','holder','holderAddr','accountNumber','routingNumber'],
+  WIRE:     ['bankName','bankAddress','holder','holderAddr','accountNumber','routingNumber'],
+  SWIFT:    ['bankName','bankAddress','holder','iban','bic'],
+  SEPA:     ['bankName','bankAddress','holder','iban','bic','payInRef'],
+  SEPA_INSTANT:['bankName','bankAddress','holder','iban','bic','payInRef'],
+  FPS:      ['bankName','holder','sortCode','accountNumber','payInRef'],
+  CHAPS:    ['bankName','holder','sortCode','accountNumber','payInRef']
+};
+
+/* ================= 账户数据（示例） ================= */
+let ACCOUNTS = [
+  { id:'a-usd-01', currency:'USD', name:{zh:'美元收款账户',en:'USD Account'}, primary:true, status:'ACTIVE',
+    bal:{available:1280.50, actual:1280.50},
+    bank:{ bankName:'Lead Bank', bankAddress:'1801 Main St., Kansas City, MO 64108, United States of America', holder:{zh:'XIAOMING LI',en:'XIAOMING LI'}, holderAddr:{zh:'Unit 204, 205 Place Court, North York ON M2H 0A9',en:'Unit 204, 205 Place Court, North York ON M2H 0A9'}, accountNumber:'94004821', routingNumber:'101000014', iban:null, bic:null, sortCode:null, payInRef:null },
+    rails:['ACH','FEDWIRE','FEDNOW'], created:'2026-08-28', dest:{coin:'USDC',rail:'Base',addr:'0x71C7656EC7ab88b098defB751B7401B5f6d8976F'} },
+  { id:'a-usd-02', currency:'USD', name:{zh:'美元收款账户 2',en:'USD Account 2'}, primary:false, status:'ACTIVE',
+    bal:{available:0.00, actual:0.00},
+    bank:{ bankName:'Lead Bank', bankAddress:'1801 Main St., Kansas City, MO 64108, United States of America', holder:{zh:'XIAOMING LI',en:'XIAOMING LI'}, holderAddr:{zh:'Unit 204, 205 Place Court, North York ON M2H 0A9',en:'Unit 204, 205 Place Court, North York ON M2H 0A9'}, accountNumber:'94004822', routingNumber:'101000014', iban:null, bic:null, sortCode:null, payInRef:null },
+    rails:['ACH','FEDWIRE','FEDNOW'], created:'2026-08-29', dest:{coin:'USDC',rail:'Base',addr:'0x71C7656EC7ab88b098defB751B7401B5f6d8976F'} },
+  { id:'a-eur-01', currency:'EUR', name:{zh:'欧元收款账户',en:'EUR Account'}, primary:false, status:'ACTIVE',
+    bal:{available:350.75, actual:360.25},
+    bank:{ bankName:'Deutsche Kontor Privatbank AG', bankAddress:'Südliche Münchner Str. 2, 82031 Grünwald, Germany', holder:{zh:'XIAOMING LI',en:'XIAOMING LI'}, holderAddr:{zh:'Unit 204, 205 Place Court, North York ON M2H 0A9',en:'Unit 204, 205 Place Court, North York ON M2H 0A9'}, accountNumber:null, routingNumber:null, iban:'DE89 3704 0044 0532 0130 00', bic:'DEKTDE7G', sortCode:null, payInRef:'YASBE-EUR-0421' },
+    rails:['SEPA','SEPA_INSTANT','SWIFT'], created:'2026-08-29', dest:{coin:'USDC',rail:'Ethereum',addr:'0x71C7656EC7ab88b098defB751B7401B5f6d8976F'} },
+  { id:'a-gbp-01', currency:'GBP', name:{zh:'英镑收款账户',en:'GBP Account'}, primary:false, status:'ACTIVE',
+    bal:{available:0.00, actual:0.00},
+    bank:{ bankName:'ClearBank', bankAddress:'133 Houndsditch, London EC3A 7BX, United Kingdom', holder:{zh:'XIAOMING LI',en:'XIAOMING LI'}, holderAddr:{zh:'Unit 204, 205 Place Court, North York ON M2H 0A9',en:'Unit 204, 205 Place Court, North York ON M2H 0A9'}, accountNumber:'11326194', routingNumber:null, iban:'GB59 CLRB 0405 1011 3261 94', bic:'CLRBGB22', sortCode:'040510', payInRef:'YASBE-GBP-2194' },
+    rails:['FPS','CHAPS','SWIFT'], created:'2026-08-30', dest:{coin:'USDC',rail:'Solana',addr:'0x71C7656EC7ab88b098defB751B7401B5f6d8976F'} }
+];
+const CURRENCIES = [
+  {code:'USD', zh:'美元', en:'US Dollar', flag:'🇺🇸', enabled:true},
+  {code:'EUR', zh:'欧元', en:'Euro', flag:'🇪🇺', enabled:true},
+  {code:'GBP', zh:'英镑', en:'Pound Sterling', flag:'🇬🇧', enabled:true},
+  {code:'HKD', zh:'港币', en:'Hong Kong Dollar', flag:'🇭🇰', enabled:false}
+];
+const FX = {USD:1, EUR:1.08, GBP:1.27};
+const CURSYM = {USD:'$', EUR:'€', GBP:'£', HKD:'HK$'};
+const ACC_ICON = {USD:'🇺🇸', EUR:'🇪🇺', GBP:'🇬🇧', HKD:'🇭🇰'};
+
+const TX = [
+  {id:'TX-20260831-0007', acc:'a-eur-01', type:'payin', rail:'SEPA', currency:'EUR', amount:350.75, fee:0, status:'completed', date:'2026-08-31 09:12', ref:'YASBE-EUR-0421'},
+  {id:'TX-20260830-0006', acc:'a-usd-01', type:'payin', rail:'ACH',   currency:'USD', amount:500.00, fee:1.50, status:'completed', date:'2026-08-30 14:03', ref:'—'},
+  {id:'TX-20260829-0005', acc:'a-usd-01', type:'payin', rail:'FEDWIRE', currency:'USD', amount:2000.00, fee:12.00, status:'processing', date:'2026-08-29 18:40', ref:'—'},
+  {id:'TX-20260828-0004', acc:'a-usd-01', type:'payin', rail:'FEDWIRE', currency:'USD', amount:780.50, fee:2.30, status:'completed', date:'2026-08-28 11:22', ref:'—'},
+  {id:'TX-20260826-0003', acc:'a-eur-01', type:'payout', rail:'SEPA', currency:'EUR', amount:200.00, fee:1.00, status:'completed', date:'2026-08-26 15:07', ref:'INV-2091'},
+  {id:'TX-20260824-0002', acc:'a-gbp-01', type:'payin', rail:'FPS',   currency:'GBP', amount:1500.00, fee:0, status:'completed', date:'2026-08-24 10:33', ref:'YASBE-GBP-2194'},
+  {id:'TX-20260822-0001', acc:'a-usd-01', type:'payout', rail:'ACH',  currency:'USD', amount:300.00, fee:1.00, status:'failed', date:'2026-08-22 09:45', ref:'—'}
+];
+let txFilter='all';
+
+function money(v,cur){return CURSYM[cur]+Number(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function acctById(id){return ACCOUNTS.find(a=>a.id===id);}
+function accName(a){return S.lang==='zh'?a.name.zh:a.name.en;}
+function accHolder(a){return a.bank.holder[S.lang]||a.bank.holder.zh;}
+function idSuffix(a){
+  if(a.currency==='USD'||a.currency==='HKD') return (a.bank.accountNumber||'').slice(-4);
+  if(a.currency==='EUR') return (a.bank.iban||'').replace(/\s/g,'').slice(-4);
+  return (a.bank.accountNumber||'').slice(-4);
+}
+function statusChip(st){
+  const m={ACTIVE:['green',t('stActive')],PENDING:['amber',t('stPending')],SUSPENDED:['amber',t('stSuspended')],CLOSED:['gray',t('stClosed')],FAILED:['gray',t('stFailed')]};
+  const [c,l]=m[st]||['gray',st]; return `<span class="chip ${c}">${l}</span>`;
+}
+
+/* ================= 汇总 ================= */
+function renderSummary(){
+  const totalUSD=ACCOUNTS.reduce((s,a)=>s+a.bal.available*(FX[a.currency]||1),0);
+  const mIn=TX.filter(x=>x.type==='payin'&&x.status==='completed').reduce((s,x)=>s+x.amount*(FX[x.currency]||1),0);
+  const mOut=TX.filter(x=>x.type==='payout').reduce((s,x)=>s+x.amount*(FX[x.currency]||1),0);
+  document.getElementById('sAccs').innerHTML=ACCOUNTS.length+' <small>'+(S.lang==='zh'?'个':'')+'</small>';
+  document.getElementById('sBal').innerHTML=money(totalUSD,'USD')+' <small>'+t('sBalU')+'</small>';
+  document.getElementById('sIn').innerHTML=money(mIn,'USD')+' <small>'+t('sInU')+'</small>';
+  document.getElementById('sOut').innerHTML=money(mOut,'USD')+' <small>'+t('sOutU')+'</small>';
+}
+
+/* ================= 账户分组 & 卡片 ================= */
+function railTags(a){
+  return a.rails.map(r=>`<span class="mtag">${t('r_'+r)}</span>`).join('');
+}
+function accCard(a){
+  const bal=a.bal;
+  const pend=bal.actual-bal.available;
+  return `
+  <div class="acc">
+    <div class="acc-left">
+      <div class="acc-name">
+        <span class="nm">${accName(a)}</span>
+        ${statusChip(a.status)}
+        ${a.primary?`<span class="chip green">${t('primaryTag')}</span>`:''}
+      </div>
+      <div class="acc-idline">
+        ${a.status==='PENDING'
+          ? `<span>${t('pendAccNote')}</span>`
+          : `<b>${CURSYM[a.currency]} ${S.lang==='zh'?'尾号':'ending'} ${idSuffix(a)}</b>
+        ${a.currency==='USD'?`<span class="sep">·</span><span>ABA ${a.bank.routingNumber||'—'}</span>`:''}
+        ${a.currency==='EUR'?`<span class="sep">·</span><span>IBAN</span>`:''}
+        ${a.currency==='GBP'?`<span class="sep">·</span><span>Sort Code ${a.bank.sortCode}</span>`:''}
+        ${a.currency==='HKD'?`<span class="sep">·</span><span>账号</span>`:''}`}
+      </div>
+      <div class="rails">${a.status==='PENDING'?'':railTags(a)}</div>
+    </div>
+    <div class="acc-right">
+      <div class="acc-bal">
+        <div class="num">${money(bal.available,a.currency)}</div>
+        <div class="note">${bal.actual!==bal.available?`${t('pending')} ${money(pend,a.currency)}`:(S.lang==='zh'?'可用余额':'Available')}</div>
+      </div>
+      <div class="acc-actions">
+        ${a.status==='PENDING'
+          ? `<button class="btn btn-ghost btn-sm" data-view="${a.id}">${t('view')}</button>`
+          : `<button class="btn btn-accent btn-sm" data-deposit="${a.id}">${t('deposit')}</button>
+             <button class="btn btn-ghost btn-sm" data-withdraw="${a.id}">${t('withdraw')}</button>
+             <button class="btn btn-ghost btn-sm" data-view="${a.id}">${t('view')}</button>`}
+      </div>
+    </div>
+  </div>`;
+}
+function renderGroups(){
+  const curCodes=[...new Set(ACCOUNTS.map(a=>a.currency))].sort((x,y)=>['USD','EUR','GBP','HKD'].indexOf(x)-['USD','EUR','GBP','HKD'].indexOf(y));
+  const el=document.getElementById('groups');
+  el.innerHTML=curCodes.map(code=>{
+    const c=CURRENCIES.find(x=>x.code===code);
+    const accs=ACCOUNTS.filter(a=>a.currency===code);
+    const sum=accs.reduce((s,a)=>s+a.bal.available,0);
+    return `
+    <div class="group">
+      <div class="group-head">
+        <span class="gflag">${c.flag}</span>
+        <span class="gname">${S.lang==='zh'?c.zh:c.en} <span style="color:var(--muted);font-weight:500;font-size:12px">${code}</span></span>
+        <span class="gtotal">${S.lang==='zh'?'可用余额合计':'Total available'}<b>${money(sum,code)}</b></span>
+      </div>
+      <div class="group-body">
+        ${accs.map(accCard).join('')}
+      </div>
+    </div>`;
+  }).join('');
+  // bind
+  document.querySelectorAll('[data-deposit]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();openAcc(b.getAttribute('data-deposit'),'deposit');}));
+  document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();openAcc(b.getAttribute('data-view'),'view');}));
+}
+
+/* ================= 账户详情 / 入金 MODAL ================= */
+function openAcc(accId, mode){
+  S.activeAcc=accId;
+  const a=acctById(accId);
+  S.activeRail=a.rails[0];
+  S.amMode=(mode==='view')?'view':'deposit';
+  document.getElementById('amTitle').innerHTML=`${ACC_ICON[a.currency]} ${accName(a)}`;
+  document.getElementById('amSub').innerHTML=`${a.currency} · ${t(S.amMode==='view'?'amView':'amDeposit')}`;
+  renderAmTabs(); renderAmBody();
+  open('accModal');
+}
+function renderAmTabs(){
+  const a=acctById(S.activeAcc);
+  document.getElementById('amTabs').innerHTML=`
+    <div class="sec-label" style="margin-top:0">${t('railL')}</div>
+    <div class="rail-tabs">${a.rails.map(r=>`<button class="rtab ${r===S.activeRail?'active':''}" data-rail="${r}">${t('r_'+r)}</button>`).join('')}</div>`;
+  document.querySelectorAll('[data-rail]').forEach(b=>b.addEventListener('click',()=>{S.activeRail=b.getAttribute('data-rail');renderAmTabs();renderAmBody();}));
+}
+function renderAmBody(){
+  const a=acctById(S.activeAcc);
+  const r=S.activeRail;
+  const info=RAILS[r];
+  const pend=a.bal.actual-a.bal.available;
+  const fieldKeys=RAIL_FIELDS[r];
+  const curSym=CURSYM[a.currency];
+  const lean=S.amMode!=='view'; // 入金弹窗（lean）：主体为 VA 收款账户信息；「详情」才展示余额/归集/费用/合规 endorsement
+  const fL={
+    bankName:[t('f_bankName'),a.bank.bankName],
+    bankAddress:[t('f_bankAddress'),a.bank.bankAddress],
+    holder:[t('f_holder'),accHolder(a)],
+    accountNumber:[t('f_accountNumber'),a.bank.accountNumber],
+    routingNumber:[t('f_routingNumber'),a.bank.routingNumber],
+    iban:[t('f_iban'),a.bank.iban],
+    bic:[t('f_bic'),a.bank.bic],
+    sortCode:[t('f_sortCode'),a.bank.sortCode],
+    payInRef:[t('f_payInRef'),a.bank.payInRef]
+  };
+  // 入金弹窗：主体即 VA 收款账户信息（收款字段含户主、一键复制、到账时效），不叠加余额/归集/费用/合规 endorsement
+  const copyBtn=`<div style="margin-top:12px;display:flex;justify-content:flex-end">
+      <button class="btn btn-accent btn-sm" id="amCopyAll">${t('copiedAll')}</button>
+    </div>`;
+  const accLBlock=`<div class="sec-label">${t('accL')}</div>
+    <div class="fields">
+      <div class="field"><span class="k">${t('status')}</span><span class="v">${statusChip(a.status)}</span></div>
+      <div class="field"><span class="k">${t('holder')}</span><span class="v">${accHolder(a)}</span></div>
+      <div class="field"><span class="k">${t('createdOn')}</span><span class="v">${a.created}</span></div>
+    </div>`;
+  if(lean){
+    const fields=fieldKeys.filter(k=>fL[k]&&fL[k][1]).map(k=>`
+      <div class="field"><span class="k">${fL[k][0]}</span><span class="v">${fL[k][1]}</span><button class="copy" data-copy="${fL[k][1]}">⧉</button></div>`).join('');
+    const railMeta=`<div class="info-grid">
+        <div class="info"><div class="k">${t('arrive')}</div><div class="v">${info.arrive}</div></div>
+        <div class="info"><div class="k">${t('cutoff')}</div><div class="v">${info.cutoff}</div></div>
+        <div class="info"><div class="k">${t('limit')}</div><div class="v">${info.limit}</div></div>
+      </div>
+      ${a.bank.payInRef?`<div class="note-box">${t('refNote')}</div>`:''}`;
+    document.getElementById('amBody').innerHTML=
+      `<div class="note-box" style="margin-top:2px">${t('amDepLead')}</div>`+
+      `<div class="fields">${fields}</div>`+copyBtn+railMeta;
+  }else{
+    const fields=fieldKeys.filter(k=>k!=='holder'&&fL[k]&&fL[k][1]).map(k=>`
+      <div class="field"><span class="k">${fL[k][0]}</span><span class="v">${fL[k][1]}</span><button class="copy" data-copy="${fL[k][1]}">⧉</button></div>`).join('');
+    const refNote = a.bank.payInRef ? t('refNote') : t('refNotNeeded');
+    let extra=`<div class="sec-label">${t('balL')}</div>
+      <div class="bal-split">
+        <div><div class="k">${t('available')}</div><div class="v">${money(a.bal.available,a.currency)}</div></div>
+        <div><div class="k">${t('actual')}</div><div class="v">${money(a.bal.actual,a.currency)}</div></div>
+        ${pend!==0?`<div><div class="k">${t('pending')}</div><div class="v">${money(pend,a.currency)}</div></div>`:''}
+      </div>`;
+    extra+= a.dest?`<div class="sec-label">${t('destL')}</div>
+      <div class="fields">
+        <div class="field"><span class="k">${t('destCoin')}</span><span class="v">${a.dest.coin}</span></div>
+        <div class="field"><span class="k">${t('destRail')}</span><span class="v">${a.dest.rail}</span></div>
+        <div class="field"><span class="k">${t('destAddr')}</span><span class="v" style="word-break:break-all">${a.dest.addr}</span><button class="copy" data-copy="${a.dest.addr}">⧉</button></div>
+      </div>`:'';
+    extra+=accLBlock;
+    const railMeta=`<div class="info-grid">
+        <div class="info"><div class="k">${t('arrive')}</div><div class="v">${info.arrive}</div></div>
+        <div class="info"><div class="k">${t('cutoff')}</div><div class="v">${info.cutoff}</div></div>
+        <div class="info"><div class="k">${t('limit')}</div><div class="v">${info.limit}</div></div>
+        <div class="info"><div class="k">${t('fee')}</div><div class="v">${info.fee}</div></div>
+      </div>
+      <div class="note-box">${refNote}</div>`;
+    document.getElementById('amBody').innerHTML=`<div class="fields">${fields}</div>`+copyBtn+railMeta+extra+(a.currency==='USD'?endorsementBlock(a):'');
+  }
+  document.getElementById('amCopyAll').addEventListener('click',()=>{
+    let txt='';
+    document.querySelectorAll('#accModal .field').forEach(f=>{const k=f.querySelector('.k').textContent.trim(),v=f.querySelector('.v').textContent.trim();if(v)txt+=k+': '+v+'\n';});
+    navigator.clipboard&&navigator.clipboard.writeText(txt); toast(t('copiedAll'));
+  });
+  document.querySelectorAll('#accModal .copy').forEach(c=>c.addEventListener('click',()=>{
+    navigator.clipboard&&navigator.clipboard.writeText(c.getAttribute('data-copy')); toast(t('copied'));
+  }));
+}
+/* H7 endorsement 级状态 + requirements{missing} + future_requirements（USD/base 收款通道） */
+function endorsementBlock(a){
+  const active=a.status==='ACTIVE';
+  let body;
+  if(active){
+    body=[
+      [t('status'),`<span class="chip green">${t('endorseActive')}</span>`],
+      [t('endReqKyc'),t('endMet')],
+      [t('endReqTos'),t('endMet')],
+      [t('endReqSanctions'),t('endMet')]
+    ].map(([k,v])=>`<div class="info"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+  }else{
+    body=`<div class="info"><div class="k">${t('status')}</div><div class="v"><span class="chip amber">${t('endorsePending')}</span></div></div>
+    <div class="info" style="grid-column:1/-1"><div class="k">—</div><div class="v" style="font-weight:400">${t('endorsePendingNote')}</div></div>`;
+  }
+  const future=active?`<div class="note-box" style="font-size:12px">${t('futureReqNote')}</div>`:'';
+  return `
+    <div class="sec-label" style="margin-top:4px">${t('endorseSecL')} · ${t('endorseBase')}</div>
+    <div class="info-grid" style="margin-top:4px">${body}</div>${future}`;
+}
+
+/* ================= 开通新账户 FLOW ================= */
+/* --- Bridge 个人实名认证字段（compliance / individuals）--- */
+const NATIONS={
+  USA:{name:'美国',id:['ssn','itin']}, CHN:{name:'中国',id:['ricn','passport','tin']}, HKG:{name:'中国香港',id:['hkid','passport','tin']},
+  GBR:{name:'英国',id:['nino','utr','passport']}, CAN:{name:'加拿大',id:['sin','passport','tin']}, SGP:{name:'新加坡',id:['nric','fin','passport']},
+  JPN:{name:'日本',id:['mn','passport','tin']}, AUS:{name:'澳大利亚',id:['tfn','passport']}, DEU:{name:'德国',id:['steuer_id','idnr','passport']},
+  FRA:{name:'法国',id:['spi','passport','tin']}, KOR:{name:'韩国',id:['rrn','passport','tin']}, BRA:{name:'巴西',id:['cpf','passport','tin']},
+  MEX:{name:'墨西哥',id:['curp','ine','rfc','passport']}, IND:{name:'印度',id:['pan','passport']},
+  ISL:{name:'冰岛',id:['passport']}, NOR:{name:'挪威',id:['passport']}, LIE:{name:'列支敦士登',id:['passport','tin']}, OTH:{name:'其他',id:['passport','national_id','tin']}
+};
+const OCCUPATION_CODES=[
+  ['251000','高校教师 / 教授','Postsecondary teacher'],['252010','幼教 / 学前教师','Preschool & kindergarten teacher'],
+  ['291051','药剂师','Pharmacist'],['291071','医师助理','Physician assistant'],['291123','物理治疗师','Physical therapist'],
+  ['292043','急救护理人员','Paramedic'],['131082','项目管理','Project management specialist'],
+  ['132052','个人理财顾问','Personal financial advisor'],['172171','石油工程师','Petroleum engineer'],
+  ['472152','管道工','Plumber, pipefitter'],['333050','警务人员','Police officer'],
+  ['273031','公关专员','PR specialist'],['272012','制片 / 导演','Producer & director'],['419020','房产经纪人','Real estate broker']
+];
+const EMPLOYMENTS=['employed','homemaker','retired','self_employed','student','unemployed'];
+/* 官方枚举：source_of_funds / account_purpose / expected_monthly_payments_usd（对齐 Bridge Create a customer） */
+const SOURCE_OF_FUNDS=['salary','savings','investments_loans','gifts','inheritance','pension_retirement','government_benefits','company_funds','ecommerce_reseller','sale_of_assets_real_estate','gambling_proceeds','someone_elses_funds'];
+const PURPOSES=['personal_or_living_expenses','ecommerce_retail_payments','investment_purposes','operating_a_company','receive_salary','receive_payment_for_freelancing','payments_to_friends_or_family_abroad','purchase_goods_and_services','protect_wealth','charitable_donations','other'];
+const MONTHLY=['0_4999','5000_9999','10000_49999','50000_plus'];
+/* EEA 国家 → 国民身份号 / 税号类型（来源：Bridge EEA updated requirements 按国家表） */
+const EEA_NATID={
+  FRA:{nat:{v:'nir',zh:'NIR 社会安全号',en:'NIR (INSEE)'},tax:{v:'spi',zh:'税号（Numéro fiscal）',en:'Numéro fiscal'}},
+  DEU:{nat:{v:'national_id',zh:'国民身份号',en:'National ID'},tax:{v:'steuer_id',zh:'税号（Steuer-ID）',en:'Steuer-ID'}},
+  ESP:{nat:{v:'nie',zh:'NIE 外国人身份号',en:'NIE (foreigner)'},tax:{v:'nif',zh:'NIF 税号',en:'NIF'}},
+  ITA:{nat:{v:'cf',zh:'Codice Fiscale',en:'Codice Fiscale'},tax:{v:'cf',zh:'Codice Fiscale',en:'Codice Fiscale'}},
+  NLD:{nat:{v:'bsn',zh:'BSN 公民服务号',en:'BSN'},tax:{v:'bsn',zh:'BSN 公民服务号',en:'BSN'}},
+  BEL:{nat:{v:'nrn',zh:'NRN 国民登记号',en:'NRN'},tax:{v:'nrn',zh:'NRN 国民登记号',en:'NRN'}},
+  IRL:{nat:{v:'ppsn',zh:'PPSN',en:'PPSN'},tax:{v:'ppsn',zh:'PPSN',en:'PPSN'}},
+  AUT:{nat:{v:'si',zh:'社保号（SV-Nummer）',en:'Social Insurance No.'},tax:{v:'tin',zh:'税号（TIN）',en:'TIN'}},
+  POL:{nat:{v:'pesel',zh:'PESEL',en:'PESEL'},tax:{v:'pesel',zh:'PESEL',en:'PESEL'}},
+  CZE:{nat:{v:'rc',zh:'Rodné číslo',en:'Birth number'},tax:{v:'rc',zh:'Rodné číslo',en:'Birth number'}},
+  PRT:{nat:{v:'national_id',zh:'国民身份号',en:'National ID'},tax:{v:'nif',zh:'NIF 税号',en:'NIF'}},
+  HUN:{nat:{v:'national_id',zh:'国民身份号',en:'National ID'},tax:{v:'tin',zh:'税号（TIN）',en:'TIN'}},
+  GRC:{nat:{v:'pn',zh:'国民身份号（pn）',en:'National ID (pn)'},tax:{v:'aom',zh:'社保号（AMKA / ΑΜΚΑ）',en:'AMKA / Social Security No.'}},
+  DNK:{nat:{v:'cpr',zh:'CPR 号',en:'CPR number'},tax:{v:'cpr',zh:'CPR 号',en:'CPR number'}},
+  FIN:{nat:{v:'hetu',zh:'Henkilötunnus',en:'Personal ID'},tax:{v:'hetu',zh:'Henkilötunnus',en:'Personal ID'}},
+  SWE:{nat:{v:'tin',zh:'个人税号',en:'Personal ID'},tax:{v:'tin',zh:'个人税号',en:'Personal ID'}},
+  EST:{nat:{v:'ik',zh:'Isikukood',en:'Personal code'},tax:{v:'ik',zh:'Isikukood',en:'Personal code'}},
+  LVA:{nat:{v:'pk',zh:'Personas kods',en:'Personal code'},tax:{v:'pk',zh:'Personas kods',en:'Personal code'}},
+  LTU:{nat:{v:'ak',zh:'Asmens kodas',en:'Personal code'},tax:{v:'ak',zh:'Asmens kodas',en:'Personal code'}},
+  LUX:{nat:{v:'matricule',zh:'Matricule',en:'Matricule'},tax:{v:'matricule',zh:'Matricule',en:'Matricule'}},
+  SVN:{nat:{v:'emso',zh:'EMŠO',en:'EMŠO'},tax:{v:'tin',zh:'税号（Davčna）',en:'Tax no.'}},
+  HRV:{nat:{v:'oib',zh:'OIB',en:'OIB'},tax:{v:'oib',zh:'OIB',en:'OIB'}},
+  ROU:{nat:{v:'cnp',zh:'CNP',en:'CNP'},tax:{v:'cnp',zh:'CNP',en:'CNP'}},
+  BGR:{nat:{v:'ucn',zh:'UCN',en:'UCN'},tax:{v:'ucn',zh:'UCN',en:'UCN'}},
+  CYP:{nat:{v:'national_id',zh:'国民身份号',en:'National ID'},tax:{v:'tin',zh:'税号（TIN）',en:'TIN'}},
+  MLT:{nat:{v:'icn',zh:'ICN',en:'ICN'},tax:{v:'tin',zh:'税号（TIN）',en:'TIN'}},
+  ISL:{nat:{v:'tin',zh:'个人税号（kennitala）',en:'Personal ID (kennitala)'},tax:{v:'tin',zh:'个人税号（kennitala）',en:'Personal ID (kennitala)'}},
+  NOR:{nat:{v:'fn',zh:'Fødselsnummer（11 位国民号）',en:'Fødselsnummer (11-digit national no.)'},tax:{v:'fn',zh:'Fødselsnummer（11 位国民号）',en:'Fødselsnummer (11-digit national no.)'}},
+  /* H11④（2026-09-20）：补齐 31 国覆盖（原缺 SVK / LIE / GBR，会落入通用兜底）；取值取自 Bridge 证件类型枚举，国别映射待合规确认 */
+  SVK:{nat:{v:'national_id',zh:'国民身份号',en:'National ID'},tax:{v:'tin',zh:'税号（TIN）',en:'TIN'}},
+  LIE:{nat:{v:'national_id',zh:'国民身份号',en:'National ID'},tax:{v:'tin',zh:'税号（TIN）',en:'TIN'}},
+  GBR:{nat:{v:'nino',zh:'国民保险号（NINO）',en:'NINO'},tax:{v:'utr',zh:'个人税号（UTR）',en:'UTR'}}
+};
+const EEA_NATID_FALLBACK={nat:{v:'national_id',zh:'国民身份号',en:'National ID'},tax:{v:'tin',zh:'税号（TIN）',en:'TIN'}};
+const flow={cur:null,step:1,preview:null,path:null};
+function defaultAccName(cur){
+  const c=CURRENCIES.find(x=>x.code===cur);
+  const n=ACCOUNTS.filter(a=>a.currency===cur).length;
+  const base=S.lang==='zh'?(c.zh+'收款账户'):(c.en+' Account');
+  return n>0?`${base} ${n+1}`:base;
+}
+function fillCompliance(){
+  const natHtml=Object.keys(NATIONS).map(k=>`<option value="${k}">${NATIONS[k].name}</option>`).join('');
+  document.getElementById('kfNation').innerHTML=natHtml;
+  document.getElementById('kfRes').innerHTML=natHtml;
+  document.getElementById('kfNations').innerHTML=natHtml;
+  if(document.getElementById('kfBirthCountry'))document.getElementById('kfBirthCountry').innerHTML=natHtml;
+  document.getElementById('kfOccup').innerHTML=OCCUPATION_CODES.map(([c,zh,en])=>`<option value="${c}">${S.lang==='zh'?zh:en}</option>`).join('')+`<option value="other">${t('occ_other')}</option>`;
+  document.getElementById('kfEmp').innerHTML=EMPLOYMENTS.map(v=>`<option value="${v}">${t('emp_'+v)}</option>`).join('');
+  document.getElementById('kfSof').innerHTML=SOURCE_OF_FUNDS.map(v=>`<option value="${v}">${t('sof_'+v)}</option>`).join('');
+  document.getElementById('kfPurpose').innerHTML=PURPOSES.map(v=>`<option value="${v}">${t('pur_'+v)}</option>`).join('');
+  document.getElementById('kfMonthly').innerHTML=MONTHLY.map(v=>`<option value="${v}">${t(v)}</option>`).join('');
+  syncIdType();
+}
+function fillOpenPayd(){
+  const natHtml=Object.keys(NATIONS).map(k=>`<option value="${k}">${NATIONS[k].name}</option>`).join('');
+  document.getElementById('opNation').innerHTML=natHtml;
+  document.getElementById('opRes').innerHTML=natHtml;
+  document.getElementById('opEmp').innerHTML=EMPLOYMENTS.map(v=>`<option value="${v}">${t('emp_'+v)}</option>`).join('');
+  document.getElementById('opSof').innerHTML=SOURCE_OF_FUNDS.map(v=>`<option value="${v}">${t('sof_'+v)}</option>`).join('');
+  document.getElementById('opIdType').innerHTML=['passport','national_id','drivers_license'].map(v=>`<option value="${v}">${t('id_'+v)}</option>`).join('');
+}
+function syncIdType(){
+  const nat=document.getElementById('kfNation').value||'OTH';
+  const ids=(NATIONS[nat]?NATIONS[nat].id:['passport','national_id','tin']);
+  document.getElementById('kfIdType').innerHTML=ids.map(v=>`<option value="${v}">${t('id_'+v)}</option>`).join('');
+  updateIdReq();
+}
+function updateIdReq(){
+  const tax=['ssn','itin','tin','utr','nino','sin','steuer_id','idnr','tfn'];
+  document.getElementById('kfIdImgReq').style.display=tax.includes(document.getElementById('kfIdType').value)?'none':'';
+}
+function updateStateReq(){
+  /* 存量缺陷修复：kfStateReq 位于 data-i18n 标签内，applyI18n 会替换标签内容导致该 span 消失 →
+     原写法抛 TypeError，使 applyUserCountry 中断、合规面板（EEA/风险）无法渲染。加空值保护。 */
+  const el=document.getElementById('kfStateReq');
+  if(el)el.style.display=document.getElementById('kfRes').value==='USA'?'':'none';
+}
+function updateOpStateReq(){
+  const v=document.getElementById('opRes').value;
+  document.getElementById('opStateReq').style.display=(v==='USA'||v==='CAN')?'':'none';
+}
+function complianceComplete(){
+  return Object.keys(VALIDATORS).filter(k=>k.startsWith('kf')).every(id=>fieldErr(id)===null);
+}
+function toggleTr(){
+  const name=(document.getElementById('kfFirst').value.trim()+document.getElementById('kfMiddle').value.trim()+document.getElementById('kfLast').value.trim());
+  const addr=document.getElementById('kfAddr').value.trim();
+  document.getElementById('kfNameTrRow').style.display=NEED_TR.test(name)?'grid':'none';
+  document.getElementById('kfAddrTrRow').style.display=NEED_TR.test(addr)?'grid':'none';
+  updateObNextState();
+}
+function renderKyc(){
+  const form=document.getElementById('kfForm');
+  const done=document.getElementById('kfDone');
+  const rej=document.getElementById('kfRejNotice');
+  const title=document.getElementById('kfDoneTitle');
+  const hint=document.getElementById('kfDoneHint');
+  const doneF=document.getElementById('kfDoneFields');
+  // rejected：红色拒卡 + 可分享拒因 + 重提按钮（TIN/证件填错会即时拒绝，不进入人工复核）
+  if(S.kyc==='rejected'){
+    form.style.display='none'; done.style.display='none';
+    if(rej){rej.style.display='';}
+    document.getElementById('kfRejTitle').textContent='✕ '+t('kfRejTitle');
+    document.getElementById('kfRejHint').innerHTML=t('kfRejHint');
+    document.getElementById('kfRetry').textContent=t('kfRetry');
+    return;
+  }
+  if(rej)rej.style.display='none';
+  if(S.kyc==='approved'||S.kyc==='underReview'){
+    form.style.display='none'; done.style.display='';
+    const review=S.kyc==='underReview';
+    const p=S.profile||{first:'XIAOMING',last:'LI',nation:'CHN',dob:'1990-01-01',idType:'ricn',idNo:'310101********1234'};
+    doneF.innerHTML=[
+      [t('kfFirst')+' / '+t('kfLast'),p.first+' '+p.last],
+      [t('kfNationL'),NATIONS[p.nation]?NATIONS[p.nation].name:p.nation],
+      [t('kfDobL'),p.dob],
+      [t('kfIdTypeL')+' / '+t('kfIdNoL'),t('id_'+p.idType)+' · '+p.idNo]
+    ].map(r=>`<div class="field"><span class="k">${r[0]}</span><span class="v">${r[1]}</span></div>`).join('');
+    title.style.color=review?'var(--amber-tx)':'var(--green-tx)';
+    title.innerHTML=review?('⏳ '+t('kfReviewTitle')):('✓ '+t('kfDoneTitle'));
+    hint.innerHTML=review?t('kfReviewHint'):t('kfDoneHint');
+  }else{
+    form.style.display=''; done.style.display='none';
+  }
+}
+/* ===== 开户步骤流：美元首次开户（未认证）为 4 步，含「签署合作机构服务条款」（Bridge 托管 ToS）；其余 3 步 ===== */
+const FLOW_META={ currency:{name:'sCurrency'}, tos:{name:'sTos'}, info:{name:'sInfo'}, confirm:{name:'sConfirm'} };
+function buildPath(){ return (flow.cur==='USD'&&S.kyc!=='approved')?['currency','tos','info','confirm']:['currency','info','confirm']; }
+function flowPath(){ if(!flow.path)flow.path=buildPath(); return flow.path; }
+function curStep(){ return flowPath()[flow.step-1]||'currency'; }
+function nowStamp(){ const d=new Date(),p=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; }
+function openFlow(){
+  flow.cur=null; flow.step=1; flow.preview=null; flow.path=null; tosSigned=null; tosSignedAt=null;
+  open('obModal'); renderStep();
+}
+function renderStep(){
+  const path=flowPath(), key=curStep(), sn=document.getElementById('stepName');
+  document.getElementById('stepsBar').innerHTML=path.map((k,i)=>`<div class="step ${i<flow.step?'on':''}"></div>`).join('');
+  if(sn)sn.textContent=t('stepOf').replace('{n}',flow.step).replace('{m}',path.length)+' · '+t(FLOW_META[key].name);
+  document.getElementById('step1').style.display=key==='currency'?'':'none';
+  document.getElementById('stepTos').style.display=key==='tos'?'':'none';
+  document.getElementById('step2').style.display=key==='info'?'':'none';
+  document.getElementById('step3').style.display=key==='confirm'?'':'none';
+  document.getElementById('obBack').style.display=flow.step>1?'':'none';
+  document.getElementById('obNext').textContent=key==='confirm'?t('confirmOpen'):t('next');
+  document.getElementById('obNext').disabled=false;
+  if(key==='currency'){
+    renderCurrencyGrid(); updateObNextState();
+  }else if(key==='tos'){
+    renderTosState(); updateObNextState();
+  }else if(key==='info'){
+    renderTypeFields();
+  }else if(key==='confirm'){
+    renderConfirm();
+  }
+}
+function renderCurrencyGrid(){
+  const grid=document.getElementById('ccGrid');
+  grid.innerHTML=CURRENCIES.map(c=>{
+    const opened=ACCOUNTS.filter(a=>a.currency===c.code).length;
+    const dis=!c.enabled;
+    return `<div class="cc ${flow.cur===c.code?'sel':''} ${dis?'dis':''}" data-cur="${c.code}">
+      <div class="top"><span class="cc-flag">${c.flag}</span><span class="cc-code">${c.code}</span></div>
+      <div style="font-size:12.5px;color:var(--text)">${S.lang==='zh'?c.zh:c.en}</div>
+      <div class="cc-note">${dis?(S.lang==='zh'?'暂未开放':'Coming soon'):`${t('obChoose')} ${opened}${S.lang==='zh'?' 个':''}`}</div>
+    </div>`;
+  }).join('');
+  grid.querySelectorAll('.cc').forEach(el=>el.addEventListener('click',()=>{
+    if(el.classList.contains('dis'))return;
+    flow.cur=el.getAttribute('data-cur'); flow.path=buildPath(); renderStep();
+  }));
+}
+const EU_CODES=['GBR','DEU','FRA','ESP','ITA','NLD','BEL','AUT','IRL','PRT','FIN','SWE','DNK','POL','CZE','GRC','HUN','LUX','EST','LVA','LTU','SVN','SVK','HRV','ROU','BGR','CYP','MLT','ISL','NOR','LIE'];
+function isEuropean(c){return EU_CODES.includes(c);}
+/* 客户画像 → 条件字段（EEA 范围内 / 高风险 / 标注客户 / 不可服务地区） */
+const UNSERVED_CODES=['CHN','JPN','DZA','BDI','TUN'];
+const UNSERVED_LABEL={CHN:{zh:'中国大陆',en:'China (mainland)'},JPN:{zh:'日本',en:'Japan'},DZA:{zh:'阿尔及利亚',en:'Algeria'},BDI:{zh:'布隆迪',en:'Burundi'},TUN:{zh:'突尼斯',en:'Tunisia'}};
+function isUnserved(c){return UNSERVED_CODES.includes(c);}
+function unservedText(){
+  const m=UNSERVED_LABEL[S.country], nm=m?(S.lang==='zh'?m.zh:m.en):S.country;
+  return t('noSvcNotice').replace('%s',nm);
+}
+function needEea(){
+  if(flow.cur!=='USD')return false;
+  if(isEuropean(S.country))return true;                        /* 居住国 */
+  const b=document.getElementById('kfBirthCountry');           /* 出生地 */
+  if(b&&isEuropean(b.value))return true;
+  const ns=document.getElementById('kfNations');               /* 国籍（任一） */
+  if(ns&&[...ns.selectedOptions].some(o=>isEuropean(o.value)))return true;
+  return false;
+}
+function needCond(){return needEea()||S.risk||S.flagged||document.getElementById('kfMoreCb').checked;}
+function needMore(){return S.risk||S.flagged||document.getElementById('kfMoreCb').checked;}
+/* 三种资金来源情形：系统按用户自填字段值自动判定 → 自动追加需上传材料（M11-10） */
+const SOF_DOC_SLOTS={
+  explain:[['kfSofStatementCell','kfSofStatementDoc'],['kfSofSalaryCell','kfSofSalaryDoc']],
+  pension:[['kfSofPensionCell','kfSofPensionDoc']],
+  proof:[['kfSofProofCell','kfSofProofDoc']]
+};
+function sofCases(){
+  const emp=_v('kfEmp'), sof=_v('kfSof'), m=_v('kfMonthly'), c=[];
+  if(emp==='unemployed'&&sof==='salary')c.push('explain');
+  if(sof==='pension_retirement')c.push('pension');
+  if(m==='50000_plus')c.push('proof');
+  return c;
+}
+function needSof(k){return needCond()&&sofCases().indexOf(k)>=0;}
+function renderSofDocs(){
+  const hit=needCond()?sofCases():[];
+  const show=(id,v)=>{const el=document.getElementById(id);if(el)el.style.display=v?'':'none';};
+  Object.keys(SOF_DOC_SLOTS).forEach(k=>{
+    const on=hit.indexOf(k)>=0;
+    SOF_DOC_SLOTS[k].forEach(pair=>{
+      show(pair[0],on);
+      const el=document.getElementById(pair[1]);
+      if(!on&&el){el.value='';el.classList.remove('invalid');}
+      showFieldError(pair[1],false);
+    });
+  });
+  show('kfSofDocs',hit.length>0);
+  const why=document.getElementById('kfSofDocsWhy');
+  if(why)why.textContent=hit.length?t('kfSofDocsWhy').replace('%s',hit.map(k=>t('kfSofCase_'+k)).join(S.lang==='zh'?'；':' / ')):'';
+}
+function renderCompliancePanels(){
+  ['kfBirthCountry','kfNatId','kfTin','kfEmp','kfPurpose','kfPurposeOther','kfOccup','kfSof','kfMonthly','kfInter','kfFirstTr','kfLastTr','kfAddrTr','kfState'].forEach(id=>showFieldError(id,false));
+  const eea=needEea(), cond=needCond(), more=needMore();
+  const show=(id,v)=>{const el=document.getElementById(id);if(el)el.style.display=v?'':'none';};
+  ['usNotice','euNotice','riskNotice','flagNotice'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=t(id);});
+  show('eeaFields',eea);
+  show('kfCondRow',cond);
+  show('kfSofRow',cond);
+  show('kfMore',more);
+  show('usNotice',flow.cur==='USD'&&S.country==='USA');
+  show('euNotice',flow.cur!=='USD'&&isEuropean(S.country));
+  show('riskNotice',S.risk&&flow.step===2);
+  show('flagNotice',S.flagged&&flow.step===2);
+  // 不可服务国家/地区 → 拦截
+  const svc=isUnserved(S.country);
+  show('noSvcNotice',svc);
+  const nEl=document.getElementById('noSvcNotice'); if(nEl&&svc)nEl.innerHTML=unservedText();
+  // EEA：人脸自拍走托管流程，隐藏直接上传
+  show('selfieHost',eea);
+  show('kfSelfieCell',!eea);
+  // 高风险 / 标注：系统判定（勾选框只读、反映系统状态，无法由用户关闭）
+  const sysHigh=S.risk||S.flagged;
+  const cbMore=document.getElementById('kfMoreCb');
+  if(cbMore){cbMore.checked=sysHigh;cbMore.disabled=true;}
+  show('kfMoreToggle',sysHigh);
+  renderSofDocs();
+}
+function applyUserCountry(){
+  // 系统根据用户实名信息自动判断国家，自动带出对应字段与提示
+  const nat=S.country in NATIONS?S.country:'OTH';
+  if(flow.cur==='USD'){
+    document.getElementById('kfNation').value=nat;
+    document.getElementById('kfRes').value=nat;
+    syncIdType(); updateStateReq(); updateIdReq();
+    // EEA：自动带出出生国家与国民身份号 / 税号类型提示
+    if(needEea()){
+      const birth=document.getElementById('kfBirthCountry');
+      if(birth&&birth.value!==S.country)birth.value=isEuropean(S.country)?S.country:'OTH';
+      const m=EEA_NATID[S.country]||EEA_NATID_FALLBACK;
+      if(document.getElementById('kfNatIdHint'))document.getElementById('kfNatIdHint').textContent=(S.lang==='zh'?('类型：'+m.nat.zh):('Type: '+m.nat.en));
+      if(document.getElementById('kfTinHint'))document.getElementById('kfTinHint').textContent=(S.lang==='zh'?('类型：'+m.tax.zh):('Type: '+m.tax.en));
+    }
+  }else{
+    document.getElementById('opNation').value=nat;
+    document.getElementById('opRes').value=nat;
+    updateOpStateReq();
+  }
+  renderCompliancePanels();
+  updateObNextState();
+}
+function renderTypeFields(){
+  const bridge=document.getElementById('bridgeFields');
+  const op=document.getElementById('openPaydFields');
+  if(flow.cur==='USD'){
+    bridge.style.display=''; op.style.display='none';
+    renderKyc(); applyUserCountry();
+  }else{
+    bridge.style.display='none'; op.style.display='';
+    applyUserCountry();
+  }
+}
+function renderConfirm(){
+  const c=CURRENCIES.find(x=>x.code===flow.cur);
+  flow.preview=mockAccount(flow.cur);
+  const a=flow.preview;
+  // 到账去向固定为平台官方托管钱包（托管归集），用户无需填写任何个人钱包地址
+  document.getElementById('destCoin').value=(a.dest&&a.dest.coin)||'USDC';
+  document.getElementById('destRail').value=(a.dest&&a.dest.rail)||'Base';
+  document.getElementById('destAddr').value=(a.dest&&a.dest.addr)||PLATFORM_WALLET_ADDR;
+  const fL={
+    bankName:[t('f_bankName'),a.bank.bankName], bankAddress:[t('f_bankAddress'),a.bank.bankAddress],
+    holder:[t('f_holder'),accHolder(a)], holderAddr:[t('f_holderAddr'),a.bank.holderAddr],
+    accountNumber:[t('f_accountNumber'),a.bank.accountNumber], routingNumber:[t('f_routingNumber'),a.bank.routingNumber],
+    iban:[t('f_iban'),a.bank.iban], bic:[t('f_bic'),a.bank.bic], sortCode:[t('f_sortCode'),a.bank.sortCode], payInRef:[t('f_payInRef'),a.bank.payInRef]
+  };
+  const fields=RAIL_FIELDS[a.rails[0]].filter(k=>fL[k]&&fL[k][1]).map(k=>`<div class="field"><span class="k">${fL[k][0]}</span><span class="v">${fL[k][1]}</span></div>`).join('');
+  document.getElementById('cfName').value=defaultAccName(flow.cur);
+  document.getElementById('cfFields').innerHTML=`<div class="sec-label" style="margin-top:0">${c.flag} ${c.code} · ${a.rails.map(r=>t('r_'+r)).join(' / ')}</div>${fields}`;
+  document.getElementById('cfRefNote').innerHTML=a.bank.payInRef?t('refNote'):t('refNotNeeded');
+  // 说明文案按去向区分：已认证→即时开通（cfNoteReady）；首次提交且非人工复核→秒批即时开通（cfNoteInstant）；高风险/标注→随资料人工复核（cfNoteReview）
+  const isUsd=flow.cur==='USD';
+  const willManual = isUsd && S.kyc!=='approved' && (S.risk||S.flagged||document.getElementById('dKyc').value==='underReview');
+  document.getElementById('cfNoteReview').style.display=willManual?'':'none';
+  document.getElementById('cfNoteInstant').style.display=(isUsd&&S.kyc!=='approved'&&!willManual)?'':'none';
+  document.getElementById('cfNoteReady').style.display=willManual?'none':((isUsd&&S.kyc!=='approved')?'none':'');
+  // Bridge 托管 ToS 签署行：仅首次开户（未认证）要求；已认证老客户开户视为已签署过
+  renderTosState();
+  document.getElementById('agreeBox').checked=false;
+  updateObNextState();
+}
+function mockAccount(cur){
+  const CAPS={
+    USD:{bank:'Lead Bank',addr:'1801 Main St., Kansas City, MO 64108, United States of America',rails:['ACH','FEDWIRE','FEDNOW'],bic:null},
+    EUR:{bank:'Deutsche Kontor Privatbank AG',addr:'Südliche Münchner Str. 2, 82031 Grünwald, Germany',rails:['SEPA','SEPA_INSTANT','SWIFT'],bic:'DEKTDE7G'},
+    GBP:{bank:'ClearBank',addr:'133 Houndsditch, London EC3A 7BX, United Kingdom',rails:['FPS','CHAPS','SWIFT'],bic:'CLRBGB22'}
+  };
+  const caps=CAPS[cur];
+  const base={
+    bankName:caps.bank, bankAddress:caps.addr, holder:{zh:'XIAOMING LI',en:'XIAOMING LI'},
+    holderAddr:{zh:'Unit 204, 205 Place Court, North York ON M2H 0A9',en:'Unit 204, 205 Place Court, North York ON M2H 0A9'},
+    accountNumber:cur==='USD'?('9400'+String(Math.floor(1000+Math.random()*9000))):(cur==='GBP'?'11326'+String(Math.floor(100+Math.random()*900)):null),
+    routingNumber:cur==='USD'?'101000014':null,
+    iban:cur==='EUR'?'DE89 3704 0044 0532 0130 00':cur==='GBP'?'GB59 CLRB 0405 1011 3261 94':null,
+    bic:caps.bic||null, sortCode:cur==='GBP'?'040510':null,
+    payInRef:cur==='USD'?null:`YASBE-${cur}-${String(Math.floor(1000+Math.random()*9000))}`
+  };
+  return {id:'a-'+cur.toLowerCase()+'-'+Date.now(),currency:cur,name:{zh:defaultAccName(cur),en:defaultAccName(cur)},primary:false,status:'ACTIVE',bal:{available:0,actual:0},bank:base,rails:caps.rails,created:new Date().toISOString().slice(0,10),dest:{coin:'USDC',rail:'Base',addr:'0x71C7656EC7ab88b098defB751B7401B5f6d8976F'}};
+}
+document.getElementById('obNext').addEventListener('click',()=>{
+  const key=curStep();
+  if(key==='currency'){ if(!flow.cur)return; }
+  else if(key==='tos'){
+    // 美元首次开户：须先完成 Bridge 托管 ToS 签署
+    if(!tosSigned){ toast(t('tosNeedSign')); return; }
+  }
+  else if(key==='info'){
+    if(flow.cur==='USD'){ if(S.kyc==='underReview'||S.kyc==='rejected')return; if(S.kyc!=='approved'&&!complianceComplete())return; }
+    else if(!openpaydComplete())return;
+    flow.preview=null;
+  }
+  else if(key==='confirm'){ confirmCreate(); return; }
+  flow.step++; renderStep();
+});
+document.getElementById('obBack').addEventListener('click',()=>{ if(flow.step>1){flow.step--; renderStep();} });
+function updateObNextState(){
+  const btn=document.getElementById('obNext'), key=curStep();
+  if(key==='currency'){ btn.disabled=!flow.cur; return; }
+  if(key==='tos'){ btn.disabled=!tosSigned; return; }
+  if(key==='info'){
+    // 不可服务国家/地区 → 拦截，不允许继续
+    if(isUnserved(S.country)){ btn.disabled=true; return; }
+    if(flow.cur==='USD'){
+      // 复核中 / 已拒绝 → 不能继续（须等复核结果或先「修改资料并重新提交」）
+      if(S.kyc==='underReview'||S.kyc==='rejected'){ btn.disabled=true; return; }
+      btn.disabled = S.kyc==='approved'?false:!complianceComplete(); return;
+    }
+    btn.disabled=!openpaydComplete(); return;
+  }
+  const addr=document.getElementById('destAddr').value.trim();
+  let ok=!!(addr && document.getElementById('agreeBox').checked);
+  // 首次开户（未认证）已在第 2 步完成 Bridge 托管 ToS 签署并取得 signed_agreement_id
+  if(flow.cur==='USD' && S.kyc!=='approved') ok=ok && !!tosSigned;
+  btn.disabled=!ok;
+}
+function openpaydComplete(){
+  return Object.keys(VALIDATORS).filter(k=>k.startsWith('op')).every(id=>fieldErr(id)===null);
+}
+/* ===== 表单校验：字段规则（对齐 Bridge create-a-customer / external-accounts 文档） ===== */
+const NEED_TR=/[^\x20-\x7EÀ-ÖØ-ßà-öø-ÿ]/;
+const STATE_COUNTRIES=['USA','CAN','MEX','AUS'];
+const _v=id=>{const el=document.getElementById(id);return el?String(el.value||'').trim():'';};
+const _f=id=>{const el=document.getElementById(id);return !!el&&!!el.files&&el.files.length>0;};
+const govtId=()=>!['ssn','itin','tin','utr','nino','sin','steuer_id','idnr','tfn'].includes(_v('kfIdType'));
+const trName=()=>NEED_TR.test(_v('kfFirst')+_v('kfMiddle')+_v('kfLast'));
+const trAddr=()=>NEED_TR.test(_v('kfAddr'));
+const eaCountry=()=>{const el=document.querySelector('#eaFields [data-ea="addrCountry"]');return el?el.value:'';};
+function req(el){return _v(el.id)?null:t('errRequired');}
+function min4(el){return _v(el.id).length>=4?null:t('errMin4');}
+function age18(el){const d=new Date(_v(el.id)); if(isNaN(d.getTime()))return t('errRequired'); const now=new Date(),cutoff=new Date(now.getFullYear()-18,now.getMonth(),now.getDate()); return d<=cutoff?null:t('errAge');}
+function emailOk(el){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(_v(el.id))?null:t('errEmail');}
+function phoneOk(el){return /^\+[1-9]\d{7,14}$/.test(_v(el.id).replace(/[\s-]/g,''))?null:t('errPhone');}
+function fileReq(el){return _f(el.id)?null:t('errFile');}
+function fileSof(el){return _f(el.id)?null:t('errSofDoc');}
+function idPhoto(el){return govtId()?(_f(el.id)?null:t('errIdPhoto')):null;}
+function signOk(el){const sig=_v('opSign').toUpperCase().replace(/\s+/g,' '); const full=(_v('opFirst')+' '+_v('opLast')).toUpperCase().replace(/\s+/g,' '); return sig&&sig===full?null:t('errSign');}
+function digits(el,n,msg){return new RegExp('^\\d{'+n+'}$').test(_v(el.id))?null:(msg||t('errAcc8'));}
+function ibanOk(el){const s=_v(el.id).replace(/[^A-Za-z0-9]/g,'').toUpperCase(); if(s.length<15||s.length>34||!/^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/.test(s))return t('errIban'); const b=s.slice(4)+s.slice(0,4); let n=''; for(const ch of b)n+=ch>='A'?String(ch.charCodeAt(0)-55):ch; let rem=0; for(let i=0;i<n.length;i++)rem=(rem*10+(+n[i]))%97; return rem===1?null:t('errIban');}
+function bicOk(el){return /^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?$/.test(_v(el.id).toUpperCase())?null:t('errBic');}
+function streetOk(el){const v=_v(el.id); if(v.length<3||v.length>35)return t('errStreet'); if(/\bPO\s*BOX\b|\bPMB\b/i.test(v))return t('errPobox'); if(eaCountry()==='USA'&&!/\d/.test(v))return t('errStreetNum'); return null;}
+const VALIDATORS={
+  kfFirst:req,kfLast:req,kfDob:age18,kfNation:req,kfEmail:emailOk,kfPhone:phoneOk,
+  kfIdNo:req,kfIdFront:idPhoto,kfIdBack:idPhoto,
+  kfBirthCountry:e=>needEea()?req(e):null, kfNatId:e=>needEea()?req(e):null, kfTin:e=>needEea()?req(e):null,
+  kfRes:req,kfAddr:e=>req(e)||min4(e),kfCity:req,
+  kfState:e=>_v('kfRes')==='USA'?req(e):null, kfZip:req,
+  kfEmp:e=>needCond()?req(e):null, kfPurpose:e=>needCond()?req(e):null,
+  kfPurposeOther:e=>needCond()&&_v('kfPurpose')==='other'?req(e):null,
+  kfOccup:e=>needMore()?req(e):null, kfInter:e=>needMore()?req(e):null,
+  kfSof:e=>needCond()?req(e):null, kfMonthly:e=>needCond()?req(e):null,
+  kfFirstTr:e=>trName()?req(e):null, kfLastTr:e=>trName()?req(e):null, kfAddrTr:e=>trAddr()?req(e):null,
+  opFirst:req,opLast:req,opDob:age18,opNation:req,opRes:req,opEmail:emailOk,opPhone:phoneOk,
+  opAddr:e=>req(e)||min4(e),opCity:req,
+  opState:e=>['USA','CAN'].includes(_v('opRes'))?req(e):null,
+  opZip:req,opIdNo:req,opIdFront:fileReq,opIdBack:fileReq,opPoa:fileReq,
+  opEmp:req,opSof:req,opSign:e=>req(e)||signOk(e),
+  kfSofStatementDoc:e=>needSof('explain')?fileSof(e):null, kfSofSalaryDoc:e=>needSof('explain')?fileSof(e):null,
+  kfSofPensionDoc:e=>needSof('pension')?fileSof(e):null, kfSofProofDoc:e=>needSof('proof')?fileSof(e):null
+};
+function fieldErr(id){const fn=VALIDATORS[id];if(!fn)return null;const el=document.getElementById(id);return el?fn(el):null;}
+function showFieldError(id,force){const err=force?fieldErr(id):null; const box=document.getElementById(id+'_err'); if(box){box.textContent=err||'';box.style.display=err?'block':'none';} const el=document.getElementById(id);if(el)el.classList.toggle('invalid',!!err);}
+function clearErrs(prefix){Object.keys(VALIDATORS).forEach(id=>{if(id.startsWith(prefix))showFieldError(id,false);});}
+function validateAndFocus(prefix){const keys=Object.keys(VALIDATORS).filter(k=>k.startsWith(prefix)); for(const id of keys){ if(fieldErr(id)!==null){showFieldError(id,true);const el=document.getElementById(id);if(el&&el.focus)el.focus();return false;} } return true;}
+function bindValidators(){Object.keys(VALIDATORS).forEach(id=>{const el=document.getElementById(id);if(!el)return; const box=document.createElement('div');box.className='err-msg';box.id=id+'_err'; el.parentNode.appendChild(box); el.addEventListener('blur',()=>showFieldError(id,true)); el.addEventListener('input',()=>{if(el.classList.contains('invalid'))showFieldError(id,true);}); el.addEventListener('change',()=>{if(el.classList.contains('invalid'))showFieldError(id,true);});});}
+/* ===== 外部账户（提现账户）字段校验：对齐 Bridge external-accounts 文档 ===== */
+const EA_RULES={
+  bankName:req,accType:req,
+  accountNumber:e=>req(e)||(eaf.type==='gb'?digits(e,8,t('errAcc8')):null),
+  routingNumber:e=>req(e)||digits(e,9,t('errRouting')),
+  sortCode:e=>req(e)||digits(e,6,t('errSort')),
+  addrStreet:e=>req(e)||streetOk(e), addrCity:req,
+  addrState:e=>STATE_COUNTRIES.includes(eaCountry())?req(e):null,
+  addrPostal:req,
+  addrCountry:e=>req(e),
+  iban:e=>req(e)||ibanOk(e), bic:e=>_v(e.id)?bicOk(e):null
+};
+function eaFieldErr(k){const el=document.querySelector('#eaFields [data-ea="'+k+'"]');if(!el)return null; const fn=EA_RULES[k];return fn?fn(el):null;}
+function eaComplete(){return (EA_TYPE_FIELDS[eaf.type]||[]).every(k=>eaFieldErr(k)===null);}
+function bindEaValidators(){document.querySelectorAll('#eaFields [data-ea]').forEach(el=>{const box=document.createElement('div');box.className='err-msg';box.setAttribute('data-ea-err',el.getAttribute('data-ea')); el.parentNode.appendChild(box); const upd=()=>{const k=el.getAttribute('data-ea'); if(!(EA_TYPE_FIELDS[eaf.type]||[]).includes(k)){box.style.display='none';el.classList.remove('invalid');return;} const err=eaFieldErr(k); box.textContent=err||'';box.style.display=err?'block':'none'; el.classList.toggle('invalid',!!err); updateEaNext();}; el.addEventListener('blur',upd); el.addEventListener('input',upd); el.addEventListener('change',upd);});}
+function updateEaNext(){const b=document.getElementById('eaNext');if(!b)return; b.disabled=eaf.step===2?!eaComplete():!eaf.type;}
+function eaFocusErr(){for(const k of (EA_TYPE_FIELDS[eaf.type]||[])){const el=document.querySelector('#eaFields [data-ea="'+k+'"]');if(!el)continue; const err=eaFieldErr(k); if(err!==null){const box=document.querySelector('#eaFields [data-ea-err="'+k+'"]'); if(box){box.textContent=err;box.style.display='block';} el.classList.add('invalid');if(el.focus)el.focus();return;}}}
+document.getElementById('destAddr').addEventListener('input',updateObNextState);
+document.getElementById('agreeBox').addEventListener('change',updateObNextState);
+document.getElementById('agreeBridge').addEventListener('change',updateObNextState);
+['input','change'].forEach(ev=>document.getElementById('kfForm').addEventListener(ev,()=>{ toggleTr(); renderSofDocs(); updateObNextState(); }));
+['input','change'].forEach(ev=>document.getElementById('opForm').addEventListener(ev,()=>{ updateObNextState(); }));
+document.getElementById('opRes').addEventListener('change',()=>{ updateOpStateReq(); showFieldError('opState',true); updateObNextState(); });
+document.getElementById('kfNation').addEventListener('change',syncIdType);
+document.getElementById('kfIdType').addEventListener('change',()=>{ updateIdReq(); showFieldError('kfIdFront',true); });
+document.getElementById('kfRes').addEventListener('change',()=>{ updateStateReq(); showFieldError('kfState',true); updateObNextState(); });
+document.getElementById('kfPurpose').addEventListener('change',()=>{
+  document.getElementById('kfPurposeOtherRow').style.display=document.getElementById('kfPurpose').value==='other'?'':'none';
+  showFieldError('kfPurposeOther',true);
+  updateObNextState();
+});
+document.getElementById('kfMultiCb').addEventListener('change',()=>{
+  document.getElementById('kfNationsRow').style.display=document.getElementById('kfMultiCb').checked?'':'none';
+});
+/* 国籍 / 出生地变化 → 重算 EEA 画像（判定维度：居住国 / 国籍 / 出生地 任一） */
+['kfNations','kfBirthCountry'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('change',()=>{renderCompliancePanels();updateObNextState();});});
+document.getElementById('kfMoreCb').addEventListener('change',()=>{ renderCompliancePanels(); updateObNextState(); });
+function confirmCreate(){
+  const isUsd=flow.cur==='USD';
+  let willReview=false;
+  if(isUsd && S.kyc!=='approved'){
+    // 首次开户：捕获实名资料（含 Bridge 托管 ToS 签署编号）
+    S.profile={
+      first:document.getElementById('kfFirst').value.trim(),middle:document.getElementById('kfMiddle').value.trim(),last:document.getElementById('kfLast').value.trim(),
+      nation:document.getElementById('kfNation').value,dob:document.getElementById('kfDob').value,
+      idType:document.getElementById('kfIdType').value,idNo:document.getElementById('kfIdNo').value.trim(),
+      email:document.getElementById('kfEmail').value.trim(),phone:document.getElementById('kfPhone').value.trim(),
+      tos:{doc:'tos_1',signed_agreement_id:tosSigned}
+    };
+    const dk=document.getElementById('dKyc');
+    // 默认：个人秒批（not_started→active，通常 <1min）。仅高风险 / 标注客户 / 演示指定复核 → 人工复核（最迟下一工作日）
+    const manualReview=S.risk||S.flagged||(dk&&dk.value==='underReview');
+    if(manualReview){
+      S.kyc='underReview'; willReview=true;
+      if(dk)dk.value='underReview';
+    }else{
+      S.kyc='approved';
+      if(dk)dk.value='approved';
+    }
+  }
+  close('obModal');
+  open('creatingOverlay');
+  setTimeout(()=>{
+    close('creatingOverlay');
+    const a=flow.preview||mockAccount(flow.cur);
+    if(!isUsd){
+      const holder=(document.getElementById('opFirst').value.trim()+' '+document.getElementById('opLast').value.trim()).toUpperCase();
+      a.bank.holder={zh:holder,en:holder};
+    }
+    const nm=document.getElementById('cfName').value.trim();
+    a.name={zh:nm||defaultAccName(flow.cur), en:nm||defaultAccName(flow.cur)};
+    a.dest={coin:document.getElementById('destCoin').value, rail:document.getElementById('destRail').value, addr:document.getElementById('destAddr').value.trim()};
+    ACCOUNTS.push(a);
+    if(willReview)a.status='PENDING';
+    renderAll();
+    toast(willReview?t('openSubmitted'):t('openSuccess'));
+  },1500);
+}
+/* ===== H1 Bridge 托管 ToS 签署（演示模拟回传 signed_agreement_id） ===== */
+function renderTosState(){
+  const needTos=flow.cur==='USD'&&S.kyc!=='approved';
+  const ab=document.getElementById('agreeBridge');
+  const go=document.getElementById('tosGoSign');
+  const st=document.getElementById('tosSignedState');
+  const gate=document.getElementById('tosGateHint');
+  const chip=document.getElementById('tosChip');
+  if(chip&&chip.hasAttribute('data-i18n'))chip.removeAttribute('data-i18n');
+  if(ab){
+    ab.disabled=true;
+    if(tosSigned){
+      ab.checked=true;
+      if(go)go.style.display='none';
+      if(st){st.style.display=''; st.innerHTML=t('tosSignedOk')+' · '+t('tosSignedHint')+'<code style="user-select:all;font-size:11.5px">'+tosSigned+'</code>'+(tosSignedAt?' · '+t('tosSignedAt')+tosSignedAt:'');}
+      if(gate)gate.style.display='none';
+      if(chip){chip.className='tos-chip ok'; chip.textContent=t('tosChipSigned');}
+    }else{
+      ab.checked=false;
+      if(go)go.style.display='';
+      if(st)st.style.display='none';
+      if(gate)gate.style.display=needTos?'':'none';
+      if(chip){chip.className='tos-chip'; chip.textContent=t('tosChipUnsigned');}
+    }
+  }
+  /* 确认页：Bridge 托管 ToS 签署回执（只读，不可修改） */
+  const rc=document.getElementById('tosReceipt');
+  if(rc){
+    const show=needTos&&!!tosSigned;
+    rc.style.display=show?'':'none';
+    if(show)rc.innerHTML='<b>'+t('tosSignedOk')+'</b><br>'+t('tosSignedMeta')+'<code style="user-select:all;font-size:11.5px">'+tosSigned+'</code>'+(tosSignedAt?' · '+t('tosSignedAt')+tosSignedAt:'');
+  }
+}
+document.getElementById('tosGoSign').addEventListener('click',()=>{ open('tosModal'); });
+document.getElementById('tosAccept').addEventListener('click',()=>{
+  // 演示：Bridge 托管页「同意并签署」→ 经 redirect_uri 携 signed_agreement_id 回跳本流程
+  const btn=document.getElementById('tosAccept');
+  const rt=document.getElementById('tosReturning');
+  tosSigned='agr_'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+  tosSignedAt=nowStamp();
+  if(rt){ rt.style.display=''; rt.textContent=t('tosReturning'); }
+  if(btn)btn.disabled=true;
+  setTimeout(()=>{
+    close('tosModal');
+    if(btn)btn.disabled=false;
+    if(rt)rt.style.display='none';
+    renderStep(); renderTosState(); updateObNextState();
+    toast(t('tosSignedToast'));
+  },900);
+});
+// H6 已拒绝 → 修改资料并重新提交
+document.getElementById('kfRetry').addEventListener('click',()=>{
+  S.kyc='notSubmitted'; S.profile=null;
+  const dk=document.getElementById('dKyc'); if(dk)dk.value='notSubmitted';
+  renderKyc(); renderCompliancePanels(); updateObNextState();
+});
+fillCompliance();
+fillOpenPayd();
+bindValidators();
+
+/* ================= 交易列表 ================= */
+function renderTx(){
+  let rows=TX;
+  if(txFilter==='payin')rows=TX.filter(x=>x.type==='payin');
+  else if(txFilter==='payout')rows=TX.filter(x=>x.type==='payout');
+  const body=document.getElementById('txBody');
+  if(!rows.length){body.innerHTML=`<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:30px">${t('noData')}</td></tr>`;return;}
+  const stCls={completed:'t-green',processing:'t-gray',failed:'t-red',returned:'t-gray',cancelled:'t-gray'};
+  body.innerHTML=rows.map(x=>{
+    const a=acctById(x.acc);
+    return `<tr>
+      <td style="font-weight:500">${x.id}</td>
+      <td><span class="tx-acc">${accName(a)}</span></td>
+      <td>${t('ty_'+x.type)}</td>
+      <td><span class="mtag">${t('r_'+x.rail)}</span></td>
+      <td>${x.currency}</td>
+      <td class="amount r ${x.type==='payin'?'amt-plus':'amt-minus'}">${x.type==='payin'?'+':''}${money(x.amount,x.currency)}</td>
+      <td class="amount r">${x.fee?money(x.fee,x.currency):'—'}</td>
+      <td><span class="t-badge ${stCls[x.status]}">${t('st_'+x.status)}</span></td>
+      <td style="color:var(--muted)">${x.ref}</td>
+      <td style="color:var(--muted)">${x.date}</td>
+      <td><span style="color:var(--muted);text-decoration:underline;cursor:pointer">${t('view')}</span></td>
+    </tr>`;
+  }).join('');
+}
+document.querySelectorAll('.f-tab').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.f-tab').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active'); txFilter=b.getAttribute('data-f'); renderTx();
+}));
+
+/* ================= 通用 ================= */
+function open(id){document.getElementById(id).classList.add('show');}
+function close(id){document.getElementById(id).classList.remove('show');}
+let _tt;
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),2000);}
+document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>b.closest('.overlay').classList.remove('show')));
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('show');}));
+
+document.getElementById('openNewBtn').addEventListener('click',()=>openFlow());
+document.addEventListener('click',e=>{
+  const w=e.target.closest('[data-withdraw]');
+  if(w){openWithdraw(w.getAttribute('data-withdraw'));}
+});
+
+/* ================= 语言 & 主题 ================= */
+function applyI18n(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=t(el.getAttribute('data-i18n')));
+  ['usNotice','euNotice','riskNotice','flagNotice'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=t(id);});
+  Object.keys(VALIDATORS).forEach(id=>{const el=document.getElementById(id);if(el&&el.classList.contains('invalid'))showFieldError(id,true);});
+  if(flow.cur==='USD'&&curStep()==='info')renderKyc();
+  renderSofDocs();
+  if(flow.cur==='USD'&&(curStep()==='tos'||curStep()==='confirm'))renderTosState();
+}
+document.getElementById('langBtn').addEventListener('click',()=>{S.lang=S.lang==='zh'?'en':'zh';applyI18n();renderAll();});
+document.getElementById('themeBtn').addEventListener('click',()=>{const c=document.documentElement.getAttribute('data-theme');document.documentElement.setAttribute('data-theme',c==='dark'?'light':'dark');});
+
+function renderAll(){renderSummary();renderGroups();renderEa();renderTx();}
+
+/* ================= DEMO ================= */
+document.getElementById('demoHead').addEventListener('click',()=>{document.getElementById('demoPanel').classList.toggle('collapsed');document.getElementById('demoArrow').textContent=document.getElementById('demoPanel').classList.contains('collapsed')?'▸':'▾';});
+document.getElementById('dOpen').addEventListener('click',()=>openFlow());
+document.getElementById('dDeposit').addEventListener('click',()=>openAcc('a-usd-01','deposit'));
+document.getElementById('dWithdraw').addEventListener('click',()=>openWithdraw('a-usd-01'));
+document.getElementById('dEa').addEventListener('click',()=>openEa());
+document.getElementById('selfieHostBtn').addEventListener('click',()=>toast(t('selfieHostGoMsg')));
+document.getElementById('dKyc').addEventListener('change',e=>{
+  const v=e.target.value;
+  const hadPending=ACCOUNTS.some(a=>a.status==='PENDING');
+  S.kyc=v;
+  if(v==='approved')ACCOUNTS.forEach(a=>{if(a.status==='PENDING')a.status='ACTIVE';});
+  if(curStep()==='info'&&flow.cur==='USD'){renderKyc();renderCompliancePanels();}
+  updateObNextState();
+  renderAll();
+  if(v==='approved'&&hadPending)setTimeout(()=>toast(t('kycApprovedPromote')),350);
+});
+document.getElementById('dRisk').addEventListener('change',e=>{
+  S.risk=e.target.checked;
+  const cb=document.getElementById('kfMoreCb');
+  if(cb){cb.checked=S.risk||S.flagged;cb.disabled=true;}
+  if(curStep()==='info')renderCompliancePanels();
+  updateObNextState();
+});
+document.getElementById('dFlag').addEventListener('change',e=>{
+  S.flagged=e.target.checked;
+  const cb=document.getElementById('kfMoreCb');
+  if(cb){cb.checked=S.risk||S.flagged;cb.disabled=true;}
+  if(curStep()==='info')renderCompliancePanels();
+  updateObNextState();
+});
+document.getElementById('dCountry').addEventListener('change',e=>{S.country=e.target.value;if(curStep()==='info')applyUserCountry();});
+document.getElementById('dReset').addEventListener('click',()=>{
+  ACCOUNTS=ACCOUNTS.filter(a=>['a-usd-01','a-usd-02','a-eur-01','a-gbp-01'].includes(a.id));
+  S.lang='zh';S.kyc='notSubmitted';S.risk=false;S.flagged=false;S.profile=null;S.country='CHN';
+  tosSigned=null; tosSignedAt=null; flow.path=null;
+  document.getElementById('dKyc').value='notSubmitted';
+  document.getElementById('dRisk').checked=false;
+  document.getElementById('dFlag').checked=false;
+  document.getElementById('dCountry').value='CHN';
+  document.getElementById('kfMoreCb').checked=false; document.getElementById('kfMoreCb').disabled=false;
+  ['usNotice','euNotice','riskNotice','flagNotice','noSvcNotice','selfieHost','kfSelfieCell','eeaFields','kfCondRow','kfSofRow','kfMore','kfMoreToggle','kfRejNotice','kfSofDocs'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  ['kfSofStatementDoc','kfSofSalaryDoc','kfSofPensionDoc','kfSofProofDoc'].forEach(id=>{const el=document.getElementById(id);if(el){el.value='';el.classList.remove('invalid');}});
+  document.documentElement.setAttribute('data-theme','light');
+  applyI18n();renderAll();
+  if(flow.cur)renderStep();
+});
+
+/* ================= 外部同名账户（外部账户） ================= */
+const EA_TYPES=[
+  {v:'us',flag:'🇺🇸',cur:'USD',zh:'美国',en:'United States',rail:{zh:'ACH · 电汇 Wire',en:'ACH · Wire'},enabled:true,sample:'Chase Bank'},
+  {v:'iban',flag:'🇪🇺',cur:'EUR',zh:'欧洲',en:'Europe',rail:{zh:'SEPA · SWIFT',en:'SEPA · SWIFT'},enabled:true,sample:'ING Bank'},
+  {v:'gb',flag:'🇬🇧',cur:'GBP',zh:'英国',en:'United Kingdom',rail:{zh:'Faster Payments · CHAPS',en:'FPS · CHAPS'},enabled:true,sample:'Barclays'},
+  {v:'mxn',flag:'🇲🇽',cur:'MXN',zh:'墨西哥',en:'Mexico',rail:{zh:'SPEI / CLABE',en:'SPEI / CLABE'},enabled:false,sample:''},
+  {v:'pix',flag:'🇧🇷',cur:'BRL',zh:'巴西',en:'Brazil',rail:{zh:'Pix',en:'Pix'},enabled:false,sample:''},
+  {v:'cop',flag:'🇨🇴',cur:'COP',zh:'哥伦比亚',en:'Colombia',rail:{zh:'Bre-B',en:'Bre-B'},enabled:false,sample:''}
+];
+const EA_FIELDS = {
+  bankName:{k:{zh:'银行名称',en:'Bank name'},type:'text',req:true,ph:{zh:'例如：Chase Bank',en:'e.g. Chase Bank'}},
+  accType:{k:{zh:'账户类型',en:'Account type'},type:'select',req:true,opts:[{v:'checking',zh:'支票账户（Checking）',en:'Checking'},{v:'savings',zh:'储蓄账户（Savings）',en:'Savings'}]},
+  accountNumber:{k:{zh:'账户号码',en:'Account number'},type:'text',req:true,ph:{zh:'',en:''}},
+  routingNumber:{k:{zh:'ABA 路由号码（9 位）',en:'Routing (ABA, 9 digits)'},type:'text',req:true,ph:{zh:'',en:''}},
+  addrStreet:{k:{zh:'受益人街道地址',en:'Street address'},type:'text',req:true,ph:{zh:'须含门牌号，如 123 Main St',en:'Include street number, e.g. 123 Main St'}},
+  addrCity:{k:{zh:'城市',en:'City'},type:'text',req:true,ph:{zh:'',en:''}},
+  addrState:{k:{zh:'省 / 州',en:'State'},type:'text',req:true,ph:{zh:'美国必填',en:'Required for US'}},
+  addrPostal:{k:{zh:'邮编',en:'Postal code'},type:'text',req:true,ph:{zh:'',en:''}},
+  addrCountry:{k:{zh:'国家 / 地区',en:'Country'},type:'select',req:true,ph:{zh:'请选择国家 / 地区',en:'Select country'},opts:[{v:'USA',zh:'美国',en:'United States'},{v:'HKG',zh:'中国香港',en:'Hong Kong'},{v:'CAN',zh:'加拿大',en:'Canada'},{v:'GBR',zh:'英国',en:'United Kingdom'},{v:'DEU',zh:'德国',en:'Germany'},{v:'FRA',zh:'法国',en:'France'},{v:'IRL',zh:'爱尔兰',en:'Ireland'},{v:'NLD',zh:'荷兰',en:'Netherlands'},{v:'ESP',zh:'西班牙',en:'Spain'},{v:'ITA',zh:'意大利',en:'Italy'}]},
+  iban:{k:{zh:'IBAN',en:'IBAN'},type:'text',req:true,ph:{zh:'DE89 3704 0044 0532 0130 00',en:'DE89 3704 0044 0532 0130 00'}},
+  bic:{k:{zh:'SWIFT / BIC',en:'SWIFT / BIC'},type:'text',req:false,ph:{zh:'',en:''}},
+  sortCode:{k:{zh:'Sort Code（6 位）',en:'Sort code (6 digits)'},type:'text',req:true,ph:{zh:'',en:''}}
+};
+const EA_TYPE_FIELDS = {
+  us:['bankName','accType','accountNumber','routingNumber','addrStreet','addrCity','addrState','addrPostal','addrCountry'],
+  iban:['bankName','iban','bic','addrStreet','addrCity','addrPostal','addrCountry'],
+  gb:['bankName','sortCode','accountNumber']
+};
+const EA_SPAN = {bankName:'1/-1',addrStreet:'1/-1',iban:'1/-1'};
+let EXT_ACCOUNTS = [
+  {id:'ea-usd-01', type:'us', flag:'🇺🇸', currency:'USD', name:{zh:'我的美元银行账户',en:'My USD Bank Account'}, holder:'XIAOMING LI', bankName:'Chase Bank', last4:'6789', verified:true, default:true, created:'2026-08-20'},
+  {id:'ea-eur-01', type:'iban', flag:'🇪🇺', currency:'EUR', name:{zh:'欧元收款账户',en:'My EUR Account'}, holder:'XIAOMING LI', bankName:'ING Bank', last4:'4300', verified:true, default:false, created:'2026-08-22'}
+];
+const eaf = { step:1, type:null };
+function renderEa(){
+  const el=document.getElementById('eaList');
+  if(!EXT_ACCOUNTS.length){ el.innerHTML=`<div class="ea-empty">${tt({zh:'还没有外部同名账户。添加一个您本人（同名）的银行账户，用于同名入金与出金收款。',en:'No same-name external accounts yet. Add a bank account in your own (same) name to fund deposits and receive payouts.'})}</div>`; return; }
+  el.innerHTML=EXT_ACCOUNTS.map(e=>{
+    const st=e.verified?{c:'green',l:tt({zh:'已核验',en:'Verified'})}:{c:'amber',l:tt({zh:'核验中',en:'Verifying'})};
+    return `
+    <div class="ea">
+      <div class="ea-left">
+        <div class="ea-name"><span class="ea-flag">${e.flag}</span><span class="nm">${accName(e)}</span>${e.default?`<span class="chip green">${t('primaryTag')}</span>`:''}</div>
+        <div class="ea-idline"><b>${e.holder}</b><span class="sep">·</span>${e.bankName}<span class="sep">·</span>${e.currency} ${tt({zh:'尾号',en:'ending'})} ${e.last4}</div>
+      </div>
+      <div class="ea-right">
+        <span class="chip ${st.c}">${st.l}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+function openEa(){ eaf.step=1; eaf.type=null; renderEaStep(); open('eaModal'); }
+function renderEaStep(){
+  document.getElementById('eaSt1').className=eaf.step>=1?'step on':'step';
+  document.getElementById('eaSt2').className=eaf.step>=2?'step on':'step';
+  document.getElementById('eaStep1').style.display=eaf.step===1?'':'none';
+  document.getElementById('eaStep2').style.display=eaf.step===2?'':'none';
+  document.getElementById('eaBack').style.display=eaf.step>1?'':'none';
+  document.getElementById('eaNext').textContent=eaf.step===2?t('eaConfirm'):t('next');
+  updateEaNext();
+  if(eaf.step===1){
+    const grid=document.getElementById('eaGrid');
+    grid.innerHTML=EA_TYPES.map(et=>{
+      const dis=!et.enabled;
+      return `<div class="cc ${eaf.type===et.v?'sel':''} ${dis?'dis':''}" data-et="${et.v}">
+        <div class="top"><span class="cc-flag">${et.flag}</span><span class="cc-code">${et.cur}</span></div>
+        <div style="font-size:12.5px;color:var(--text)">${et[S.lang]}</div>
+        <div class="cc-note">${dis?tt({zh:'暂未开放',en:'Coming soon'}):et.rail[S.lang]}</div>
+      </div>`;
+    }).join('');
+    grid.querySelectorAll('.cc').forEach(el=>el.addEventListener('click',()=>{ if(el.classList.contains('dis'))return; eaf.type=el.getAttribute('data-et'); renderEaStep(); }));
+  }else{
+    renderEaFields(eaf.type);
+  }
+}
+function renderEaFields(type){
+  const keys=EA_TYPE_FIELDS[type];
+  const roBlock=`
+    <div style="grid-column:1/-1">
+      <label class="lbl">${t('eaNameL')} <span class="lbl-note">${t('eaLocked')}</span></label>
+      <input class="input" value="${SYS_USER}" readonly>
+    </div>
+    <div style="grid-column:1/-1">
+      <label class="lbl">${t('eaHolderL')} <span class="lbl-note">${t('eaLocked')}</span></label>
+      <input class="input" value="${SYS_USER} · ${S.lang==='zh'?'个人':'Individual'}" readonly>
+    </div>`;
+  document.getElementById('eaFields').innerHTML=roBlock+keys.map(k=>{
+    const f=EA_FIELDS[k];
+    const opts=(f.ph?`<option value="">${f.ph[S.lang]}</option>`:'')+(f.opts?f.opts.map(o=>`<option value="${o.v}">${o[S.lang]}</option>`).join(''):'');
+    const input=f.type==='select'?`<select class="input" id="${k}" data-ea="${k}">${opts}</select>`:`<input class="input" id="${k}" data-ea="${k}" placeholder="${(f.ph&&f.ph[S.lang])||''}">`;
+    return `<div style="grid-column:${EA_SPAN[k]||'auto'}"><label class="lbl">${f.k[S.lang]}${f.req?'<span class="req">*</span>':''}</label>${input}</div>`;
+  }).join('');
+  // 美国账户：受益人地址国家锁定为美国（地址类型须与所选国家一致）
+  if(type==='us'){
+    const cc=document.querySelector('#eaFields [data-ea="addrCountry"]');
+    if(cc){cc.value='USA';cc.disabled=true;}
+  }
+  bindEaValidators();
+  updateEaNext();
+}
+function confirmAddEa(){
+  close('eaModal');
+  open('creatingOverlay');
+  document.getElementById('crTitle').textContent=tt({zh:'正在核验您的外部同名账户…',en:'Verifying your same-name external account…'});
+  document.getElementById('crDesc').textContent=tt({zh:'通常只需几秒钟，请稍候',en:'This usually takes a few seconds'});
+  setTimeout(()=>{
+    close('creatingOverlay');
+    const meta=EA_TYPES.find(x=>x.v===eaf.type);
+    // H5：美国账户无持有人姓名核验（VoP 仅 IBAN/GB），添加即 verified；欧洲/英国账户进入姓名匹配核验（match_level pending→matched）
+    const instantVerify=(eaf.type==='us');
+    const ea={
+      id:'ea-'+Date.now(), type:eaf.type, flag:meta.flag, currency:meta.cur,
+      name:{zh:SYS_USER,en:SYS_USER},
+      holder:SYS_USER, bankName:meta.sample, last4:String(Math.floor(1000+Math.random()*9000)),
+      verified:instantVerify, default:false, created:new Date().toISOString().slice(0,10)
+    };
+    EXT_ACCOUNTS.push(ea);
+    renderAll();
+    if(wd.fromWithdraw){ wd.fromWithdraw=false; open('wdModal'); renderWdStep(); }
+    toast(instantVerify?t('eaAddedUs'):t('eaAdded'));
+    if(!instantVerify){
+      setTimeout(()=>{ ea.verified=true; renderAll(); toast(t('eaVerified')); },2600);
+    }
+  },1500);
+}
+document.getElementById('addEaBtn').addEventListener('click',openEa);
+document.getElementById('eaBack').addEventListener('click',()=>{ if(eaf.step>1){eaf.step--; renderEaStep();} });
+document.getElementById('eaNext').addEventListener('click',()=>{ if(eaf.step===1){ if(!eaf.type)return; eaf.step=2; renderEaStep(); } else { if(!eaComplete()){eaFocusErr();return;} confirmAddEa(); } });
+
+/* ================= 出金（提现） ================= */
+const wd = { step:1, acc:null, ea:null, fromWithdraw:false };
+function openWithdraw(accId){
+  wd.acc=accId; wd.step=1; wd.ea=null;
+  renderWdStep(); open('wdModal');
+}
+function renderWdStep(){
+  document.getElementById('wdSt1').className=wd.step>=1?'step on':'step';
+  document.getElementById('wdSt2').className=wd.step>=2?'step on':'step';
+  document.getElementById('wdStep1').style.display=wd.step===1?'':'none';
+  document.getElementById('wdStep2').style.display=wd.step===2?'':'none';
+  document.getElementById('wdBack').style.display=wd.step>1?'':'none';
+  document.getElementById('wdNext').textContent=wd.step===2?t('wdConfirm'):t('next');
+  document.getElementById('wdNext').disabled=false;
+  if(wd.step===1) renderWdList();
+  else renderWdSum();
+}
+function renderWdList(){
+  const acc=acctById(wd.acc);
+  const el=document.getElementById('wdList');
+  const list=EXT_ACCOUNTS.filter(e=>e.currency===acc.currency);
+  if(!list.length){
+    el.innerHTML=`<div class="wd-empty">${t('wdNoEa')}</div>`;
+  }else{
+    el.innerHTML=list.map(e=>{
+      const sel=wd.ea===e.id;
+      const ok=e.verified;
+      const st=ok?`<span class="chip green">${tt({zh:'已核验',en:'Verified'})}</span>`:`<span class="chip amber">${tt({zh:'核验中 · 通过前不可用',en:'Verifying'})}</span>`;
+      const boxStyle=ok?'cursor:pointer':'cursor:not-allowed;opacity:.6';
+      return `
+      <div class="ea ${sel?'wd-sel':''}" data-wd-ea="${e.id}" style="${boxStyle}">
+        <div class="ea-left">
+          <div class="ea-name"><span class="ea-flag">${e.flag}</span><span class="nm">${accName(e)}</span></div>
+          <div class="ea-idline"><b>${e.holder}</b><span class="sep">·</span>${e.bankName}<span class="sep">·</span>${e.currency} ${tt({zh:'尾号',en:'ending'})} ${e.last4}</div>
+        </div>
+        <div class="ea-right">${st}</div>
+      </div>`;
+    }).join('');
+    el.querySelectorAll('[data-wd-ea]').forEach(r=>r.addEventListener('click',()=>{
+      const e=EXT_ACCOUNTS.find(x=>x.id===r.getAttribute('data-wd-ea'));
+      if(e&&e.verified){ wd.ea=e.id; renderWdList(); }
+    }));
+  }
+  updateWdNext();
+}
+function wdFeeFor(amt,cur){
+  const f={USD:1.5,EUR:1.0,GBP:1.0}[cur]||1.5;
+  return Math.round(Math.max(f,amt*0.005)*100)/100;
+}
+function updateWdNext(){
+  if(wd.step===1){ document.getElementById('wdNext').disabled=!wd.ea; return; }
+  const acc=acctById(wd.acc);
+  const amt=parseFloat(document.getElementById('wdAmount').value)||0;
+  document.getElementById('wdNext').disabled=!(amt>0&&amt<=acc.bal.available);
+}
+function renderWdSum(){
+  const acc=acctById(wd.acc);
+  const ea=EXT_ACCOUNTS.find(e=>e.id===wd.ea);
+  document.getElementById('wdSum').innerHTML=`
+    <div class="field"><span class="k">${t('wdFrom')}</span><span class="v">${accName(acc)} · ${acc.currency}</span></div>
+    <div class="field"><span class="k">${t('wdTo')}</span><span class="v">${ea.flag} ${accName(ea)} · ${ea.bankName} · ${ea.currency} ${tt({zh:'尾号',en:'ending'})} ${ea.last4}</span></div>`;
+  document.getElementById('wdAvailHint').textContent=t('available')+' '+money(acc.bal.available,acc.currency);
+  const rail={us:'ACH',iban:'SEPA',gb:'FPS'}[ea.type]||'SWIFT';
+  document.getElementById('wdArriveVal').textContent=t('wdArrive')+'：'+(RAILS[rail]?RAILS[rail].arrive:'—');
+  document.getElementById('wdAmount').value='';
+  updateWdFee();
+  updateWdNext();
+}
+function updateWdFee(){
+  const acc=acctById(wd.acc);
+  const amt=parseFloat(document.getElementById('wdAmount').value)||0;
+  const fee=wdFeeFor(amt,acc.currency);
+  document.getElementById('wdFeeVal').textContent=money(fee,acc.currency);
+  document.getElementById('wdReceiveVal').textContent=amt>0?money(Math.max(0,amt-fee),acc.currency):'—';
+  updateWdNext();
+}
+document.getElementById('wdAddBtn').addEventListener('click',()=>{
+  wd.fromWithdraw=true; close('wdModal'); openEa();
+});
+document.querySelector('#eaModal [data-close]').addEventListener('click',()=>{
+  // 从出金跳去新增账户时，取消/关闭后返回出金流程
+  if(wd.fromWithdraw){ wd.fromWithdraw=false; open('wdModal'); renderWdStep(); }
+});
+document.getElementById('wdBack').addEventListener('click',()=>{ if(wd.step>1){wd.step=1; renderWdStep();} });
+document.getElementById('wdNext').addEventListener('click',()=>{
+  if(wd.step===1){ if(!wd.ea)return; wd.step=2; renderWdStep(); }
+  else confirmWithdraw();
+});
+document.getElementById('wdAmount').addEventListener('input',updateWdFee);
+function confirmWithdraw(){
+  const acc=acctById(wd.acc);
+  const ea=EXT_ACCOUNTS.find(e=>e.id===wd.ea);
+  const amt=parseFloat(document.getElementById('wdAmount').value);
+  const fee=wdFeeFor(amt,acc.currency);
+  close('wdModal');
+  open('creatingOverlay');
+  document.getElementById('crTitle').textContent=tt({zh:'正在提交提现申请…',en:'Submitting your withdrawal…'});
+  document.getElementById('crDesc').textContent=tt({zh:'请稍候',en:'Please wait'});
+  setTimeout(()=>{
+    close('creatingOverlay');
+    acc.bal.available-=amt; acc.bal.actual-=amt;
+    const rail={us:'ACH',iban:'SEPA',gb:'FPS'}[ea.type]||'SWIFT';
+    const now=new Date();
+    TX.unshift({
+      id:'TX-'+now.toISOString().slice(0,10).replace(/-/g,'')+'-'+String(Math.floor(1000+Math.random()*9000)),
+      acc:acc.id, type:'payout', rail, currency:acc.currency, amount:Math.round(amt*100)/100, fee, status:'processing',
+      date:now.toISOString().slice(0,16).replace('T',' '), ref:'—'
+    });
+    renderAll(); toast(t('wdSuccess'));
+  },1200);
+}
+
+/* init */
+renderAll();
+</script>
+</body>
+</html>

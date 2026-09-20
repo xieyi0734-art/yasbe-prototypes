@@ -602,7 +602,7 @@ select.input[multiple]{appearance:none;background-image:none;height:auto;padding
           <div style="grid-column:1/-1">
             <label class="lbl"><span class="req">*</span><span data-i18n="wdRefL">附言（Reference）</span></label>
             <input class="input" id="wdRef" type="text" autocomplete="off">
-            <div class="helper" data-i18n="wdRefHint">将显示在收款银行对账单，用于对方识别款项用途；建议填写发票号或订单号。</div>
+            <div class="helper" data-i18n="wdRefHint">将显示在收款银行的收款记录，用于对方识别款项用途；建议填写发票号或订单号。</div>
           </div>
           <div style="grid-column:1/-1">
             <label class="lbl" data-i18n="wdReceive">预计到账</label>
@@ -777,7 +777,7 @@ const T = {
     wdStep2L:'2. 确认金额',
     wdAdd:'＋ 添加外部同名账户', wdNoEa:'暂无外部账户，请先添加您的同名银行账户。',
     wdFrom:'提现账户', wdTo:'收款账户', wdAmt:'提现金额', wdFee:'预估手续费', wdReceive:'预计到账', wdArrive:'预计到账', wdConfirm:'确认提现',
-    wdRefL:'附言（Reference）', wdRefHint:'将显示在收款银行对账单，用于对方识别款项用途；建议填写发票号或订单号。',
+    wdRefL:'附言（Reference）', wdRefHint:'将显示在收款银行的收款记录，用于对方识别款项用途；建议填写发票号或订单号。',
     wdSelTip:'请选择收款账户', wdSuccess:'提现申请已提交', wdDone:'提现已到账', wdMismatch:'币种不一致，暂不支持提现，请添加对应币种的同名账户', wdOnlySame:'出金仅支持选择正常状态（已核验）的外部同名账户。',
     noData:'暂无交易记录',
     // withdrawal accounts
@@ -865,7 +865,7 @@ const T = {
     wdStep2L:'2. Confirm amount',
     wdAdd:'＋ Add same-name account', wdNoEa:'No external account yet. Add your own bank account first.',
     wdFrom:'From', wdTo:'To', wdAmt:'Amount', wdFee:'Estimated fee', wdReceive:'You receive', wdArrive:'Estimated arrival', wdConfirm:'Confirm Withdraw',
-    wdRefL:'Reference', wdRefHint:'Shown on the recipient bank statement for identification; an invoice or order number is recommended.',
+    wdRefL:'Reference', wdRefHint:'Shown in the recipient bank payment records for identification; an invoice or order number is recommended.',
     wdSelTip:'Select a payout account', wdSuccess:'Withdrawal submitted', wdDone:'Withdrawal credited', wdMismatch:'Currency mismatch — please add a same-name account in this currency', wdOnlySame:'Payouts only accept normal (verified) same-name external accounts.',
     noData:'No transactions',
     depPendTitle:'Non-same-name deposit on hold', depPendLead:'We detected a deposit from an account not in your name. Per platform rules deposits must come from a bank account in your own name. If this account is yours (or authorised), add it as an external account and upload proof — it will be credited after operator approval.',

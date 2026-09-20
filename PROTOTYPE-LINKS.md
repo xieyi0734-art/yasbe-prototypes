@@ -56,8 +56,8 @@
 |---|---|---|---|
 | 代理申请入口 · 客户端 🆕 | 代理申请引导与返佣口径说明（兜底：开卡 $6.00/单 · 充值 0.25%） | 2026-09-18 | [2026-09-18_代理申请入口_客户端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/2026-09-18_代理申请入口_客户端.html) |
 | 代理协议签署 · 客户端 🆕 | 代理协议正文 + canvas 手写电子签名 + 同意勾选门禁（未勾选不可提交），提交即生成存证 | 2026-09-18 | [2026-09-18_代理协议签署_客户端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/2026-09-18_代理协议签署_客户端.html) |
-| 代理申请状态 · 客户端 🆕 | 提交后即时自动核验 → 即时开通（无人工等待）+ 自动核验明细；含电子签名存证卡（编号 ES-20260918-4F7A2C · 协议 v1.1 · SHA-256 摘要）；核验未通过转商务人工复核 | 2026-09-18 | [2026-09-18_代理申请状态_客户端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/2026-09-18_代理申请状态_客户端.html) |
-| 代理中心 · 客户端 🆕 | 代理身份总览 + 专属推广链接 + 返佣记录 + 我的返佣比例（来源标签：平台兜底 / 商务调整） | 2026-09-18 | [2026-09-18_代理中心_客户端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/2026-09-18_代理中心_客户端.html) |
+| 代理申请状态 · 客户端 🆕 | 提交后即时自动核验 → 即时开通（无人工等待）+ 自动核验明细；含电子签名存证卡（编号 ES-20260918-4F7A2C · 协议 v1.1 · SHA-256 摘要）；核验未通过转平台进一步核验 | 2026-09-18 | [2026-09-18_代理申请状态_客户端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/2026-09-18_代理申请状态_客户端.html) |
+| 代理中心 · 客户端 🆕 | 代理身份总览 + 专属推广链接 + 返佣记录 + 我的返佣比例（来源标签：标准返点 / 专属调整） | 2026-09-18 | [2026-09-18_代理中心_客户端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/2026-09-18_代理中心_客户端.html) |
 | 代理管理 · 管理端 🆕 | 代理申请列表（申请人 / 实名状态 / 电子签名存证 / 开通时间 / 下级数 / 返佣方案 / 状态）+ 统计条 + 代理详情与调佣入口 | 2026-09-18 | [2026-09-18_代理管理_管理端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/2026-09-18_代理管理_管理端.html) |
 | 代理返佣调整 · 管理端 🆕 | 按代理二次调整返 U（卡产品维度：兜底值 vs 调整后双列）+ 电子签名存证渲染 + 调整历史留痕 | 2026-09-18 | [2026-09-18_代理返佣调整_管理端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/2026-09-18_代理返佣调整_管理端.html) |
 | 代理兜底值规则 · 管理端 🆕 | 平台兜底返 U（开卡 $6.00/单 · 充值 0.25%）+ 兜底 Points（充值 0.02% · 开卡 10 yasbee+/单）+ 生效优先级与操作日志 | 2026-09-18 | [2026-09-18_代理兜底值规则_管理端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/2026-09-18_代理兜底值规则_管理端.html) |
@@ -153,13 +153,17 @@
 
 ---
 
-## 8. 💱 客户端 · 法币虚拟账户（1）
+## 8. 💱 客户端 · 法币虚拟账户（3）
 
 *`client/prototypes/bank-virtual-account/`*
 
 | 原型名称 | 功能 | 最后更新 | 链接 |
 |---|---|---|---|
-| 法币账户（欧元 / 英镑 · 多渠道多账户） 🆕 | C 端法币账户开通 + 多账户视图（EUR/GBP，多渠道） | 2026-09-09 | [03-法币账户-欧元英镑-多渠道多账户.html](https://xieyi0734-art.github.io/yasbe-prototypes/client/prototypes/bank-virtual-account/03-法币账户-欧元英镑-多渠道多账户.html) |
+| 法币账户（美元 · 多渠道多账户）（最新） 🆕 | C 端 USD 虚拟账户：美元账户开通 + 多账户视图 + 出入金；开通资料按三情形自动追加（无业但声明工资 / 养老金退休金 / 高月均资金往来），判定与展示范围＝EEA + 风险客户 | 2026-09-20 | [02-法币账户-多渠道多账户.html](https://xieyi0734-art.github.io/yasbe-prototypes/client/prototypes/bank-virtual-account/02-法币账户-多渠道多账户.html) |
+| 用户开通虚拟账户 🆕 | C 端银行账户页：法币账户列表 + 最近的法币交易 + 开通入口 | 2026-09-20 | [01-用户开通虚拟账户.html](https://xieyi0734-art.github.io/yasbe-prototypes/client/prototypes/bank-virtual-account/01-用户开通虚拟账户.html) |
+| 法币账户（欧元 / 英镑 · 多渠道多账户） | C 端法币账户开通 + 多账户视图（EUR/GBP，多渠道） | 2026-09-09 | [03-法币账户-欧元英镑-多渠道多账户.html](https://xieyi0734-art.github.io/yasbe-prototypes/client/prototypes/bank-virtual-account/03-法币账户-欧元英镑-多渠道多账户.html) |
+
+**模块 PRD**：`PRD-虚拟账户-USD通道-v0.1.md`（美元通道 · 对标 Bridge OpenAPI · v0.8）· `PRD-法币账户-欧元英镑-OpenPayd通道-v0.1.md`（欧元英镑通道 · 对标 OpenPayd · v0.3）
 
 ---
 
@@ -300,10 +304,8 @@
 | 交易记录 | `cyro-website/transactions.html` | 有 | 目录被 `.gitignore` 排除，从未部署 |
 | 提现 | `cyro-website/withdraw.html` | 有 | 目录被 `.gitignore` 排除，从未部署 |
 
-**B. 本地存在但从未登记、线上也 404（10 条）**
+**B. 本地存在但从未登记、线上也 404（8 条）**
 
-- `client/prototypes/bank-virtual-account/01-用户开通虚拟账户.html`
-- `client/prototypes/bank-virtual-account/02-法币账户-多渠道多账户.html`
 - `client/prototypes/bank-virtual-account/02-法币账户-多渠道多账户_存档_20260904.html`
 - `client/prototypes/bank-virtual-account/02-法币账户-多渠道多账户_存档_20260904_证件照POA前.html`
 - `client/prototypes/card-management/22-B端-批量充值.html`

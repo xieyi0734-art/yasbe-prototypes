@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>用户开通虚拟账户 · 原型</title>
+<style>
+:root{
+  --app-bg:#F7F8FA;
+  --card-bg:#FAF9F7;
+  --card-border:#E5E7EB;
+  --text:#1F2329;
+  --muted:#6B7280;
+  --muted-2:#9CA3AF;
+  --sub-card:#F9FAFE;
+  --accent:#FFCA00;
+  --accent-hover:#EEBD00;
+  --accent-text:#1F2329;
+  --shadow:0 0 4px 0 rgba(90,92,96,0.25);
+  --row-hover:#F3F4F6;
+  --divider:#E5E7EB;
+  --green-bg:linear-gradient(90deg, rgba(46,204,113,0.18) 0%, rgba(39,174,96,0.18) 100%);
+  --green-border:rgba(39,174,96,0.45);
+  --green-text:#1a7a4a;
+  --amber-bg:linear-gradient(90deg, rgba(245,158,11,0.15) 0%, rgba(217,119,6,0.15) 100%);
+  --amber-border:rgba(217,119,6,0.4);
+  --amber-text:#b45309;
+  --red-bg:linear-gradient(90deg, rgba(239,68,68,0.13) 0%, rgba(220,38,38,0.13) 100%);
+  --red-border:rgba(220,38,38,0.35);
+  --red-text:#b91c1c;
+  --overlay:rgba(15,17,20,0.45);
+}
+[data-theme="dark"]{
+  --app-bg:#111418;
+  --card-bg:#1d2025;
+  --card-border:rgba(255,255,255,0.10);
+  --text:#f2f3f3;
+  --muted:rgba(255,255,255,0.55);
+  --muted-2:rgba(255,255,255,0.38);
+  --sub-card:#1a1d22;
+  --accent:#FFCA00;
+  --accent-hover:#EEBD00;
+  --accent-text:#1F2329;
+  --shadow:none;
+  --row-hover:rgba(255,255,255,0.03);
+  --divider:rgba(255,255,255,0.08);
+  --green-bg:linear-gradient(90deg, rgba(34,197,94,0.16) 0%, rgba(22,101,52,0.16) 100%);
+  --green-border:rgba(34,197,94,0.35);
+  --green-text:#4ade80;
+  --amber-bg:linear-gradient(90deg, rgba(245,158,11,0.14) 0%, rgba(120,80,10,0.14) 100%);
+  --amber-border:rgba(245,158,11,0.3);
+  --amber-text:#fbbf24;
+  --red-bg:linear-gradient(90deg, rgba(239,68,68,0.14) 0%, rgba(127,29,29,0.14) 100%);
+  --red-border:rgba(248,113,113,0.3);
+  --red-text:#f87171;
+  --overlay:rgba(0,0,0,0.6);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:"Inter","PingFang SC","Microsoft YaHei",-apple-system,BlinkMacSystemFont,sans-serif;
+  background:var(--app-bg);color:var(--text);font-size:14px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+/* ---------- top bar ---------- */
+.topbar{display:flex;align-items:center;justify-content:space-between;height:56px;padding:0 24px;border-bottom:1px solid var(--divider);background:var(--card-bg);position:sticky;top:0;z-index:30}
+.brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px;letter-spacing:-.2px}
+.brand .dot{width:22px;height:22px;border-radius:7px;background:var(--accent);display:inline-flex;align-items:center;justify-content:center;font-size:12px;color:var(--accent-text);font-weight:800}
+.top-right{display:flex;align-items:center;gap:8px}
+.toggle{display:inline-flex;align-items:center;gap:4px;height:30px;padding:0 10px;border-radius:8px;border:1px solid var(--divider);background:transparent;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit}
+.toggle.active{background:var(--accent);border-color:var(--accent);color:var(--accent-text);font-weight:600}
+.toggle:hover{border-color:var(--accent)}
+/* ---------- layout ---------- */
+.wrap{max-width:1080px;margin:0 auto;padding:32px 24px 64px;min-width:0}
+.page-title{font-size:24px;font-weight:700;margin-bottom:24px;letter-spacing:-.3px}
+/* ---------- account card ---------- */
+.acc-card{border-radius:16px;border:1px solid var(--card-border);background:var(--card-bg);padding:12px;box-shadow:var(--shadow);min-width:0}
+.acc-card-body{border-radius:12px;padding:20px;min-height:150px}
+.acc-card.opened .acc-card-body{background:var(--green-bg);border:1px solid var(--green-border)}
+.acc-card.empty .acc-card-body{background:transparent;border:1px dashed var(--muted-2);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;padding:36px 24px}
+.acc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;min-width:0}
+.acc-label{font-size:12px;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.flag{width:36px;height:36px;border-radius:50%;overflow:hidden;border:1px solid var(--card-border);display:inline-flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.balance{font-size:32px;font-weight:700;letter-spacing:0;font-variant-numeric:tabular-nums}
+.balance .cur{font-size:18px;font-weight:600;margin-right:4px;color:inherit}
+.chip{display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 8px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}
+.chip.green{background:rgba(34,197,94,.14);color:var(--green-text);border:1px solid var(--green-border)}
+.chip.gray{background:rgba(255,255,255,.08);color:var(--muted);border:1px solid var(--divider)}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+.btn{height:56px;border-radius:10px;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:background .15s,opacity .15s;min-width:0;padding:0 14px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-accent{background:var(--accent);color:var(--accent-text)}
+.btn-accent:hover:not(:disabled){background:var(--accent-hover)}
+.btn-ghost{background:var(--sub-card);color:var(--text);border:1px solid transparent;box-shadow:inset 0 0 5px rgba(255,255,255,.15)}
+.btn-ghost:hover:not(:disabled){background:rgba(255,255,255,.05)}
+.btn-block{width:100%}
+.btn-sm{height:36px;font-size:13px;padding:0 16px;border-radius:9px}
+.empty-cta{height:44px;font-size:14px;padding:0 22px;border-radius:10px}
+.empty-icon{width:52px;height:52px;border-radius:14px;background:var(--sub-card);border:1px solid var(--divider);display:flex;align-items:center;justify-content:center;font-size:24px}
+.empty-title{font-size:17px;font-weight:700}
+.empty-desc{font-size:13px;color:var(--muted);max-width:420px}
+.empty-note{font-size:12px;color:var(--muted-2)}
+/* account info strip */
+.info-strip{margin-top:12px;border-radius:12px;border:1px solid var(--divider);background:var(--sub-card);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.info-strip .l{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.info-strip .l b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}
+.info-strip .lnk{color:var(--accent-text);background:var(--accent);border:none;height:28px;padding:0 12px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+.info-strip .lnk:hover{background:var(--accent-hover)}
+[data-theme="dark"] .info-strip .lnk{color:#1F2329}
+.acc-foot{margin-top:12px;font-size:12px;color:var(--muted-2)}
+/* ---------- table card ---------- */
+.table-card{border-radius:16px;border:1px solid var(--card-border);background:var(--card-bg);box-shadow:var(--shadow);margin-top:32px;overflow:hidden}
+.table-head{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:24px 24px 0}
+.table-head h2{font-size:20px;font-weight:700}
+.filters{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:16px 24px 20px}
+.f-tab{height:32px;padding:0 14px;border-radius:12px;border:none;background:transparent;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s}
+.f-tab.active{background:var(--accent);color:var(--accent-text);font-weight:600}
+[data-theme="dark"] .f-tab.active{background:#3F4349;color:#fff}
+.f-tab:hover:not(.active){background:var(--row-hover);color:var(--text)}
+.export{margin-left:auto;height:32px;padding:0 14px;border-radius:9px;border:1px solid var(--divider);background:transparent;color:var(--muted);font-size:12.5px;cursor:pointer;font-family:inherit}
+.export:hover{border-color:var(--accent);color:var(--text)}
+table{width:100%;border-collapse:collapse}
+thead th{text-align:left;font-size:13px;font-weight:500;color:var(--muted);padding:12px 16px;border-bottom:1px solid var(--divider);white-space:nowrap;background:transparent}
+thead th.r{text-align:right}
+tbody td{padding:14px 16px;font-size:13.5px;border-bottom:1px solid var(--divider);white-space:nowrap;font-variant-numeric:tabular-nums}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--row-hover)}
+.tx-id{font-weight:500}
+.amount.r{text-align:right}
+.t-badge{display:inline-flex;align-items:center;gap:4px;height:24px;padding:0 10px;border-radius:999px;font-size:11px;font-weight:600}
+.t-green{background:rgba(34,197,94,.12);color:var(--green-text);border:1px solid var(--green-border)}
+.t-amber{background:rgba(245,158,11,.12);color:var(--amber-text);border:1px solid var(--amber-border)}
+.t-gray{background:rgba(155,163,175,.12);color:var(--muted);border:1px solid var(--divider)}
+.t-red{background:rgba(239,68,68,.12);color:var(--red-text);border:1px solid var(--red-border)}
+.view-link{color:var(--muted);font-size:12.5px;text-decoration:underline;cursor:pointer}
+.view-link:hover{color:var(--text)}
+.pag{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;font-size:12.5px;color:var(--muted);border-top:1px solid var(--divider)}
+/* ---------- modal ---------- */
+.overlay{position:fixed;inset:0;background:var(--overlay);z-index:100;display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
+.overlay.show{display:flex}
+.modal{width:100%;max-width:520px;background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;box-shadow:0 20px 50px rgba(0,0,0,.25);margin:auto 0;animation:pop .18s ease-out}
+.modal.wide{max-width:620px}
+@keyframes pop{from{transform:translateY(8px) scale(.98);opacity:0}to{transform:none;opacity:1}}
+.m-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:24px 24px 0}
+.m-title{font-size:18px;font-weight:700}
+.m-sub{font-size:12.5px;color:var(--muted);margin-top:4px}
+.m-close{width:30px;height:30px;border-radius:8px;border:none;background:transparent;color:var(--muted);font-size:18px;cursor:pointer;font-family:inherit;flex-shrink:0}
+.m-close:hover{background:var(--row-hover);color:var(--text)}
+.m-body{padding:20px 24px 24px}
+.feature-list{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.feature{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--divider);border-radius:12px;padding:12px;background:var(--sub-card)}
+.feature .ic{width:30px;height:30px;border-radius:9px;background:var(--accent);color:var(--accent-text);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0}
+[data-theme="dark"] .feature .ic{color:#1F2329}
+.feature .tt{font-size:13px;font-weight:600}
+.feature .dd{font-size:12px;color:var(--muted);margin-top:2px}
+.va-preview{margin-top:14px;border-radius:12px;border:1px solid var(--divider);background:var(--sub-card);padding:14px;display:flex;flex-direction:column;gap:8px}
+.va-preview .row{display:flex;justify-content:space-between;font-size:12.5px}
+.va-preview .row .k{color:var(--muted)}
+.va-preview .row .v{font-weight:600;font-variant-numeric:tabular-nums}
+.note-box{margin-top:14px;border-radius:12px;border:1px solid var(--divider);background:var(--sub-card);padding:12px 14px;font-size:12.5px;color:var(--muted);line-height:1.7}
+.note-box b{color:var(--text);font-weight:600}
+.agree{margin-top:16px;display:flex;align-items:flex-start;gap:10px;font-size:13px;cursor:pointer;user-select:none}
+.agree input{margin-top:3px;accent-color:var(--accent);width:15px;height:15px;cursor:pointer}
+.agree .lnk{color:var(--accent-text);text-decoration:underline}
+[data-theme="dark"] .agree .lnk{color:#FFCA00}
+.m-foot{display:flex;gap:10px;justify-content:flex-end;padding:0 24px 24px}
+/* kyc gate */
+.kyc-box{display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px;padding:8px 0 2px}
+.kyc-icon{width:56px;height:56px;border-radius:16px;background:var(--amber-bg);border:1px solid var(--amber-border);display:flex;align-items:center;justify-content:center;font-size:26px}
+.kyc-status{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:999px;font-size:12px;font-weight:600;background:var(--amber-bg);border:1px solid var(--amber-border);color:var(--amber-text)}
+/* kyc form */
+.sec-label{font-size:12px;font-weight:700;color:var(--muted);margin:16px 0 10px}
+.sec-label:first-child{margin-top:0}
+.steps{display:flex;gap:8px;margin-bottom:18px}
+.step{flex:1;height:5px;border-radius:99px;background:var(--divider)}
+.step.on{background:var(--accent)}
+.form-fields{display:flex;flex-direction:column;gap:12px;margin-top:6px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.lbl{font-size:12px;color:var(--muted);margin-bottom:5px;display:flex;align-items:center;gap:4px}
+.lbl .req{color:var(--amber-text)}
+.input{width:100%;height:40px;border:1px solid var(--divider);border-radius:10px;background:var(--card-bg);color:var(--text);font-size:13.5px;padding:0 12px;font-family:inherit}
+.input:focus{outline:none;border-color:var(--accent)}
+select.input{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='%239CA3AF' stroke-width='1.5' fill='none' stroke-linecap='round'/></svg>");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;cursor:pointer}
+select.input[multiple]{appearance:none;background-image:none;height:auto;padding:6px 12px;cursor:default}
+.helper{font-size:11.5px;color:var(--muted-2);margin-top:4px}
+.hint-line{font-size:11.5px;color:var(--muted-2);margin-top:6px}
+.risk-note{margin-top:14px;border-radius:12px;border:1px solid var(--amber-border);background:var(--amber-bg);padding:12px 14px;font-size:12.5px;color:var(--amber-text);line-height:1.7}
+.risk-note b{color:var(--amber-text)}
+/* account info fields */
+.fields{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.field{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--divider);border-radius:11px;background:var(--sub-card);padding:11px 12px}
+.field .k{font-size:12.5px;color:var(--muted);flex-shrink:0}
+.field .v{font-size:13px;font-weight:600;text-align:right;word-break:break-all;font-variant-numeric:tabular-nums}
+.copy{width:28px;height:28px;border-radius:7px;border:1px solid var(--divider);background:transparent;color:var(--muted);font-size:13px;cursor:pointer;flex-shrink:0;font-family:inherit;display:flex;align-items:center;justify-content:center}
+.copy:hover{border-color:var(--accent);color:var(--text)}
+.status-line{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);margin-bottom:4px}
+.method-tags{display:flex;gap:6px;flex-wrap:wrap}
+.mtag{height:24px;padding:0 10px;border-radius:999px;font-size:11px;font-weight:600;background:var(--green-bg);border:1px solid var(--green-border);color:var(--green-text);display:inline-flex;align-items:center}
+/* creating overlay */
+.creating-panel{display:flex;flex-direction:column;align-items:center;gap:16px;padding:36px 24px;text-align:center}
+.spinner{width:42px;height:42px;border-radius:50%;border:3px solid var(--divider);border-top-color:var(--accent);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.creating-panel .tt{font-size:16px;font-weight:700}
+.creating-panel .dd{font-size:13px;color:var(--muted)}
+/* toast */
+.toast{position:fixed;left:50%;bottom:36px;transform:translateX(-50%) translateY(20px);background:#1d2025;color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;z-index:300;opacity:0;pointer-events:none;transition:all .22s;box-shadow:0 8px 24px rgba(0,0,0,.28);white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* demo panel */
+.demo{position:fixed;right:18px;bottom:18px;z-index:80;width:232px;background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.demo-head{padding:10px 14px;background:var(--accent);color:var(--accent-text);font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+[data-theme="dark"] .demo-head{color:#1F2329}
+.demo-body{padding:12px 14px;font-size:12px;display:flex;flex-direction:column;gap:10px}
+.demo-sec label{font-size:11px;color:var(--muted);display:block;margin-bottom:5px;font-weight:600}
+.demo-chips{display:flex;gap:6px;flex-wrap:wrap}
+.dchip{height:24px;padding:0 10px;border-radius:7px;border:1px solid var(--divider);background:transparent;color:var(--muted);font-size:11.5px;cursor:pointer;font-family:inherit}
+.dchip.active{background:var(--accent);border-color:var(--accent);color:var(--accent-text);font-weight:600}
+[data-theme="dark"] .dchip.active{color:#1F2329}
+.demo-actions{display:flex;flex-direction:column;gap:6px}
+.dbtn{height:30px;border-radius:8px;border:1px solid var(--divider);background:transparent;color:var(--text);font-size:12px;cursor:pointer;font-family:inherit}
+.dbtn:hover{border-color:var(--accent)}
+.demo.collapsed .demo-body{display:none}
+.divider{height:1px;background:var(--divider);margin:2px 0}
+@media(max-width:640px){
+  .feature-list{grid-template-columns:1fr}
+  .wrap{padding:20px 14px 80px}
+  .demo{right:10px;bottom:10px}
+}
+</style>
+</head>
+<body>
+
+<!-- ===================== TOP BAR ===================== -->
+<div class="topbar">
+  <div class="brand"><span class="dot">Y</span>YASBe</div>
+  <div class="top-right">
+    <button class="toggle" id="langBtn">中 / EN</button>
+    <button class="toggle" id="themeBtn">🌓 主题</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <h1 class="page-title" data-i18n="pageTitle">银行账户</h1>
+
+  <!-- ===================== USD ACCOUNT CARD ===================== -->
+  <div id="usdCard"></div>
+
+  <!-- ===================== TRANSACTION TABLE ===================== -->
+  <div class="table-card">
+    <div class="table-head">
+      <h2 data-i18n="recentTx">最近的法币交易</h2>
+    </div>
+    <div class="filters">
+      <button class="f-tab active" data-filter="all" data-i18n="fAll">全部</button>
+      <button class="f-tab" data-filter="deposit" data-i18n="fDeposit">入金</button>
+      <button class="f-tab" data-filter="withdrawal" data-i18n="fWithdraw">提现</button>
+      <button class="export" data-i18n="export">导出</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th data-i18n="thId">ID</th>
+          <th data-i18n="thType">类型</th>
+          <th data-i18n="thCur">币种</th>
+          <th class="r" data-i18n="thAmount">金额</th>
+          <th class="r" data-i18n="thFees">费用</th>
+          <th data-i18n="thStatus">状态</th>
+          <th data-i18n="thDate">时间</th>
+          <th data-i18n="thView">查看</th>
+        </tr>
+      </thead>
+      <tbody id="txBody"></tbody>
+    </table>
+    <div class="pag"><span data-i18n="pagination">显示 1 - 4，共 4 条记录</span></div>
+  </div>
+</div>
+
+<!-- ===================== ONBOARDING MODAL ===================== -->
+<div class="overlay" id="obModal">
+  <div class="modal">
+    <div class="m-head">
+      <div>
+        <div class="m-title" data-i18n="obTitle">开通美元收款账户</div>
+        <div class="m-sub" data-i18n="obSub">通过合作银行 Lead Bank 为您开通一套专属的美国本土收款账户</div>
+      </div>
+      <button class="m-close" data-close>×</button>
+    </div>
+    <div class="m-body">
+      <div class="feature-list">
+        <div class="feature"><div class="ic">专</div><div><div class="tt" data-i18n="f1t">专属账户</div><div class="dd" data-i18n="f1d">账号仅归您一人所有，收款无需附言备注</div></div></div>
+        <div class="feature"><div class="ic">兑</div><div><div class="tt" data-i18n="f2t">自动兑为稳定币</div><div class="dd" data-i18n="f2d">美元入账后自动兑换并计入余额</div></div></div>
+        <div class="feature"><div class="ic">速</div><div><div class="tt" data-i18n="f3t">三种收款方式</div><div class="dd" data-i18n="f3d">ACH · 电汇 Fedwire · FedNow</div></div></div>
+        <div class="feature"><div class="ic">稳</div><div><div class="tt" data-i18n="f4t">到账有保障</div><div class="dd" data-i18n="f4d">ACH 1-2 个工作日，FedNow 实时</div></div></div>
+      </div>
+
+      <div class="va-preview">
+        <div style="font-size:11.5px;color:var(--muted);font-weight:600" data-i18n="previewLabel">开通后将获得</div>
+        <div class="row"><span class="k" data-i18n="pvBank">收款银行</span><span class="v">Lead Bank · Kansas City, MO</span></div>
+        <div class="row"><span class="k" data-i18n="pvAcc">账户号码</span><span class="v">**** **** 4821</span></div>
+        <div class="row"><span class="k" data-i18n="pvRouting">路由号码</span><span class="v">101000014</span></div>
+      </div>
+
+      <div class="note-box" data-i18n="obFee">每次入金到账后将收取 <b>开发费用 + 兑换费用 + 网络 Gas 费用</b>，将在入账金额中直接扣除。</div>
+
+      <label class="agree">
+        <input type="checkbox" id="agreeBox">
+        <span><span data-i18n="agree1">我已阅读并同意</span> <span class="lnk" data-i18n="agree2">《YASBe 虚拟账户服务条款》</span></span>
+      </label>
+    </div>
+    <div class="m-foot">
+      <button class="btn btn-ghost btn-sm" data-close data-i18n="cancel">取消</button>
+      <button class="btn btn-accent btn-sm" id="obConfirm" disabled data-i18n="confirmOpen">确认开通</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== KYC GATE MODAL ===================== -->
+<div class="overlay" id="kycModal">
+  <div class="modal">
+    <div class="m-head">
+      <div>
+        <div class="m-title" data-i18n="kycTitle">需要完成 KYC 认证</div>
+      </div>
+      <button class="m-close" data-close>×</button>
+    </div>
+    <div class="m-body">
+      <div class="kyc-box">
+        <div class="kyc-icon">🔐</div>
+        <div style="font-size:13.5px;color:var(--text);max-width:360px" data-i18n="kycDesc">开通专属美元收款账户前，请先完成 KYC 实名认证并通过审核。</div>
+        <span class="kyc-status" id="kycStatusChip">当前状态：未提交</span>
+      </div>
+    </div>
+    <div class="m-foot">
+      <button class="btn btn-ghost btn-sm" data-close data-i18n="cancel">取消</button>
+      <button class="btn btn-accent btn-sm" id="goVerifyBtn" data-i18n="goVerify">前往认证</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== KYC FORM MODAL ===================== -->
+<div class="overlay" id="kycFormModal">
+  <div class="modal wide">
+    <div class="m-head">
+      <div>
+        <div class="m-title" data-i18n="kfTitle">KYC 实名认证</div>
+        <div class="m-sub" data-i18n="kfSub">信息将用于开立专属银行账户前的实名核验</div>
+      </div>
+      <button class="m-close" data-close>×</button>
+    </div>
+    <div class="m-body">
+      <div class="steps" id="kfSteps"></div>
+
+      <!-- STEP 1 基本信息 -->
+      <div id="kf1">
+        <div class="sec-label" data-i18n="kf1L">1. 基本信息</div>
+        <div class="form-fields">
+          <div class="form-row">
+            <div>
+              <label class="lbl" data-i18n="kfLast">姓<span class="req">*</span></label>
+              <input class="input" id="kfLast" placeholder="LI">
+            </div>
+            <div>
+              <label class="lbl" data-i18n="kfFirst">名<span class="req">*</span></label>
+              <input class="input" id="kfFirst" placeholder="MING">
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label class="lbl" data-i18n="kfMiddle">中间名</label>
+              <input class="input" id="kfMiddle" placeholder="ZHANG">
+            </div>
+          </div>
+          <div class="form-row" id="kfTransRow" style="display:none">
+            <div>
+              <label class="lbl" data-i18n="kfLastTr">姓 · 拼音转写</label>
+              <input class="input" id="kfLastTr" placeholder="LI">
+            </div>
+            <div>
+              <label class="lbl" data-i18n="kfFirstTr">名 · 拼音转写</label>
+              <input class="input" id="kfFirstTr" placeholder="MING">
+            </div>
+          </div>
+          <div id="kfMiddleTrRow" style="display:none">
+            <label class="lbl" data-i18n="kfMiddleTr">中间名 · 拼音转写</label>
+            <input class="input" id="kfMiddleTr" placeholder="ZHANG">
+          </div>
+          <div class="hint-line" id="kfTransHint" style="display:none" data-i18n="kfTransHint">检测到非拉丁字母姓名，请补填拼音转写（用于海外银行系统识别）</div>
+          <div class="form-row">
+            <div>
+              <label class="lbl" data-i18n="kfBirth">出生日期<span class="req">*</span></label>
+              <input class="input" id="kfBirth" type="date">
+            </div>
+            <div>
+              <label class="lbl" data-i18n="kfNation">国籍<span class="req">*</span></label>
+              <select class="input" id="kfNation"></select>
+            </div>
+          </div>
+          <label class="agree" style="margin-top:12px">
+            <input type="checkbox" id="kfMultiCb">
+            <span data-i18n="kfMultiCb">我还持有其他国籍 / 地区（如有）</span>
+          </label>
+          <div id="kfNationsRow" style="display:none;margin-top:10px">
+            <label class="lbl" data-i18n="kfNations">其他国籍 / 地区（可多选）</label>
+            <select class="input" id="kfNations" multiple size="3"></select>
+            <div class="helper" data-i18n="kfNationsHelp">按住 Ctrl（Mac 为 Cmd）可多选，与主国籍一并提交</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2 联系方式与地址 -->
+      <div id="kf2" style="display:none">
+        <div class="sec-label" data-i18n="kf2L">2. 联系方式与居住地址</div>
+        <div class="form-fields">
+          <div class="form-row">
+            <div>
+              <label class="lbl" data-i18n="kfEmail">邮箱<span class="req">*</span></label>
+              <input class="input" id="kfEmail" type="email" placeholder="you@example.com">
+            </div>
+            <div>
+              <label class="lbl" data-i18n="kfPhone">手机号<span class="req">*</span></label>
+              <input class="input" id="kfPhone" placeholder="+86 138 0000 0000">
+            </div>
+          </div>
+          <div>
+            <label class="lbl" data-i18n="kfStreet">街道地址<span class="req">*</span></label>
+            <input class="input" id="kfStreet" placeholder="Unit 204, 205 Place Court">
+            <div class="helper" data-i18n="kfStreetHelp">必须是可接收信件的物理地址，不接受 PO Box</div>
+          </div>
+          <div>
+            <label class="lbl" data-i18n="kfStreet2">街道地址（补充）</label>
+            <input class="input" id="kfStreet2" placeholder="Apt / Suite / Floor，可留空">
+          </div>
+          <div class="form-row">
+            <div>
+              <label class="lbl" data-i18n="kfCity">城市<span class="req">*</span></label>
+              <input class="input" id="kfCity" placeholder="Toronto">
+            </div>
+            <div>
+              <label class="lbl" data-i18n="kfState">省 / 州</label>
+              <input class="input" id="kfState" placeholder="ON">
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label class="lbl" data-i18n="kfPostal">邮编<span class="req">*</span></label>
+              <input class="input" id="kfPostal" placeholder="M2H 0A9">
+            </div>
+            <div>
+              <label class="lbl" data-i18n="kfCountry">国家<span class="req">*</span></label>
+              <input class="input" id="kfCountry" placeholder="CA">
+            </div>
+          </div>
+          <div id="kfAddrTrRow" style="display:none">
+            <label class="lbl" data-i18n="kfAddrTr">居住地址拼音转写</label>
+            <input class="input" id="kfAddrTr" placeholder="Unit 204, 205 Place Court">
+            <div class="helper" data-i18n="kfAddrTrHint">检测到非拉丁字母地址，请用英文 / 拼音补填完整地址（海外银行系统要求）</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 证件信息 -->
+      <div id="kf3" style="display:none">
+        <div class="sec-label" data-i18n="kf3L">3. 证件信息</div>
+        <div class="form-fields">
+          <div>
+            <label class="lbl" data-i18n="kfIdType">证件类型<span class="req">*</span></label>
+            <select class="input" id="kfIdType"></select>
+          </div>
+          <div>
+            <label class="lbl" data-i18n="kfIdNo">证件号码<span class="req">*</span></label>
+            <input class="input" id="kfIdNo" placeholder="">
+            <div class="helper" data-i18n="kfIdHelp">证件号码将按您填写的国籍匹配对应的证件要求</div>
+          </div>
+          <div>
+            <label class="lbl" data-i18n="kfIdExp">证件有效期</label>
+            <input class="input" id="kfIdExp" type="date">
+            <div class="helper" data-i18n="kfIdExpHelp">若为长期有效可留空；护照 / 签证等短期证件请填写到期日</div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label class="lbl" data-i18n="kfIdFront">证件正面照片<span class="req">*</span></label>
+              <input class="input" id="kfIdFront" type="file" accept="image/*">
+            </div>
+            <div>
+              <label class="lbl" data-i18n="kfIdBack">证件背面照片</label>
+              <input class="input" id="kfIdBack" type="file" accept="image/*">
+            </div>
+          </div>
+          <div>
+            <label class="lbl" data-i18n="kfSelfie">人脸自拍<span class="req">*</span></label>
+            <input class="input" id="kfSelfie" type="file" accept="image/*">
+          </div>
+          <div>
+            <label class="lbl" data-i18n="kfPoa">住址证明文件</label>
+            <input class="input" id="kfPoa" type="file" accept="image/*,.pdf">
+            <div class="helper" data-i18n="kfPoaHelp">可选。当系统检测到住址与证件签发地不一致或涉及特定地区时，需补充近期账单 / 水电费单等证明</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4 风险场景（条件显示） -->
+      <div id="kf4" style="display:none">
+        <div class="risk-note"><b data-i18n="kfRiskTitle">根据您的资料，需补充以下信息以完成身份核验</b></div>
+        <div class="form-fields" style="margin-top:12px">
+          <div class="form-row">
+            <div>
+              <label class="lbl" data-i18n="kfEmp">就业状态<span class="req">*</span></label>
+              <select class="input" id="kfEmp"></select>
+            </div>
+            <div>
+              <label class="lbl" data-i18n="kfOcc">职业</label>
+              <input class="input" id="kfOcc" placeholder="e.g. Software Engineer">
+            </div>
+          </div>
+          <div>
+            <label class="lbl" data-i18n="kfFunds">资金来源<span class="req">*</span></label>
+            <select class="input" id="kfFunds"></select>
+          </div>
+          <div>
+            <label class="lbl" data-i18n="kfPurpose">账户主要用途<span class="req">*</span></label>
+            <select class="input" id="kfPurpose"></select>
+          </div>
+          <div id="kfPurposeOtherRow" style="display:none">
+            <label class="lbl" data-i18n="kfPurposeOther">用途说明<span class="req">*</span></label>
+            <input class="input" id="kfPurposeOther" placeholder="请简要说明账户主要用途">
+            <div class="helper" data-i18n="kfPurposeOtherHelp">当主要用途选择「其他」时需补充说明</div>
+          </div>
+          <div>
+            <label class="lbl" data-i18n="kfMonthly">每月预期资金进出金额<span class="req">*</span></label>
+            <select class="input" id="kfMonthly"></select>
+          </div>
+          <div>
+            <label class="lbl" data-i18n="kfInter">是否代他人收款 / 付款？<span class="req">*</span></label>
+            <select class="input" id="kfInter"></select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="m-foot">
+      <button class="btn btn-ghost btn-sm" id="kfBack" style="display:none" data-i18n="back">上一步</button>
+      <button class="btn btn-ghost btn-sm" data-close data-i18n="cancel">取消</button>
+      <button class="btn btn-accent btn-sm" id="kfNext" data-i18n="next">下一步</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== ACCOUNT INFO MODAL ===================== -->
+<div class="overlay" id="accModal">
+  <div class="modal wide">
+    <div class="m-head">
+      <div>
+        <div class="m-title" data-i18n="accTitle">收款账户信息</div>
+        <div class="m-sub" data-i18n="accSub">向该账户转账即可完成美元入金，入账自动匹配到您的账户</div>
+      </div>
+      <button class="m-close" data-close>×</button>
+    </div>
+    <div class="m-body">
+      <div class="status-line">
+        <span class="chip green" id="accStatusChip">● 已开通</span>
+        <span style="font-size:12px;color:var(--muted)">开通时间 2026-08-28 10:24</span>
+      </div>
+      <div class="fields">
+        <div class="field"><span class="k" data-i18n="aMethod">支持的存款方式</span><span class="v method-tags"><span class="mtag">ACH</span><span class="mtag">Fedwire</span><span class="mtag">FedNow</span></span></div>
+        <div class="field"><span class="k" data-i18n="aBank">收款银行</span><span class="v">Lead Bank</span><button class="copy" data-copy="Lead Bank">⧉</button></div>
+        <div class="field"><span class="k" data-i18n="aAddr">银行地址</span><span class="v">1801 Main St., Kansas City, MO 64108, United States of America</span><button class="copy" data-copy="1801 Main St., Kansas City, MO 64108, United States of America">⧉</button></div>
+        <div class="field"><span class="k" data-i18n="aName">账户名称</span><span class="v">XIAOMING LI</span><button class="copy" data-copy="XIAOMING LI">⧉</button></div>
+        <div class="field"><span class="k" data-i18n="aAccNo">账户号码</span><span class="v">94004821</span><button class="copy" data-copy="94004821">⧉</button></div>
+        <div class="field"><span class="k" data-i18n="aRouting">路由号码</span><span class="v">101000014</span><button class="copy" data-copy="101000014">⧉</button></div>
+        <div class="field"><span class="k" data-i18n="aHolderAddr">账户持有人地址</span><span class="v">Unit 204, 205 Place Court, North York ON M2H 0A9</span><button class="copy" data-copy="Unit 204, 205 Place Court, North York ON M2H 0A9">⧉</button></div>
+      </div>
+      <div style="margin-top:14px;display:flex;justify-content:flex-end">
+        <button class="btn btn-accent btn-sm" id="copyAll" data-i18n="copyAll">全部复制</button>
+      </div>
+      <div class="note-box">
+        <div style="font-weight:700;color:var(--text);margin-bottom:6px" data-i18n="impNotes">重要提示</div>
+        <div data-i18n="imp1">1. 请使用美元 (USD) 进行转账；</div>
+        <div data-i18n="imp2">2. 该账户为您的专属账户，转账时无需填写附言 / 备注，系统自动识别入账；</div>
+        <div data-i18n="imp3">3. 银行手续费由付款方承担；</div>
+        <div data-i18n="imp4">4. 到账时间：ACH 1-2 个工作日；电汇当日（美东 16:45 前）；FedNow 实时到账；</div>
+        <div data-i18n="imp5">5. 该账户仅用于收款，请勿向其发起 ACH 逆转账（ACH Debit）。</div>
+      </div>
+    </div>
+    <div class="m-foot">
+      <button class="btn btn-ghost btn-sm" data-close data-i18n="close">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== CREATING OVERLAY ===================== -->
+<div class="overlay" id="creatingOverlay">
+  <div class="modal">
+    <div class="creating-panel">
+      <div class="spinner"></div>
+      <div class="tt" data-i18n="crTitle">正在为您开通专属账户…</div>
+      <div class="dd" data-i18n="crDesc">通常只需几秒钟，请稍候</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== TOAST ===================== -->
+<div class="toast" id="toast"></div>
+
+<!-- ===================== DEMO PANEL ===================== -->
+<div class="demo" id="demoPanel">
+  <div class="demo-head" id="demoHead">演示控制 <span id="demoArrow">▾</span></div>
+  <div class="demo-body">
+    <div class="demo-sec">
+      <label data-i18n="dState">账户状态</label>
+      <div class="demo-chips">
+        <button class="dchip active" data-acc="empty" data-i18n="dEmpty">未开通</button>
+        <button class="dchip" data-acc="opened" data-i18n="dOpened">已开通</button>
+      </div>
+    </div>
+    <div class="demo-sec">
+      <label data-i18n="dKyc">KYC 状态</label>
+      <div class="demo-chips">
+        <button class="dchip active" data-kyc="approved" data-i18n="dOk">已通过</button>
+        <button class="dchip" data-kyc="pending" data-i18n="dPending">审核中</button>
+        <button class="dchip" data-kyc="notSubmitted" data-i18n="dNot">未提交</button>
+      </div>
+    </div>
+    <div class="demo-sec">
+      <label data-i18n="dRisk">客户风险画像</label>
+      <div class="demo-chips">
+        <button class="dchip active" data-risk="normal" data-i18n="dRiskNormal">普通客户</button>
+        <button class="dchip" data-risk="high" data-i18n="dRiskHigh">高风险客户</button>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="demo-actions">
+      <button class="dbtn" id="demoOpenOb" data-i18n="dOpenOb">打开开通引导</button>
+      <button class="dbtn" id="demoOpenAcc" data-i18n="dOpenAcc">打开收款账户信息</button>
+      <button class="dbtn" id="demoReset" data-i18n="dReset">重置</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================= STATE ================= */
+const S = {
+  accountCreated: false,   // empty | opened
+  kyc: 'approved',         // approved | pending | notSubmitted
+  risk: false,             // 高风险画像：触发增强 KYC 字段
+  lang: 'zh',
+  creating: false
+};
+
+/* ================= I18N ================= */
+const T = {
+  zh: {
+    pageTitle:'银行账户',
+    recentTx:'最近的法币交易', export:'导出',
+    fAll:'全部', fDeposit:'入金', fWithdraw:'提现',
+    thId:'ID', thType:'类型', thCur:'币种', thAmount:'金额', thFees:'费用', thStatus:'状态', thDate:'时间', thView:'查看',
+    pagination:'显示 1 - 4，共 4 条记录',
+    // empty card
+    emptyLabel:'美元 · 专属账户未开通', emptyTitle:'开通专属美元收款账户',
+    emptyDesc:'获得一套专属于您的美国银行账号，支持 ACH、电汇、FedNow 美元入金，入账自动兑换为稳定币。',
+    openAcc:'开通账户', emptyNote:'EUR / GBP 账户不受本次变更影响',
+    // opened card
+    labelOpened:'美元 · US Dollar', chipOpened:'专属账户 · 已开通',
+    withdraw:'提现', deposit:'入金',
+    infoStrip:'专属账户尾号 4821 · 支持 ACH / Fedwire / FedNow', infoLink:'查看账户信息',
+    accFoot:'专属收款账户由合作银行 Lead Bank 提供',
+    // onboarding
+    obTitle:'开通美元收款账户', obSub:'通过合作银行 Lead Bank 为您开通一套专属的美国本土收款账户',
+    f1t:'专属账户', f1d:'账号仅归您一人所有，收款无需附言备注',
+    f2t:'自动兑为稳定币', f2d:'美元入账后自动兑换并计入余额',
+    f3t:'三种收款方式', f3d:'ACH · 电汇 Fedwire · FedNow',
+    f4t:'到账有保障', f4d:'ACH 1-2 个工作日，FedNow 实时',
+    previewLabel:'开通后将获得', pvBank:'收款银行', pvAcc:'账户号码', pvRouting:'路由号码',
+    obFee:'每次入金到账后将收取 <b>开发费用 + 兑换费用 + 网络 Gas 费用</b>，将在入账金额中直接扣除。',
+    agree1:'我已阅读并同意', agree2:'《YASBe 虚拟账户服务条款》',
+    cancel:'取消', confirmOpen:'确认开通', close:'关闭',
+    // kyc
+    kycTitle:'需要完成 KYC 认证', kycDesc:'开通专属美元收款账户前，请先完成 KYC 实名认证并通过审核。',
+    kycNot:'当前状态：未提交', kycPending:'当前状态：审核中', goVerify:'前往认证', goViewProgress:'查看审核进度',
+    // kyc form
+    kfTitle:'KYC 实名认证', kfSub:'信息将用于开立专属银行账户前的实名核验',
+    kf1L:'1. 基本信息', kf2L:'2. 联系方式与居住地址', kf3L:'3. 证件信息',
+    kfLast:'姓', kfFirst:'名', kfLastTr:'姓 · 拼音转写', kfFirstTr:'名 · 拼音转写',
+    kfTransHint:'检测到非拉丁字母姓名，请补填拼音转写（用于海外银行系统识别）',
+    kfBirth:'出生日期', kfNation:'国籍', kfEmail:'邮箱', kfPhone:'手机号',
+    kfStreet:'街道地址', kfStreetHelp:'必须是可接收信件的物理地址，不接受 PO Box',
+    kfCity:'城市', kfState:'省 / 州', kfPostal:'邮编', kfCountry:'国家',
+    kfIdType:'证件类型', kfIdNo:'证件号码', kfIdHelp:'证件号码将按您填写的国籍匹配对应的证件要求',
+    kfIdFront:'证件正面照片', kfIdBack:'证件背面照片', kfSelfie:'人脸自拍',
+    kfRiskTitle:'根据您的资料，需补充以下信息以完成身份核验',
+    kfEmp:'就业状态', kfOcc:'职业', kfFunds:'资金来源', kfPurpose:'账户主要用途', kfMonthly:'每月预期资金进出金额', kfInter:'是否代他人收款 / 付款？',
+    kfMiddle:'中间名', kfMiddleTr:'中间名 · 拼音转写', kfMultiCb:'我还持有其他国籍 / 地区（如有）', kfNations:'其他国籍 / 地区（可多选）', kfNationsHelp:'按住 Ctrl（Mac 为 Cmd）可多选，与主国籍一并提交',
+    kfStreet2:'街道地址（补充）', kfAddrTr:'居住地址拼音转写', kfAddrTrHint:'检测到非拉丁字母地址，请用英文 / 拼音补填完整地址（海外银行系统要求）',
+    kfIdExp:'证件有效期', kfIdExpHelp:'若为长期有效可留空；护照 / 签证等短期证件请填写到期日',
+    kfPoa:'住址证明文件', kfPoaHelp:'可选。当系统检测到住址与证件签发地不一致或涉及特定地区时，需补充近期账单 / 水电费单等证明',
+    kfPurposeOther:'用途说明', kfPurposeOtherHelp:'当主要用途选择「其他」时需补充说明',
+    kfSubmit:'提交认证', kfSubmitted:'认证信息已提交，进入审核',
+    next:'下一步', back:'上一步',
+    dRisk:'客户风险画像', dRiskNormal:'普通客户', dRiskHigh:'高风险客户',
+    // account info
+    accTitle:'收款账户信息', accSub:'向该账户转账即可完成美元入金，入账自动匹配到您的账户',
+    chipOpenedGreen:'● 已开通',
+    aMethod:'支持的存款方式', aBank:'收款银行', aAddr:'银行地址', aName:'账户名称',
+    aAccNo:'账户号码', aRouting:'路由号码', aHolderAddr:'账户持有人地址',
+    copyAll:'全部复制', impNotes:'重要提示',
+    imp1:'1. 请使用美元 (USD) 进行转账；', imp2:'2. 该账户为您的专属账户，转账时无需填写附言 / 备注，系统自动识别入账；',
+    imp3:'3. 银行手续费由付款方承担；', imp4:'4. 到账时间：ACH 1-2 个工作日；电汇当日（美东 16:45 前）；FedNow 实时到账；',
+    imp5:'5. 该账户仅用于收款，请勿向其发起 ACH 逆转账（ACH Debit）。',
+    // creating
+    crTitle:'正在为您开通专属账户…', crDesc:'通常只需几秒钟，请稍候',
+    // demo
+    dState:'账户状态', dEmpty:'未开通', dOpened:'已开通',
+    dKyc:'KYC 状态', dOk:'已通过', dPending:'审核中', dNot:'未提交',
+    dOpenOb:'打开开通引导', dOpenAcc:'打开收款账户信息', dReset:'重置',
+    // toasts
+    copied:'已复制 {{x}}', copiedAll:'已全部复制', opened:'账户开通成功', denied:'请先完成 KYC 认证'
+  },
+  en: {
+    pageTitle:'Bank Account',
+    recentTx:'Recent Fiat Transactions', export:'Export',
+    fAll:'All', fDeposit:'Deposit', fWithdraw:'Withdrawal',
+    thId:'ID', thType:'Type', thCur:'Currency', thAmount:'Amount', thFees:'Fees', thStatus:'Status', thDate:'Date', thView:'View',
+    pagination:'Showing 1 to 4 of 4 records',
+    emptyLabel:'USD · Dedicated account not opened', emptyTitle:'Open a dedicated USD virtual account',
+    emptyDesc:'Get your own US bank account, receive USD via ACH, Fedwire, FedNow. Funds auto-convert to stablecoin.',
+    openAcc:'Open Account', emptyNote:'EUR / GBP accounts are not affected',
+    labelOpened:'USD · US Dollar', chipOpened:'Dedicated account · Active',
+    withdraw:'Withdraw', deposit:'Deposit',
+    infoStrip:'Dedicated account ending 4821 · ACH / Fedwire / FedNow', infoLink:'View details',
+    accFoot:'Dedicated account provided by Lead Bank',
+    obTitle:'Open USD Virtual Account', obSub:'A dedicated US account issued via Lead Bank',
+    f1t:'Dedicated', f1d:'Account number belongs to you only; no memo needed',
+    f2t:'Auto-convert', f2d:'USD auto-converts and posts to balance',
+    f3t:'3 deposit rails', f3d:'ACH · Fedwire · FedNow',
+    f4t:'Fast & reliable', f4d:'ACH 1-2 business days, FedNow instant',
+    previewLabel:'You will get', pvBank:'Beneficiary Bank', pvAcc:'Account Number', pvRouting:'Routing Number',
+    obFee:'Each deposit will deduct a <b>developer fee + exchange fee + network gas fee</b>.',
+    agree1:'I have read and agree to the ', agree2:'YASBe Virtual Account Terms',
+    cancel:'Cancel', confirmOpen:'Confirm & Open', close:'Close',
+    kycTitle:'KYC verification required', kycDesc:'Please complete KYC verification before opening a USD virtual account.',
+    kycNot:'Current status: Not submitted', kycPending:'Current status: Under review', goVerify:'Go verify', goViewProgress:'View progress',
+    kfTitle:'KYC Verification', kfSub:'Information is verified before opening a dedicated bank account',
+    kf1L:'1. Basic Info', kf2L:'2. Contact & Address', kf3L:'3. ID Document',
+    kfLast:'Last name', kfFirst:'First name', kfLastTr:'Last name (transliterated)', kfFirstTr:'First name (transliterated)',
+    kfTransHint:'Non-Latin name detected. Please provide transliteration for overseas banking systems.',
+    kfBirth:'Date of birth', kfNation:'Nationality', kfEmail:'Email', kfPhone:'Phone',
+    kfStreet:'Street address', kfStreetHelp:'Must be a physical address that can receive mail. No PO Box.',
+    kfCity:'City', kfState:'State / Province', kfPostal:'Postal code', kfCountry:'Country',
+    kfIdType:'ID type', kfIdNo:'ID number', kfIdHelp:'ID number requirements depend on the nationality you selected.',
+    kfIdFront:'ID front image', kfIdBack:'ID back image', kfSelfie:'Selfie',
+    kfRiskTitle:'Based on your profile, please provide the following to verify your identity',
+    kfEmp:'Employment status', kfOcc:'Occupation', kfFunds:'Source of funds', kfPurpose:'Primary account purpose', kfMonthly:'Expected monthly amounts', kfInter:'Acting as intermediary?',
+    kfMiddle:'Middle name', kfMiddleTr:'Middle name (transliterated)', kfMultiCb:'I also hold another nationality (if any)', kfNations:'Other nationalities (multi-select)', kfNationsHelp:'Hold Ctrl (Cmd on Mac) to select more than one.',
+    kfStreet2:'Street line 2', kfAddrTr:'Address transliteration', kfAddrTrHint:'Non-Latin address detected. Please provide the full address in English / pinyin.',
+    kfIdExp:'ID expiry date', kfIdExpHelp:'Leave blank if valid indefinitely; fill in for short-term documents like passports / visas.',
+    kfPoa:'Proof of address document', kfPoaHelp:'Optional. Required when the address conflicts with the ID issuing country or for certain regions.',
+    kfPurposeOther:'Purpose description', kfPurposeOtherHelp:'Required when the primary purpose is "Other".',
+    kfSubmit:'Submit', kfSubmitted:'Verification submitted, under review',
+    next:'Next', back:'Back',
+    dRisk:'Risk profile', dRiskNormal:'Standard', dRiskHigh:'High-risk',
+    accTitle:'Deposit Account', accSub:'Transfer to this account to deposit USD; funds are matched automatically',
+    chipOpenedGreen:'● Active',
+    aMethod:'Supported methods', aBank:'Beneficiary Bank', aAddr:'Bank Address', aName:'Account Name',
+    aAccNo:'Account Number', aRouting:'Routing Number', aHolderAddr:'Account Holder Address',
+    copyAll:'Copy All', impNotes:'Important Notes',
+    imp1:'1. Please use US Dollars (USD) for transfers;', imp2:'2. This is your dedicated account, no memo/reference needed;',
+    imp3:'3. Bank fees are borne by the payer;', imp4:'4. Arrival: ACH 1-2 business days; Fedwire same-day (before 4:45PM ET); FedNow instant;',
+    imp5:'5. Receiving account only. Do not initiate an ACH Debit to this account.',
+    crTitle:'Opening your account…', crDesc:'This usually takes a few seconds',
+    dState:'Account state', dEmpty:'Not opened', dOpened:'Opened',
+    dKyc:'KYC status', dOk:'Approved', dPending:'Pending', dNot:'Not submitted',
+    dOpenOb:'Open onboarding', dOpenAcc:'Open account info', dReset:'Reset',
+    copied:'Copied {{x}}', copiedAll:'All copied', opened:'Account opened', denied:'Complete KYC first'
+  }
+};
+function t(k){ return (T[S.lang]&&T[S.lang][k]!==undefined)?T[S.lang][k]:(T.zh[k]||k); }
+
+/* ================= TX DATA ================= */
+const TX = [
+  {id:'TXN20260828-0001', type:'deposit', cur:'USD', amount:1000.00, fee:0.30, status:'completed', date:'2026-08-28 09:12'},
+  {id:'TXN20260825-0003', type:'withdrawal', cur:'USD', amount:500.00, fee:2.00, status:'processing', date:'2026-08-25 14:03'},
+  {id:'TXN20260821-0002', type:'deposit', cur:'USD', amount:2500.00, fee:0.75, status:'completed', date:'2026-08-21 18:40'},
+  {id:'TXN20260815-0001', type:'deposit', cur:'USD', amount:850.00, fee:0.26, status:'rejected', date:'2026-08-15 11:22'}
+];
+const curSymbol = {USD:'$'};
+
+function money(v){ return curSymbol.USD + v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmt(v){ return v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+/* ================= RENDER USD CARD ================= */
+function renderCard(){
+  const card = document.getElementById('usdCard');
+  if (!S.accountCreated){
+    card.innerHTML = `
+    <div class="acc-card empty">
+      <div class="acc-card-body">
+        <div class="empty-icon">🏦</div>
+        <div class="empty-title">${t('emptyTitle')}</div>
+        <div class="empty-desc">${t('emptyDesc')}</div>
+        <button class="btn btn-accent empty-cta" id="openObBtn">${t('openAcc')}</button>
+        <div class="empty-note">${t('emptyNote')}</div>
+      </div>
+    </div>`;
+    document.getElementById('openObBtn').addEventListener('click', openOnboarding);
+  } else {
+    card.innerHTML = `
+    <div class="acc-card opened">
+      <div class="acc-card-body">
+        <div class="acc-top">
+          <div style="min-width:0">
+            <div class="acc-label">
+              <span class="flag">🇺🇸</span>
+              <span>${t('labelOpened')}</span>
+            </div>
+            <div class="balance"><span class="cur">$</span>0.00</div>
+          </div>
+          <span class="chip green">${t('chipOpened')}</span>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-accent" id="withdrawBtn" disabled>${t('withdraw')}</button>
+          <button class="btn btn-ghost" id="depositBtn">${t('deposit')}</button>
+        </div>
+      </div>
+      <div class="info-strip">
+        <span class="l">${t('infoStrip')}</span>
+        <button class="lnk" id="accInfoBtn">${t('infoLink')} →</button>
+      </div>
+      <div class="acc-foot">${t('accFoot')}</div>
+    </div>`;
+    document.getElementById('depositBtn').addEventListener('click', openAccountInfo);
+    document.getElementById('accInfoBtn').addEventListener('click', openAccountInfo);
+  }
+}
+
+/* ================= RENDER TX TABLE ================= */
+let txFilter = 'all';
+function renderTx(){
+  const rows = txFilter==='all' ? TX : TX.filter(x=>x.type===txFilter);
+  const body = document.getElementById('txBody');
+  const cls = {deposit:'t-green', withdrawal:'t-amber'};
+  const label = {deposit: S.lang==='zh'?'入金':'Deposit', withdrawal:S.lang==='zh'?'提现':'Withdrawal'};
+  const st = {
+    completed: {zh:'已完成',en:'Completed',c:'t-green'},
+    processing:{zh:'处理中',en:'Processing',c:'t-gray'},
+    rejected:  {zh:'已拒绝',en:'Rejected',c:'t-red'}
+  };
+  body.innerHTML = rows.map(x=>`
+    <tr>
+      <td class="tx-id">${x.id}</td>
+      <td><span class="t-badge ${cls[x.type]}">${label[x.type]}</span></td>
+      <td>${x.cur}</td>
+      <td class="amount r">${money(x.amount)}</td>
+      <td class="amount r">${fmt(x.fee)}</td>
+      <td><span class="t-badge ${st[x.status].c}">${st[x.status][S.lang]}</span></td>
+      <td style="color:var(--muted)">${x.date}</td>
+      <td><span class="view-link">${S.lang==='zh'?'查看':'View'}</span></td>
+    </tr>`).join('');
+}
+
+/* ================= MODALS ================= */
+function open(id){ document.getElementById(id).classList.add('show'); }
+function close(id){ document.getElementById(id).classList.remove('show'); }
+
+function openOnboarding(){
+  if (S.kyc !== 'approved'){ renderKycChip(); open('kycModal'); return; }
+  document.getElementById('agreeBox').checked = false;
+  document.getElementById('obConfirm').disabled = true;
+  open('obModal');
+}
+function renderKycChip(){
+  const chip = document.getElementById('kycStatusChip');
+  chip.textContent = S.kyc==='pending' ? t('kycPending') : t('kycNot');
+  document.getElementById('goVerifyBtn').textContent = S.kyc==='pending' ? t('goViewProgress') : t('goVerify');
+}
+
+/* ================= KYC FORM ================= */
+const kf = { step:1, max:3, nation:'CHN' };
+const NATIONS = [
+  {code:'CHN', zh:'中国', en:'China', ids:[{v:'ricn',zh:'居民身份证号码',en:'Resident ID Card No.'},{v:'passport',zh:'护照号码',en:'Passport No.'},{v:'tin',zh:'税务识别号 TIN',en:'Tax ID (TIN)'}]},
+  {code:'USA', zh:'美国', en:'United States', ids:[{v:'ssn',zh:'社会安全号码 SSN',en:'Social Security No.'},{v:'itin',zh:'个人纳税人识别号 ITIN',en:'ITIN'}]},
+  {code:'HKG', zh:'中国香港', en:'Hong Kong SAR', ids:[{v:'hkid',zh:'香港身份证号码',en:'Hong Kong ID No.'},{v:'passport',zh:'护照号码',en:'Passport No.'},{v:'tin',zh:'税务识别号 TIN',en:'Tax ID (TIN)'}]},
+  {code:'GBR', zh:'英国', en:'United Kingdom', ids:[{v:'nino',zh:'国民保险号码 NINO',en:'National Insurance No.'},{v:'passport',zh:'护照号码',en:'Passport No.'},{v:'tin',zh:'税务识别号 TIN',en:'Tax ID (TIN)'}]},
+  {code:'OTH', zh:'其他国家 / 地区', en:'Other', ids:[{v:'passport',zh:'护照号码',en:'Passport No.'},{v:'national_id',zh:'国民身份证号码',en:'National ID No.'},{v:'tin',zh:'税务识别号 TIN',en:'Tax ID (TIN)'}]}
+];
+const KF_EMP = [{v:'employed',zh:'受雇',en:'Employed'},{v:'self_employed',zh:'自雇 / 自由职业',en:'Self-employed'},{v:'retired',zh:'退休',en:'Retired'},{v:'student',zh:'学生',en:'Student'},{v:'homemaker',zh:'全职主妇 / 主夫',en:'Homemaker'},{v:'unemployed',zh:'无业',en:'Unemployed'}];
+const KF_SOURCE = [{v:'salary',zh:'工资',en:'Salary'},{v:'company_funds',zh:'公司资金',en:'Company funds'},{v:'savings',zh:'储蓄',en:'Savings'},{v:'investment',zh:'投资收益',en:'Investment proceeds'},{v:'gift',zh:'赠与',en:'Gift'},{v:'inheritance',zh:'继承',en:'Inheritance'},{v:'sale_of_assets',zh:'变卖资产',en:'Asset sale'},{v:'pension',zh:'养老金',en:'Pension'},{v:'other',zh:'其他',en:'Other'}];
+const KF_PURPOSE = [{v:'receive_salary',zh:'接收工资',en:'Receive salary'},{v:'freelance',zh:'接收自由职业收入',en:'Freelance income'},{v:'goods_services',zh:'购买商品与服务',en:'Buy goods & services'},{v:'family_abroad',zh:'给海外家人汇款',en:'Remit to family abroad'},{v:'living',zh:'个人生活开销',en:'Living expenses'},{v:'invest',zh:'投资理财',en:'Investment'},{v:'company',zh:'经营公司',en:'Run a company'},{v:'ecommerce',zh:'电商零售收款',en:'E-commerce payments'},{v:'other',zh:'其他',en:'Other'}];
+const KF_MONTHLY = [{v:'0_4999',zh:'$0 – $4,999',en:'$0 – $4,999'},{v:'5000_9999',zh:'$5,000 – $9,999',en:'$5,000 – $9,999'},{v:'10000_49999',zh:'$10,000 – $49,999',en:'$10,000 – $49,999'},{v:'50000_plus',zh:'$50,000 及以上',en:'$50,000+'}];
+const KF_INTER = [{v:'no',zh:'否，仅本人资金',en:'No, only my own funds'},{v:'yes',zh:'是，代他人收 / 付',en:'Yes, on behalf of others'}];
+function fillSel(el, arr){ el.innerHTML = arr.map(x=>`<option value="${x.v}">${x.zh}</option>`).join(''); }
+function renderKfSteps(){
+  kf.max = S.risk ? 4 : 3;
+  if(kf.step>kf.max) kf.step=kf.max;
+  document.getElementById('kfSteps').innerHTML = Array.from({length:kf.max},(_,i)=>`<div class="step ${i<kf.step?'on':''}"></div>`).join('');
+  for(let i=1;i<=4;i++){ const el=document.getElementById('kf'+i); if(el) el.style.display = i===kf.step?'':'none'; }
+  document.getElementById('kfBack').style.display = kf.step>1?'':'none';
+  document.getElementById('kfNext').textContent = kf.step===kf.max?t('kfSubmit'):t('next');
+}
+function openKycForm(){
+  kf.step=1; kf.nation='CHN';
+  ['kfFirst','kfLast','kfMiddle','kfFirstTr','kfLastTr','kfMiddleTr','kfBirth','kfEmail','kfPhone','kfStreet','kfStreet2','kfCity','kfState','kfPostal','kfCountry','kfAddrTr','kfIdNo','kfIdExp','kfOcc','kfPurposeOther'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';});
+  ['kfIdFront','kfIdBack','kfSelfie','kfPoa'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';});
+  document.getElementById('kfNation').innerHTML = NATIONS.map(n=>`<option value="${n.code}">${n.zh}</option>`).join('');
+  document.getElementById('kfNation').value='CHN';
+  document.getElementById('kfNations').innerHTML = NATIONS.map(n=>`<option value="${n.code}">${n.zh}</option>`).join('');
+  document.getElementById('kfNations').selectedIndex = -1;
+  document.getElementById('kfMultiCb').checked = false;
+  ['kfMiddleTrRow','kfNationsRow','kfAddrTrRow','kfPurposeOtherRow'].forEach(id=>{document.getElementById(id).style.display='none';});
+  renderKfIdType();
+  fillSel(document.getElementById('kfEmp'), KF_EMP);
+  fillSel(document.getElementById('kfFunds'), KF_SOURCE);
+  fillSel(document.getElementById('kfPurpose'), KF_PURPOSE);
+  fillSel(document.getElementById('kfMonthly'), KF_MONTHLY);
+  fillSel(document.getElementById('kfInter'), KF_INTER);
+  toggleTrans();
+  renderKfSteps();
+  open('kycFormModal');
+}
+function renderKfIdType(){
+  const nation = NATIONS.find(n=>n.code===kf.nation);
+  document.getElementById('kfIdType').innerHTML = nation.ids.map(id=>`<option value="${id.v}">${id.zh}</option>`).join('');
+}
+function hasNonLatin(v){ return /[^ -~]/.test(v||''); }
+function toggleTrans(){
+  const show = ['kfFirst','kfLast','kfMiddle'].some(id=>hasNonLatin(document.getElementById(id).value));
+  document.getElementById('kfTransRow').style.display = show?'':'none';
+  document.getElementById('kfMiddleTrRow').style.display = show?'':'none';
+  document.getElementById('kfTransHint').style.display = show?'':'none';
+}
+function toggleAddrTrans(){
+  const show = ['kfStreet','kfStreet2','kfCity','kfCountry'].some(id=>hasNonLatin(document.getElementById(id).value));
+  document.getElementById('kfAddrTrRow').style.display = show?'':'none';
+}
+function toggleMultiNation(){
+  document.getElementById('kfNationsRow').style.display = document.getElementById('kfMultiCb').checked?'':'none';
+}
+function togglePurposeOther(){
+  document.getElementById('kfPurposeOtherRow').style.display = document.getElementById('kfPurpose').value==='other'?'':'none';
+}
+function submitKyc(){
+  close('kycFormModal');
+  S.kyc='pending';
+  renderKycChip();
+  syncDemo();
+  toast(t('kfSubmitted'));
+}
+document.getElementById('goVerifyBtn').addEventListener('click', ()=>{
+  close('kycModal');
+  if(S.kyc==='pending'){ toast(t('kycPending')); return; }
+  openKycForm();
+});
+document.getElementById('kfNation').addEventListener('change', e=>{ kf.nation=e.target.value; renderKfIdType(); });
+document.getElementById('kfFirst').addEventListener('input', toggleTrans);
+document.getElementById('kfLast').addEventListener('input', toggleTrans);
+document.getElementById('kfMiddle').addEventListener('input', toggleTrans);
+document.getElementById('kfStreet').addEventListener('input', toggleAddrTrans);
+document.getElementById('kfStreet2').addEventListener('input', toggleAddrTrans);
+document.getElementById('kfCity').addEventListener('input', toggleAddrTrans);
+document.getElementById('kfCountry').addEventListener('input', toggleAddrTrans);
+document.getElementById('kfMultiCb').addEventListener('change', toggleMultiNation);
+document.getElementById('kfPurpose').addEventListener('change', togglePurposeOther);
+document.getElementById('kfBack').addEventListener('click', ()=>{ if(kf.step>1){ kf.step--; renderKfSteps(); } });
+document.getElementById('kfNext').addEventListener('click', ()=>{ if(kf.step<kf.max){ kf.step++; renderKfSteps(); } else submitKyc(); });
+
+function openAccountInfo(){
+  const chip = document.getElementById('accStatusChip');
+  chip.innerHTML = S.accountCreated ? t('chipOpenedGreen') : t('chipOpenedGreen');
+  open('accModal');
+}
+
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(()=>el.classList.remove('show'), 2000);
+}
+
+/* ================= OPEN FLOW ================= */
+function confirmOpen(){
+  close('obModal');
+  open('creatingOverlay');
+  setTimeout(()=>{
+    close('creatingOverlay');
+    S.accountCreated = true;
+    renderCard();
+    renderTx();
+    syncDemo();
+    toast(t('opened'));
+  }, 1500);
+}
+
+/* ================= COPY ================= */
+document.addEventListener('click', e=>{
+  const c = e.target.closest('.copy');
+  if (c){
+    const v = c.getAttribute('data-copy');
+    const label = c.closest('.field').querySelector('.v').textContent.trim();
+    navigator.clipboard && navigator.clipboard.writeText(v);
+    toast(t('copied').replace('{{x}}', label.length>14 ? label.slice(0,14)+'…' : label));
+  }
+});
+document.getElementById('copyAll').addEventListener('click', ()=>{
+  let txt='';
+  document.querySelectorAll('#accModal .field').forEach(f=>{
+    const k=f.querySelector('.k').textContent.trim(), v=f.querySelector('.v').textContent.trim();
+    if (v) txt += k+': '+v+'\n';
+  });
+  navigator.clipboard && navigator.clipboard.writeText(txt);
+  toast(t('copiedAll'));
+});
+
+/* ================= CLOSE / BACKDROP ================= */
+document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click', ()=>b.closest('.overlay').classList.remove('show')));
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click', e=>{ if(e.target===o) o.classList.remove('show'); }));
+
+/* ================= EVENTS ================= */
+document.getElementById('agreeBox').addEventListener('change', e=>{
+  document.getElementById('obConfirm').disabled = !e.target.checked;
+});
+document.getElementById('obConfirm').addEventListener('click', confirmOpen);
+
+document.querySelectorAll('.f-tab').forEach(b=>b.addEventListener('click', ()=>{
+  document.querySelectorAll('.f-tab').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  txFilter = b.getAttribute('data-filter');
+  renderTx();
+}));
+
+document.querySelector('.export').addEventListener('click', ()=>toast(S.lang==='zh'?'导出功能示意':'Export (demo)'));
+
+/* ================= LANG & THEME ================= */
+document.getElementById('langBtn').addEventListener('click', ()=>{
+  S.lang = S.lang==='zh' ? 'en' : 'zh';
+  document.getElementById('langBtn').textContent = S.lang==='zh' ? '中 / EN' : '中 / EN';
+  applyI18n(); renderCard(); renderTx(); renderKycChip(); syncDemo();
+});
+document.getElementById('themeBtn').addEventListener('click', ()=>{
+  const cur = document.documentElement.getAttribute('data-theme');
+  document.documentElement.setAttribute('data-theme', cur==='dark'?'light':'dark');
+});
+function applyI18n(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k = el.getAttribute('data-i18n');
+    const txt = t(k);
+    if (txt.indexOf('<') === -1) el.textContent = txt;
+    else el.innerHTML = txt;
+  });
+}
+
+/* ================= DEMO PANEL ================= */
+function syncDemo(){
+  document.querySelectorAll('.dchip[data-acc]').forEach(b=>b.classList.toggle('active', b.getAttribute('data-acc')===S.accountCreated?'opened':'empty'));
+  document.querySelectorAll('.dchip[data-kyc]').forEach(b=>b.classList.toggle('active', b.getAttribute('data-kyc')===S.kyc));
+  document.querySelectorAll('.dchip[data-risk]').forEach(b=>b.classList.toggle('active', b.getAttribute('data-risk')===(S.risk?'high':'normal')));
+}
+document.getElementById('demoHead').addEventListener('click', ()=>{
+  document.getElementById('demoPanel').classList.toggle('collapsed');
+  document.getElementById('demoArrow').textContent = document.getElementById('demoPanel').classList.contains('collapsed') ? '▸' : '▾';
+});
+document.querySelectorAll('.dchip[data-acc]').forEach(b=>b.addEventListener('click', ()=>{
+  S.accountCreated = b.getAttribute('data-acc')==='opened';
+  syncDemo(); renderCard(); renderTx();
+}));
+document.querySelectorAll('.dchip[data-kyc]').forEach(b=>b.addEventListener('click', ()=>{
+  S.kyc = b.getAttribute('data-kyc');
+  syncDemo();
+}));
+document.querySelectorAll('.dchip[data-risk]').forEach(b=>b.addEventListener('click', ()=>{
+  S.risk = b.getAttribute('data-risk')==='high';
+  syncDemo();
+}));
+document.getElementById('demoOpenOb').addEventListener('click', openOnboarding);
+document.getElementById('demoOpenAcc').addEventListener('click', ()=>{
+  if (!S.accountCreated){ toast(S.lang==='zh'?'请先开通账户':'Open account first'); return; }
+  openAccountInfo();
+});
+document.getElementById('demoReset').addEventListener('click', ()=>{
+  S.accountCreated=false; S.kyc='approved'; S.risk=false; S.lang='zh';
+  document.documentElement.setAttribute('data-theme','light');
+  syncDemo(); renderCard(); renderTx(); applyI18n();
+});
+
+/* ================= INIT ================= */
+renderCard();
+renderTx();
+</script>
+</body>
+</html>

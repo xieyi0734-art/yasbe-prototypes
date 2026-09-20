@@ -4,7 +4,7 @@
 | --- | --- |
 | 产品 | YASBe · 法币账户（EUR / GBP）开户、入金、出金与同名外部账户管理 |
 | 底层 | OpenPayd（Linked Client 模式，平台后端直连 OpenPayd API） |
-| 本文档状态 | Draft v0.1，待评审（产品 + 研发，逐句验收） |
+| 本文档状态 | Draft v0.3，待评审（产品 + 研发，逐句验收） |
 | 日期 | 2026-09-05 |
 | 对齐原型 | `03-法币账户-欧元英镑-多渠道多账户.html`（开户向导 / 收款账户信息 / 提现 / 外部同名账户 / 交易记录 / 演示控制） |
 | API 基准 | 本地权威副本 `opd_full_spec.json`（OpenPayd OpenAPI）；与 apidocs.openpayd.com 在线文档冲突时以在线文档为准，并回写本 PRD |
@@ -135,7 +135,7 @@ YASBe 通过 OpenPayd 为用户提供一条**欧元 / 英镑法币账户通道**
 | M0-1 | 主体（个人 / 企业）贯穿全页面 | 页面存在**当前主体**（原型 `#dSubject` = INDIVIDUAL / BUSINESS），并**全局驱动**所有弹窗默认字段：开户向导第 2 步字段组（个人 vs 企业）、EA 持有人输入框默认值（= 主体名，可改并触发同名判定）、出金可用 EA 范围（仅同名已核验）、入金收款户主名。 
 | M0-2 | 开户前国别可服务性拦截 | 不可服务国家 / 地区（原型示例 UNSERVED_CODES：CHN / JPN / DZA / BDI / TUN）在开户第 2 步即拦截并给出明确原因，不可继续提交；可服务国家正常放行 | 原型 03：`renderCompliancePanels` / `unservedText`；非 OpenPayd 字段，平台合规名单 |
 | M0-3 | 开户前置建档 | 开户向导第 2 步采集的持有人资料（个人：姓名 / 证件 / 地址；企业：注册名 / 注册号 / 公司类型 / 注册地址）属于**平台建档信息**，用于主体在 OpenPayd 环境的合规档案（Account Holder），**不是** `POST /accounts` 的请求字段 | 原型 03 step2（opIndivFields / opBizFields）｜❓ F7：Account Holder 建档与文档上传在 OpenPayd 的接口形态不在本 spec 范围（spec 仅有 `/linkedClient`），需研发确认与 OpenPayd 的实际建档 / 审核方式 |
-| M0-4 | 建档信息校验规则 | 个人：名 / 姓 / 邮箱 / 地址 / 城市 / 国家必填且格式校验（邮箱格式、地址 3–35 字符、禁 PO Box / PMB）；企业：公司名 / 注册号 / 公司类型 / 公司邮箱 / 注册地址必填；行业选 OTHER 时须补充行业描述。证件（个人）为选填组 | 原型 03：VALIDATORS（opFname…opRCountry / opIndVal）；errIban / errBic / errStreet / errPobox |
+| M0-4 | 建档信息校验规则 | 个人：名 / 姓 / 邮箱 / 地址 / 城市 / 国家必填且格式校验（邮箱格式、地址 3–35 字符、禁 PO Box / PMB）；企业：公司名 / 注册号 / 公司类型 / 公司邮箱 / 注册地址必填；行业选 OTHER 时须补充行业描述。证件（个人）为选填组 | 原型 03：VALIDATORS（opFname…opRCountry / opIndVal）；errIban / errBic / errStreet / errPobox。**校验口径（2026-09-20）**：OpenPayd 侧**无公开字段级契约**，本行各项（邮箱 / 地址长度 / 禁 PO Box / IBAN 校验位 / BIC 8–11）均为**平台侧规则、由服务端实现**，且**原型不承载接口级校验**（原型上的校验仅为演示需要）；实际约束以 OpenPayd 接入文档为准，回填后逐条复核 |
 
 ### M1 开通法币账户（开户）
 
@@ -146,6 +146,7 @@ YASBe 通过 OpenPayd 为用户提供一条**欧元 / 英镑法币账户通道**
 | M1-3 | 开户响应即 PENDING | 提交成功后进入 PENDING：原型弹窗提示"审核通过后将生成专属收款账户号码"；PENDING 状态下账户卡不展示 rails 收款字段、不可发起收款 / 提现（无操作按钮） | spec：POST /accounts 201 → `status` 示例 `PENDING`；原型：`statusChip` / `pendAccNote` / accCard |
 | M1-4 | PENDING → ACTIVE | 账户被 OpenPayd 激活（ACTIVE）后收款账户信息生效：账户卡展示币种尾号 / IBAN（EUR）/ Sort Code（GBP）+ 通道标签 + 入金 / 提现按钮。原型用演示按钮 `dActivate` 模拟推进（评审工具）；生产靠轮询 `GET /accounts/{id}` 或 OpenPayd 通知 | spec：GET /accounts/{id}（status 推进）；原型：`dActivate` |
 | M1-5 | 多账户与默认账户 | 每币种可开多个账户，支持 primary 标识（原型种子含 a-eur-01 / a-eur-02 等）；账户命名不重复 | 原型 03：ACCOUNTS 种子 / `defaultAccName` |
+| M1-6 | **开户资料真值 = 平台 C 端接口（服务端驱动）** | 用户可见 / 可填 / **只读**字段不由原型或前端写死，由平台接口决定：`GET /api/bank/openpayd/accounts/open-form?currency=` → `data.{accountType, currency, ibanCountry, individual, company, requiredFields[], optionalFields[], readOnlyFields[]}`（三个列表由服务端按主体类型 / 通道 / 合规状态动态返回）；提交走 `POST /api/bank/openpayd/accounts`（`OpenPaydAccountOpenRequest`，仅 `currency` 必填）。`readOnlyFields` 的接口定义为「前端**必须展示但不可编辑**，提交值会被服务端忽略，以平台已认证资料为准」 | 平台 C 端 api-docs（2026-09-20 实读）；原型 03 表单字段 `op*`；**原型 `opFname` / `opLname` / `opEmail` / `opCoName` / `opCoEmail` 现为可编辑输入，与 `readOnlyFields` 冲突 → 见 F15**；逐字段见 **附录 D** |
 
 ### M2 收款账户信息与入金（打款说明书）
 
@@ -324,6 +325,7 @@ YASBe 通过 OpenPayd 为用户提供一条**欧元 / 英镑法币账户通道**
 | F12 | 账户 SUSPENDED / CLOSED / FAILED | spec 仅见 PENDING / ACTIVE 示例；其余为展示预留 | 以 OpenPayd 实际状态枚举为准；本期仅展示 + 禁用操作（M6-3） |
 | F13 | webhook 安全 | OpenPayd webhook 签名 / 鉴权机制未确认 | 研发确认后落地校验（§9） |
 | F14 | 非同名出金（受益人 ≠ 主体）是否开放 | 出金仅限同名已核验 EA（M5-2；**非同名 EA 即使运营审核通过也不可出金**，仅作入金来源，D8/D9）；管理端「交易审核」出金队列承接需人工场景：同名抽检 / 大额 / 风控 / 以及未来可能开放的企业对外（非同名受益人）付款 | 建议：同名出金自动放行；非同名不可出金（本期）；企业向非同名第三方付款是否开放由产品 + 合规另行拍板 |
+| F15 | **开户表单只读字段与建档分离** | 平台契约把 `firstName` / `middleName` / `lastName` / `email`（个人）与 `companyName` / `email`（企业）列为 **`readOnlyFields`：必须展示、不可编辑、提交值被忽略，以已认证资料为准**；**原型 03 现状为可编辑输入框**（`opFname` / `opLname` / `opEmail` / `opCoName` / `opCoEmail`），且建档资料（出生日期 / 证件 / 地址）与 OpenPayd 开户所需字段同屏，未体现「建档已完成 → 开户只补差异项」的分离 | 建议：① 原型把上述字段改为**只读展示**（灰底 + 「以认证资料为准」来源标注）；② 明确建档与开户是否合并——若合并，第 ② 步应只展示由 `requiredFields` / `optionalFields` 驱动的必填差异项；③ 确认 `open-form` 三个列表在「EUR / GBP × 个人 / 企业」四种组合下的真实返回（mock 还是真值） |
 
 ### 已决策记录
 | # | 决策 | 结论 | 影响 |
@@ -341,6 +343,8 @@ YASBe 通过 OpenPayd 为用户提供一条**欧元 / 英镑法币账户通道**
 ---
 
 ## 13. 附录
+
+> 字段真值分两层：**附录 A–C = OpenPayd 侧（渠道要求）**；**附录 D = 平台 C 端接口契约（前端实际调用、只读字段真值，2026-09-20 实读）**。改字段前两层都要核。
 
 ### 附录 A：OpenPayd 端点字段映射（字段 / 必填 / 说明直接取自 opd_full_spec.json）
 
@@ -445,7 +449,74 @@ YASBe 通过 OpenPayd 为用户提供一条**欧元 / 英镑法币账户通道**
 ### 附录 C：演示面板 ↔ 需求映射
 见 §6 M7 表；生产替换关系见 §11。
 
+### 附录 D：开户字段真值（平台 C 端接口）
+
+> **与附录 A 的区别**：附录 A–C 是 **OpenPayd 侧**字段（渠道要求）；本附录是**平台 API 契约**（前端实际调用、哪些字段只读的真值）。字段名 / 必填 / 只读说明逐字取自 `api.beeznis.com/v3/api-docs`（2026-09-20 实读，免登录），未确认项标 ❓。
+
+#### D1. 接口
+| 接口 | 用途 | 关键返回 / 请求 |
+| --- | --- | --- |
+| `GET /api/bank/openpayd/accounts/open-form` | 开户资料预填表单（服务端驱动） | `data.accountType`（PERSONAL / ENTERPRISE）、`currency`、`ibanCountry`、`individual`、`company`、`requiredFields[]`、`optionalFields[]`、`readOnlyFields[]`。**三个列表的成员由服务端动态返回，前端不得写死** |
+| `POST /api/bank/openpayd/accounts` | 提交开户（对应 M1-2 / M1-3） | `OpenPaydAccountOpenRequest`：`currency`（必填，ISO 4217）、`ibanCountry`（EUR 按 OpenPayd 要求可填 MT，❓ F7）、`individual` / `company` |
+| `POST /api/bank/openpayd/accounts/refresh` | 从 OpenPayd 刷新账户状态 | query：`currency`（必填）→ M1-4 状态推进的实现路径 |
+
+#### D2. 个人（`accountType=PERSONAL`）
+| 字段 | 必填 | 只读 | 接口说明（原文） |
+| --- | --- | --- | --- |
+| `firstName` | ✅ | **只读** | 名（以已通过 KYC 资料为准；提交值会被忽略） |
+| `middleName` | — | **只读** | 中间名（同上） |
+| `lastName` | ✅ | **只读** | 姓（同上） |
+| `email` | ✅ | **只读** | 账户邮箱（以当前登录账户邮箱为准） |
+| `addressLine1` | ✅ | — | 地址第一行 |
+| `addressLine2` | — | — | 地址第二行（可选） |
+| `city` | ✅ | — | 城市 |
+| `country` | ✅ | — | 国家 / 地区（ISO 两位代码或平台国家名称） |
+| `postCode` | — | — | 邮编（可选） |
+| `state` | — | — | 州 / 省（可选） |
+| `phoneNumber` | — | — | 本地手机号码；填写时须同时提供国际区号 |
+| `phoneCountryCode` | — | — | 国际电话区号，可填 +44 / 44 / 国家名称 |
+| `dateOfBirth` | — | — | 出生日期（yyyy-MM-dd） |
+| `identificationType` | — | — | 证件类型（PASSPORT / DRIVER_LICENSE） |
+| `identificationValue` | — | — | 证件号码（须与证件类型同时填写） |
+
+#### D3. 企业（`accountType=ENTERPRISE`）
+| 字段 | 必填 | 只读 | 接口说明（原文） |
+| --- | --- | --- | --- |
+| `companyName` | ✅ | **只读** | 法定公司名称（以已通过 KYB 资料为准；提交值会被忽略） |
+| `registrationNumber` | ✅ | — | 公司注册号 |
+| `email` | ✅ | **只读** | 账户邮箱（以当前登录账户邮箱为准） |
+| `addressLine1` | ✅ | — | 注册地址第一行 |
+| `addressLine2` | — | — | 注册地址第二行（可选） |
+| `city` | ✅ | — | 注册地址城市 |
+| `state` | — | — | 注册地址州 / 省（可选） |
+| `country` | ✅ | — | 注册国家 / 地区（ISO 两位代码或平台国家名称） |
+| `postCode` | — | — | 注册地址邮编（可选） |
+| `companyType` | — | — | 公司类型（可选） |
+| `industrySectorType` | — | — | 行业类型（可选） |
+| `industrySectorValue` | — | — | 自定义行业；行业为 OTHER 时必填 |
+| `contactName` | — | — | 企业联系人姓名（可选） |
+| `contactPhone` | — | — | 企业联系电话，E.164 格式（可选） |
+
+#### D4. 开户向导按步骤可见项（原型 03 ↔ 平台字段）
+| 步骤 | 可见项（原型 id） | 平台字段 | 归属 | 备注 |
+| --- | --- | --- | --- | --- |
+| ① 选币种 | 币种卡 EUR / GBP（`opCur` 组） | `currency` | 用户选 | 已有同币种账户仍可继续开通，不设上限（2026-09-20 决策，同 02 通道 D10） |
+| ② 建档信息 · 个人 | `opFname` / `opLname` / `opMname` | `firstName` / `lastName` / `middleName` | **应为只读展示** | 契约 `readOnlyFields`：以已认证 KYC 资料为准 → ❓ F15 |
+| ② | `opEmail` | `email` | **应为只读展示** | 以登录账户邮箱为准 → ❓ F15 |
+| ② | `opPhone` | `phoneNumber` + `phoneCountryCode` | 用户填 | 国际区号须一并提供 |
+| ② | `opDob` | `dateOfBirth` | 用户填 | yyyy-MM-dd |
+| ② | `opIdType` / `opIdNo` | `identificationType` / `identificationValue` | 用户填 | 两者须同时填写 |
+| ② | `opA1` / `opA2` / `opCity` / `opState` / `opZip` / `opCountry` | `addressLine1` / `addressLine2` / `city` / `state` / `postCode` / `country` | 用户填 | `country` 支持 ISO 两位或平台国家名 |
+| ② 建档信息 · 企业 | `opCoName` / `opCoEmail` | `companyName` / `email` | **应为只读展示** | 以已认证 KYB / 登录邮箱为准 → ❓ F15 |
+| ② | `opRegNo` / `opCoType` / `opIndustry` / `opIndVal` / `opCoContact` / `opCoPhone` | `registrationNumber` / `companyType` / `industrySectorType` / `industrySectorValue` / `contactName` / `contactPhone` | 用户填 | `industrySectorValue` 仅在 `industrySectorType=OTHER` 时必填 |
+| ② | `opRA1` / `opRA2` / `opRCity` / `opRState` / `opRZip` / `opRCountry` | `addressLine1` / `addressLine2` / `city` / `state` / `postCode` / `country`（注册地址） | 用户填 | 企业侧为注册地址语义 |
+| ③ 预览与协议确认 | 账户名（`defaultAccName`） | 不入接口（平台侧命名） | 系统带出 | 同币种重名递增见 M1-5 |
+
 ---
+
+---
+*v0.3（2026-09-20）：M0-4 校验口径定稿 —— OpenPayd 侧无公开字段级契约，本行校验均为**平台侧规则、由服务端实现**；**原型不承载接口级校验**（本轮原型为对齐 spec 所做改动已全部回退）；地址长度口径回退 3–35。
+*v0.2（2026-09-20）：新增 M1-6（开户资料真值 = 平台 C 端接口，服务端驱动）、附录 D（平台接口字段与只读规则，逐字段取自 api.beeznis.com/v3/api-docs）、§12 F15（开户表单只读字段与建档分离）。*
 *本 PRD v0.1 为 Draft；待产品 + 研发逐句评审后升 v0.2。所有 ❓ 项结论将回写本文档对应条目。*
 
 
