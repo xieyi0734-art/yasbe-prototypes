@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>代理申请状态 | YASBee</title>
+<title>代理申请状态 | YASBe</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif;
@@ -93,12 +93,24 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
   background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.32);border-radius:999px;padding:4px 11px;margin-bottom:10px}
 .hash{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:rgba(255,255,255,.6);word-break:break-all}
 @media(max-width:900px){.grid2{grid-template-columns:1fr}}
-</style>
+    /* PM-NOTE: 原型备注统一格式（PM 备注 / 原型演示），右上角按钮可整体隐藏 */
+    .pmnote{background:#14171c;border-left:3px solid #FFCA00;border-radius:6px;padding:10px 12px;margin:10px 0;font-size:13px;line-height:1.75;color:#c8ccd4}
+    .pmnote b{color:#FFCA00;margin-right:8px}
+    .pmnote.dem{border-left-color:#4a5568}
+    .pmnote.dem b{color:#9aa3b2}
+    .pmnote-toggle{position:fixed;right:14px;bottom:14px;z-index:9999;background:#1a1e26;color:#FFCA00;border:1px solid #2a2f3a;border-radius:20px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:inherit}
+    .pmnote-toggle:hover{background:#22262f}
+    body.hide-pmnote .pmnote{display:none!important}
+  </style>
 </head>
 <body>
+  <button class="pmnote-toggle" onclick="document.body.classList.toggle('hide-pmnote');this.textContent=document.body.classList.contains('hide-pmnote')?'显示备注':'隐藏备注'">隐藏备注</button>
+  <!-- PM-NOTE: 客户端 -->
+  <div class="pmnote"><b>PM 备注</b>顶部状态切换为原型专用（上线后不出现）；存证真值同「代理协议签署」页；示例代理 AG-8842（Alex Chen）。</div>
+
 
 <div class="topbar">
-  <div class="brand"><span class="mark">Y</span>YASBee</div>
+  <div class="brand"><span class="mark">Y</span>YASBe</div>
   <div class="top-right"><span class="avatar">A</span></div>
 </div>
 
@@ -108,15 +120,15 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
   <div class="page-head">
     <div>
       <h1>代理申请结果</h1>
-      <p>协议签署完成后由系统即时自动核验，通过即开通代理身份并按平台兜底返佣值生效。</p>
+      <p>协议签署完成后由系统即时自动核验，通过即开通代理身份并按平台标准返佣值生效。</p>
     </div>
   </div>
 
   <div class="switch-bar">
-    <span class="sw-label">状态演示（原型用）：</span>
+    <span class="sw-label">状态演示：</span>
     <div class="seg">
       <button class="seg-btn active" data-v="auto" onclick="showState('auto')">自动核验通过 · 已开通</button>
-      <button class="seg-btn" data-v="manual" onclick="showState('manual')">自动核验未通过 · 转人工</button>
+      <button class="seg-btn" data-v="manual" onclick="showState('manual')">自动核验未通过 · 待处理</button>
     </div>
   </div>
 
@@ -126,8 +138,8 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
       <div class="s-ico">✅</div>
       <div class="s-main">
         <span class="badge passed">● 系统自动审核通过 · 代理身份已开通</span>
-        <h2>恭喜，您已成为 YASBee 代理</h2>
-        <div class="s-desc">您的协议已于 <b style="color:#4ade80">2026-09-18 14:32</b> 签署完成，系统即时自动核验通过，代理编号 <b style="color:#4ade80">AG-8842</b>。代理身份与返佣方案（平台兜底值）即刻生效，无需等待人工审核。</div>
+        <h2>恭喜，您已成为 YASBe 代理</h2>
+        <div class="s-desc">您的协议已于 <b style="color:#4ade80">2026-09-18 14:32</b> 签署完成，系统即时自动核验通过，代理编号 <b style="color:#4ade80">AG-8842</b>。代理身份与返佣方案（平台标准返佣）即刻生效，无需等待审核。</div>
         <div class="s-actions">
           <a class="btn btn-gold" href="2026-09-18_代理中心_客户端.html">进入代理中心</a>
           <a class="btn btn-ghost" href="#">查看返佣方案</a>
@@ -161,8 +173,8 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
             <div class="hash">a93f1c7d4b2e8f60c5a17d93e6b4f0281c73d5e9a0b6f4712c8d35e97a1b6f42</div>
           </div>
           <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
-            <button class="btn btn-ghost btn-sm" onclick="alert('存证明细：签名图像、签署人身份、签署时间戳、IP、设备指纹、协议版本与文本摘要，均可在线调阅。')">查看存证明细</button>
-            <button class="btn btn-ghost btn-sm" onclick="alert('原型演示：下载签署存证 PDF（含签名图像与存证信息）。')">下载存证 PDF</button>
+            <button class="btn btn-ghost btn-sm" onclick="alert('[原型演示] 存证明细：签名图像、签署人身份、签署时间戳、IP、设备指纹、协议版本与文本摘要，均可在线调阅。')">查看存证明细</button>
+            <button class="btn btn-ghost btn-sm" onclick="alert('[原型演示] 下载签署存证 PDF（含签名图像与存证信息）。')">下载存证 PDF</button>
           </div>
         </div>
       </div>
@@ -181,15 +193,15 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
             </div>
             <div class="tl-i done"><span class="dot">✓</span>
               <div class="t-t">系统自动核验通过</div>
-              <div class="t-d">2026-09-18 14:32 · 实名已认证 ✓ · 合规风险校验通过 ✓ · 用时 1.2 秒</div>
+              <div class="t-d">2026-09-18 14:32 · 实名已认证 ✓ · 合规风险核验通过 ✓ · 用时 1.2 秒</div>
             </div>
             <div class="tl-i done"><span class="dot">✓</span>
-              <div class="t-t">代理身份开通 · 兜底返佣生效</div>
-              <div class="t-d">2026-09-18 14:32 · 全部卡产品按平台兜底值生效</div>
+              <div class="t-t">代理身份开通 · 标准返佣生效</div>
+              <div class="t-d">2026-09-18 14:32 · 全部卡产品按平台标准返佣生效</div>
             </div>
             <div class="tl-i cur"><span class="dot"></span>
-              <div class="t-t">商务返佣二次调整（按需）</div>
-              <div class="t-d">商务经理将依据您的展业情况，就开卡/充值返 U 比例做二次调整；未调整项继续按兜底值执行</div>
+              <div class="t-t">专属方案二次调整（按需）</div>
+              <div class="t-d">平台将依据您的展业情况，就开卡/充值返 U 比例做专属调整；未调整项继续按标准返佣执行</div>
             </div>
           </div>
         </div>
@@ -197,38 +209,38 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
     </div>
 
     <div class="card">
-      <div class="card-h"><h3>已生效返佣方案</h3><span class="hint">平台兜底值自动套用 · 商务可二次调整</span></div>
+      <div class="card-h"><h3>已生效返佣方案</h3><span class="hint">标准返佣自动套用 · 专属方案可二次调整</span></div>
       <table>
         <thead>
           <tr><th>卡产品</th><th>渠道</th><th>开卡返佣（USDT）</th><th>充值返佣</th><th>来源</th><th>生效时间</th></tr>
         </thead>
         <tbody>
-          <tr><td>Standard Debit Card</td><td>Stripe</td><td class="mono">$5.00 / 单</td><td class="mono">0.30%</td><td><span class="chip gold">平台兜底</span></td><td>2026-09-18 14:32</td></tr>
-          <tr><td>Premium Rewards Card</td><td>Stripe</td><td class="mono">$8.00 / 单</td><td class="mono">0.35%</td><td><span class="chip gold">平台兜底</span></td><td>2026-09-18 14:32</td></tr>
-          <tr><td>Gold Elite Card</td><td>Stripe</td><td class="mono">$6.00 / 单</td><td class="mono">0.25%</td><td><span class="chip gold">平台兜底</span></td><td>2026-09-18 14:32</td></tr>
-          <tr><td>Travel Prepaid Card</td><td>Interlace</td><td class="mono">$6.00 / 单</td><td class="mono">0.25%</td><td><span class="chip gold">平台兜底</span></td><td>2026-09-18 14:32</td></tr>
-          <tr><td>Business Expense Card</td><td>Marqeta</td><td class="mono">$6.00 / 单</td><td class="mono">0.25%</td><td><span class="chip gold">平台兜底</span></td><td>2026-09-18 14:32</td></tr>
-          <tr><td>Flexible Prepaid</td><td>Marqeta</td><td class="mono">$6.00 / 单</td><td class="mono">0.25%</td><td><span class="chip gold">平台兜底</span></td><td>2026-09-18 14:32</td></tr>
+          <tr><td>Standard Debit Card</td><td>Stripe</td><td class="mono">$6.00 / 单</td><td class="mono">0.25%</td><td><span class="chip gold">标准返点</span></td><td>2026-09-18 14:32</td></tr>
+          <tr><td>Premium Rewards Card</td><td>Stripe</td><td class="mono">$6.00 / 单</td><td class="mono">0.25%</td><td><span class="chip gold">标准返点</span></td><td>2026-09-18 14:32</td></tr>
+          <tr><td>Gold Elite Card</td><td>Stripe</td><td class="mono">$6.00 / 单</td><td class="mono">0.25%</td><td><span class="chip gold">标准返点</span></td><td>2026-09-18 14:32</td></tr>
+          <tr><td>Travel Prepaid Card</td><td>Interlace</td><td class="mono">$6.00 / 单</td><td class="mono">0.25%</td><td><span class="chip gold">标准返点</span></td><td>2026-09-18 14:32</td></tr>
+          <tr><td>Business Expense Card</td><td>Marqeta</td><td class="mono">$6.00 / 单</td><td class="mono">0.25%</td><td><span class="chip gold">标准返点</span></td><td>2026-09-18 14:32</td></tr>
+          <tr><td>Flexible Prepaid</td><td>Marqeta</td><td class="mono">$6.00 / 单</td><td class="mono">0.25%</td><td><span class="chip gold">标准返点</span></td><td>2026-09-18 14:32</td></tr>
         </tbody>
       </table>
     </div>
 
     <div class="note">
       <span>ℹ️</span>
-      <div>开通即按<b>平台兜底返佣值</b>生效，因此无需等待商务对接即可开始展业。<b>Points 返点</b>同样按平台兜底值计算。商务经理后续调整的返 U 比例自调整生效之时起，仅对生效后新发生的业务适用。</div>
+      <div>开通即按<b>平台标准返佣值</b>生效，因此无需等待即可开始展业。<b>Points 返点</b>同样按平台标准返点计算。平台后续调整的返 U 比例自调整生效之时起，仅对生效后新发生的业务适用。</div>
     </div>
   </div>
 
-  <!-- ===== 状态 B：自动核验未通过 · 转人工 ===== -->
+  <!-- ===== 状态 B：自动核验未通过 · 待处理 ===== -->
   <div id="st-manual" class="hidden">
     <div class="shero pending">
       <div class="s-ico">⏳</div>
       <div class="s-main">
-        <span class="badge pending">● 自动核验未通过 · 已转人工复核</span>
-        <h2>系统未能自动通过，已转商务人工复核</h2>
-        <div class="s-desc">协议签署与电子签名存证已完成（存证编号 ES-20260918-4F7A2C），但系统自动核验发现：<b style="color:#FFCA00">实名证件有效期已过期</b>，无法自动通过。商务经理将在 1 个工作日内联系您处理。</div>
+        <span class="badge pending">● 自动核验未通过 · 已转平台复核</span>
+        <h2>系统未能自动通过，已转平台进一步核验</h2>
+        <div class="s-desc">协议签署与电子签名存证已完成（存证编号 ES-20260918-4F7A2C），但系统自动核验发现：<b style="color:#FFCA00">实名证件有效期已过期</b>，无法自动通过。更新实名信息后将即时重新核验。</div>
         <div class="s-actions">
-          <button class="btn btn-gold" onclick="alert('原型演示：跳转实名认证页面重新上传证件。')">前往更新实名信息</button>
+          <button class="btn btn-gold" onclick="alert('[原型演示] 跳转实名认证页面重新上传证件。')">前往更新实名信息</button>
           <a class="btn btn-ghost" href="#">联系客服</a>
         </div>
       </div>
@@ -240,8 +252,8 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
         <div class="card-b">
           <div class="kv"><span class="k">协议已签署 · 电子签名已留存</span><span class="v"><span class="chip green">通过</span></span></div>
           <div class="kv"><span class="k">实名信息已认证</span><span class="v"><span class="chip gold">异常 · 证件有效期已过期</span></span></div>
-          <div class="kv"><span class="k">合规 / 风控风险校验</span><span class="v"><span class="chip green">通过</span></span></div>
-          <div class="kv"><span class="k">当前处理方式</span><span class="v">转商务人工复核</span></div>
+          <div class="kv"><span class="k">合规风险核验</span><span class="v"><span class="chip green">通过</span></span></div>
+          <div class="kv"><span class="k">当前处理方式</span><span class="v">转平台进一步核验</span></div>
         </div>
       </div>
       <div class="card">

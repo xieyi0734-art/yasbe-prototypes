@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>代理中心 · 申请成为代理 | YASBee</title>
+<title>代理中心 · 申请成为代理 | YASBe</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif;
@@ -93,12 +93,24 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
   border-radius:12px;padding:13px 16px;font-size:12.5px;color:rgba(255,255,255,.68);line-height:1.75;margin-top:18px}
 .note .ni{flex-shrink:0}
 @media(max-width:900px){.benefits{grid-template-columns:1fr}.flow{flex-direction:column}}
-</style>
+    /* PM-NOTE: 原型备注统一格式（PM 备注 / 原型演示），右上角按钮可整体隐藏 */
+    .pmnote{background:#14171c;border-left:3px solid #FFCA00;border-radius:6px;padding:10px 12px;margin:10px 0;font-size:13px;line-height:1.75;color:#c8ccd4}
+    .pmnote b{color:#FFCA00;margin-right:8px}
+    .pmnote.dem{border-left-color:#4a5568}
+    .pmnote.dem b{color:#9aa3b2}
+    .pmnote-toggle{position:fixed;right:14px;bottom:14px;z-index:9999;background:#1a1e26;color:#FFCA00;border:1px solid #2a2f3a;border-radius:20px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:inherit}
+    .pmnote-toggle:hover{background:#22262f}
+    body.hide-pmnote .pmnote{display:none!important}
+  </style>
 </head>
 <body>
+  <button class="pmnote-toggle" onclick="document.body.classList.toggle('hide-pmnote');this.textContent=document.body.classList.contains('hide-pmnote')?'显示备注':'隐藏备注'">隐藏备注</button>
+  <!-- PM-NOTE: 客户端 -->
+  <div class="pmnote"><b>PM 备注</b>本页返佣口径为标准值 —— 返 U 开卡 $6.00 / 单 · 充值 0.25%；数值改动须同步「申请状态」「代理中心」两页，勿单页修改。</div>
+
 
 <div class="topbar">
-  <div class="brand"><span class="mark">Y</span>YASBee</div>
+  <div class="brand"><span class="mark">Y</span>YASBe</div>
   <div class="top-right">
     <span class="token-pill cash"><span class="t-name">Cash</span><span class="t-val">$0.00</span></span>
     <span class="token-pill points"><span class="t-name">Points</span><span class="t-val">0.00</span><span class="t-unit">yasbee+</span></span>
@@ -112,7 +124,7 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
   <div class="page-head">
     <div>
       <h1>代理中心</h1>
-      <p>推广 YASBee 卡片服务，赚取 <span style="color:#FFCA00;font-weight:600">USDT 返佣</span> 与 <span style="color:rgba(255,255,255,.78);font-weight:600">Points 返点</span></p>
+      <p>推广 YASBe 卡片服务，赚取 <span style="color:#FFCA00;font-weight:600">USDT 返佣</span> 与 <span style="color:rgba(255,255,255,.78);font-weight:600">Points 返点</span></p>
     </div>
     <span class="chip gray">当前状态：普通用户</span>
   </div>
@@ -122,67 +134,66 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
     <div class="hero-in">
       <div class="hero-txt">
         <span class="hero-badge">✦ 代理计划</span>
-        <h2>成为 YASBee 代理</h2>
-        <p>提交申请并在线签署《YASBee 代理合作协议》，以本人真实姓名手写电子签名。签署完成后系统<b>即时自动核验并开通</b>代理身份，返佣按平台兜底值立即生效，商务经理后续可为您做返佣二次调整。</p>
+        <h2>成为 YASBe 代理</h2>
+        <p>在线签署《YASBe 代理合作协议》，以本人真实姓名手写电子签名。提交后系统<b>即时自动核验并开通</b>代理身份，返佣与 Points 返点同步生效，无需等待；后续如达成专属合作方案，还可为您单独调整返佣比例。</p>
         <div class="hero-cta">
           <a class="btn btn-gold" href="2026-09-18_代理协议签署_客户端.html">申请成为代理</a>
-          <a class="btn btn-ghost" href="2026-09-18_代理协议签署_客户端.html">阅读代理协议</a>
         </div>
       </div>
       <div class="hero-steps-mini">
         <div class="hsm"><span class="dot">1</span>提交申请</div>
         <div class="hsm"><span class="dot">2</span>电子签名</div>
         <div class="hsm"><span class="dot">3</span>自动开通</div>
-        <div class="hsm"><span class="dot">4</span>商务调整</div>
+        <div class="hsm"><span class="dot">4</span>专属方案</div>
       </div>
     </div>
   </div>
 
   <!-- 权益 -->
-  <div class="sec-title"><h3>代理权益</h3><span>返佣按卡产品配置 · 未单独配置时自动适用平台兜底值</span></div>
+  <div class="sec-title"><h3>代理权益</h3><span>开卡与充值均产生返佣 · 比例按卡产品确定</span></div>
   <div class="benefits">
     <div class="benefit">
       <div class="b-ico">💳</div>
       <div class="b-t">开卡返佣</div>
-      <div class="b-d">您推荐的客户成功开卡，按该卡产品配置的比例获得 <b>USDT</b> 返佣，同时获得 Points 返点。</div>
+      <div class="b-d">您推荐的客户成功开卡，按该卡产品的返佣比例获得 <b>USDT</b> 返佣，同时获得 Points 返点。</div>
     </div>
     <div class="benefit">
       <div class="b-ico">🔁</div>
       <div class="b-t">充值返佣</div>
-      <div class="b-d">下级客户每笔卡片充值（含加密货币入金），按该卡产品配置的比例获得 <b>USDT</b> 返佣。</div>
+      <div class="b-d">下级客户每笔卡片充值（含加密货币入金），按该卡产品的返佣比例获得 <b>USDT</b> 返佣。</div>
     </div>
     <div class="benefit">
       <div class="b-ico">🎁</div>
       <div class="b-t">Points 返点</div>
-      <div class="b-d">开卡与充值同步产生 <b>Points</b> 返点，按平台统一返点比例结算，累计单位为 yasbee+。</div>
+      <div class="b-d">开卡与充值同步产生 <b>Points</b> 返点，按标准返点比例结算，累计单位为 yasbee+。</div>
     </div>
   </div>
 
   <!-- 流程 -->
-  <div class="sec-title"><h3>开通流程</h3><span>签署即自动开通 · 商务后续二次调整</span></div>
+  <div class="sec-title"><h3>开通流程</h3><span>签署即自动开通 · 提交即刻生效</span></div>
   <div class="flow">
     <div class="flow-step on">
       <div class="fs-no">STEP 01</div>
       <div class="fs-t">在线提交申请</div>
-      <div class="fs-d">在代理中心发起申请，在线阅读并签署《YASBee 代理合作协议》，以本人真实姓名手写电子签名。</div>
+      <div class="fs-d">在代理中心发起申请，在线阅读并签署《YASBe 代理合作协议》，以本人真实姓名手写电子签名。</div>
     </div>
     <div class="flow-arrow">→</div>
     <div class="flow-step on">
       <div class="fs-no">STEP 02</div>
       <div class="fs-t">系统自动核验</div>
-      <div class="fs-d">签署提交后系统即时核验（实名 + 合规），自动审核通过；电子签名与协议存证由平台留存。</div>
+      <div class="fs-d">提交后系统即时核验您的实名信息，核验通过即刻开通；电子签名与协议由平台安全留存，可随时查看。</div>
     </div>
     <div class="flow-arrow">→</div>
     <div class="flow-step on">
       <div class="fs-no">STEP 03</div>
-      <div class="fs-t">开通 · 兜底值生效</div>
-      <div class="fs-d">代理身份立即开通，全部卡产品按平台兜底返佣值与兜底 Points 返点生效，无需等待商务对接。</div>
+      <div class="fs-t">开通 · 返佣即时生效</div>
+      <div class="fs-d">代理身份立即开通，返佣与 Points 返点同步生效，无需等待。</div>
     </div>
     <div class="flow-arrow">→</div>
     <div class="flow-step">
       <div class="fs-no">STEP 04</div>
-      <div class="fs-t">商务二次调整</div>
-      <div class="fs-d">商务经理依据展业情况对返 U 比例做二次调整（覆盖兜底值），未调整项继续按兜底值执行。</div>
+      <div class="fs-t">专属方案调整</div>
+      <div class="fs-d">如达成专属合作方案，可为您单独调整返佣比例（USDT）；未单独调整的卡产品继续按标准比例执行。</div>
     </div>
   </div>
 
@@ -190,8 +201,8 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
   <div class="sec-title"><h3>返佣计算口径</h3><span>按下级客户实际使用的卡产品分别计算</span></div>
   <div class="table-card">
     <div class="tbl-head">
-      <div class="tbl-title">卡产品返佣项<span class="tbl-hint">示例结构 · 开通即按平台兜底值生效</span></div>
-      <span class="chip gold">按卡配置 + 兜底</span>
+      <div class="tbl-title">卡产品返佣项<span class="tbl-hint">示例结构 · 以开通后实际生效比例为准</span></div>
+      <span class="chip gold">按卡产品</span>
     </div>
     <table>
       <thead>
@@ -208,26 +219,26 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
         <tr>
           <td>Standard Debit Card</td>
           <td>Stripe</td>
-          <td class="mono">$5.00 / 单</td>
-          <td class="mono">0.30%</td>
-          <td class="mono" style="color:rgba(255,255,255,.45)">平台兜底</td>
-          <td><span class="chip gray">兜底生效</span></td>
+          <td class="mono">$6.00 / 单</td>
+          <td class="mono">0.25%</td>
+          <td class="mono" style="color:rgba(255,255,255,.45)">标准返点</td>
+          <td><span class="chip gray">已生效</span></td>
         </tr>
         <tr>
           <td>Premium Rewards Card</td>
           <td>Stripe</td>
-          <td class="mono">$8.00 / 单</td>
-          <td class="mono">0.35%</td>
-          <td class="mono" style="color:rgba(255,255,255,.45)">平台兜底</td>
-          <td><span class="chip gray">兜底生效</span></td>
+          <td class="mono">$6.00 / 单</td>
+          <td class="mono">0.25%</td>
+          <td class="mono" style="color:rgba(255,255,255,.45)">标准返点</td>
+          <td><span class="chip gray">已生效</span></td>
         </tr>
         <tr>
           <td>Gold Elite Card</td>
           <td>Stripe</td>
           <td class="mono">$6.00 / 单</td>
           <td class="mono">0.25%</td>
-          <td class="mono" style="color:rgba(255,255,255,.45)">平台兜底</td>
-          <td><span class="chip gray">兜底生效</span></td>
+          <td class="mono" style="color:rgba(255,255,255,.45)">标准返点</td>
+          <td><span class="chip gray">已生效</span></td>
         </tr>
       </tbody>
     </table>
@@ -235,7 +246,7 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
 
   <div class="note">
     <span class="ni">ℹ️</span>
-    <div>返佣比例按<strong style="color:#FFCA00">卡产品维度</strong>分别配置，同一代理在不同卡产品上可适用不同比例。代理身份开通后即按平台<strong style="color:#FFCA00">兜底返佣值与兜底 Points 返点</strong>生效；商务经理后续可对返 U 比例做<strong style="color:#FFCA00">二次调整</strong>（覆盖兜底值），未调整项继续按兜底值执行。返佣以 USDT 结算，Points 返点计入 yasbee+ 奖励记录。</div>
+    <div>返佣比例按<strong style="color:#FFCA00">卡产品维度</strong>分别适用，同一代理在不同卡产品上可适用不同比例。代理身份开通后即按<strong style="color:#FFCA00">标准返佣比例</strong>生效；后续如达成专属合作方案，可对返佣比例（USDT）做<strong style="color:#FFCA00">单独调整</strong>，未单独调整的卡产品继续按标准比例执行。返佣以 USDT 结算，Points 返点计入 yasbee+ 奖励记录。</div>
   </div>
 </div>
 

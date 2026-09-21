@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>代理兜底值规则与操作日志 - YASBee Admin</title>
+<title>代理兜底值规则与操作日志 - YASBe Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -79,9 +79,21 @@ tbody tr:hover td { background: #fdfdfd; }
 .filter-group input, .filter-group select { padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; min-width: 160px; font-family: inherit; outline: none; background: #fff; }
 .filter-group input:focus, .filter-group select:focus { border-color: #E59303; box-shadow: 0 0 0 3px rgba(229,147,3,.08); }
 @media (max-width: 1000px) { .grid2, .row-inline { grid-template-columns: 1fr; } }
-</style>
+    /* PM-NOTE: 原型备注统一格式（PM 备注 / 原型演示），右上角按钮可整体隐藏 */
+    .pmnote{background:#14171c;border-left:3px solid #FFCA00;border-radius:6px;padding:10px 12px;margin:10px 0;font-size:13px;line-height:1.75;color:#c8ccd4}
+    .pmnote b{color:#FFCA00;margin-right:8px}
+    .pmnote.dem{border-left-color:#4a5568}
+    .pmnote.dem b{color:#9aa3b2}
+    .pmnote-toggle{position:fixed;right:14px;bottom:14px;z-index:9999;background:#1a1e26;color:#FFCA00;border:1px solid #2a2f3a;border-radius:20px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:inherit}
+    .pmnote-toggle:hover{background:#22262f}
+    body.hide-pmnote .pmnote{display:none!important}
+  </style>
 </head>
 <body>
+  <button class="pmnote-toggle" onclick="document.body.classList.toggle('hide-pmnote');this.textContent=document.body.classList.contains('hide-pmnote')?'显示备注':'隐藏备注'">隐藏备注</button>
+  <!-- PM-NOTE: 管理端 -->
+  <div class="pmnote"><b>PM 备注</b>标准返佣真值 —— 返 U 开卡 $6.00 / 单 · 充值 0.25%；Points 充值 0.02% · 开卡 10 yasbee+ / 单。待定：Points 口径与「代理中心」示例记录存在数量级差异（待确认 D5）。</div>
+
 
 <div class="header">
   <div>
@@ -138,7 +150,7 @@ tbody tr:hover td { background: #fdfdfd; }
   <!-- ② 平台兜底 Points 返点 -->
   <div class="card">
     <div class="card-h">
-      <h3><span class="idx">2</span>平台兜底 Points 返点（积分）</h3>
+      <h3><span class="idx">2</span>平台兜底 Points 返点</h3>
       <span class="badge badge-gray">平台统一 · 不做代理级差异化</span>
     </div>
     <div class="card-b">
@@ -218,7 +230,7 @@ tbody tr:hover td { background: #fdfdfd; }
           <label>时间范围</label>
           <select><option>近 7 天</option><option>今天</option><option>近 30 天</option><option>全部</option></select>
         </div>
-        <button class="btn btn-outline" style="margin-left:auto;" onclick="alert('导出操作日志 CSV（原型演示）')">⬇ 导出日志</button>
+        <button class="btn btn-outline" style="margin-left:auto;" onclick="alert('[原型演示] 导出操作日志 CSV')">⬇ 导出日志</button>
       </div>
     </div>
     <table>
@@ -234,6 +246,24 @@ tbody tr:hover td { background: #fdfdfd; }
         </tr>
       </thead>
       <tbody>
+        <tr>
+          <td class="mono">2026-09-18 14:33:51</td>
+          <td>admin@beeznis.com</td>
+          <td>代理 AG-8842 <span class="badge badge-blue">Alex Chen</span></td>
+          <td>Gold Elite Card · 返 U 二次调整</td>
+          <td class="old mono">兜底 $6.00 / 单</td>
+          <td class="new mono">$8.00 / 单</td>
+          <td class="mono">203.0.113.***</td>
+        </tr>
+        <tr>
+          <td class="mono">2026-09-18 14:33:51</td>
+          <td>admin@beeznis.com</td>
+          <td>代理 AG-8842 <span class="badge badge-blue">Alex Chen</span></td>
+          <td>Standard Debit Card · 充值返佣</td>
+          <td class="old mono">平台兜底 0.25%</td>
+          <td class="new mono">0.30%</td>
+          <td class="mono">203.0.113.***</td>
+        </tr>
         <tr>
           <td class="mono">2026-09-18 14:32:07</td>
           <td>system <span class="badge badge-gray">系统自动</span></td>
@@ -253,30 +283,12 @@ tbody tr:hover td { background: #fdfdfd; }
           <td class="mono">203.0.113.***</td>
         </tr>
         <tr>
-          <td class="mono">2026-09-18 14:33:51</td>
-          <td>admin@beeznis.com</td>
-          <td>代理 AG-8842 <span class="badge badge-blue">Alex Chen</span></td>
-          <td>Gold Elite Card · 返 U 二次调整</td>
-          <td class="old mono">兜底 $6.00 / 单</td>
-          <td class="new mono">$8.00 / 单</td>
-          <td class="mono">203.0.113.***</td>
-        </tr>
-        <tr>
           <td class="mono">2026-09-17 16:20:41</td>
           <td>admin@beeznis.com</td>
-          <td>代理 AG-8842 <span class="badge badge-blue">Alex Chen</span></td>
+          <td>代理 AG-7715 <span class="badge badge-blue">Marco Liu</span></td>
           <td>Gold Elite Card · 开卡返佣</td>
           <td class="old mono">平台兜底 $6.00</td>
           <td class="new mono">$60.00</td>
-          <td class="mono">203.0.113.***</td>
-        </tr>
-        <tr>
-          <td class="mono">2026-09-17 16:20:41</td>
-          <td>admin@beeznis.com</td>
-          <td>代理 AG-8842 <span class="badge badge-blue">Alex Chen</span></td>
-          <td>Standard Debit Card · 充值返佣</td>
-          <td class="old mono">平台兜底 0.25%</td>
-          <td class="new mono">0.30%</td>
           <td class="mono">203.0.113.***</td>
         </tr>
         <tr>
