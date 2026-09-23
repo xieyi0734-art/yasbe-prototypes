@@ -13,7 +13,15 @@ package-lock.json
 *.swo
 
 # Temp
-*.bak
+*.bak*
 *.log
 card-prototypes/
 cyro-website/
+
+# 中间产物 / 临时目录（勿入库）
+_tmp/
+_build/
+_smoke/
+_bridge_research/
+_op_research/
+*.zip
