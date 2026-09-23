@@ -417,8 +417,10 @@ KYC 转化漏斗、开户两阶段耗时、入金→上账时长与失败归因�
   - ⑦ 结构长度 `city` / `postal_code` / `street_line_2` / `place_of_birth.city` = **≥1**；
   - ⑧ **spec 正则分布** —— Bridge 全库 `pattern` 共 **8 处**：`Id` / `DepositId` / `Omad` / `Imad`（`[a-z0-9]*`）、`TraceNumber`（`[0-9]`）、`Clabe`（`^[0-9]+$`）、`IbanBankAccount.bic`（`^[A-Za-z]{4}[A-Za-z]{2}[A-Za-z0-9]{2}([A-Za-z0-9]{3})?$`）、`Webhook.id`（`^wep_[a-f0-9]+$`）；**客户建档链路（附录 A）无任何 `pattern`**；故 `email` 格式、`phone` E.164、`iban` 结构 + mod97 校验位属**平台侧规则**（服务端实现），**不得当作接口约束评审**；
   - ⑨ `IdentifyingInformation.required` 为空 —— 「证件号必填、政府证件须传正反面、税号类免传影像」来自 apidocs 散文口径，实现前须与后端复核。**原型侧口径**：原型 02 以演示为主、**不实现上述接口级校验**（原型上的必填标记与格式校验仅为演示需要），接口约束、字段异常与错误文案**一律以本节与附录 A 为准**；原型与本节不一致时**不视为缺陷**。
+  - ⑩ **前端输入类型约定（2026-09-23 新增，前端实现用；与附录 H 新增列配套）** —— ① **一律按 `string` 传输**：spec 无 `number` / `integer`（见本条 ②），金额走 string 枚举区间、日期走 string 定长，前端**禁止**数字解析、千分位与小数处理；② **字符集只有五种**：**任意字符**（姓名、地址行、城市 —— 允许含中文 / 西里尔等非 Latin-1）、**仅 Latin-1**（转写名 / 转写地址：`\x20-\x7E` 与 `À-ÖØ-ßà-öø-ÿ`）、**字母数字**（州省 `subdivision`、邮编 `postal_code`、证件号、国民身份号 / TIN —— **不可用纯数字键盘**：GB / CA 邮编含字母）、**数字 + 前导 `+`**（手机号 E.164）、**定长数字日期**（`birth_date` / 证件 `expiration`，10 位 `yyyy-mm-dd`）；③ **枚举类一律下拉**（国籍 / 多国籍、证件类型、就业状态、账户主要用途、职业、资金来源、预计每月资金往来），取值来自附录 D 枚举清单，**禁自由文本**；唯一例外：`account_purpose = other` 时附文本补充行；④ **文件类**（证件正反面 / 人脸自拍 / 住址证明 / 资金来源材料）= 文件上传，接受图片或 PDF，合计上限见附录 A #27；⑤ **长度上限**（`maxlength`）按附录 A / C 的 `minLength` / `maxLength` 实现，附录 H 不重复；⑥ 本约定只约束**输入形态**，不新增接口约束 —— 接口级校验不落原型（第 ⑨ 条）。
 
 | 版本 | 日期 | 修订内容 |
+| v0.9 | 2026-09-23 | ⑱ **补开户表单字段的输入类型（响应前端反馈「开卡 / 开户要求的字段未标注字符或数字」）**：**附录 A「客户建档字段全量对齐」表新增「输入类型（控件 · 可输入字符集）」列（29 行全覆盖，落在「类型 / 约束」右侧）+ 表头口径注记**；附录 H 四张步骤表新增「**输入类型（控件 · 可输入字符集）**」列（4 表头 + 37 行全覆盖）+ 表头口径说明；§13.0 新增第 ⑩ 条「前端输入类型约定」（string 传输 / 五种字符集 / 枚举一律下拉 / 文件类 / 长度读附录 A·C）；**仅文档补列，原型与接口行为不变**（接口级校验不落原型，见第 ⑨ 条） |
 | v0.8 | 2026-09-20 | ⑰ **全量审计修订（PRD ↔ Bridge OpenAPI 逐字段机器核对，非人工摘录）**：`writeOnly` 10 → **13**（补 `residential_address` / `transliterated_residential_address` / `place_of_birth`，并记 write-only 回读影响）；`pattern` 「仅 2 处」→ **8 处**（列全）；`ExternalAccountAddress.state` 无 `maxLength`（不再写 1–3）；居住地址 schema 更正为 `Address2025WinterRefresh`；`identifying_information` 的 EEA 要求出处改为 EEA 政策页（该 schema 无 description）；§7 endorsement 状态 `pending` → `incomplete`；§7 KYC 状态补 `KycStatus` / `CustomerStatus` 真值；附录 B / M1-2 / M10-3 的 `postMessage` + `signedAgreementId` 标注 spec 未声明（0 命中）；附录 H `kfSof` / `kfMonthly` 条件补 D13（EEA 亦采集）、`kfSofDocsHint` 标注为文案键；M6-6 `address` 区分必填（`us`）/ 选填（`iban` / `gb`）、`account_owner_name` 标注 1–256 与 3–35；§7 与 M6-2 外部账户核验改用 `match_level`（`verified` 非 Bridge 值）；§7 与 M7-2 流水状态标注平台态并列出 Bridge 真值；附录 F 标 `Customer.rejection_reasons` deprecated；附录 E 标 `requirements_due` deprecated + `future_requirements_due`、`missing` 出处；附录 C / M3-7「0–100」标注为平台约定；附录 D `account_type` 补响应侧 `BankAccountNumberType` 差异；附录 A #22 `nationality` 迁移后 deprecated、#27 补图片合计 24MB；M11-5「7 项」→ 6 字段 + 1 条件字段；H13 补「阈值非 spec 依据」 |
 
 | v0.7 | 2026-09-20 | ⑯ **焦点 A 判定范围拍板落地（D13＝原 H14 关闭）**：S1–S3 的判定与展示**只在 EEA / BBSA in-scope、高风险、标注客户内生效**，**不做常显**；原型 02 新增 `kfSofRow`（资金来源 / 预计每月资金往来随条件字段行展示，**EEA 客户亦可见并必填**）、S1–S3 判定门控 `needMore()` → `needCond()`；**附修存量缺陷**：`updateStateReq()` 读 `kfStateReq`（该 span 位于 `data-i18n` 标签内，被 `applyI18n` 替换后消失）抛 TypeError，致 `applyUserCountry()` 中断、EEA / 风险合规面板与 EEA 字段组在正常路径下不渲染 → 已加空值保护 |
@@ -431,39 +433,39 @@ KYC 转化漏斗、开户两阶段耗时、入金→上账时长与失败归因�
 | v0.1 | 2026-09-04 | 初稿 |
 
 ### 附录 A. 客户建档 `POST /v0/customers`（`type=individual`）字段全量对齐
-> 平台侧当前仅做 individual（企业 `type=business` 见 §1.4 非目标）。`覆盖` 列以 `02-法币账户-多渠道多账户.html` 向导第 3 步为基准。
+> 平台侧当前仅做 individual（企业 `type=business` 见 §1.4 非目标）。`覆盖` 列以 `02-法币账户-多渠道多账户.html` 向导第 3 步为基准。 **「输入类型」列＝前端实现用（2026-09-23 新增 · v0.9）**：只写**怎么输入**——控件形态（文本 / 日期 / 下拉 / 多选 / 单选 / 文件 / 只读）＋**可输入字符集**（任意字符 / 仅 Latin-1 / 字母数字 / 数字+`+` / 定长日期）；**长度上限与格式仍以「类型 / 约束」列为准**，两列不重复；全链路一律按 `string` 传输（本接口**无 number / integer**，金额档位与日期均为字符串，前端**禁数字解析 / 千分位 / 小数处理**）。按步骤的可见字段视图（同一列口径）见附录 H；总则见 §13.0 第 ⑩ 条。
 
-| # | Bridge 字段 | 类型 / 约束 | 必填条件 | 平台 UI 映射（原型 02） | 覆盖 |
-| --- | --- | --- | --- | --- | --- |
-| 1 | `type` | string，enum [individual] | 必填 | 平台服务端固定注入 `individual` | 覆盖（服务端） |
-| 2 | `first_name` | string，2–1024 | 必填 | 名 `kfFirst` | 覆盖 |
-| 3 | `middle_name` | string，1–1024 | 选填 | 中间名 `kfMiddle` | 覆盖 |
-| 4 | `last_name` | string，2–1024 | 必填 | 姓 `kfLast` | 覆盖 |
-| 5 | `transliterated_first_name` | string，1–256 | 当 `first_name` 含非 Latin-1 字符时必填（可接受字符：Latin-1 À-ÖØ-ßà-öø-ÿ 与 `\x20-\x7E`） | 拼音/拉丁转写名 `kfFirstTr` | 覆盖 |
-| 6 | `transliterated_middle_name` | string，1–256 | 同上 | `kfMiddleTr` | 覆盖 |
-| 7 | `transliterated_last_name` | string，1–256 | 同上 | `kfLastTr` | 覆盖 |
-| 8 | `email` | string，1–1024 | 必填 | 邮箱 `kfEmail` | 覆盖 |
-| 9 | `phone` | string，1–1024，格式 `+122****4444`（E.164） | 必填 | 手机号 `kfPhone` | 覆盖 |
-| 10 | `residential_address` | object：`street_line_1`(≥4)、`street_line_2`(≥1)、`city`(≥1)、`subdivision`（**1–3 位**，ISO 3166-2，美国必填）、`postal_code`(≥1)（有邮编国家必填）、`country`（ISO 3166-1 alpha-3，**固定 3 位**）；`street_line_1`/`city`/`country` 必填 | 必填 | 居住国 `kfRes` + 地址 `kfAddr`/`kfAddr2` + 城市 `kfCity` + 州/省 `kfState` + 邮编 `kfZip` | 覆盖 |
-| 11 | `transliterated_residential_address` | 同 #10 结构 | 当住址含非 Latin-1 字符时必填 | 转写地址 `kfAddrTr` | 覆盖 |
-| 12 | `birth_date` | string，**固定 10 位**（yyyy-mm-dd；须满 18 岁） | 必填 | 出生日期 `kfDob` | 覆盖 |
-| 13 | `signed_agreement_id` | string，1–1024 | 必填（新客户须先完成 Bridge 托管 ToS 签署） | 不用户填写：向导第 2 步签署回跳取得，服务端随建档提交 | 覆盖（本轮新增） |
-| 14 | `endorsements` | string[]，enum [base, cards, cop, faster_payments, pix, pix_onramp, pix_offramp, sepa, spei] | 选填；**不传时 Bridge 默认尝试授予 base + sepa** | 服务端显式注入 `['base']`（EUR 若开通另议） | 需确认（建议显式传，见 M1-13） |
-| 15 | `account_purpose` | string，enum [charitable_donations, ecommerce_retail_payments, investment_purposes, operating_a_company, other, payments_to_friends_or_family_abroad, personal_or_living_expenses, protect_wealth, purchase_goods_and_services, receive_payment_for_freelancing, receive_salary] | 高风险客户必填；EEA / BBSA in-scope 亦必填 | 账户用途 `kfPurpose` | 覆盖 |
-| 16 | `account_purpose_other` | string | 当 `account_purpose=other` | 用途补充说明 `kfPurposeOther` | 覆盖 |
-| 17 | `employment_status` | string，enum [employed, homemaker, retired, self_employed, student, unemployed] | 高风险客户必填（EEA 亦要求） | 雇佣状态 `kfEmp` | 覆盖 |
-| 18 | `expected_monthly_payments_usd` | string，enum [0_4999, 5000_9999, 10000_49999, 50000_plus] | 高风险客户必填 | 月收付规模 `kfMonthly` | 覆盖 |
-| 19 | `acting_as_intermediary` | boolean | 高风险客户必填 | 是否代第三方持有 `kfInter` | 覆盖 |
-| 20 | `most_recent_occupation` | string（职业码） | 高风险客户必填；取值建议来自 `GET /lists/occupation_codes` | 最近职业 `kfOccup` | 覆盖（取值改拉取，见 M1-7） |
-| 21 | `source_of_funds` | string，enum [company_funds, ecommerce_reseller, gambling_proceeds, gifts, government_benefits, inheritance, investments_loans, pension_retirement, salary, sale_of_assets_real_estate, savings, someone_elses_funds] | 高风险客户必填 | 资金来源 `kfSof` | 覆盖 |
-| 22 | `nationality` | string，ISO 3166-1 alpha-3 | 遗留单值字段（迁移期 Bridge 二者皆认，`nationalities` 优先；**迁移后 `nationality` 将 `deprecated`**） | 国籍 `kfNation` | 覆盖 |
-| 23 | `nationalities` | string[]，ISO 3166-1 alpha-3 | EEA / BBSA in-scope 必填（须给全部国籍） | 多国籍 `kfNations` | 覆盖 |
-| 24 | `place_of_birth` | object：`country`（alpha-3，**固定 3 位**）、`city`(≥1)；EEA / BBSA in-scope 提供 | EEA / BBSA in-scope | 出生国家 `kfBirthCountry` + 出生城市 `kfBirthCity` | 覆盖 |
-| 25 | `verified_database_at` / `verified_govid_at` / `verified_selfie_at` | string，ISO 8601 date-time（write-only） | 仅 EEA in-scope 走 reliance（`TWO_FORMS_OF_ID_RELIANCE`）时按组合提交 | 原型未建模 | **缺口（H5）** |
-| 26 | `liveness_check_selfies` | array of `{image}`：base64 data-uri，≥200×200，≤15MB，.jpeg 等 | 代 Bridge 采集自拍时使用；**EEA in-scope 不适用（须走 Persona 托管）** | 自拍 `kfSelfie`；EEA 走 `selfieHost` 托管跳转 | 覆盖 |
-| 27 | `identifying_information` | array of `{type, issuing_country, number, description, expiration, image_front, image_back}`：`type` 145 类（passport / national_id / drivers_license / 各国税号…）、`issuing_country`（alpha-3，必填）、`number`（作税号用时必填）、`description`（`type=other` 时必填）、`expiration`（yyyy-mm-dd）、`image_front`（政府证件必填 / 税号选填，base64 200px x 200px 起、≤15MB；**`image_front` + `image_back` 合计 ≤24MB**）、`image_back` | 至少 1 项（按国别规则） | 证件类型 `kfIdType` + 证件号 `kfIdNo` + 有效期 `kfIdExp` + 正反面 `kfIdFront`/`kfIdBack`；EEA 追加 `kfNatId`/`kfTin` | **部分覆盖**：`issuing_country` 需逐证件采集 |
-| 28 | `documents` | array of `{purposes, file, description}`：`purposes` enum [proof_of_account_purpose, proof_of_address, proof_of_individual_name_change, proof_of_relationship, proof_of_source_of_funds, proof_of_source_of_wealth, proof_of_tax_identification, other]、`file`（base64 data-uri，≥200×200，≤24MB）、`description`（`other` 时必填） | 按风控 / 合规触发（POA、SOF 佐证等） | 住址证明 `kfPoa`（仅 proof_of_address 单文档） | **部分覆盖（H6）** |
-| 29 | `client_reference_id` | string，1–256 | 选填（平台自用） | 服务端注入（用户 ID / 申请单号） | 需确认 |
+| # | Bridge 字段 | 类型 / 约束 | 输入类型（控件 · 可输入字符集） | 必填条件 | 平台 UI 映射（原型 02） | 覆盖 |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | `type` | string，enum [individual] | 非输入项（服务端注入，前端只读 / 不出现） | 必填 | 平台服务端固定注入 `individual` | 覆盖（服务端） |
+| 2 | `first_name` | string，2–1024 | 文本输入（任意字符，含中文） | 必填 | 名 `kfFirst` | 覆盖 |
+| 3 | `middle_name` | string，1–1024 | 文本输入（任意字符，含中文） | 选填 | 中间名 `kfMiddle` | 覆盖 |
+| 4 | `last_name` | string，2–1024 | 文本输入（任意字符，含中文） | 必填 | 姓 `kfLast` | 覆盖 |
+| 5 | `transliterated_first_name` | string，1–256 | 文本输入（**仅 Latin-1**：`\x20-\x7E` 与 À-ÖØ-ßà-öø-ÿ） | 当 `first_name` 含非 Latin-1 字符时必填（可接受字符：Latin-1 À-ÖØ-ßà-öø-ÿ 与 `\x20-\x7E`） | 拼音/拉丁转写名 `kfFirstTr` | 覆盖 |
+| 6 | `transliterated_middle_name` | string，1–256 | 文本输入（**仅 Latin-1**，同 #5） | 同上 | `kfMiddleTr` | 覆盖 |
+| 7 | `transliterated_last_name` | string，1–256 | 文本输入（**仅 Latin-1**，同 #5） | 同上 | `kfLastTr` | 覆盖 |
+| 8 | `email` | string，1–1024 | 文本输入（邮箱键盘 `type=email`；提交前 trim） | 必填 | 邮箱 `kfEmail` | 覆盖 |
+| 9 | `phone` | string，1–1024，格式 `+122****4444`（E.164） | 电话输入（**数字 + 前导 `+`**，E.164；非纯数字键盘） | 必填 | 手机号 `kfPhone` | 覆盖 |
+| 10 | `residential_address` | object：`street_line_1`(≥4)、`street_line_2`(≥1)、`city`(≥1)、`subdivision`（**1–3 位**，ISO 3166-2，美国必填）、`postal_code`(≥1)（有邮编国家必填）、`country`（ISO 3166-1 alpha-3，**固定 3 位**）；`street_line_1`/`city`/`country` 必填 | 文本 ×5 + **下拉**（`country` alpha-3 固定 3 位）；`subdivision` / `postal_code` 用**字母数字**（GB·CA 邮编含字母，**不可用纯数字键盘**） | 必填 | 居住国 `kfRes` + 地址 `kfAddr`/`kfAddr2` + 城市 `kfCity` + 州/省 `kfState` + 邮编 `kfZip` | 覆盖 |
+| 11 | `transliterated_residential_address` | 同 #10 结构 | 同 #10，一律**仅 Latin-1** | 当住址含非 Latin-1 字符时必填 | 转写地址 `kfAddrTr` | 覆盖 |
+| 12 | `birth_date` | string，**固定 10 位**（yyyy-mm-dd；须满 18 岁） | **日期选择器**（定长 10 位 `yyyy-mm-dd`） | 必填 | 出生日期 `kfDob` | 覆盖 |
+| 13 | `signed_agreement_id` | string，1–1024 | 非输入项（ToS 回跳后服务端注入） | 必填（新客户须先完成 Bridge 托管 ToS 签署） | 不用户填写：向导第 2 步签署回跳取得，服务端随建档提交 | 覆盖（本轮新增） |
+| 14 | `endorsements` | string[]，enum [base, cards, cop, faster_payments, pix, pix_onramp, pix_offramp, sepa, spei] | 非输入项（服务端注入） | 选填；**不传时 Bridge 默认尝试授予 base + sepa** | 服务端显式注入 `['base']`（EUR 若开通另议） | 需确认（建议显式传，见 M1-13） |
+| 15 | `account_purpose` | string，enum [charitable_donations, ecommerce_retail_payments, investment_purposes, operating_a_company, other, payments_to_friends_or_family_abroad, personal_or_living_expenses, protect_wealth, purchase_goods_and_services, receive_payment_for_freelancing, receive_salary] | **下拉**（11 项枚举，禁自由文本；选 `other` 才出补充框） | 高风险客户必填；EEA / BBSA in-scope 亦必填 | 账户用途 `kfPurpose` | 覆盖 |
+| 16 | `account_purpose_other` | string | 文本输入（任意字符；仅 `account_purpose=other` 时出现） | 当 `account_purpose=other` | 用途补充说明 `kfPurposeOther` | 覆盖 |
+| 17 | `employment_status` | string，enum [employed, homemaker, retired, self_employed, student, unemployed] | **下拉**（6 项枚举） | 高风险客户必填（EEA 亦要求） | 雇佣状态 `kfEmp` | 覆盖 |
+| 18 | `expected_monthly_payments_usd` | string，enum [0_4999, 5000_9999, 10000_49999, 50000_plus] | **下拉**（4 档区间；**不是数字输入框**，按档位提交字符串） | 高风险客户必填 | 月收付规模 `kfMonthly` | 覆盖 |
+| 19 | `acting_as_intermediary` | boolean | 单选（是 / 否 → boolean） | 高风险客户必填 | 是否代第三方持有 `kfInter` | 覆盖 |
+| 20 | `most_recent_occupation` | string（职业码） | **下拉**（选项来自 `GET /lists/occupation_codes`，禁自由文本） | 高风险客户必填；取值建议来自 `GET /lists/occupation_codes` | 最近职业 `kfOccup` | 覆盖（取值改拉取，见 M1-7） |
+| 21 | `source_of_funds` | string，enum [company_funds, ecommerce_reseller, gambling_proceeds, gifts, government_benefits, inheritance, investments_loans, pension_retirement, salary, sale_of_assets_real_estate, savings, someone_elses_funds] | **下拉**（12 项枚举） | 高风险客户必填 | 资金来源 `kfSof` | 覆盖 |
+| 22 | `nationality` | string，ISO 3166-1 alpha-3 | **下拉**（alpha-3 单值） | 遗留单值字段（迁移期 Bridge 二者皆认，`nationalities` 优先；**迁移后 `nationality` 将 `deprecated`**） | 国籍 `kfNation` | 覆盖 |
+| 23 | `nationalities` | string[]，ISO 3166-1 alpha-3 | **多选下拉**（alpha-3，可加多项；至少 1） | EEA / BBSA in-scope 必填（须给全部国籍） | 多国籍 `kfNations` | 覆盖 |
+| 24 | `place_of_birth` | object：`country`（alpha-3，**固定 3 位**）、`city`(≥1)；EEA / BBSA in-scope 提供 | **下拉**（`country` alpha-3）+ 文本输入（`city`，任意字符） | EEA / BBSA in-scope | 出生国家 `kfBirthCountry` + 出生城市 `kfBirthCity` | 覆盖 |
+| 25 | `verified_database_at` / `verified_govid_at` / `verified_selfie_at` | string，ISO 8601 date-time（write-only） | 非输入项（write-only，reliance 流程由服务端提交） | 仅 EEA in-scope 走 reliance（`TWO_FORMS_OF_ID_RELIANCE`）时按组合提交 | 原型未建模 | **缺口（H5）** |
+| 26 | `liveness_check_selfies` | array of `{image}`：base64 data-uri，≥200×200，≤15MB，.jpeg 等 | 文件上传（自拍图片，base64 data-uri） | 代 Bridge 采集自拍时使用；**EEA in-scope 不适用（须走 Persona 托管）** | 自拍 `kfSelfie`；EEA 走 `selfieHost` 托管跳转 | 覆盖 |
+| 27 | `identifying_information` | array of `{type, issuing_country, number, description, expiration, image_front, image_back}`：`type` 145 类（passport / national_id / drivers_license / 各国税号…）、`issuing_country`（alpha-3，必填）、`number`（作税号用时必填）、`description`（`type=other` 时必填）、`expiration`（yyyy-mm-dd）、`image_front`（政府证件必填 / 税号选填，base64 200px x 200px 起、≤15MB；**`image_front` + `image_back` 合计 ≤24MB**）、`image_back` | **下拉**（`type` 145 类）+ **下拉**（`issuing_country` alpha-3）+ 证件号**字母数字**（**不可用纯数字键盘**）+ **日期选择器**（`expiration`）+ 文件上传（`image_front` / `image_back`）+ 文本（`description`，仅 `type=other`） | 至少 1 项（按国别规则） | 证件类型 `kfIdType` + 证件号 `kfIdNo` + 有效期 `kfIdExp` + 正反面 `kfIdFront`/`kfIdBack`；EEA 追加 `kfNatId`/`kfTin` | **部分覆盖**：`issuing_country` 需逐证件采集 |
+| 28 | `documents` | array of `{purposes, file, description}`：`purposes` enum [proof_of_account_purpose, proof_of_address, proof_of_individual_name_change, proof_of_relationship, proof_of_source_of_funds, proof_of_source_of_wealth, proof_of_tax_identification, other]、`file`（base64 data-uri，≥200×200，≤24MB）、`description`（`other` 时必填） | **下拉**（`purposes` 8 类）+ 文件上传（`file`，图片 / PDF）+ 文本（`description`，仅 `other`） | 按风控 / 合规触发（POA、SOF 佐证等） | 住址证明 `kfPoa`（仅 proof_of_address 单文档） | **部分覆盖（H6）** |
+| 29 | `client_reference_id` | string，1–256 | 非输入项（服务端注入） | 选填（平台自用） | 服务端注入（用户 ID / 申请单号） | 需确认 |
 
 ### 附录 B. ToS（Bridge 托管签署）接口与字段
 | 接口 / 字段 | 用途与约束 | 平台落位 |
@@ -554,58 +556,59 @@ KYC 转化漏斗、开户两阶段耗时、入金→上账时长与失败归因�
 
 ### 附录 H. 开户向导可见字段清单（按步骤，原型 02 ↔ Bridge 字段）
 
-> 用途：把「开户时用户看到的每一项」与接口字段对上，并标出**出现条件**与**归属**。**类型 / 长度 / 枚举约束不在此重复**，一律以附录 A（客户建档）/ 附录 C（VA 开立）为准。
+> 用途：把「开户时用户看到的每一项」与接口字段对上，并标出**出现条件**、**归属**与**输入类型**。**长度 / 格式 / 枚举取值不在此重复**，一律以附录 A（客户建档）/ 附录 C（VA 开立）/ 附录 D（枚举）为准。
+> **「输入类型」列口径（2026-09-23 新增，前端实现用）**：只写「**怎么输入**」——控件形态（文本 / 数字 / 日期 / 下拉 / 文件 / 按钮 / 只读）与**可输入字符集**（任意字符 / 仅 Latin-1 / 字母数字 / 数字 + `+` / 定长日期）；**不写长度上限与格式正则**，长度读附录 A / C。全链路字段一律按 **string** 传输（spec 无 `number` 类型，§13 第 ② 条），金额、日期、号码类字段**不得**做数字解析、千分位或小数处理。
 > 归属取值：**用户填** = 用户输入；**系统带出** = 由实名资料/登录态自动填充、用户可改；**只读** = 展示但不可编辑（提交值被忽略）；**平台注入** = 服务端写入且前端不出现。
 
 **步骤 ① 选择法币账户类型**（币种卡 `buildPath()`）
-| 可见项 | 接口字段 | 归属 | 出现条件 |
-| --- | --- | --- | --- |
-| 币种（USD / EUR / GBP） | `VA.source.currency` | 用户选 | 常显；不可服务国家在此之前拦截（M11-8 / `noSvcNotice`） |
-| 该币种已有账户 / 已开通提示 | —（平台态） | 系统带出 | 有已开通账户时仍可继续开通，**不限数量、不拦截**（D10） |
+| 可见项 | 接口字段 | 归属 | 出现条件 | 输入类型（控件 · 可输入字符集） |
+| --- | --- | --- | --- | --- |
+| 币种（USD / EUR / GBP） | `VA.source.currency` | 用户选 | 常显；不可服务国家在此之前拦截（M11-8 / `noSvcNotice`） | 选项卡（币种卡，单选）；**非文本输入** |
+| 该币种已有账户 / 已开通提示 | —（平台态） | 系统带出 | 有已开通账户时仍可继续开通，**不限数量、不拦截**（D10） | 只读展示 |
 
 **步骤 ② 签署合作机构服务条款**（仅美元首次开户；EUR/GBP 与老客户无此步，M10-1）
-| 可见项 | 接口字段 | 归属 | 出现条件 |
-| --- | --- | --- | --- |
-| 签署状态（待签署 / 已签署） | `has_accepted_terms_of_service`（读） | 系统带出 | 常显 |
-| 签署编号 / 签署时间 | `signed_agreement_id`（写，1–1024） | 托管页回跳带出 | 签署完成后 |
-| 「前往签署」按钮 → 外部托管页 | `POST /v0/customers/tos_links` 返回的 `url` | 平台发起 | 常显（本步内） |
+| 可见项 | 接口字段 | 归属 | 出现条件 | 输入类型（控件 · 可输入字符集） |
+| --- | --- | --- | --- | --- |
+| 签署状态（待签署 / 已签署） | `has_accepted_terms_of_service`（读） | 系统带出 | 常显 | 只读展示（状态徽标） |
+| 签署编号 / 签署时间 | `signed_agreement_id`（写，1–1024） | 托管页回跳带出 | 签署完成后 | 只读展示（托管页回跳带出） |
+| 「前往签署」按钮 → 外部托管页 | `POST /v0/customers/tos_links` 返回的 `url` | 平台发起 | 常显（本步内） | 按钮（外跳托管页）；**非输入项** |
 
 **步骤 ③ 填写账户信息（个人）** —— 表内前三段为常显，后三段按画像条件出现
-| 可见项（原型 id） | 接口字段 | 归属 | 出现条件 |
-| --- | --- | --- | --- |
-| 名 / 中间名 / 姓（`kfFirst` / `kfMiddle` / `kfLast`） | `first_name` / `middle_name` / `last_name` | 用户填 | 常显 |
-| 拼音（转写）名 / 中间名 / 姓（`kfNameTrRow`：`kfFirstTr` / `kfMiddleTr` / `kfLastTr`） | `transliterated_first_name` / `_middle_name` / `_last_name` | 用户填 | 姓名含非 Latin-1 字符时 |
-| 出生日期（`kfDob`） | `birth_date`（固定 10 位 yyyy-mm-dd，须满 18 岁） | 用户填 | 常显 |
-| 国籍（`kfNation`）→ 多国籍（`kfMultiCb` / `kfNationsRow` / `kfNations`） | `nationality`（遗留单值）/ `nationalities[]`（全部国籍） | 系统带出，用户可改 | 单国籍默认；勾选「多国籍」后出现多选 |
-| 邮箱（`kfEmail`） | `email` | 用户填 | 常显 |
-| 手机号（`kfPhone`） | `phone`（E.164，如 `+122****4444`） | 用户填 | 常显 |
-| 证件类型 / 号码 / 有效期 / 正反面（`kfIdType` / `kfIdNo` / `kfIdExp` / `kfIdFront` / `kfIdBack`） | `identifying_information[0]{type, number, expiration, image_front, image_back}` | 用户填 | 常显；`type` 145 类随国家切换 |
-| 人脸自拍（`kfSelfieCell` / `kfSelfie`） | `liveness_check_selfies[].image` | 用户填 | **非 EEA**；EEA 改走 `selfieHost`（M11-2） |
-| 托管核验入口（`selfieHost`） | 经 KYC Link / Persona 托管流程回传 | 平台发起 | EEA in-scope（M11-2） |
-| 美国证件照核验入口（`usPhotoHost`） | 同上（Persona 托管） | 平台发起 | 居住国 = USA（M11-9） |
-| 居住国（`kfRes`） | `residential_address.country`（alpha-3） | 系统带出，用户可改 | 常显 |
-| 地址 / 地址 2 / 城市 / 州省 / 邮编（`kfAddr` / `kfAddr2` / `kfCity` / `kfState` + `kfStateReq` / `kfZip`） | `residential_address{street_line_1, street_line_2, city, subdivision(1–3 位), postal_code}` | 用户填 | 常显；`subdivision` 美国必填、`Address.state` 1–3 位；`postal_code` 不硬性必填（提示：使用邮编的国家须填写） |
-| 转写地址（`kfAddrTrRow` / `kfAddrTr`） | `transliterated_residential_address` | 用户填 | 住址含非 Latin-1 字符时 |
-| 住址证明上传（`kfPoa` + `kfPoaReq` / `kfPoaWhy`） | `documents[]{purposes:[proof_of_address], file}` | 用户填 | 风控 / 地址信号冲突时必需 |
-| — 出生国家 / 出生城市（`kfBirthCountry` / `kfBirthCity`） | `place_of_birth{country, city}` | 系统带出，用户可改 | **E1 EEA in-scope** |
-| — 国民身份号 / 税号 TIN（`kfNatId` / `kfNatIdHint` / `kfTin` / `kfTinHint`） | `identifying_information[]` 追加：国民身份号类一条 + TIN 类一条（TIN `issuing_country` = 居住国） | 用户填（类型按国带出） | **E1 EEA in-scope**（M11-1 / M11-4） |
-| — 就业状态（`kfEmp`） | `employment_status` | 用户填 | **E1 EEA** 或 **R1/R2 风险**（必填且锁定） |
-| — 账户主要用途（`kfPurpose` → `kfPurposeOtherRow` / `kfPurposeOther`） | `account_purpose` → `account_purpose_other` | 用户填 | **E1 EEA** 或 **R1/R2 风险**；选 `other` 时出现补充说明 |
-| — 职业（`kfOccup`） | `most_recent_occupation`（职业码，拉 `GET /lists/occupation_codes`） | 用户填 | **R1/R2 风险** |
-| — 资金来源（`kfSof`） | `source_of_funds` | 用户填 | **E1 EEA** 或 **R1/R2 风险**（D13：EEA 亦采集，作为 S1–S3 判定输入） |
-| — 预计每月资金往来（`kfMonthly`） | `expected_monthly_payments_usd` | 用户填 | **E1 EEA** 或 **R1/R2 风险**（D13：同上） |
-| — 是否代第三方持有（`kfInter`） | `acting_as_intermediary` | 用户填 | **R1/R2 风险** |
-| — 风险/标注提示条（`riskNotice` / `flagNotice` / `kfMoreToggle` + 只读 `kfMoreCb`） | —（平台态） | 系统判定 | R1/R2 命中时；勾选框**只读**，用户不可关闭 |
-| — 资金来源材料区块（`kfSofDocs` / `kfSofDocsWhy` + 文案键 `kfSofDocsHint`） | —（平台态判定说明） | 系统判定 | **S1–S3 任一命中**（M11-10 / M11.A）；用户不可关闭 |
-| — 资金来源说明（`kfSofStatementDoc`） | `documents[]{purposes:[proof_of_source_of_funds], file}` | 用户填 | **S1**：就业状态 = 无业 **且** 资金来源 = 工资 |
-| — 工资入账凭证（`kfSofSalaryDoc`） | 同上 | 用户填 | **S1**（同上） |
-| — 养老金 / 退休金发放证明（`kfSofPensionDoc`） | 同上 | 用户填 | **S2**：资金来源 = 养老金 / 退休金 |
-| — 资金来源证明（`kfSofProofDoc`） | 同上 | 用户填 | **S3**：预计每月资金往来 = 5 万美元及以上 |
+| 可见项（原型 id） | 接口字段 | 归属 | 出现条件 | 输入类型（控件 · 可输入字符集） |
+| --- | --- | --- | --- | --- |
+| 名 / 中间名 / 姓（`kfFirst` / `kfMiddle` / `kfLast`） | `first_name` / `middle_name` / `last_name` | 用户填 | 常显 | 文本输入；**任意字符**（含中文 / 西里尔等非 Latin-1）；字符数按附录 A #1（写入侧 2–1024） |
+| 拼音（转写）名 / 中间名 / 姓（`kfNameTrRow`：`kfFirstTr` / `kfMiddleTr` / `kfLastTr`） | `transliterated_first_name` / `_middle_name` / `_last_name` | 用户填 | 姓名含非 Latin-1 字符时 | 文本输入；**仅 Latin-1 字母 + 空格**（`\x20-\x7E` 与 À-ÖØ-ßà-öø-ÿ）；1–256 |
+| 出生日期（`kfDob`） | `birth_date`（固定 10 位 yyyy-mm-dd，须满 18 岁） | 用户填 | 常显 | 日期选择器；**定长 10 位 `yyyy-mm-dd`**（数字，不可自由文本） |
+| 国籍（`kfNation`）→ 多国籍（`kfMultiCb` / `kfNationsRow` / `kfNations`） | `nationality`（遗留单值）/ `nationalities[]`（全部国籍） | 系统带出，用户可改 | 单国籍默认；勾选「多国籍」后出现多选 | 下拉（ISO 3166-1 alpha-3 枚举）；勾选「多国籍」后为 **多选**；禁自由输入 |
+| 邮箱（`kfEmail`） | `email` | 用户填 | 常显 | 文本输入（`type=email`）；**字母数字 + `@ . _ -`**（平台侧校验，非接口约束） |
+| 手机号（`kfPhone`） | `phone`（E.164，如 `+122****4444`） | 用户填 | 常显 | **数字键盘 + 前导 `+`**（E.164，如 `+122****4444`）；仅数字与 `+` |
+| 证件类型 / 号码 / 有效期 / 正反面（`kfIdType` / `kfIdNo` / `kfIdExp` / `kfIdFront` / `kfIdBack`） | `identifying_information[0]{type, number, expiration, image_front, image_back}` | 用户填 | 常显；`type` 145 类随国家切换 | 证件类型＝下拉（145 类随国家切换）；号码＝文本，**字母数字**（各国规则不同，无 `pattern`，前端不做格式校验）；有效期＝日期选择器；正反面＝**文件上传（图片）** |
+| 人脸自拍（`kfSelfieCell` / `kfSelfie`） | `liveness_check_selfies[].image` | 用户填 | **非 EEA**；EEA 改走 `selfieHost`（M11-2） | **文件上传（图片）**；非 EEA 路径 |
+| 托管核验入口（`selfieHost`） | 经 KYC Link / Persona 托管流程回传 | 平台发起 | EEA in-scope（M11-2） | 按钮（外跳 KYC Link / Persona 托管页）；**非输入项** |
+| 美国证件照核验入口（`usPhotoHost`） | 同上（Persona 托管） | 平台发起 | 居住国 = USA（M11-9） | 按钮（外跳 Persona 托管页）；**非输入项** |
+| 居住国（`kfRes`） | `residential_address.country`（alpha-3） | 系统带出，用户可改 | 常显 | 下拉（alpha-3 枚举）；系统带出、用户可改；禁自由输入 |
+| 地址 / 地址 2 / 城市 / 州省 / 邮编（`kfAddr` / `kfAddr2` / `kfCity` / `kfState` + `kfStateReq` / `kfZip`） | `residential_address{street_line_1, street_line_2, city, subdivision(1–3 位), postal_code}` | 用户填 | 常显；`subdivision` 美国必填、`Address.state` 1–3 位；`postal_code` 不硬性必填（提示：使用邮编的国家须填写） | 地址 / 地址 2 / 城市＝文本，**任意字符**；州省＝文本，**字母数字**（US ISO 3166-2，1–3 位，**不可用纯数字键盘**）；邮编＝文本，**字母数字**（US 为数字、GB / CA 含字母，**不可用纯数字键盘**） |
+| 转写地址（`kfAddrTrRow` / `kfAddrTr`） | `transliterated_residential_address` | 用户填 | 住址含非 Latin-1 字符时 | 文本输入；**仅 Latin-1**（同转写名口径） |
+| 住址证明上传（`kfPoa` + `kfPoaReq` / `kfPoaWhy`） | `documents[]{purposes:[proof_of_address], file}` | 用户填 | 风控 / 地址信号冲突时必需 | **文件上传**（图片 / PDF） |
+| — 出生国家 / 出生城市（`kfBirthCountry` / `kfBirthCity`） | `place_of_birth{country, city}` | 系统带出，用户可改 | **E1 EEA in-scope** | 出生国家＝下拉（alpha-3 枚举）；出生城市＝文本，**任意字符** |
+| — 国民身份号 / 税号 TIN（`kfNatId` / `kfNatIdHint` / `kfTin` / `kfTinHint`） | `identifying_information[]` 追加：国民身份号类一条 + TIN 类一条（TIN `issuing_country` = 居住国） | 用户填（类型按国带出） | **E1 EEA in-scope**（M11-1 / M11-4） | 文本输入；**字母数字**（各国规则不同，无 `pattern`，前端不做格式校验） |
+| — 就业状态（`kfEmp`） | `employment_status` | 用户填 | **E1 EEA** 或 **R1/R2 风险**（必填且锁定） | 下拉（枚举，见附录 D / Bridge `employment_status`） |
+| — 账户主要用途（`kfPurpose` → `kfPurposeOtherRow` / `kfPurposeOther`） | `account_purpose` → `account_purpose_other` | 用户填 | **E1 EEA** 或 **R1/R2 风险**；选 `other` 时出现补充说明 | 下拉（枚举）；选 `other` 时出现**文本**补充行（`account_purpose_other`） |
+| — 职业（`kfOccup`） | `most_recent_occupation`（职业码，拉 `GET /lists/occupation_codes`） | 用户填 | **R1/R2 风险** | 下拉（远程枚举 `GET /lists/occupation_codes`）；禁自由输入 |
+| — 资金来源（`kfSof`） | `source_of_funds` | 用户填 | **E1 EEA** 或 **R1/R2 风险**（D13：EEA 亦采集，作为 S1–S3 判定输入） | 下拉（枚举） |
+| — 预计每月资金往来（`kfMonthly`） | `expected_monthly_payments_usd` | 用户填 | **E1 EEA** 或 **R1/R2 风险**（D13：同上） | **下拉（枚举区间）**：`0_4999` / `5000_9999` / `10000_49999` / `50000_plus`；**不得做成数字输入框**（spec 无 `number` 类型） |
+| — 是否代第三方持有（`kfInter`） | `acting_as_intermediary` | 用户填 | **R1/R2 风险** | 开关 / 单选（布尔） |
+| — 风险/标注提示条（`riskNotice` / `flagNotice` / `kfMoreToggle` + 只读 `kfMoreCb`） | —（平台态） | 系统判定 | R1/R2 命中时；勾选框**只读**，用户不可关闭 | 只读展示（含**只读勾选框**，用户不可关闭） |
+| — 资金来源材料区块（`kfSofDocs` / `kfSofDocsWhy` + 文案键 `kfSofDocsHint`） | —（平台态判定说明） | 系统判定 | **S1–S3 任一命中**（M11-10 / M11.A）；用户不可关闭 | 只读展示（判定说明文案） |
+| — 资金来源说明（`kfSofStatementDoc`） | `documents[]{purposes:[proof_of_source_of_funds], file}` | 用户填 | **S1**：就业状态 = 无业 **且** 资金来源 = 工资 | **文件上传**（图片 / PDF） |
+| — 工资入账凭证（`kfSofSalaryDoc`） | 同上 | 用户填 | **S1**（同上） | **文件上传**（图片 / PDF） |
+| — 养老金 / 退休金发放证明（`kfSofPensionDoc`） | 同上 | 用户填 | **S2**：资金来源 = 养老金 / 退休金 | **文件上传**（图片 / PDF） |
+| — 资金来源证明（`kfSofProofDoc`） | 同上 | 用户填 | **S3**：预计每月资金往来 = 5 万美元及以上 | **文件上传**（图片 / PDF） |
 
 **步骤 ④ 确认开通**
-| 可见项 | 接口字段 | 归属 | 出现条件 |
-| --- | --- | --- | --- |
-| 确认页只读回执（含步骤 ② 签署编号） | 同步骤 ② / ③ | 只读 | 常显 |
-| 服务端注入项（前端不出现） | `type=individual`、`endorsements`（建议显式 `['base']`）、`client_reference_id` | 平台注入 | 提交时 |
-| 开通结果与状态 | 建档 `POST /v0/customers` → endorsement approved → `POST /v0/customers/{customerID}/virtual_accounts` | 平台发起 | 见 M2 / M3 |
-| 收款账户信息（账户号 / 路由号 / 户主 / 银行名与地址 / 支持通道） | VA 出参 `source_deposit_instructions`（附录 C） | 只读（来自 Bridge 返回） | 账户 `activated` 后 |
+| 可见项 | 接口字段 | 归属 | 出现条件 | 输入类型（控件 · 可输入字符集） |
+| --- | --- | --- | --- | --- |
+| 确认页只读回执（含步骤 ② 签署编号） | 同步骤 ② / ③ | 只读 | 常显 | 只读展示 |
+| 服务端注入项（前端不出现） | `type=individual`、`endorsements`（建议显式 `['base']`）、`client_reference_id` | 平台注入 | 提交时 | 不出现（无控件） |
+| 开通结果与状态 | 建档 `POST /v0/customers` → endorsement approved → `POST /v0/customers/{customerID}/virtual_accounts` | 平台发起 | 见 M2 / M3 | 只读状态展示（+ 结果轮询） |
+| 收款账户信息（账户号 / 路由号 / 户主 / 银行名与地址 / 支持通道） | VA 出参 `source_deposit_instructions`（附录 C） | 只读（来自 Bridge 返回） | 账户 `activated` 后 | 只读展示 + 复制按钮（值来自 Bridge 返回，前端不得本地拼装） |
