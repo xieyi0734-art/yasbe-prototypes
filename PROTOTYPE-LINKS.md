@@ -79,16 +79,18 @@
 
 **C. 历史版本 · 代理体系旧口径（2026-09-17；已被 A 块取代，仅留追溯，请勿对外引用）**
 
+*已归档至 `prototypes/返佣和奖励/_archive/2026-09-17-旧口径/`（8 个原型 + 2 个 `.bak` 备份），下表线上链接为归档后路径。*
+
 | 原型名称 | 功能 | 最后更新 | 链接 |
 |---|---|---|---|
-| 代理申请入口 · 客户端（旧口径） | 人工审核流程版：提交后等待商务对接与人工审核 | 2026-09-17 | [2026-09-17_代理申请入口_客户端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/2026-09-17_代理申请入口_客户端.html) |
-| 代理协议签署 · 客户端（旧口径） | 协议签署版（无电子签名存证） | 2026-09-17 | [2026-09-17_代理协议签署_客户端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/2026-09-17_代理协议签署_客户端.html) |
-| 代理申请状态 · 客户端（旧口径） | 审核中 / 待商务对接状态版 | 2026-09-17 | [2026-09-17_代理申请状态_客户端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/2026-09-17_代理申请状态_客户端.html) |
-| 代理中心 · 客户端（旧口径） | 代理中心（旧返佣来源口径） | 2026-09-17 | [2026-09-17_代理中心_客户端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/2026-09-17_代理中心_客户端.html) |
-| 代理管理 · 管理端（旧口径） | 代理列表（旧口径） | 2026-09-17 | [2026-09-17_代理管理_管理端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/2026-09-17_代理管理_管理端.html) |
-| 代理审核与返佣配置 · 管理端（旧口径） | 已由 A 块「代理返佣调整」取代 | 2026-09-17 | [2026-09-17_代理审核与返佣配置_管理端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/2026-09-17_代理审核与返佣配置_管理端.html) |
-| 代理返佣规则与日志 · 管理端（旧口径） | 已由 A 块「代理兜底值规则」取代 | 2026-09-17 | [2026-09-17_代理返佣规则与日志_管理端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/2026-09-17_代理返佣规则与日志_管理端.html) |
-| 代理推广与收益看板（B 端 · 旧口径） | B 端代理推广与收益看板（来源标签仍为旧口径，待同步） | 2026-09-17 | [2026-09-17_代理推广与收益看板_B端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/2026-09-17_代理推广与收益看板_B端.html) |
+| 代理申请入口 · 客户端（旧口径） | 人工审核流程版：提交后等待商务对接与人工审核 | 2026-09-17 | [2026-09-17_代理申请入口_客户端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/_archive/2026-09-17-旧口径/2026-09-17_代理申请入口_客户端.html) |
+| 代理协议签署 · 客户端（旧口径） | 协议签署版（无电子签名存证） | 2026-09-17 | [2026-09-17_代理协议签署_客户端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/_archive/2026-09-17-旧口径/2026-09-17_代理协议签署_客户端.html) |
+| 代理申请状态 · 客户端（旧口径） | 审核中 / 待商务对接状态版 | 2026-09-17 | [2026-09-17_代理申请状态_客户端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/_archive/2026-09-17-旧口径/2026-09-17_代理申请状态_客户端.html) |
+| 代理中心 · 客户端（旧口径） | 代理中心（旧返佣来源口径） | 2026-09-17 | [2026-09-17_代理中心_客户端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/_archive/2026-09-17-旧口径/2026-09-17_代理中心_客户端.html) |
+| 代理管理 · 管理端（旧口径） | 代理列表（旧口径） | 2026-09-17 | [2026-09-17_代理管理_管理端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/_archive/2026-09-17-旧口径/2026-09-17_代理管理_管理端.html) |
+| 代理审核与返佣配置 · 管理端（旧口径） | 已由 A 块「代理返佣调整」取代 | 2026-09-17 | [2026-09-17_代理审核与返佣配置_管理端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/_archive/2026-09-17-旧口径/2026-09-17_代理审核与返佣配置_管理端.html) |
+| 代理返佣规则与日志 · 管理端（旧口径） | 已由 A 块「代理兜底值规则」取代 | 2026-09-17 | [2026-09-17_代理返佣规则与日志_管理端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/_archive/2026-09-17-旧口径/2026-09-17_代理返佣规则与日志_管理端.html) |
+| 代理推广与收益看板（B 端 · 旧口径） | B 端代理推广与收益看板（来源标签仍为旧口径，待同步） | 2026-09-17 | [2026-09-17_代理推广与收益看板_B端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/返佣和奖励/_archive/2026-09-17-旧口径/2026-09-17_代理推广与收益看板_B端.html) |
 
 ## 4. 🏦 管理端 · 法币渠道（6）
 
@@ -113,14 +115,16 @@
 |---|---|---|---|
 | 渠道管理 | 发卡渠道管理（07） | 2026-09-16 | [07-Channel-Management.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/channel/07-Channel-Management.html) |
 | 卡务管理（卡类型） | 卡产品类型管理（08） | 2026-09-10 | [08-Card-Type-Management.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/card-type/08-Card-Type-Management.html) |
-| 卡片介绍 v5 | 旧版卡片介绍（v5） | 2026-07-08 | [CardIntroduction_v5.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/card-intro/CardIntroduction_v5.html) |
-| 卡片介绍（旧版） | 早期卡片介绍页 | 2026-07-08 | [CardIntroduction.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/card-intro/CardIntroduction.html) |
+| 卡片介绍 v5（旧版 · 请勿对外引用） | 早期卡片介绍（v5） | 2026-07-08 | [CardIntroduction_v5.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/card-intro/CardIntroduction_v5.html) |
+| 卡片介绍（旧版 · 请勿对外引用） | 早期卡片介绍页 | 2026-07-08 | [CardIntroduction.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/card-intro/CardIntroduction.html) |
 | 交易审核 | 交易审核快照（18） | 2026-07-08 | [18-Card-Transaction-Review.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/transaction/18-Card-Transaction-Review.html) |
 | 卡片交易流水 | 交易流水列表（17） | 2026-07-08 | [17-Card-Transaction-List.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/transaction/17-Card-Transaction-List.html) |
-| 卡片介绍 | 卡片产品介绍页（12） | 2026-07-08 | [12-Card-Introduction.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/card-intro/12-Card-Introduction.html) |
+| 卡片介绍（旧版 · 请勿对外引用） | 卡片产品介绍页（12） | 2026-07-08 | [12-Card-Introduction.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/card-intro/12-Card-Introduction.html) |
 | 我的资料 | 客户资料弹窗（11） | 2026-07-08 | [11-Client-Profile-Modal.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/client-profile/11-Client-Profile-Modal.html) |
 | 卡片管理 | 卡片列表管理（03） | 2026-07-08 | [03-Card-Management.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/card-management/03-Card-Management.html) |
 | 卡片详情 | 单卡详情（02） | 2026-07-08 | [02-Card-Detail.html](https://xieyi0734-art.github.io/yasbe-prototypes/admin/prototypes/card-management/02-Card-Detail.html) |
+
+*`card-intro/` 下 3 版（CardIntroduction_v5 / CardIntroduction / 12-Card-Introduction）均为 2026-06 ~ 07 早期版本，同批登记、均标为旧版。*
 
 ---
 
@@ -150,8 +154,8 @@
 |---|---|---|---|
 | 加密出入金风险扫描 · 管理端（最新） 🆕 | 加密货币 · 交易审核：risk_level 六等级映射（0–2 自动通过 / 3–5 转人工，阈值 3）+ 16 列含退款状态 + 拒绝理由落库 + 重新扫描 | 2026-09-20 | [2026-09-14_加密出入金风险扫描_管理端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/加密出入金风险扫描/2026-09-14_加密出入金风险扫描_管理端.html) |
 | 加密出入金风险扫描 · 客户端 | Crypto Wallet（资产总览 + 资产列表 + 交易记录，深色 #FFCA00）+ 充值/提现弹窗 + 钱包风险扫描（审核中/已拒绝） | 2026-09-20 | [2026-09-11_加密出入金风险扫描_客户端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/加密出入金风险扫描/2026-09-11_加密出入金风险扫描_客户端.html) |
-| 加密出入金风险扫描 · 客户端（首版） | Crypto Wallet 首版：资产总览 + 交易记录 + 钱包风险扫描 | 2026-09-11 | [2026-09-10_加密出入金风险扫描_客户端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/加密出入金风险扫描/2026-09-10_加密出入金风险扫描_客户端.html) |
-| 加密出入金风险扫描 · 管理端 | 加密货币 · 交易审核：入金/出金两条风控队列 + Merkle 风险明细 + 批准/拒绝处置 | 2026-09-10 | [2026-09-10_加密出入金风险扫描_管理端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/加密出入金风险扫描/2026-09-10_加密出入金风险扫描_管理端.html) |
+| 加密出入金风险扫描 · 客户端（旧版 · 请勿对外引用） | Crypto Wallet 首版：资产总览 + 交易记录 + 钱包风险扫描 —— **已被 2026-09-11 版取代** | 2026-09-11 | [2026-09-10_加密出入金风险扫描_客户端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/加密出入金风险扫描/2026-09-10_加密出入金风险扫描_客户端.html) |
+| 加密出入金风险扫描 · 管理端（旧版 · 请勿对外引用） | 加密货币 · 交易审核：入金/出金两条风控队列 + Merkle 风险明细 + 批准/拒绝处置 —— **已被 2026-09-14 版取代** | 2026-09-10 | [2026-09-10_加密出入金风险扫描_管理端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/加密出入金风险扫描/2026-09-10_加密出入金风险扫描_管理端.html) |
 
 ---
 
@@ -236,6 +240,8 @@
 
 *仓库根 `prototypes/*.html` —— 未按新规范归集，存量不动*
 
+**Dashboard 系列注意**：本区含 5 个变体（`Dashboard.html` / `-New` / `-Chinese` / `-New_tables` / `-v5`），均为 2026-07 早期多方案探索，**非现行版，勿对外引用**。
+
 | 原型名称 | 功能 | 最后更新 | 链接 |
 |---|---|---|---|
 | Mesh 接入业务流程 v2 | ComplyAdvantage 接入流程图 | 2026-08-03 | [Mesh-Integration-Business-Flow.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/Mesh-Integration-Business-Flow.html) |
@@ -280,9 +286,14 @@
 
 ---
 
-## 14. ⚠️ 未部署 / 失效清单（28 条）
+## 14. ⚠️ 未部署 / 失效清单（25 条）
 
 *这些条目**不能通过 GitHub Pages 访问**，登记保留只为追溯。*
+
+**定义边界（重要）**：本清单只收「线上不可访问」（404 / 目录未部署到 main）的条目。
+「线上能打开、但内容已被更新版取代」的旧版**不属于本清单** —— 那类在各章节就地标注「请勿对外引用」：
+§3C（返佣 8 条）· §5（卡片介绍）· §7（风险扫描）· §12（Dashboard）。
+两类问题不要混：**404 = 打不开；被取代 = 打得开但别用。**
 
 **A. 已登记但线上 404（17 条）**
 
