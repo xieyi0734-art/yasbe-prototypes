@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>白标系统 · 三期：路由引擎与通道映射规划</title>
+<style>
+  :root { --bg:#0B0E14; --card:#131820; --line:rgba(255,255,255,.09); --fg:#E8ECF0; --muted:#9FB3CC; --gold:#E59303; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg);
+         font-family:Inter,"Segoe UI","Microsoft YaHei",sans-serif; font-size:14px; line-height:1.75; }
+  .hd { padding:22px 26px; border-bottom:1px solid var(--line); background:linear-gradient(180deg,#121721,#0B0E14); }
+  .hd h1 { margin:0 0 8px; font-size:20px; letter-spacing:.3px; }
+  .hd h1 span { color:var(--gold); }
+  .meta { color:var(--muted); font-size:12.5px; line-height:1.9; }
+  .meta b { color:#D7E2F0; }
+  .toc { margin-top:12px; display:flex; flex-wrap:wrap; gap:8px; }
+  .toc a { color:var(--muted); text-decoration:none; font-size:12.5px; padding:4px 10px;
+           border:1px solid var(--line); border-radius:20px; }
+  .toc a:hover { color:var(--gold); border-color:var(--gold); }
+  main { padding:20px 26px 80px; max-width:1500px; }
+  section { margin:0 0 34px; }
+  h2 { font-size:16px; margin:26px 0 12px; padding-left:10px; border-left:3px solid var(--gold); }
+  h2 em { display:block; font-style:normal; color:var(--muted); font-size:12.5px; margin-top:4px; font-weight:400; }
+  h3.sub { font-size:13.5px; color:#DCE7F5; margin:18px 0 8px; }
+  .frame { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px;
+           overflow:auto; max-height:82vh; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:12px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px; }
+  .card h3 { margin:0 0 8px; font-size:13.5px; display:flex; align-items:center; gap:8px; }
+  .card h3 i { width:9px; height:9px; border-radius:2px; display:inline-block; flex:0 0 auto; }
+  .card p { margin:0; font-size:12.6px; color:#C9D6E6; line-height:1.85; }
+  .card p b, .card p code { color:#FFF; }
+  table.grid { width:100%; border-collapse:collapse; background:var(--card);
+               border:1px solid var(--line); border-radius:10px; overflow:hidden; font-size:12.6px; }
+  table.grid thead th { background:#171E2A; color:#DCE7F5; text-align:left; padding:10px 12px;
+                        font-weight:600; border-bottom:1px solid var(--line); white-space:nowrap; }
+  table.grid td { padding:9px 12px; border-bottom:1px solid rgba(255,255,255,.05); vertical-align:top; }
+  table.grid tbody tr:hover { background:rgba(229,147,3,.05); }
+  td.k { color:var(--gold); font-weight:600; }
+  td.c code, p code, li code { background:#1C2331; border:1px solid var(--line); border-radius:4px;
+                                padding:1px 5px; font-size:12px; color:#FFE3B8; }
+  ul.tight { margin:6px 0 0; padding-left:22px; font-size:12.8px; color:#C9D6E6; line-height:1.95; }
+  ul.tight li b { color:#FFF; }
+  .auto { color:#4ADE80; font-weight:600; }
+  .manual { color:#FFB86B; font-weight:600; }
+  .pmnote { background:#141A24; border-left:3px solid var(--gold); border-radius:8px;
+            padding:12px 16px; margin:10px 0; font-size:12.5px; line-height:1.9; }
+  .pmnote b { color:var(--gold); }
+  body.hidden .pmnote { display:none; }
+  .bar { position:fixed; right:18px; bottom:18px; z-index:99; display:flex; gap:6px;
+         background:rgba(19,24,32,.94); border:1px solid rgba(255,255,255,.12); border-radius:10px; padding:7px 9px; }
+  .bar button { background:transparent; border:none; color:#B0C0D8; font-size:13px; padding:5px 10px;
+                border-radius:6px; cursor:pointer; font-family:inherit; }
+  .bar button:hover { background:rgba(255,255,255,.08); color:var(--gold); }
+  pre.src { display:none; background:#0F131A; border:1px solid var(--line); border-radius:8px; padding:12px;
+            overflow:auto; max-height:60vh; font-size:12px; color:#C8D6E8; white-space:pre; }
+  body.showsrc pre.src { display:block; }
+  .warn { display:none; margin:10px 0; padding:12px 16px; border-radius:8px; background:rgba(239,68,68,.1);
+          border-left:3px solid #EF4444; color:#FCA5A5; font-size:12.5px; line-height:1.8; }
+  body.nomermaid .warn { display:block; }
+</style>
+</head>
+<body>
+<div class="hd">
+  <h1>白标系统 · <span>三期：路由引擎与通道映射规划</span></h1>
+  <div class="meta">
+    依据 <b>一期业务流程定稿</b> + <b>二期 API 与状态机设计</b> · 2026-10-13<br>
+    定位：统一流动性与能力聚合网关 · 上游：Bridge（USD）· OpenPayd（EUR / GBP）· SafeHeron（加密托管）· Interlace（发卡）<br>
+    核心痛点：各家字段 / 状态枚举 / 错误码 / 对账文件格式完全不同 · <b>业务层绝不被上游复杂性污染</b><br>
+    本期范围：出金智能路由（含熔断降级与 Master Account 兜底）· 适配器防腐与状态归一化 · T+1 全局对账核平
+  </div>
+  <div class="toc">
+    <a href="#s1">1 出金智能路由决策树</a>
+    <a href="#s2">2 状态归一化与防腐层</a>
+    <a href="#s3">3 T+1 对账与核平方案</a>
+    <a href="#s4">4 差错账类型与处置</a>
+    <a href="#s5">5 术语速查与 PM 备注</a>
+  </div>
+</div>
+<main>
+  <div class="warn">Mermaid 渲染库未加载（离线或 CDN 被拦截）。点右下角「显示 Mermaid 源码」可复制源码，粘贴到 mermaid.live 查看。</div>
+
+  <section id="s1">
+    <h2>1 · 多币种出金智能路由决策树 <em>Mermaid flowchart TD · 入口 = POST /v1/payouts（必带 Idempotency-Key）· 红线：所有拦截都发生在「记账之前」</em></h2>
+    <div class="frame">
+<div class="mermaid">
+flowchart TD
+    REQ["POST /v1/payouts<br/>必带 Idempotency-Key"] --> IDEM{"幂等命中？<br/>同键 + 同请求体"}
+    IDEM -->|"是"| REPLAY["直接返回首次结果<br/>绝不重复出金"]
+    IDEM -->|"否"| GATE{"准入校验<br/>租户模块已生产 与 用户 Approved 与 收款人已登记"}
+
+    GATE -->|"不通过"| E1["409 user_state_conflict<br/>403 module_not_enabled"]
+    GATE -->|"通过"| RISK{"风控拦截<br/>制裁与黑名单 与 高风险国家 与 收款人风险"}
+    RISK -->|"命中"| E2["403 risk_blocked<br/>留风险记录，可人工复核后重发"]
+    RISK -->|"放行"| LIMIT{"额度校验<br/>单笔上限 与 日累计 与 受限 key 白名单"}
+    LIMIT -->|"超限"| E3["429 limit_exceeded"]
+    LIMIT -->|"通过"| MASTER{"Master Account 余额校验<br/>平台在该通道可用余额 大于等于 金额 + 费用"}
+
+    MASTER -->|"不足"| HAVALT{"同币种存在备用通道？<br/>且备用通道余额充足"}
+    HAVALT -->|"有"| ROUTE
+    HAVALT -->|"无"| E4["503 channel_insufficient_liquidity<br/>拒单、不扣账、告警运营<br/>绝不先扣账后补"]
+
+    MASTER -->|"充足"| ROUTE{"智能选路<br/>USD 路由至 Bridge<br/>EUR GBP 路由至 OpenPayd"}
+    ROUTE --> HEALTH{"通道健康度探活<br/>主动探活 与 熔断器状态 与 近 5 分钟错误率"}
+    HEALTH -->|"健康"| CUT{"通道时间窗<br/>已过当日 cut-off？"}
+    HEALTH -->|"熔断或不健康"| FB{"存在健康备用通道？"}
+    FB -->|"有"| CUT
+    FB -->|"无"| E5["503 channel_circuit_open<br/>进入排队 + 告警，通道恢复后自动续跑"]
+
+    CUT -->|"已过窗口"| QUEUE["排队至下一工作日<br/>状态 QUEUED，返 202<br/>通知预计到账日"]
+    CUT -->|"未过窗口"| CALL["调用上游出金 API<br/>经适配层归一化入参"]
+    QUEUE --> NEXT["下一工作日窗口开启后续跑"]
+    NEXT --> CALL
+
+    CALL --> RESP{"上游响应"}
+    RESP -->|"2xx 已受理"| ACCEPT["扣账记账（在途）<br/>状态 PROCESSING，返 202"]
+    RESP -->|"5xx 或 超时"| PROBE["先查单再决定<br/>按 client_ref 回查上游是否已受理"]
+    PROBE -->|"已受理"| ACCEPT
+    PROBE -->|"未受理"| RETRY{"重试<br/>同 Idempotency-Key + 指数退避 + 抖动"}
+    RETRY -->|"未达次数上限"| CALL
+    RETRY -->|"已达上限"| BREAK["熔断器计数 +1<br/>健康度回写，触发降级判断"]
+    BREAK --> FB
+
+    ACCEPT --> OKCB["熔断器清零 与 健康度回写"]
+    OKCB --> DONE["等待上游终态回调<br/>见第 2 节：状态归一化"]
+    ACCEPT -.->|"后续失败或退回"| REV["反向冲正（回冲）<br/>账本留冲正分录 + payout.returned"]
+
+    classDef deny fill:#2E1418,stroke:#EF4444,stroke-width:2px,color:#FFD6D6
+    classDef ok fill:#0E2A1B,stroke:#4ADE80,stroke-width:2px,color:#C8F7D8
+    classDef wait fill:#2A2110,stroke:#E59303,stroke-width:2px,color:#FFE3B8
+    classDef hold fill:#161A20,stroke:#7B8CA8,stroke-linecap:round,color:#9FB0C6
+    classDef drop fill:#161A20,stroke:#7B8CA8,stroke-dasharray:6 4,color:#9FB0C6
+    class E1,E2,E3,E4 deny
+    class ACCEPT,DONE ok
+    class GATE,RISK,LIMIT,MASTER,ROUTE,HEALTH,CUT,RESP,IDEM,RETRY,PROBE,FB,HAVALT wait
+    class QUEUE,NEXT,REV,BREAK drop
+    class E5,REPLAY hold
+</div>
+    </div>
+    <div class="cards" style="margin-top:12px">
+      <div class="card">
+        <h3><i style="background:#EF4444"></i>① 重试边界（最容易出错的地方）</h3>
+        <p>只对<b>可安全重试</b>的失败重试：连接超时、5xx、限流。<b>但 5xx / 超时的第一动作永远是「查单」，不是重试</b> —— 上游可能已受理只是响应丢了，盲目重试 = 重复出金。重试必须带<b>同一 Idempotency-Key</b>，退避 <code>1s / 2s / 4s</code> + 随机抖动，最多 3 次；查单确认「未受理」才真正重发。</p>
+      </div>
+      <div class="card">
+        <h3><i style="background:#E59303"></i>② 熔断与降级</h3>
+        <p>触发条件：<b>近 5 分钟失败率 ≥ 50% 且样本 ≥ 10 笔</b>（避免一两笔抖动就熔断）。熔断时长指数递增 <code>60s → 2min → 5min</code>，之后<b>半开</b>：只放 1 笔探活，成功即闭合、失败再熔断。降级顺序：<b>同币种备用通道 → 排队等恢复</b>；两者都不可用才给 <code>503 channel_circuit_open</code>，且是<b>排队不是拒单</b>（业务连续性优先，钱一分没动）。</p>
+      </div>
+      <div class="card">
+        <h3><i style="background:#3B82F6"></i>③ Master Account 余额三道防线</h3>
+        <p><b>事前</b>：每个通道设「最低保留余额」，低于阈值提前告警并触发调拨 / 入金（不等出金时才炸）。<b>事中</b>：出金前校验「可用余额 ≥ 本笔金额 + 费用」，不足则<b>拒单 + 不扣账</b>（宁可拒单不给单边账），有备用通道则自动切换。<b>事后</b>：T+1 对账核对通道头寸，差异回到第 3 节处理。</p>
+      </div>
+      <div class="card">
+        <h3><i style="background:#A855F7"></i>④ 为什么拦截必须前置</h3>
+        <p>风控 / 额度 / 余额 / 通道健康四类拦截全部在<b>记账之前</b>：拦截 = 零账务痕迹。钱一旦扣出（在途），后续失败就只能走<b>反向冲正</b>（回冲分录），而不是删记录 —— 账本<b>只追加、不修改</b>，这是对账能核平的前提。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="s2">
+    <h2>2 · 状态归一化与适配器防腐层 <em>Mermaid sequenceDiagram · 上游 A 说 COMPLETED、上游 B 说 EXECUTED，业务层只认 SETTLED</em></h2>
+    <div class="frame">
+<div class="mermaid">
+sequenceDiagram
+    autonumber
+    participant A as 上游通道A（Bridge）
+    participant B as 上游通道B（OpenPayd）
+    participant ADP as 通道适配器层（Adapter Layer）
+    participant CORE as 核心业务服务（Payout）
+    participant LED as 全局账本
+    participant WH as Webhook 服务
+    participant T as 下游租户系统
+
+    Note over A,B: 异构原始状态：A 说 COMPLETED，B 说 EXECUTED
+    A->>ADP: Webhook 状态变更（status=COMPLETED, ref=br_9x21）
+    B->>ADP: Webhook 状态变更（status=EXECUTED, ref=op_77ab）
+
+    Note over ADP: 防腐第 1 层：验签 + 时间戳防重放 + 原始报文原样落库（raw_payload 留证）
+    Note over ADP: 防腐第 2 层：字段映射（外部字段名 / 金额单位 / 币种写法 → 内部统一模型）
+    Note over ADP: 防腐第 3 层：状态归一化（COMPLETED 与 EXECUTED 都落到 SETTLED）
+    ADP->>ADP: 去重键 =（通道, 上游流水号, 状态序号）：同状态不重复驱动
+    ADP->>CORE: 归一化事件（state=SETTLED, channel=A, upstream_ref, 金额与费用）
+    Note over CORE: 业务层只认内部枚举，永远看不到 COMPLETED / EXECUTED
+
+    CORE->>CORE: 状态机校验：PROCESSING 转 SETTLED 是否合法
+    alt 合法推进
+        CORE->>LED: 记账（借：通道在途 贷：出金已结清）+ 费用分录 + 价格快照
+        LED-->>CORE: 分录号 + 新余额
+        CORE->>WH: 触发事件 payout.settled
+        WH->>T: Webhook payout.settled（含 tx_id / 金额 / 费用 / 终态）
+        T-->>WH: 2xx 确认（失败按退避重试）
+    else 上游改了枚举 / 出现未知状态
+        ADP->>CORE: state=UNKNOWN 事件（附上游原始值）
+        CORE->>CORE: 不推进状态机、不记账，挂人工 + 告警
+        Note over CORE: 防腐原则：不认识的状态绝不猜，宁可停一笔也不污染账本
+    else 已结算后又收到 RETURNED
+        ADP->>CORE: state=RETURNED
+        CORE->>LED: 反向冲正分录（回冲原路径）
+        CORE->>WH: 触发事件 payout.returned
+        WH->>T: Webhook payout.returned（原因码 + 回冲金额）
+    end
+    Note over ADP,LED: 全链路留痕：原始报文 / 归一化结果 / 状态迁移 / 分录，四者可按上游流水号互相追证
+</div>
+    </div>
+
+    <h3 class="sub">2.1 状态映射字典（适配器唯一真值，业务层不得旁路）</h3>
+    <table class="grid">
+      <thead><tr><th>上游通道</th><th>上游原始状态</th><th>内部归一状态</th><th>说明与边界</th></tr></thead>
+      <tbody>
+        <tr><td class="k">Bridge（USD）</td><td><code>COMPLETED</code></td><td><code>SETTLED</code></td><td class="c">终态，驱动记账 + 下游 Webhook</td></tr>
+        <tr><td class="k">Bridge</td><td><code>PROCESSING</code> / <code>IN_PROGRESS</code></td><td><code>PROCESSING</code></td><td class="c">不记账，仅更新状态与轨迹</td></tr>
+        <tr><td class="k">Bridge</td><td><code>FAILED</code></td><td><code>FAILED</code></td><td class="c">在途资金释放（若已扣账则回冲）</td></tr>
+        <tr><td class="k">Bridge</td><td><code>RETURNED</code></td><td><code>RETURNED</code></td><td class="c">已结算后被退回 → 反向冲正</td></tr>
+        <tr><td class="k">OpenPayd（EUR / GBP）</td><td><code>EXECUTED</code></td><td><code>SETTLED</code></td><td class="c">与 Bridge 的 COMPLETED 等价，业务层无感差异</td></tr>
+        <tr><td class="k">OpenPayd</td><td><code>PENDING</code> / <code>IN_PROGRESS</code></td><td><code>PROCESSING</code></td><td class="c">不记账</td></tr>
+        <tr><td class="k">OpenPayd</td><td><code>DECLINED</code> / <code>REJECTED</code></td><td><code>FAILED</code></td><td class="c">带上游原因码，映射到内部原因码字典</td></tr>
+        <tr><td class="k">OpenPayd</td><td><code>REFUNDED</code> / <code>RETURNED</code></td><td><code>RETURNED</code></td><td class="c">回冲并通知租户</td></tr>
+        <tr><td class="k">SafeHeron（加密）</td><td><code>SUCCESS</code> / <code>CONFIRMED</code></td><td><code>SETTLED</code></td><td class="c">须满足我方确认数阈值才允许归一为 SETTLED</td></tr>
+        <tr><td class="k">SafeHeron</td><td><code>SIGNING</code> / <code>BROADCAST</code></td><td><code>PROCESSING</code></td><td class="c">广播中不等于成功，禁止提前记账</td></tr>
+        <tr><td class="k">Interlace（卡）</td><td><code>AUTHORIZED</code></td><td><code>AUTHORIZED</code></td><td class="c">授权占用额度，清算到达后才转 SETTLED</td></tr>
+        <tr><td class="k">Interlace</td><td><code>CLEARED</code></td><td><code>SETTLED</code></td><td class="c">清算文件与授权按 auth_id 关联</td></tr>
+        <tr><td class="k">任意上游</td><td>未在字典中的状态</td><td><code>UNKNOWN</code></td><td class="c">不推进、不记账、挂人工 + 告警（防腐兜底）</td></tr>
+      </tbody>
+    </table>
+
+    <div class="cards" style="margin-top:12px">
+      <div class="card">
+        <h3><i style="background:#4ADE80"></i>防腐层的三条硬规矩</h3>
+        <p><b>① 原始报文只进不出</b>：上游报文原样落库（含验签结果），任何时候可回溯「上游当时到底说了什么」。<b>② 业务层只见内部模型</b>：字段名、状态枚举、错误码、金额单位全部在适配层抹平，业务代码里不允许出现 <code>COMPLETED</code> / <code>EXECUTED</code>。<b>③ 未知即停</b>：上游偷偷加枚举是常态，遇到不认识的状态就 <code>UNKNOWN</code> 挂人工，绝不「猜一个最像的」。</p>
+      </div>
+      <div class="card">
+        <h3><i style="background:#E59303"></i>为什么要留 raw_payload</h3>
+        <p>对账和争议最终都要回到上游原始报文：金额单位（分 / 元）、币种写法、费率表达、时间与时区，各家不同。保留原始报文 + 归一化结果<b>成对留档</b>，才能证明「我方记账没错，是上游改了字段」。这也是第 3 节差错处置的举证材料。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="s3">
+    <h2>3 · T+1 全局对账与核平方案 <em>外部数据源 → 三层双向核对 → 差错分流（自动优先，人工兜底）</em></h2>
+
+    <h3 class="sub">3.1 外部数据源获取</h3>
+    <table class="grid">
+      <thead><tr><th>来源</th><th>数据形态</th><th>获取方式与节奏</th><th>核对主键</th><th>失败兜底</th></tr></thead>
+      <tbody>
+        <tr><td class="k">Bridge（USD）</td><td class="c">法币交易明细 / 账单文件</td><td class="c">T+1 02:00 自动拉取（SFTP 或 API），按业务日切分</td><td class="c"><code>upstream_ref</code> 上游流水号</td><td class="c">重试 3 次 + 告警；仍失败 → 人工上传入口（同一解析管线）</td></tr>
+        <tr><td class="k">OpenPayd（EUR / GBP）</td><td class="c">对账单 / 交易明细文件</td><td class="c">T+1 02:00 自动拉取；注意其计入日与到账日可能跨日</td><td class="c"><code>upstream_ref</code> + <code>end_to_end_id</code></td><td class="c">同上；缺文件走「补拉 + 人工上传」双通道</td></tr>
+        <tr><td class="k">SafeHeron（加密）</td><td class="c">链上明细（充值 / 提现）+ 我方地址标签</td><td class="c">T+1 自动拉取 API 明细；关键交易用节点 / 浏览器二次核验</td><td class="c"><code>tx_hash</code> + <code>chain</code> + 地址</td><td class="c">未达确认数的记录不参与核平，标记待确认</td></tr>
+        <tr><td class="k">Interlace（卡）</td><td class="c">清算文件（Clearing File）+ 授权流水</td><td class="c">T+1 自动拉取；清算与授权两段式，可能多日到达</td><td class="c"><code>auth_id</code> → <code>clearing_id</code> 关联</td><td class="c">未清算授权进待清理清单，超期自动释放</td></tr>
+        <tr><td class="k">我方全局账本</td><td class="c">分录（复式）+ 通道在途与托管余额</td><td class="c">账本侧为真值源（不可变追加）</td><td class="c">分录号 ↔ 交易 ↔ 上游流水号三层索引</td><td class="c">—</td></tr>
+      </tbody>
+    </table>
+    <ul class="tight">
+      <li><b>导入幂等</b>：每个外部文件按「通道 + 业务日 + 文件指纹」去重，重复导入不产生二次核对。</li>
+      <li><b>原始归档</b>：所有原始文件与报文按合规年限归档，核对结果可复现（重放同一份文件应得到同一结论）。</li>
+      <li><b>时区口径</b>：统一按通道所在地业务日 + 我方 GMT+8 双时间戳记录，避免「跨日 = 差错」的误判。</li>
+    </ul>
+
+    <h3 class="sub">3.2 对账核心逻辑（三层双向核对）</h3>
+    <ul class="tight">
+      <li><b>L1 · 头寸核对（总量）</b>：上游期末余额 vs 我方账本该通道「在途 + 托管」余额，按通道 × 币种核对；不平则下钻到 L2 定位具体流水。加密无「账户余额」概念 → 改为「地址余额 + 未确认提现」核对。</li>
+      <li><b>L2 · 明细双向核对（双边匹配）</b>：双向都查 —— <b>我方有、上游无 = 我方单边账</b>；<b>上游有、我方无 = 上游单边账</b>。匹配键优先级：<code>upstream_ref</code> → <code>(金额 + 币种 + 日期 + 收款人 / 地址)</code> → 模糊匹配后进人工。匹配窗口取 <b>T-1 / T / T+1</b>，吸收 cut-off 与到账时差。</li>
+      <li><b>L3 · 状态一致性核对</b>：同一条流水，我方终态（SETTLED / FAILED / RETURNED）与上游终态逐笔比对；不一致 → 反向冲正 + 更正 Webhook（这是「账平了但业务错了」的唯一防线）。</li>
+      <li><b>差异分级</b>：① 金额差（手续费 / 汇率 / 小费，容差内自动调账）② 状态差（自动冲正）③ 记录差（单边账，人工判定归属）④ 时点差（跨日，规则白名单，不算差错）。</li>
+      <li><b>输出</b>：对账报告 + 差异清单 + 自动处置日志；对租户侧产出结算单与对账文件（<code>STATEMENT</code> / <code>RECON_FILE</code>），并推 <code>reconciliation.completed</code> 事件。</li>
+      <li><b>分产品差异</b>：法币 = 文件驱动、按业务日核（本方案主体）；加密 = 按 <code>tx_hash</code> 核、须过确认数阈值、考虑手续费与找零、容忍区块重组（reorg）；卡片 = 授权与清算两段式，按 <code>auth_id</code> 关联，跨币种结算含汇率差与小费调整。</li>
+    </ul>
+  </section>
+
+  <section id="s4">
+    <h2>4 · 差错账类型与处理原则 <em>自动优先、人工兜底、<span class="manual">资金先挂住不动</span>、账本只追加不修改</em></h2>
+    <table class="grid">
+      <thead><tr><th>#</th><th>差错类型</th><th>典型场景</th><th>资金影响</th><th>系统自动处置</th><th>人工介入</th><th>时限</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>1</td><td class="k">我方单边账<br/>（我方有 · 上游无）</td>
+          <td class="c">出金已扣账进在途，上游文件无此笔（多为超时后实际未受理）</td>
+          <td class="c">资金被我方在途占用</td>
+          <td class="c"><span class="auto">自动</span>：按 <code>upstream_ref</code> 回查上游；确认未受理 → 自动回冲释放 + 更正状态 FAILED</td>
+          <td class="c">查单异常 / 上游查不到 → 人工向通道发起正式查询</td>
+          <td class="c">T+1 发现<br/>T+2 处置完</td>
+        </tr>
+        <tr>
+          <td>2</td><td class="k">上游单边账<br/>（上游有 · 我方无）</td>
+          <td class="c">上游已扣款（或已入账）我方账本无对应交易</td>
+          <td class="c">平台垫资 / 客户资金未入账</td>
+          <td class="c"><span class="auto">自动</span>：补记分录并<b>冻结待查</b>（钱不动，仅账实对齐）</td>
+          <td class="c">判定归属：我方漏单 → 转正式交易；上游错付 / 重复 → 发起追偿</td>
+          <td class="c">T+1 发现<br/>T+2 判定</td>
+        </tr>
+        <tr>
+          <td>3</td><td class="k">金额错配<br/>（超容差）</td>
+          <td class="c">上游金额 ≠ 我方记账（手续费、汇率差、卡小费）</td>
+          <td class="c">账实差一分也算不平</td>
+          <td class="c"><span class="auto">自动</span>：容差内生成<b>手续费 / 汇率差分录</b>调平；超容差 → 挂账不调账</td>
+          <td class="c">超容差逐笔复核，必要时向上游索要费率明细</td>
+          <td class="c">T+1 发现<br/>T+3 核销</td>
+        </tr>
+        <tr>
+          <td>4</td><td class="k">币种 / 通道错配</td>
+          <td class="c">EUR 记成 GBP，或该笔被记到错误通道（路由与记账不一致）</td>
+          <td class="c">头寸错位，L1 必然不平</td>
+          <td class="c"><span class="auto">自动</span>：标记异常 + 冻结该笔</td>
+          <td class="c">人工重映射 + 反向冲正后重记（禁止直接改历史分录）</td>
+          <td class="c">T+1 发现<br/>T+2 纠正</td>
+        </tr>
+        <tr>
+          <td>5</td><td class="k">状态不一致</td>
+          <td class="c">我方 SETTLED，上游终态实为 RETURNED / FAILED</td>
+          <td class="c">账已平但业务结论错 → 客诉与错付风险</td>
+          <td class="c"><span class="auto">自动</span>：反向冲正 + 更正 Webhook（<code>payout.returned</code>）</td>
+          <td class="c">如已通知终端用户，需运营触达说明</td>
+          <td class="c">T+1 发现<br/>当日冲正</td>
+        </tr>
+        <tr>
+          <td>6</td><td class="k">重复流水</td>
+          <td class="c">上游重复推送 / 我方重复入账（幂等失效）</td>
+          <td class="c">重复入账 → 虚增余额</td>
+          <td class="c"><span class="auto">自动</span>：按幂等键或上游流水号<b>自动销账</b>，不产生新分录</td>
+          <td class="c">仅当两笔都可疑（拆单嫌疑）才转人工</td>
+          <td class="c">T+1 发现<br/>自动完成</td>
+        </tr>
+        <tr>
+          <td>7</td><td class="k">时点差<br/>（cut-off 跨日）</td>
+          <td class="c">T 日发起、T+1 到账；上游计入日与我方业务日不同</td>
+          <td class="c">无（时间错位，非金额错）</td>
+          <td class="c"><span class="auto">自动</span>：移窗匹配（T-1 / T / T+1）+ 规则白名单，<b>不入差错池</b></td>
+          <td class="c">无需介入（若连续多日单向偏移 → 校准 cut-off 配置）</td>
+          <td class="c">实时判定</td>
+        </tr>
+        <tr>
+          <td>8</td><td class="k">链上重组 / 确认数不足<br/>（加密）</td>
+          <td class="c">区块回滚导致已记临时入账失效</td>
+          <td class="c">临时虚增余额</td>
+          <td class="c"><span class="auto">自动</span>：回滚未达确认数的临时分录 + 重新校验，达阈值后再入账</td>
+          <td class="c">大额重组（超阈值）人工确认后放行</td>
+          <td class="c">实时 + T+1 复核</td>
+        </tr>
+        <tr>
+          <td>9</td><td class="k">授权未清算 / 清算迟来<br/>（卡）</td>
+          <td class="c">授权占用额度但清算文件多日未到；或清算金额 ≠ 授权金额</td>
+          <td class="c">客户额度被长期占用</td>
+          <td class="c"><span class="auto">自动</span>：授权挂账，<b>超期（如 7 天）自动释放</b>；清算到达时按 <code>auth_id</code> 关联补差</td>
+          <td class="c">超额差 / 争议交易转人工与通道对账</td>
+          <td class="c">T+1 发现<br/>到期自动释放</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="cards" style="margin-top:12px">
+      <div class="card">
+        <h3><i style="background:#4ADE80"></i>处理原则（五条总纲）</h3>
+        <p><b>① 自动优先</b>：可判定的差异（容差调账 / 去重销账 / 移窗）全自动，人只处理「归属不明」。<b>② 资金先挂住</b>：宁可挂账不动钱，也不猜着入账。<b>③ 账本不可变</b>：一律新增冲正分录，禁止修改历史。<b>④ 分级时限</b>：T+1 发现、T+2~T+3 处置，超时自动升级告警。<b>⑤ 全链留痕</b>：每次处置写审计日志（谁 / 何时 / 改了什么 / 依据哪份文件）。</p>
+      </div>
+      <div class="card">
+        <h3><i style="background:#E59303"></i>与一期 / 二期的接口</h3>
+        <p>对账结果落到一期的 <code>RECON_FILE</code> / <code>STATEMENT</code> 实体，差错处置写 <code>AUDIT_LOG</code>；涉及资金动作（回冲 / 补记）产生的交易与分录，沿用二期 API 的幂等与 Webhook 口径通知租户（<code>payout.returned</code> / <code>reconciliation.completed</code>）。</p>
+      </div>
+      <div class="card">
+        <h3><i style="background:#A855F7"></i>对账不平的兜底顺序</h3>
+        <p>先重放文件（排除导入错）→ 再扩窗匹配（排除时点差）→ 再查原始报文（排除归一化错）→ 最后才判为真差错进差错池。<b>顺序不能倒</b>：90% 的「不平」其实是前两步能消掉的假警报，直接进差错池会把人工淹掉。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="s5">
+    <h2>5 · 术语速查与 PM 备注</h2>
+    <table class="grid">
+      <thead><tr><th>术语</th><th>含义与作用</th></tr></thead>
+      <tbody>
+        <tr><td class="k">Master Account</td><td class="c">我方在每个上游通道开立的<b>平台主账户</b>，租户与终端客户的资金动作都经它流转。出金前必须校验其可用余额（第 1 节三道防线）。</td></tr>
+        <tr><td class="k">Health Check / 熔断</td><td class="c">通道健康度探活 + 熔断器（闭合 → 打开 → 半开）。不健康的通道不派单，有备用就切、没备用就排队。</td></tr>
+        <tr><td class="k">Cut-off（时间窗）</td><td class="c">通道当日受理截止时间。过窗即顺延下一工作日，必须提前告诉租户预计到账日，否则「慢」会被当成「丢」。</td></tr>
+        <tr><td class="k">Adapter / 防腐层</td><td class="c">把上游的字段、状态、错误码、金额单位、币种写法抹平为内部统一模型；业务层永远看不到上游方言。</td></tr>
+        <tr><td class="k">raw_payload</td><td class="c">上游原始报文存档。争议与对账举证的根，与归一化结果成对留档。</td></tr>
+        <tr><td class="k">Ext_ref（上游流水号）</td><td class="c">对账第一匹配键，贯穿「上游报文 ↔ 归一化事件 ↔ 交易 ↔ 账本分录」四层索引。</td></tr>
+        <tr><td class="k">Clearing File</td><td class="c">卡组织的清算文件：与授权流水按 <code>auth_id</code> 关联，是卡业务核平的唯一依据（授权≠清算）。</td></tr>
+        <tr><td class="k">单边账</td><td class="c">一方有记录、另一方没有。分「我方单边」「上游单边」，处置方向完全相反：前者回冲释放，后者补记待查。</td></tr>
+        <tr><td class="k">反向冲正 / 回冲</td><td class="c">用新增一笔相反分录抵销原分录（账本不可变），而不是删除或修改原记录。</td></tr>
+        <tr><td class="k">挂账</td><td class="c">资金先搁置不入账、限期处置；超期按规则原路退回或升级人工。对账差错的第一处置动作。</td></tr>
+      </tbody>
+    </table>
+
+    <div class="pmnote"><b>PM 备注</b> 画法与真值：本页三节全部落在既有一期 / 二期口径上 —— 通道按币种路由（USD → Bridge，EUR / GBP → OpenPayd）、上游凭据一律不落文档、API 与幂等沿用 <code>/v1</code> 与 <code>Idempotency-Key</code>、Webhook 事件命名沿用 <code>domain.object.action</code>、账本沿用「复式记账 + 价格快照 + 只追加」，未使用此前任何原型产物。</div>
+    <div class="pmnote"><b>PM 备注</b> 异常与兜底是全篇重点：路由侧用「查单优先于重试 + 熔断降级 + 排队不拒单」，记账侧用「拦截前置、失败只回冲」，对账侧用「自动优先、资金先挂住、账本不可变」。</div>
+    <div class="pmnote"><b>PM 备注</b> 待你确认（4 条，未答即按现方案推进）：① <b>Master Account 余额不足时拒单还是排队</b>：我按「有备用通道→自动切换；无备用→拒单不扣账 + 告警」设计，若你要「排队待补款」我改成 202 + QUEUED（但需定最长等待时长）；② <b>熔断参数</b>：5 分钟失败率 ≥ 50%、样本 ≥ 10、熔断 60s→2min→5min、半开放 1 笔 —— 是我按行业常规拟的，需与研发对齐最终值；③ <b>重试与查单顺序</b>：默认「先查单、确认未受理才重试，最多 3 次，退避 1/2/4s + 抖动」，若你要求「直接重试」请说明（有重复出金风险）；④ <b>对账容差与时限</b>：法币容差（比例或固定金额阈值）、卡授权未清算释放天数（我暂用 7 天）、差错处置时限（T+2 处置 / T+3 核销）需业务给真值。</div>
+  </section>
+</main>
+
+<div class="bar">
+  <button onclick="document.body.classList.toggle('showsrc')">显示 Mermaid 源码</button>
+  <button onclick="document.body.classList.toggle('hidden')">隐藏备注</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+(function () {
+  var blocks = Array.prototype.slice.call(document.querySelectorAll('.mermaid'));
+  blocks.forEach(function (b) {
+    var pre = document.createElement('pre');
+    pre.className = 'src';
+    pre.textContent = b.textContent.replace(/^\s+/, '');
+    b.parentNode.insertBefore(pre, b.nextSibling);
+  });
+  if (!window.mermaid) { document.body.classList.add('nomermaid'); return; }
+  mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: 'loose',
+    theme: 'base',
+    fontFamily: 'Inter, "Segoe UI", "Microsoft YaHei", sans-serif',
+    themeVariables: {
+      darkMode: true,
+      background: '#131820',
+      primaryColor: '#1B2130',
+      primaryTextColor: '#E8ECF0',
+      primaryBorderColor: '#E59303',
+      secondaryColor: '#1B2130',
+      tertiaryColor: '#0F131A',
+      lineColor: '#8AA0BC',
+      nodeBorder: '#E59303',
+      defaultLinkColor: '#8AA0BC',
+      attributeBackgroundColorOdd: '#171C26',
+      attributeBackgroundColorEven: '#131820',
+      fontSize: '13px',
+      actorBkg: '#1B2130',
+      actorBorder: '#E59303',
+      actorTextColor: '#E8ECF0',
+      signalColor: '#8AA0BC',
+      signalTextColor: '#C9D6E6',
+      labelBoxBkgColor: '#171C26',
+      labelBoxBorderColor: '#E59303',
+      labelTextColor: '#E8ECF0',
+      noteBkgColor: '#2A2110',
+      noteBorderColor: '#E59303',
+      noteTextColor: '#FFE3B8',
+      sequenceNumberColor: '#0B0E14'
+    },
+    flowchart: { useMaxWidth: false, diagramPadding: 14, nodeSpacing: 26, rankSpacing: 42 },
+    sequence: { useMaxWidth: false, wrap: false, diagramMarginX: 30, diagramMarginY: 16, actorMargin: 48, messageFontSize: 12 },
+    state: { useMaxWidth: false, diagramPadding: 12 }
+  });
+  mermaid.run({ querySelector: '.mermaid' }).catch(function (e) {
+    document.body.classList.add('nomermaid');
+    console.error(e);
+  });
+})();
+</script>
+</body>
+</html>
