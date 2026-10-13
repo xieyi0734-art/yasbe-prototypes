@@ -233,7 +233,7 @@
 | 卡片账务功能架构 | 管理端卡片账务架构图 | 2026-07-08 | [card-accounting-architecture.html](https://xieyi0734-art.github.io/yasbe-prototypes/diagrams/card-accounting-architecture.html) |
 | YASBee 账务功能架构 | 卡片账务架构图 | 2026-07-08 | [YASBee-账务功能架构图.html](https://xieyi0734-art.github.io/yasbe-prototypes/diagrams/YASBee-账务功能架构图.html) |
 | Card 账务功能架构 v3.0 | 账务模块架构图 | 2026-07-08 | [Card模块账务_v3.0_功能架构图.html](https://xieyi0734-art.github.io/yasbe-prototypes/diagrams/Card模块账务_v3.0_功能架构图.html) |
-| 白标系统 · 全局系统架构图 🆕 | 白标一期全局分层集成视图（L0 参与方与界面 → L1 接入层 → L2 平台服务层 → L3 适配层 → L4 上游提供商层，22 实体）+ 核心实体关系图（18 实体 / 1:1 · 1:N · 1:0..1 多重性）+ 分层图例 + 缩写与 BaaS 业务含义表；Mermaid erDiagram | 2026-10-13 | [白标系统-全局系统架构图.html](https://xieyi0734-art.github.io/yasbe-prototypes/diagrams/白标系统-全局系统架构图.html) |
+| 白标系统 · 全局系统架构图 🆕 | 白标一期全局架构（Mermaid）：第 1 张分层集成视图 = flowchart TD + subgraph，6 个层色块 / 26 节点（L0 拆 参与方 ACTOR 与 界面层 UI；上游一期 4 家实线高亮、二期 BitGo 虚线 Phase 2）；第 2 张核心实体关系 = erDiagram，19 实体（含 TENANT_PRICING 租户定价、AUDIT_LOG 审计日志）/ 1:1 · 1:N · 1:0..1；含分层图例 + 缩写与 BaaS 业务含义表 | 2026-10-13 | [白标系统-全局系统架构图.html](https://xieyi0734-art.github.io/yasbe-prototypes/diagrams/白标系统-全局系统架构图.html) |
 
 ---
 
