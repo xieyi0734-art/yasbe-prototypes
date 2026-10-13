@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>白标系统 · 二期：API 与状态机设计</title>
+<style>
+  :root { --bg:#0B0E14; --card:#131820; --line:rgba(255,255,255,.09); --fg:#E8ECF0; --muted:#9FB3CC; --gold:#E59303; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg);
+         font-family:Inter,"Segoe UI","Microsoft YaHei",sans-serif; font-size:14px; line-height:1.75; }
+  .hd { padding:22px 26px; border-bottom:1px solid var(--line); background:linear-gradient(180deg,#121721,#0B0E14); }
+  .hd h1 { margin:0 0 8px; font-size:20px; letter-spacing:.3px; }
+  .hd h1 span { color:var(--gold); }
+  .meta { color:var(--muted); font-size:12.5px; line-height:1.9; }
+  .meta b { color:#D7E2F0; }
+  .toc { margin-top:12px; display:flex; flex-wrap:wrap; gap:8px; }
+  .toc a { color:var(--muted); text-decoration:none; font-size:12.5px; padding:4px 10px;
+           border:1px solid var(--line); border-radius:20px; }
+  .toc a:hover { color:var(--gold); border-color:var(--gold); }
+  main { padding:20px 26px 80px; max-width:1500px; }
+  section { margin:0 0 34px; }
+  h2 { font-size:16px; margin:26px 0 12px; padding-left:10px; border-left:3px solid var(--gold); }
+  h2 em { display:block; font-style:normal; color:var(--muted); font-size:12.5px; margin-top:4px; font-weight:400; }
+  .frame { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px;
+           overflow:auto; max-height:82vh; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:12px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px; }
+  .card h3 { margin:0 0 8px; font-size:13.5px; display:flex; align-items:center; gap:8px; }
+  .card h3 i { width:9px; height:9px; border-radius:2px; display:inline-block; flex:0 0 auto; }
+  .card p { margin:0; font-size:12.6px; color:#C9D6E6; line-height:1.85; }
+  .card p b, .card p code { color:#FFF; }
+  table.grid { width:100%; border-collapse:collapse; background:var(--card);
+               border:1px solid var(--line); border-radius:10px; overflow:hidden; font-size:12.6px; }
+  table.grid thead th { background:#171E2A; color:#DCE7F5; text-align:left; padding:10px 12px;
+                        font-weight:600; border-bottom:1px solid var(--line); white-space:nowrap; }
+  table.grid td { padding:9px 12px; border-bottom:1px solid rgba(255,255,255,.05); vertical-align:top; }
+  table.grid tbody tr:hover { background:rgba(229,147,3,.05); }
+  td.k { color:var(--gold); font-weight:600; white-space:nowrap; }
+  td.c code, td.c b, p code, li code { background:#1C2331; border:1px solid var(--line); border-radius:4px;
+                                       padding:1px 5px; font-size:12px; color:#FFE3B8; }
+  .req { color:#4ADE80; font-weight:600; }
+  .opt { color:#9FB3CC; }
+  .pmnote { background:#141A24; border-left:3px solid var(--gold); border-radius:8px;
+            padding:12px 16px; margin:10px 0; font-size:12.5px; line-height:1.9; }
+  .pmnote b { color:var(--gold); }
+  body.hidden .pmnote { display:none; }
+  .bar { position:fixed; right:18px; bottom:18px; z-index:99; display:flex; gap:6px;
+         background:rgba(19,24,32,.94); border:1px solid rgba(255,255,255,.12); border-radius:10px; padding:7px 9px; }
+  .bar button { background:transparent; border:none; color:#B0C0D8; font-size:13px; padding:5px 10px;
+                border-radius:6px; cursor:pointer; font-family:inherit; }
+  .bar button:hover { background:rgba(255,255,255,.08); color:var(--gold); }
+  pre.src { display:none; background:#0F131A; border:1px solid var(--line); border-radius:8px; padding:12px;
+            overflow:auto; max-height:60vh; font-size:12px; color:#C8D6E8; white-space:pre; }
+  body.showsrc pre.src { display:block; }
+  .warn { display:none; margin:10px 0; padding:12px 16px; border-radius:8px; background:rgba(239,68,68,.1);
+          border-left:3px solid #EF4444; color:#FCA5A5; font-size:12.5px; line-height:1.8; }
+  body.nomermaid .warn { display:block; }
+</style>
+</head>
+<body>
+<div class="hd">
+  <h1>白标系统 · <span>二期：API 与状态机设计</span></h1>
+  <div class="meta">
+    依据 <b>《白标系统 · 一期业务流程》v1.0（定稿）</b> + <b>《全局系统架构图》定稿（分层 6 层 / 实体 19）</b> · 2026-10-13<br>
+    业务模式：我方 = 聚合方（Bridge / OpenPayd / SafeHeron / Interlace）→ 通过 API 向<b>下游租户</b>输出法币 · 加密 · 发卡能力 · 终端用户完全无感我方<br>
+    硬约束：<b>API Key 鉴权</b>（一租户一 key，区分受限 / 生产）· <b>资金类接口强制 Idempotency-Key</b> · <b>所有异步结果走 Webhook</b><br>
+    本期范围：终端用户合规身份 · 子账户开立（VA / 加密地址 / 卡）· 法币出金 · 历史流水
+  </div>
+  <div class="toc">
+    <a href="#s1">1 身份合规与开户状态机</a>
+    <a href="#s2">2 核心 API 接口清单</a>
+    <a href="#s3">3 法币入金时序图</a>
+    <a href="#s4">4 Webhook 事件清单</a>
+    <a href="#s5">5 PM 备注与待确认</a>
+  </div>
+</div>
+<main>
+  <div class="warn">Mermaid 渲染库未加载（离线或 CDN 被拦截）。点右下角「显示 Mermaid 源码」可复制源码，粘贴到 mermaid.live 查看。</div>
+
+  <section id="s1">
+    <h2>1 · 终端用户：身份合规与开户状态机 <em>Mermaid stateDiagram-v2 · 状态主体 = 终端用户合规档案（我方只存外部引用号，不建 PII 主档）· 箭头标注触发动作（API / 后台人工）与 Webhook</em></h2>
+    <div class="frame">
+<div class="mermaid">
+stateDiagram-v2
+    direction LR
+    state "资料待提交 (Init)" as Init
+    state "审核中 (Pending Review)" as PendingReview
+    state "审核通过 (Approved)" as Approved
+    state "审核驳回 (Rejected)" as Rejected
+    state "需要补充资料 (Action Required / RFI)" as ActionRequired
+    state "账户已冻结 (Frozen)" as Frozen
+
+    [*] --> Init : 租户系统 POST /v1/users<br/>建立合规档案（external_ref，不落 PII）
+    Init --> PendingReview : POST /v1/users/{user_id}/compliance<br/>提交合规资料（按 module 分别提交）
+    PendingReview --> Approved : 审核通过<br/>【自动】上游校验通过｜【人工】我方运营总台点「通过」
+    PendingReview --> ActionRequired : 需补资料 RFI<br/>缺件 / 影像不清 / 与主体不符（给出缺件清单）
+    PendingReview --> Rejected : 审核驳回（终态）<br/>主体资质不符 / 命中黑名单（给拒绝原因码）
+    ActionRequired --> PendingReview : PATCH /v1/users/{user_id}<br/>补齐材料后重新提交
+    Rejected --> PendingReview : 租户发起复议<br/>POST /v1/users/{user_id}/compliance/review
+    Approved --> Frozen : 冻结<br/>【人工】平台风控 / 合规处置｜POST /v1/users/{user_id}/status
+    Frozen --> Approved : 解冻<br/>【人工】复核通过后恢复
+    Approved --> [*] : 关闭关系<br/>POST /v1/users/{user_id}/status（closed）
+
+    note right of Init
+      Webhook：user.created
+    end note
+    note right of PendingReview
+      Webhook：user.compliance.pending
+    end note
+    note right of ActionRequired
+      Webhook：user.compliance.action_required<br/>含缺失材料清单
+    end note
+    note right of Approved
+      Webhook：user.compliance.approved<br/>此后才可开立子账户（VA / 地址 / 卡）
+    end note
+    note right of Rejected
+      Webhook：user.compliance.rejected<br/>含原因码，材料留档备查
+    end note
+    note right of Frozen
+      Webhook：user.frozen<br/>冻结期间禁止新开子账户与出金
+    end note
+
+    classDef ok fill:#0E2A1B,stroke:#4ADE80,stroke-width:2px,color:#C8F7D8
+    classDef bad fill:#2E1418,stroke:#EF4444,stroke-width:2px,color:#FFD6D6
+    classDef wait fill:#2A2110,stroke:#E59303,stroke-width:2px,color:#FFE3B8
+    classDef hold fill:#161A20,stroke:#7B8CA8,color:#9FB0C6
+    class Approved ok
+    class Rejected bad
+    class PendingReview,ActionRequired wait
+    class Init,Frozen hold
+</div>
+    </div>
+    <div class="cards" style="margin-top:12px">
+      <div class="card">
+        <h3><i style="background:#E59303"></i>谁在推状态（三个来源）</h3>
+        <p><b>① 租户系统（API）</b>：建档、提交、补件、复议。<b>② 我方运营（人工）</b>：审核通过 / 驳回 / 补件结论、冻结 / 解冻。<b>③ 上游通道</b>：上游侧另有独立审核与风控，其结果由适配层归一化后并入本状态机；<b>两边不一致时以更严者为准</b>（例：上游冻结 → 我方同步 Frozen）。</p>
+      </div>
+      <div class="card">
+        <h3><i style="background:#4ADE80"></i>状态 → 可用能力（研发边界）</h3>
+        <p><b>仅 Approved</b> 可开立子账户（VA / 加密地址 / 卡）。<b>Init / PendingReview / ActionRequired</b> 只能读与改资料，开子账户一律 <code>409 user_state_conflict</code>。<b>Frozen</b> 禁止新开子账户与出金，已有子账户只读（入金可入但入账后即冻结）。<b>Rejected</b> 除复议外全部拒绝。</p>
+      </div>
+      <div class="card">
+        <h3><i style="background:#A855F7"></i>与一期口径的对应</h3>
+        <p>一期定稿：<b>只做 KYB 不做个人 KYC</b>；法币 / 加密 / 卡片<b>按模块各自独立审核</b>，任一模块未过不影响其它模块。因此本状态机按 <code>user × module</code> 维度实例化：<b>一个终端用户可同时是「法币 Approved + 卡片 PendingReview」</b>，页面与 API 返回都按模块给状态（= 一期「部分生产」在客户维度的延伸）。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="s2">
+    <h2>2 · 核心 API 接口清单 <em>给下游租户使用 · 前缀 /v1 · 鉴权 Authorization: Bearer &lt;API Key&gt; · 所有写操作必带 Idempotency-Key</em></h2>
+    <table class="grid">
+      <thead><tr><th>接口路径</th><th>方法</th><th>接口名称</th><th>核心入参</th><th>是否要求幂等</th></tr></thead>
+      <tbody>
+        <tr><td colspan="5" style="background:#171E2A;color:#FFE3B8;font-weight:600">一 · 终端用户合规身份（User Profile）</td></tr>
+        <tr><td class="k"><code>/v1/users</code></td><td>POST</td><td>创建终端用户合规档案</td><td class="c"><code>external_ref</code>（租户侧用户 ID，归因主键）<code>type</code>（企业 / 个人）<code>country</code><code>name</code><code>registration_no</code><code>modules[]</code>（fiat / crypto / card，按需申请）</td><td><span class="req">必须</span><br>键 = 租户 + external_ref</td></tr>
+        <tr><td class="k"><code>/v1/users/{user_id}</code></td><td>PATCH</td><td>更新用户资料 / 补件</td><td class="c"><code>user_id</code> + 待更新字段（<code>documents[]</code> 补件材料、地址、联系人）</td><td><span class="req">必须</span></td></tr>
+        <tr><td class="k"><code>/v1/users/{user_id}</code></td><td>GET</td><td>查询用户与合规状态</td><td class="c"><code>user_id</code><code>expand=compliance</code>（返回各模块状态 + 原因码）</td><td><span class="opt">否</span>（GET 天然幂等）</td></tr>
+        <tr><td class="k"><code>/v1/users/{user_id}/compliance</code></td><td>POST</td><td>提交合规审核（按模块发起）</td><td class="c"><code>user_id</code><code>module</code><code>submission_id</code><code>documents[]</code>（材料清单与文件句柄）</td><td><span class="req">必须</span><br>键 = 租户 + submission_id</td></tr>
+        <tr><td class="k"><code>/v1/users/{user_id}/compliance/review</code></td><td>POST</td><td>被驳回后发起复议</td><td class="c"><code>user_id</code><code>module</code><code>reason</code><code>documents[]</code>（新增举证）</td><td><span class="req">必须</span></td></tr>
+        <tr><td class="k"><code>/v1/users/{user_id}/status</code></td><td>POST</td><td>冻结 / 解冻 / 关闭（生命周期动作）</td><td class="c"><code>user_id</code><code>action</code>（freeze / unfreeze / close）<code>reason</code>（写入审计日志）</td><td><span class="req">必须</span></td></tr>
+        <tr><td colspan="5" style="background:#171E2A;color:#FFE3B8;font-weight:600">二 · 子账户开立（Fiat VA / Crypto Address / Card）</td></tr>
+        <tr><td class="k"><code>/v1/users/{user_id}/fiat-accounts</code></td><td>POST</td><td>开立法币虚拟账户（VA）</td><td class="c"><code>user_id</code><code>currency</code>（USD / EUR / GBP）<code>holder</code>（持有人最小要素）<code>label</code></td><td><span class="req">必须</span><br>键 = 租户 + user_id + 币种<br><span class="opt">重复请求返回原 VA，绝不重复开户</span></td></tr>
+        <tr><td class="k"><code>/v1/users/{user_id}/fiat-accounts</code></td><td>GET</td><td>查询 VA 与收款信息</td><td class="c"><code>user_id</code><code>currency</code>（可选过滤）</td><td><span class="opt">否</span></td></tr>
+        <tr><td class="k"><code>/v1/users/{user_id}/crypto-addresses</code></td><td>POST</td><td>分配加密充值地址</td><td class="c"><code>user_id</code><code>chain</code><code>asset</code><code>label</code></td><td><span class="req">必须</span><br>键 = 租户 + user_id + 链 / 币种<br><span class="opt">重复请求返回原地址</span></td></tr>
+        <tr><td class="k"><code>/v1/users/{user_id}/cardholders</code></td><td>POST</td><td>创建持卡人</td><td class="c"><code>user_id</code><code>name</code><code>birthday</code><code>billing_address</code>（最小要素）</td><td><span class="req">必须</span><br>键 = 租户 + user_id + holder_ref</td></tr>
+        <tr><td class="k"><code>/v1/cards</code></td><td>POST</td><td>开卡（虚拟 / 实体）</td><td class="c"><code>cardholder_id</code><code>program_id</code>（卡产品 / BIN）<code>type</code><code>client_card_ref</code>（租户侧卡号引用）</td><td><span class="req">必须</span><br>键 = 租户 + client_card_ref</td></tr>
+        <tr><td class="k"><code>/v1/cards/{card_id}/status</code></td><td>POST</td><td>激活 / 冻结 / 注销卡</td><td class="c"><code>card_id</code><code>action</code>（activate / freeze / terminate）<code>reason</code></td><td><span class="req">必须</span></td></tr>
+        <tr><td colspan="5" style="background:#171E2A;color:#FFE3B8;font-weight:600">三 · 法币出金（Fiat Withdrawal）</td></tr>
+        <tr><td class="k"><code>/v1/beneficiaries</code></td><td>POST</td><td>登记出款收款人（出金前置）</td><td class="c"><code>name</code><code>account_number</code> / <code>iban</code><code>bic</code><code>country</code><code>channel</code>（USD 走 Bridge / EUR·GBP 走 OpenPayd，可省）</td><td><span class="req">必须</span></td></tr>
+        <tr><td class="k"><code>/v1/payouts</code></td><td>POST</td><td><b>发起法币出金</b></td><td class="c"><code>account_id</code>（扣账 VA）<code>beneficiary_id</code><code>amount</code>（最小单位整数）<code>currency</code><code>reference</code>（租户侧业务号）<code>client_payout_ref</code></td><td><span class="req">必须</span><br>键 = 租户 + client_payout_ref<br><span class="opt">同键不同体 → 409</span></td></tr>
+        <tr><td class="k"><code>/v1/payouts/{payout_id}</code></td><td>GET</td><td>查询出金状态与失败原因</td><td class="c"><code>payout_id</code><code>expand=events</code>（状态流转轨迹）</td><td><span class="opt">否</span></td></tr>
+        <tr><td colspan="5" style="background:#171E2A;color:#FFE3B8;font-weight:600">四 · 历史账单流水（Transactions）</td></tr>
+        <tr><td class="k"><code>/v1/transactions</code></td><td>GET</td><td>查询历史流水（游标分页）</td><td class="c"><code>user_id</code><code>type</code>（deposit / payout / card_settlement …）<code>currency</code><code>status</code><code>from</code>/<code>to</code><code>cursor</code><code>limit</code>（≤ 100）</td><td><span class="opt">否</span></td></tr>
+        <tr><td class="k"><code>/v1/transactions/{tx_id}</code></td><td>GET</td><td>单笔详情（含账本分录与价格快照）</td><td class="c"><code>tx_id</code><code>expand=ledger_entries,price_snapshot</code></td><td><span class="opt">否</span></td></tr>
+        <tr><td class="k"><code>/v1/statements</code></td><td>GET</td><td>查询周期结算单（用量与费用明细）</td><td class="c"><code>period</code>（如 2026-10）<code>currency</code></td><td><span class="opt">否</span></td></tr>
+        <tr><td colspan="5" style="background:#171E2A;color:#FFE3B8;font-weight:600">五 · Webhook 订阅（与上表同源，异步结果出口）</td></tr>
+        <tr><td class="k"><code>/v1/webhook-endpoints</code></td><td>POST</td><td>配置回调地址与事件订阅</td><td class="c"><code>url</code><code>events[]</code>（见第 4 节事件清单）<code>secret</code>（可选，自签密钥）</td><td><span class="req">必须</span></td></tr>
+        <tr><td class="k"><code>/v1/webhook-deliveries</code></td><td>GET</td><td>查询投递记录（失败可自助补偿）</td><td class="c"><code>event_id</code><code>status</code>（succeeded / retrying / failed）<code>from</code>/<code>to</code></td><td><span class="opt">否</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="cards" style="margin-top:14px">
+      <div class="card">
+        <h3><i style="background:#E59303"></i>鉴权与密钥</h3>
+        <p>请求头 <code>Authorization: Bearer &lt;API Key&gt;</code>，<b>一租户一 key</b>；一期分<b>受限 key</b>（限额度 + 收款人 / 地址白名单，用于联调）与<b>生产 key</b>（过闸门后解除额度限制）；<b>一期无沙盒</b>，联调环境就是生产接口。轮换与吊销在开发者门户操作（写审计日志），旧 key 保留 24h 双活以便平滑切换。</p>
+      </div>
+      <div class="card">
+        <h3><i style="background:#4ADE80"></i>幂等（硬规则）</h3>
+        <p>所有 <code>POST</code> / <code>PATCH</code> 必须带 <code>Idempotency-Key</code>（建议 UUIDv4）。<b>同键 + 同请求体</b> → 返回首次结果（含同一资源 ID），不重复开户 / 不重复出金；<b>同键 + 不同请求体</b> → <code>409 idempotency_key_reuse</code>。资金类接口缺键直接 <code>400 idempotency_key_required</code>（不放行「允许但风险自负」）。</p>
+      </div>
+      <div class="card">
+        <h3><i style="background:#3B82F6"></i>分页 / 金额 / 错误</h3>
+        <p><b>分页</b>：游标式 <code>cursor</code> + <code>limit</code>（≤ 100）+ <code>has_more</code>，流水倒序。<b>金额</b>：一律<b>最小单位整数</b>（分 / cents）+ ISO 4217 币种，避免浮点；出金响应带 <code>fee</code> 明细（费率取自该租户的定价配置）。<b>错误</b>：<code>{ code, message, request_id, details }</code>，内容协商 JSON；关键码：<code>401 invalid_api_key</code> · <code>403 module_not_enabled</code> · <code>409 user_state_conflict</code> · <code>409 idempotency_key_reuse</code> · <code>422 validation_failed</code> · <code>429 rate_limited</code> · <code>503 upstream_unavailable</code>。</p>
+      </div>
+      <div class="card">
+        <h3><i style="background:#A855F7"></i>版本与兼容</h3>
+        <p>版本走路径 <code>/v1</code>；不兼容变更升 <code>/v2</code>，兼容性新增（加字段、加事件类型）不升版但要公告。<b>响应一律含 <code>request_id</code></b>，用于与租户对账排障；Webhook 事件体同样带 <code>event_id</code> + <code>request_id</code>，便于逐笔追平。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="s3">
+    <h2>3 · 法币入金核心时序图 <em>Mermaid sequenceDiagram · 一笔「终端用户向其 VA 汇款」的全链路（归因 → 记账 → 通知）</em></h2>
+    <div class="frame">
+<div class="mermaid">
+sequenceDiagram
+    autonumber
+    participant T as 下游租户系统
+    participant GW as API 网关
+    participant FIAT as 法币业务服务
+    participant LEDG as 全局账本服务
+    participant ADP as 法币适配器
+    participant UP as 上游通道（OpenPayd）
+    participant NT as 通知服务
+
+    Note over T,UP: 前置（一次性）：开 VA
+    T->>GW: POST /v1/users/{user_id}/fiat-accounts（币种 USD，Idempotency-Key）
+    GW->>GW: API Key 鉴权 → 模块已生产 → 用户状态 Approved → 幂等判定
+    GW->>FIAT: 转发开户指令
+    FIAT->>ADP: 统一接口 createVirtualAccount
+    ADP->>UP: 开户（抹平上游字段 / 状态 / 错误码差异）
+    UP-->>ADP: 返回 VA 号与本地收款信息
+    ADP-->>FIAT: 归一化结果（VA / IBAN / 路由 / 户名）
+    FIAT-->>GW: 201 Created
+    GW-->>T: 返回 VA（租户展示给自己的终端用户）
+    Note over T,UP: 终端用户向该 VA 汇款 —— 此步我方不参与，付款方无感我方存在
+
+    Note over T,UP: 主链路：到账通知 → 归因 → 记账 → 回推
+    UP->>GW: Webhook 到账通知（HMAC 签名校验 + 时间戳防重放）
+    GW->>FIAT: 路由到法币入金处理
+    FIAT->>FIAT: 按 VA 号归因到终端客户（VA → END_CUSTOMER_REF）
+    alt 归因成功且金额与来源正常
+        FIAT->>LEDG: 记入金分录（借：通道在途 / 贷：终端客户可用）+ 落价格快照
+        LEDG-->>FIAT: 分录号 + 新余额
+        FIAT->>NT: 触发事件 fiat.deposit.settled
+        NT->>T: Webhook fiat.deposit.settled（tx_id / 归因用户 / 金额 / 币种 / 分录）
+        T-->>NT: 2xx 确认（失败按退避重试）
+    else 金额不符 / 来源不明（无法归因）
+        FIAT->>FIAT: 挂账（不记账，限期处置）
+        FIAT->>NT: 触发事件 fiat.deposit.pending_review
+        NT->>T: Webhook fiat.deposit.pending_review（待处置原因）
+        Note over FIAT: 超期未处置 → 原路退回；退回结果同样走 Webhook
+    end
+    Note over GW,UP: 上游重复通知 → 按上游流水号幂等，不重复记账（仅刷新状态）
+    Note over FIAT: 全流程写审计日志：谁 / 何时 / 改了什么（归因、挂账、退回）
+</div>
+    </div>
+    <div class="cards" style="margin-top:12px">
+      <div class="card">
+        <h3><i style="background:#E59303"></i>四个关键设计点</h3>
+        <p><b>① 归因靠 VA 号</b>，不靠付款方附言 —— 到账即自动认到终端客户。<b>② 上游 Webhook 是入金的唯一触发源</b>，终端用户 / 租户都无需发起；租户只收我们的 Webhook。<b>③ 记账在归因之后</b>：归因失败 → 挂账不记账（账实一致优先于时效）。<b>④ 重复通知按上游流水号幂等</b>，同一笔钱绝不重复入账。</p>
+      </div>
+      <div class="card">
+        <h3><i style="background:#3B82F6"></i>与一期的对应</h3>
+        <p>一期定稿 §入金异常：<b>金额不符 / 来源不明 → 挂账待处理</b>；<b>上游退回 → 原路退回并通知</b>；<b>重复通知 → 幂等</b>。异常三条在本图全部落到分支上，不是文字承诺。价格快照与复式记账对应公共尾部的账本服务（改价不追溯）。</p>
+      </div>
+      <div class="card">
+        <h3><i style="background:#A855F7"></i>为什么多画一个「通知服务」</h3>
+        <p>业务服务不直接调租户回调地址：事件先进<b>通知服务</b>统一投递（签名、退避重试、最终失败告警、投递记录可查），这对应一期「三处可见」与「Webhook 投递失败 → 重试 → 最终失败告警」的定稿口径。租户若只认「我们系统」也可把它理解为网关的异步出口。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="s4">
+    <h2>4 · Webhook 事件清单 <em>命名规范 = domain.object.action（例：fiat.deposit.settled）· 事件体含 event_id / type / created / data + request_id · 签名头 X-YASBe-Signature</em></h2>
+    <table class="grid">
+      <thead><tr><th>事件名</th><th>触发时机</th><th>关键载荷</th><th>租户典型处理</th></tr></thead>
+      <tbody>
+        <tr><td class="k"><code>user.created</code></td><td>合规档案创建成功</td><td class="c"><code>user_id</code><code>external_ref</code><code>modules[]</code></td><td class="c">回写本地用户表</td></tr>
+        <tr><td class="k"><code>user.compliance.pending</code></td><td>提交后进入审核</td><td class="c"><code>user_id</code><code>module</code><code>submitted_at</code></td><td class="c">前端置「审核中」</td></tr>
+        <tr><td class="k"><code>user.compliance.action_required</code></td><td>审核需补件（RFI）</td><td class="c"><code>user_id</code><code>module</code><code>missing[]</code>（缺件清单）</td><td class="c">提示终端用户补件</td></tr>
+        <tr><td class="k"><code>user.compliance.approved</code></td><td>审核通过</td><td class="c"><code>user_id</code><code>module</code><code>approved_at</code></td><td class="c">放开开户 / 交易入口</td></tr>
+        <tr><td class="k"><code>user.compliance.rejected</code></td><td>审核驳回（终态）</td><td class="c"><code>user_id</code><code>module</code><code>reason_code</code><code>reason</code></td><td class="c">展示原因，提示可复议</td></tr>
+        <tr><td class="k"><code>user.frozen</code> / <code>user.unfrozen</code></td><td>冻结 / 解冻</td><td class="c"><code>user_id</code><code>action</code><code>reason</code></td><td class="c">停 / 恢复业务入口</td></tr>
+        <tr><td class="k"><code>fiat.account.created</code></td><td>VA 开立成功</td><td class="c"><code>account_id</code><code>user_id</code><code>currency</code><code>va_number</code>（收款信息）</td><td class="c">展示入金地址</td></tr>
+        <tr><td class="k"><code>fiat.deposit.pending_review</code></td><td>到账但挂账（金额 / 来源异常）</td><td class="c"><code>tx_id</code><code>amount</code><code>reason</code></td><td class="c">提示处理中，避免客诉</td></tr>
+        <tr><td class="k"><code>fiat.deposit.settled</code></td><td><b>入金归因 + 记账完成</b></td><td class="c"><code>tx_id</code><code>user_id</code><code>amount</code><code>currency</code><code>balance_after</code></td><td class="c">给终端用户加余额</td></tr>
+        <tr><td class="k"><code>fiat.payout.processing</code> / <code>fiat.payout.settled</code></td><td>出金处理中 / 成功</td><td class="c"><code>payout_id</code><code>amount</code><code>fee</code><code>status</code></td><td class="c">展示出金进度</td></tr>
+        <tr><td class="k"><code>fiat.payout.failed</code> / <code>fiat.payout.returned</code></td><td>出金失败 / 被退回（回冲）</td><td class="c"><code>payout_id</code><code>reason_code</code><code>reversed_amount</code></td><td class="c">退回余额并通知用户</td></tr>
+        <tr><td class="k"><code>crypto.address.created</code></td><td>充值地址分配</td><td class="c"><code>address</code><code>chain</code><code>asset</code></td><td class="c">展示充值地址</td></tr>
+        <tr><td class="k"><code>crypto.deposit.settled</code></td><td>链上确认数达标并入账</td><td class="c"><code>tx_id</code><code>amount</code><code>confirmations</code></td><td class="c">加余额</td></tr>
+        <tr><td class="k"><code>card.created</code> / <code>card.status_changed</code></td><td>开卡 / 卡状态变更</td><td class="c"><code>card_id</code><code>cardholder_id</code><code>status</code></td><td class="c">展示卡状态</td></tr>
+        <tr><td class="k"><code>statement.available</code></td><td>周期结算单生成</td><td class="c"><code>period</code><code>total_fee</code><code>download_url</code></td><td class="c">拉账单核对</td></tr>
+      </tbody>
+    </table>
+    <div class="pmnote"><b>PM 备注</b> 投递规则（沿用一期定稿）：事件先进通知服务 → 按订阅过滤 → HMAC 签名投递 → 指数退避重试 → 最终失败告警；租户可查投递记录并自助补偿查询（对应 API <code>/v1/webhook-deliveries</code>）。<b>至少一次投递</b>语义：租户必须按 <code>event_id</code> 去重（我们可能重投同一事件）。</div>
+  </section>
+
+  <section id="s5">
+    <h2>5 · PM 备注与待确认</h2>
+    <div class="pmnote"><b>PM 备注</b> 画法与真值：状态机、接口清单、时序图三段全部以《白标系统 · 一期业务流程》v1.0 定稿为真值，术语（VA 归因 / 挂账 / 回冲 / 拒结 / 部分生产 / 三闸门）与《全局系统架构图》定稿的实体、分层（API 网关 / 法币业务服务 / 账本 / 通知 / 适配器 / 上游）保持一致；未使用此前任何原型产物。</div>
+    <div class="pmnote"><b>PM 备注</b> 接口命名沿用本产品既有口径：路径前缀 <code>/v1</code>、资源名复数（<code>/v1/users</code>、<code>/v1/payouts</code>、<code>/v1/transactions</code>）、幂等头 <code>Idempotency-Key</code>（同键不同体 409）与既有《API 文档 · 白标开发者门户》一致，便于研发直接接旧规范；差异点只有一处 —— <b>一期无沙盒</b>，旧文档里的 <code>/v1/sandbox/*</code> 与 <code>/v1/oauth/token</code> 不纳入本期，鉴权统一为 API Key。</div>
+    <div class="pmnote"><b>PM 备注</b> 待你确认（4 条，未答即按现方案推进）：① <b>状态机主体</b>：我按「我方聚合状态（终端用户 × 模块）+ 上游独立审核取更严者」设计，若你希望只反映上游通道状态（我方做透传），状态与 API 返回值要跟着改；② <b>枚举内部值</b>：我用 <code>Init / PendingReview / Approved / Rejected / ActionRequired / Frozen</code> 为 API 枚举值、中文为展示名，若研发要中文枚举或 <code>PENDING_REVIEW</code> 大写下划线风格请指定；③ <b>出金是否要独立报价接口</b>：我只放了 <code>/v1/beneficiaries</code> + <code>/v1/payouts</code>（费用按该租户定价配置在响应里返回 <code>fee</code>），未放 <code>/v1/quotes</code>，若出金前要「先报价再确认」需补一个接口；④ <b>幂等键保留时长</b>：我按 <b>24h</b> 设计（超时后同键视为新请求），若要 7 天需明确。</div>
+  </section>
+</main>
+
+<div class="bar">
+  <button onclick="document.body.classList.toggle('showsrc')">显示 Mermaid 源码</button>
+  <button onclick="document.body.classList.toggle('hidden')">隐藏备注</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+(function () {
+  var blocks = Array.prototype.slice.call(document.querySelectorAll('.mermaid'));
+  blocks.forEach(function (b) {
+    var pre = document.createElement('pre');
+    pre.className = 'src';
+    pre.textContent = b.textContent.replace(/^\s+/, '');
+    b.parentNode.insertBefore(pre, b.nextSibling);
+  });
+  if (!window.mermaid) { document.body.classList.add('nomermaid'); return; }
+  mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: 'loose',
+    theme: 'base',
+    fontFamily: 'Inter, "Segoe UI", "Microsoft YaHei", sans-serif',
+    themeVariables: {
+      darkMode: true,
+      background: '#131820',
+      primaryColor: '#1B2130',
+      primaryTextColor: '#E8ECF0',
+      primaryBorderColor: '#E59303',
+      secondaryColor: '#1B2130',
+      tertiaryColor: '#0F131A',
+      lineColor: '#8AA0BC',
+      nodeBorder: '#E59303',
+      defaultLinkColor: '#8AA0BC',
+      attributeBackgroundColorOdd: '#171C26',
+      attributeBackgroundColorEven: '#131820',
+      fontSize: '13px',
+      actorBkg: '#1B2130',
+      actorBorder: '#E59303',
+      actorTextColor: '#E8ECF0',
+      signalColor: '#8AA0BC',
+      signalTextColor: '#C9D6E6',
+      labelBoxBkgColor: '#171C26',
+      labelBoxBorderColor: '#E59303',
+      labelTextColor: '#E8ECF0',
+      noteBkgColor: '#2A2110',
+      noteBorderColor: '#E59303',
+      noteTextColor: '#FFE3B8',
+      sequenceNumberColor: '#0B0E14'
+    },
+    flowchart: { useMaxWidth: false, diagramPadding: 14 },
+    sequence: { useMaxWidth: false, wrap: false, diagramMarginX: 30, diagramMarginY: 16, actorMargin: 46, messageFontSize: 12 },
+    state: { useMaxWidth: false, diagramPadding: 12 }
+  });
+  mermaid.run({ querySelector: '.mermaid' }).catch(function (e) {
+    document.body.classList.add('nomermaid');
+    console.error(e);
+  });
+})();
+</script>
+</body>
+</html>
