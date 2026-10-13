@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>白标系统 · 全局系统架构图</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0B0E14; color:#E8ECF0; font-family:Inter,-apple-system,'Segoe UI','Microsoft YaHei',sans-serif; padding-bottom:80px; }
+  .hd { padding:22px 26px 14px; border-bottom:1px solid rgba(255,255,255,.08); }
+  h1 { font-size:20px; font-weight:700; }
+  h1 span { color:#E59303; }
+  .meta { color:#7B8CA8; font-size:12px; margin-top:6px; line-height:1.8; }
+  .meta b { color:#B0C0D8; }
+  .toc { margin-top:12px; display:flex; flex-wrap:wrap; gap:8px; }
+  .toc a { color:#B0C0D8; font-size:12px; text-decoration:none; padding:5px 11px; border-radius:14px;
+           border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.03); }
+  .toc a:hover { border-color:#E59303; color:#E59303; }
+  main { padding:0 20px; }
+  section { margin-top:26px; }
+  h2 { font-size:15px; font-weight:700; margin:0 0 10px 6px; }
+  h2 em { font-style:normal; color:#7B8CA8; font-weight:400; font-size:12px; margin-left:8px; }
+  .frame { overflow:auto; max-height:82vh; border:1px solid rgba(255,255,255,.08); border-radius:12px; background:#131820; padding:14px; }
+  pre.src { display:none; margin:10px 0 0; padding:14px; border:1px dashed rgba(255,255,255,.14); border-radius:10px;
+            background:#0F131A; color:#9FB3CC; font-size:12px; line-height:1.7; white-space:pre; overflow:auto; }
+  body.showsrc pre.src { display:block; }
+  .grid { width:100%; border-collapse:collapse; font-size:12.5px; }
+  .grid th, .grid td { border:1px solid rgba(255,255,255,.08); padding:9px 12px; text-align:left; vertical-align:top; }
+  .grid th { background:rgba(229,147,3,.08); color:#E59303; font-size:12px; font-weight:600; white-space:nowrap; }
+  .grid tr:nth-child(even) td { background:rgba(255,255,255,.02); }
+  .grid td.k { color:#E8ECF0; font-weight:700; white-space:nowrap; }
+  .grid td.c { color:#B0C0D8; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:12px; }
+  .card { border:1px solid rgba(255,255,255,.09); border-radius:12px; background:#131820; padding:14px 16px; }
+  .card h3 { font-size:13px; font-weight:700; margin-bottom:8px; }
+  .card h3 i { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:7px; }
+  .card p { color:#9FB3CC; font-size:12.5px; line-height:1.85; }
+  .card p b { color:#E8ECF0; font-weight:600; }
+  .pmnote { background:rgba(229,147,3,.07); border-left:3px solid #E59303; border-radius:8px;
+            padding:12px 16px; margin:10px 0; font-size:12.5px; line-height:1.9; }
+  .pmnote b { color:#E59303; }
+  body.hidden .pmnote { display:none; }
+  .l0 { color:#A855F7; } .l1 { color:#E59303; } .l2 { color:#3B82F6; } .l3 { color:#14B8A6; } .l4 { color:#EF4444; }
+  .bar { position:fixed; right:18px; bottom:18px; z-index:99; display:flex; gap:6px;
+         background:rgba(19,24,32,.94); border:1px solid rgba(255,255,255,.12); border-radius:10px; padding:7px 9px; }
+  .bar button { background:transparent; border:none; color:#B0C0D8; font-size:13px; padding:5px 10px;
+                border-radius:6px; cursor:pointer; font-family:inherit; }
+  .bar button:hover { background:rgba(255,255,255,.08); color:#E59303; }
+  .warn { display:none; margin:10px 0; padding:12px 16px; border-radius:8px; background:rgba(239,68,68,.1);
+          border-left:3px solid #EF4444; color:#FCA5A5; font-size:12.5px; line-height:1.8; }
+  body.nomermaid .warn { display:block; }
+</style>
+</head>
+<body>
+<div class="hd">
+  <h1>白标系统 · <span>全局系统架构图</span></h1>
+  <div class="meta">
+    依据 <b>《白标系统 · 一期业务流程》v1.0（业务流程定稿）</b> · 2026-10-13 · 绘制语法：<b>Mermaid erDiagram</b><br>
+    我方 = 上游能力供应方（把 API 开放给白标下游）· 租户 = 下游集成方 · 终端客户 = 租户自己的客户，与我方无直接关系<br>
+    业务范围：<b>法币 / 加密 / 卡片</b> 三模块（币兑为二期）· 一期主轴：<b>接入闭环</b>（人工接客，自动跑数）
+  </div>
+  <div class="toc">
+    <a href="#s1">1 全局分层集成视图</a>
+    <a href="#s2">2 核心实体关系</a>
+    <a href="#s3">3 分层图例</a>
+    <a href="#s4">4 缩写与业务含义</a>
+    <a href="#s5">5 PM 备注</a>
+  </div>
+</div>
+<main>
+  <div class="warn">Mermaid 渲染库未加载（离线或 CDN 被拦截）。用右下角「显示 Mermaid 源码」可复制源码，粘贴到 mermaid.live 查看。</div>
+
+  <section id="s1">
+    <h2>1 · 全局分层集成视图 <em>L0 参与方 → L1 接入 → L2 平台服务 → L3 适配层 → L4 上游提供商</em></h2>
+    <div class="frame">
+<div class="mermaid">
+erDiagram
+    %% ================= L0 参与方与界面层 =================
+    L0_TENANT_SYSTEM {
+        string what "租户自有系统：下游集成方，调我方 API 并接收 Webhook"
+        string scope "已授权模块：法币 加密 卡片（按模块分别授权）"
+    }
+    L0_DEVELOPER_PORTAL {
+        string what "白标门户：租户开发者注册、取 key、读文档、联调、配回调、看账单"
+    }
+    L0_TENANT_CONSOLE {
+        string what "租户自助后台：租户业务人员查账户、卡、账单、用量"
+    }
+    L0_ADMIN_CONSOLE {
+        string what "平台运营台（我方）：接入作业、审核、通道映射、风险处置、账单"
+    }
+    L0_OPERATOR {
+        string what "平台运营与审核岗：人工接客，建档、审材料、决定放行"
+    }
+    %% ================= L1 接入层 =================
+    L1_API_GATEWAY {
+        string what "统一 API 网关：鉴权、限流、幂等、签名、版本"
+        string key "API Key 区分受限与生产，一期无沙盒"
+    }
+    L1_ONBOARDING {
+        string what "接入与准入服务：建档、分模块审核、签约、联调、切生产闸门"
+        string gate "三闸门：资质过审 与 合同生效 与 联调通过"
+    }
+    %% ================= L2 平台服务层 =================
+    L2_FIAT {
+        string what "法币服务：VA 开户、入金归因、出金收付"
+    }
+    L2_CRYPTO {
+        string what "加密服务：地址分配、链上确认、提现广播"
+    }
+    L2_CARD {
+        string what "卡片服务：持卡人、开卡、实时授权、清算"
+    }
+    L2_LEDGER {
+        string what "账本服务：复式记账与价格快照，改价不追溯"
+    }
+    L2_BILLING {
+        string what "计费与结算：用量、账单、收款 T+1、对账文件"
+    }
+    L2_RISK {
+        string what "风控与合规：KYB 材料、限额、地址风险筛查 0-5"
+    }
+    L2_NOTIFY {
+        string what "通知服务：Webhook 投递、重试、最终失败告警"
+    }
+    L2_AUDIT {
+        string what "审计留痕：操作与状态变更全量留痕"
+    }
+    %% ================= L3 适配层 =================
+    L3_ADP_FIAT {
+        string what "法币适配器：抹平 Bridge 与 OpenPayd 的 API 差异"
+        string covers "开户、收付、退款、对账"
+    }
+    L3_ADP_CUSTODY {
+        string what "加密托管适配器：抹平 SafeHeron 的 API 差异"
+        string covers "地址生成、充值监听、提现广播"
+    }
+    L3_ADP_CARD {
+        string what "卡片适配器：抹平 Interlace 的 API 差异"
+        string covers "卡产品、开卡、授权、清算"
+    }
+    L3_ADP_FX {
+        string what "币兑适配器：二期（D8）"
+        string covers "币种兑换"
+    }
+    %% ================= L4 上游提供商层 =================
+    L4_BRIDGE {
+        string role "USD 法币通道：VA 开户与美元收付"
+    }
+    L4_OPENPAYD {
+        string role "EUR GBP 法币通道：以 Linked Client 模式接入"
+    }
+    L4_SAFEHERON {
+        string role "加密托管：地址与链上资金"
+    }
+    L4_INTERLACE {
+        string role "卡片：BIN、开卡与清算"
+    }
+    L4_BITGO {
+        string role "币兑：二期（D8）"
+    }
+    %% ================= 集成关系 =================
+    L0_DEVELOPER_PORTAL ||--|| L0_TENANT_SYSTEM : "开发者入口"
+    L0_TENANT_CONSOLE ||--|| L0_TENANT_SYSTEM : "业务人员入口"
+    L0_ADMIN_CONSOLE ||--|| L0_OPERATOR : "我方运营"
+    L0_TENANT_SYSTEM ||--|| L1_API_GATEWAY : "API Key 鉴权与签名"
+    L1_API_GATEWAY ||--o{ L1_ONBOARDING : "接入闭环"
+    L1_API_GATEWAY ||--o{ L2_FIAT : "法币模块授权后"
+    L1_API_GATEWAY ||--o{ L2_CRYPTO : "加密模块授权后"
+    L1_API_GATEWAY ||--o{ L2_CARD : "卡片模块授权后"
+    L1_ONBOARDING }o--|| L0_ADMIN_CONSOLE : "作业面"
+    L2_FIAT ||--|| L3_ADP_FIAT : "统一接口"
+    L2_CRYPTO ||--|| L3_ADP_CUSTODY : "统一接口"
+    L2_CARD ||--|| L3_ADP_CARD : "统一接口"
+    L3_ADP_FX }o--|| L3_ADP_CUSTODY : "同域扩展（二期）"
+    L3_ADP_FIAT }o--|| L4_BRIDGE : "币种路由 USD"
+    L3_ADP_FIAT }o--|| L4_OPENPAYD : "币种路由 EUR GBP"
+    L3_ADP_CUSTODY }o--|| L4_SAFEHERON : "唯一上游"
+    L3_ADP_CARD }o--|| L4_INTERLACE : "唯一上游"
+    L3_ADP_FX }o--|| L4_BITGO : "二期"
+    L2_FIAT }o--|| L2_LEDGER : "资金动作记账"
+    L2_CRYPTO }o--|| L2_LEDGER : "资金动作记账"
+    L2_CARD }o--|| L2_LEDGER : "资金动作记账"
+    L2_LEDGER ||--|| L2_BILLING : "用量与账单"
+    L2_FIAT }o--|| L2_RISK : "限额与筛查"
+    L2_CRYPTO }o--|| L2_RISK : "地址风险 0-5"
+    L2_CARD }o--|| L2_RISK : "授权判定"
+    L2_LEDGER }o--|| L2_AUDIT : "留痕"
+    L1_ONBOARDING }o--|| L2_AUDIT : "留痕"
+    L2_BILLING ||--o{ L2_NOTIFY : "账单事件"
+    L2_NOTIFY ||--o{ L0_TENANT_SYSTEM : "Webhook 推送"
+</div>
+    </div>
+  </section>
+
+  <section id="s2">
+    <h2>2 · 核心实体关系 <em>多重性标注：||--|| 一对一 · ||--o{ 一对多 · ||--o| 一对零或一</em></h2>
+    <div class="frame">
+<div class="mermaid">
+erDiagram
+    TENANT {
+        string tenant_id PK "租户：下游集成方"
+        string lifecycle "生命周期 8 阶段：建档 审核 签约 联调 生产 暂停 终止"
+        string contract "合同生效：切生产闸门之一"
+    }
+    API_KEY {
+        string key_id PK "访问密钥"
+        string env "受限 或 生产（一期无沙盒）"
+        string state "启用 轮换 吊销（轮换与吊销均二次确认）"
+    }
+    MODULE_ACCESS {
+        string module PK "FIAT CRYPTO CARD"
+        string kyb_status "按模块各自独立审核"
+        string prod_status "未开通 生产中 部分生产"
+        string limit "受限额度：单笔上限与日累计上限"
+    }
+    END_CUSTOMER_REF {
+        string ref_id PK "终端客户外部引用号"
+        string pii "我方不建 PII 主档，只存引用号（D4）"
+    }
+    FIAT_ACCOUNT {
+        string va_id PK "VA 虚拟账户"
+        string currency "USD EUR GBP"
+        string status "已创建 已激活 已冻结 已关闭"
+    }
+    CUSTODY_ADDRESS {
+        string address_id PK "托管地址"
+        string chain "链与币种"
+        string status "待确认 可用 已冻结"
+    }
+    CARD_PROGRAM {
+        string program_id PK "卡产品与 BIN（平台级，非租户级）"
+    }
+    CARDHOLDER {
+        string holder_id PK "持卡人：每终端客户一人"
+    }
+    CARD {
+        string card_id PK "卡"
+        string type "虚拟 或 实体"
+        string status "未激活 活跃 冻结 注销"
+    }
+    TRANSACTION {
+        string tx_id PK "交易"
+        string type "入金 出金 充值 提现 消费 清算 退款"
+        string status "待确认 处理中 成功 失败"
+        string ext_ref "上游外部流水号：回冲与对账用"
+    }
+    LEDGER_ENTRY {
+        string entry_id PK "账本分录"
+        string amount "金额、费用、币种"
+    }
+    PRICE_SNAPSHOT {
+        string snapshot_id PK "价格快照：改价不追溯已发生交易"
+    }
+    RISK_SCREENING {
+        string screen_id PK "地址风险筛查"
+        string risk_level "0-5：0-2 自动通过，3-5 转人工"
+    }
+    STATEMENT {
+        string stmt_id PK "周期结算单"
+    }
+    RECON_FILE {
+        string recon_id PK "对账文件与对账结果"
+    }
+    WEBHOOK_SUB {
+        string sub_id PK "回调地址订阅"
+    }
+    WEBHOOK_DELIVERY {
+        string delivery_id PK "事件投递记录"
+        string status "成功 重试中 最终失败"
+    }
+    TENANT ||--|| API_KEY : "一租户一 key"
+    TENANT ||--|{ MODULE_ACCESS : "三模块准入各自独立"
+    TENANT ||--|{ END_CUSTOMER_REF : "租户的终端客户"
+    END_CUSTOMER_REF ||--|{ FIAT_ACCOUNT : "每终端客户每币种一个 VA"
+    END_CUSTOMER_REF ||--|{ CUSTODY_ADDRESS : "每终端客户每链一个地址"
+    END_CUSTOMER_REF ||--o| CARDHOLDER : "每终端客户一个持卡人"
+    CARDHOLDER ||--o{ CARD : "一人可多卡"
+    CARD_PROGRAM ||--|{ CARD : "卡挂在卡产品下"
+    END_CUSTOMER_REF ||--o{ TRANSACTION : "资金动作"
+    FIAT_ACCOUNT ||--o{ TRANSACTION : "收付发生地"
+    CUSTODY_ADDRESS ||--o{ TRANSACTION : "充值与提现"
+    CARD ||--o{ TRANSACTION : "消费 清算 退款"
+    TRANSACTION ||--|{ LEDGER_ENTRY : "一笔交易记一笔或多笔"
+    LEDGER_ENTRY ||--|| PRICE_SNAPSHOT : "记账与计费依据"
+    TRANSACTION ||--o| RISK_SCREENING : "加密来源筛查"
+    TENANT ||--o{ LEDGER_ENTRY : "账本按租户维度留痕"
+    TENANT ||--o{ STATEMENT : "周期结算"
+    STATEMENT ||--|{ LEDGER_ENTRY : "明细下钻到原始交易"
+    TENANT ||--o{ RECON_FILE : "对账"
+    TENANT ||--|{ WEBHOOK_SUB : "回调订阅"
+    WEBHOOK_SUB ||--o{ WEBHOOK_DELIVERY : "事件投递"
+    WEBHOOK_DELIVERY }o--|| TRANSACTION : "事件源"
+</div>
+    </div>
+  </section>
+
+  <section id="s3">
+    <h2>3 · 分层图例 <em>图中实体名前缀 = 所在层</em></h2>
+    <div class="cards">
+      <div class="card">
+        <h3><i class="l0" style="background:#A855F7"></i>L0 参与方与界面层</h3>
+        <p><b>L0_*</b>：租户自有系统（下游集成方）、白标门户（租户开发者）、租户自助后台、平台运营台（我方）、运营岗。<br>
+        白标门户与自助后台只服务租户侧；终端客户无界面，全部经租户系统间接使用。</p>
+      </div>
+      <div class="card">
+        <h3><i class="l1" style="background:#E59303"></i>L1 接入层</h3>
+        <p><b>L1_*</b>：统一 API 网关（鉴权、限流、幂等、签名、版本）+ 接入与准入服务（建档、分模块审核、签约、联调、切生产闸门）。<br>
+        一期无沙盒：联调用受限 key（限额度 + 白名单收款人），接口仍是生产接口。</p>
+      </div>
+      <div class="card">
+        <h3><i class="l2" style="background:#3B82F6"></i>L2 平台服务层</h3>
+        <p><b>L2_*</b>：法币 / 加密 / 卡片三个业务服务 + 公共尾部（账本、计费与结算、风控与合规、通知、审计留痕）。<br>
+        三个业务服务互相独立、按模块分别放行，因此「部分生产」是常态。</p>
+      </div>
+      <div class="card">
+        <h3><i class="l3" style="background:#14B8A6"></i>L3 适配层</h3>
+        <p><b>L3_ADP_*</b>：适配器（Adapters）。每个上游一家一个适配器，把各家 API 的字段、状态、错误码、回调差异抹平，
+        对上只暴露统一接口，业务服务不感知具体上游。<br>
+        换上游、加币种、加卡产品只改适配器，不动业务服务与租户集成。</p>
+      </div>
+      <div class="card">
+        <h3><i class="l4" style="background:#EF4444"></i>L4 上游提供商层</h3>
+        <p><b>L4_*</b>：能力兑现方，共 5 家 —— Bridge（USD）、OpenPayd（EUR / GBP）、SafeHeron（加密托管）、Interlace（卡片）、BitGo（币兑 · 二期）。<br>
+        通道按币种路由（USD 走 Bridge，EUR / GBP 走 OpenPayd），租户侧无感；凭据不入文档。</p>
+      </div>
+      <div class="card">
+        <h3><i style="background:#7B8CA8"></i>领域实体</h3>
+        <p>第 2 张图为主，实体不加层前缀：租户、密钥、模块准入、终端客户引用号、VA、托管地址、卡产品 / 持卡人 / 卡、
+        交易、账本分录、价格快照、风险筛查、结算单、对账文件、回调订阅与投递。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="s4">
+    <h2>4 · 缩写与业务含义 <em>本图中出现的缩写、在本次 BaaS 业务里具体是什么、起什么作用</em></h2>
+    <table class="grid">
+      <thead><tr><th>缩写 / 术语</th><th>全称</th><th>在本次 BaaS 业务中的含义与作用</th></tr></thead>
+      <tbody>
+        <tr><td class="k">BaaS</td><td class="c">Banking as a Service</td><td class="c">我方把银行账户、加密托管、发卡这些能力封装成 API 开放出去；租户拿去叠自己的产品与品牌，终端用户看不见我方。</td></tr>
+        <tr><td class="k">白标 / White-label</td><td class="c">—</td><td class="c">下游用我方能力 + 自己的品牌对外提供服务。因此本系统里「客户」有两层：租户（集成方）与租户的终端客户。</td></tr>
+        <tr><td class="k">租户 / Tenant</td><td class="c">—</td><td class="c">下游集成方（客户类型：同行平台，要底层能力、自己再叠一层产品）。一租户对应一个自有系统、一把访问密钥、一份档案。</td></tr>
+        <tr><td class="k">KYB</td><td class="c">Know Your Business</td><td class="c">企业主体审核（本业务只做 KYB，不做个人 KYC）。法币 / 加密 / 卡片三模块各自独立过 KYB，任一模块不通过不影响其它模块。</td></tr>
+        <tr><td class="k">VA</td><td class="c">Virtual Account</td><td class="c">虚拟账户，法币收付的落点。每个终端客户、每个币种一个 VA；到账凭 VA 号自动归因到该终端客户，无需付款方填附言。</td></tr>
+        <tr><td class="k">受限 key</td><td class="c">Restricted API Key</td><td class="c">联调期密钥：额度受控（单笔与日累计上限）+ 收款人 / 地址白名单，接口仍是生产接口（一期无沙盒）。</td></tr>
+        <tr><td class="k">生产 key</td><td class="c">Live API Key</td><td class="c">过一个模块的切生产闸门，就解除该模块的额度限制。一租户一 key，模块授权写在租户档案里。</td></tr>
+        <tr><td class="k">幂等键</td><td class="c">Idempotency Key</td><td class="c">同一键同一参数重复请求返回首次结果，防止重复开户、重复扣账、重复出金。</td></tr>
+        <tr><td class="k">归因</td><td class="c">Attribution</td><td class="c">把一笔到账认到某个终端客户：法币凭 VA 号，加密凭地址。归因失败即未识别资金。</td></tr>
+        <tr><td class="k">挂账</td><td class="c">—</td><td class="c">金额对不上或来源不明的入金，先挂起不记账，限期内处置，超时原路退回。</td></tr>
+        <tr><td class="k">回冲</td><td class="c">Reversal</td><td class="c">出金失败 / 被退回时，把已扣资金按原路径退回终端客户账户，账本留对应分录。</td></tr>
+        <tr><td class="k">拒结</td><td class="c">—</td><td class="c">加密入金来源地址风险命中且判定不予接收时，不入账、原路退回，并留风险记录。</td></tr>
+        <tr><td class="k">确认数</td><td class="c">Confirmations</td><td class="c">链上充值所需区块确认门槛，未达标不入账，避免区块回滚造成的账实不符。</td></tr>
+        <tr><td class="k">地址风险筛查</td><td class="c">Address Screening</td><td class="c">对加密来源 / 目标地址做风险打分，返回风险等级 0-5：0-2 自动通过，3-5 转人工复核。</td></tr>
+        <tr><td class="k">适配层 / Adapter</td><td class="c">Ports and Adapters</td><td class="c">抹平上游 API 差异的一层。业务服务只面对统一接口，换上游 / 加币种 / 加卡产品只改适配器，不动业务服务与租户集成。</td></tr>
+        <tr><td class="k">上游提供商</td><td class="c">Upstream Provider</td><td class="c">能力兑现方：Bridge / OpenPayd（法币）、SafeHeron（加密托管）、Interlace（卡片）、BitGo（币兑 · 二期）。凭据不入文档。</td></tr>
+        <tr><td class="k">通道路由</td><td class="c">Channel Routing</td><td class="c">按币种选上游通道：USD 走 Bridge，EUR / GBP 走 OpenPayd。租户侧无感，不需要知道用了哪家。</td></tr>
+        <tr><td class="k">BIN / 卡产品</td><td class="c">Bank Identification Number</td><td class="c">卡产品（卡种、币种、BIN）是平台级资产，挂在持卡人之下发给终端客户；对租户呈现为「可用卡种」。</td></tr>
+        <tr><td class="k">实时授权 / 清算</td><td class="c">Authorization / Clearing</td><td class="c">刷卡两段式：授权毫秒级占额并实时回调，清算按实际金额入账。授权与清算各产生交易记录。</td></tr>
+        <tr><td class="k">价格快照</td><td class="c">Price Snapshot</td><td class="c">记账与计费时落定价格，之后调价不追溯已发生交易，保证已出账单可复现。</td></tr>
+        <tr><td class="k">结算单 / 对账</td><td class="c">Statement / Reconciliation</td><td class="c">周期账单（含用量与费用明细）+ 对账文件 / 对账结果。账单可下钻到原始交易；争议走线下处理。</td></tr>
+        <tr><td class="k">部分生产</td><td class="c">—</td><td class="c">按模块分别过闸门带来的常态：例如法币已生产、卡片还在联调。租户可先用法币模块跑业务。</td></tr>
+        <tr><td class="k">PII</td><td class="c">Personal Identifiable Information</td><td class="c">终端客户个人信息。我方不建终端客户主档（D4），只存外部引用号与上游必需的最小要素。</td></tr>
+        <tr><td class="k">Webhook</td><td class="c">—</td><td class="c">我方把事件（到账、出金结果、卡授权、风险处置等）主动推给租户系统；失败重试，最终失败告警。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="s5">
+    <h2>5 · PM 备注</h2>
+    <div class="pmnote">
+      <b>画法与真值</b>：图中所有分层、模块、通道、闸门与状态，均取自《白标系统 · 一期业务流程》v1.0 定稿，未使用此前任何原型产物。
+      erDiagram 语法表达不了「层」的色块，因此用实体名前缀 <b>L0_ / L1_ / L2_ / L3_ / L4_</b> 承担分层标注，配色与释义见第 3 节。
+    </div>
+    <div class="pmnote">
+      <b>待你确认</b>：① 层数是否按 L0-L4 五层？是否要把「白标门户 / 自助后台 / 运营台」再单独归为「界面层」？② 上游提供商层是否只保留一期 4 家、BitGo 标为二期，还是 5 家平铺？
+      ③ 第 2 张图的核心实体是否要补「操作流水 / 审计日志」实体，或补「租户额度与定价」实体？④ 是否需要同步导出一份 .mmd 源码文件，方便你贴到别处。
+    </div>
+  </section>
+</main>
+
+<div class="bar">
+  <button onclick="document.body.classList.toggle('showsrc')">显示 Mermaid 源码</button>
+  <button onclick="document.body.classList.toggle('hidden')">隐藏备注</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+(function () {
+  var blocks = Array.prototype.slice.call(document.querySelectorAll('.mermaid'));
+  // 先把源码抽出来备份（渲染会替换掉容器内容），供「显示 Mermaid 源码」查看与复制
+  blocks.forEach(function (b) {
+    var pre = document.createElement('pre');
+    pre.className = 'src';
+    pre.textContent = b.textContent.replace(/^\s+/, '');
+    b.parentNode.insertBefore(pre, b.nextSibling);
+  });
+  if (!window.mermaid) { document.body.classList.add('nomermaid'); return; }
+  mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: 'loose',
+    theme: 'base',
+    fontFamily: 'Inter, "Segoe UI", "Microsoft YaHei", sans-serif',
+    themeVariables: {
+      darkMode: true,
+      background: '#131820',
+      primaryColor: '#1B2130',
+      primaryTextColor: '#E8ECF0',
+      primaryBorderColor: '#E59303',
+      secondaryColor: '#1B2130',
+      tertiaryColor: '#0F131A',
+      lineColor: '#8AA0BC',
+      nodeBorder: '#E59303',
+      defaultLinkColor: '#8AA0BC',
+      attributeBackgroundColorOdd: '#171C26',
+      attributeBackgroundColorEven: '#131820',
+      fontSize: '13px'
+    },
+    er: { useMaxWidth: false, diagramPadding: 14 }
+  });
+  mermaid.run({ querySelector: '.mermaid' }).catch(function (e) {
+    document.body.classList.add('nomermaid');
+    console.error(e);
+  });
+})();
+</script>
+</body>
+</html>

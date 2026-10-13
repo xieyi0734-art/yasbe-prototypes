@@ -215,7 +215,7 @@
 
 ---
 
-## 11. 🔀 流程图（12）
+## 11. 🔀 流程图（13）
 
 *`diagrams/`*
 
@@ -233,6 +233,7 @@
 | 卡片账务功能架构 | 管理端卡片账务架构图 | 2026-07-08 | [card-accounting-architecture.html](https://xieyi0734-art.github.io/yasbe-prototypes/diagrams/card-accounting-architecture.html) |
 | YASBee 账务功能架构 | 卡片账务架构图 | 2026-07-08 | [YASBee-账务功能架构图.html](https://xieyi0734-art.github.io/yasbe-prototypes/diagrams/YASBee-账务功能架构图.html) |
 | Card 账务功能架构 v3.0 | 账务模块架构图 | 2026-07-08 | [Card模块账务_v3.0_功能架构图.html](https://xieyi0734-art.github.io/yasbe-prototypes/diagrams/Card模块账务_v3.0_功能架构图.html) |
+| 白标系统 · 全局系统架构图 🆕 | 白标一期全局分层集成视图（L0 参与方与界面 → L1 接入层 → L2 平台服务层 → L3 适配层 → L4 上游提供商层，22 实体）+ 核心实体关系图（18 实体 / 1:1 · 1:N · 1:0..1 多重性）+ 分层图例 + 缩写与 BaaS 业务含义表；Mermaid erDiagram | 2026-10-13 | [白标系统-全局系统架构图.html](https://xieyi0734-art.github.io/yasbe-prototypes/diagrams/白标系统-全局系统架构图.html) |
 
 ---
 
