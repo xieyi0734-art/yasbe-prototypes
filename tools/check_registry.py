@@ -42,7 +42,7 @@ NAV_PAGES = ["index.html", "admin/prototypes/index.html"]
 
 EXCLUDE_DIRS = {
     ".git", "node_modules", "scripts", "tools", "diagrams", "docs", "mesh_docs",
-    "_bridge_research", "_op_research", "_archive", "archive", "_smoke", "_build",
+    "_bridge_research", "_op_research", "_archive", "archive", "_smoke", "_build", "_tmp",
     "cyro-website", "card-prototypes",          # .gitignore 内，从未部署
 }
 EXCLUDE_FILES = {
@@ -52,9 +52,9 @@ EXCLUDE_FILES = {
 SKIP_NAME_MARKERS = (".bak", ".zip", "_text.txt", "存档", "旧版", ".txt", ".xlsx", ".json")
 RETIRED_HINTS = ("失效", "未部署", "废弃")
 
-END_SIDES = ("管理端", "客户端", "B端", "代币官网", "白标门户")
+END_SIDES = ("管理端", "客户端", "B端", "代理端", "代币官网", "白标门户", "租户业务台")
 NAME_RE = re.compile(
-    r"^\d{4}-\d{2}-\d{2}_.+_(?:" + "|".join(END_SIDES) + r")(?:_v[\d.]+)?\.(?:html|md)$"
+    r"(?:^\d{4}-\d{2}-\d{2}_.+_(?:" + "|".join(END_SIDES) + r")(?:_v[\d.]+)?|^index)\.(?:html|md)$"
 )
 
 problems, warns = [], []
