@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>白标 BaaS 平台 · 一期（MVP · 纯法币）业务抽象与底层数据建模</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#0B0E14;color:#E8ECF0;font-family:Inter,"Microsoft YaHei",system-ui,sans-serif;padding-bottom:70px}
+  .hd{padding:22px 26px 14px;border-bottom:1px solid rgba(255,255,255,.08)}
+  h1{font-size:20px;font-weight:700}
+  h1 span{color:#E59303}
+  .meta{margin-top:6px;color:#9FB3CC;font-size:12px;line-height:1.7}
+  .toc{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
+  .toc a{font-size:12px;color:#B0C0D8;text-decoration:none;padding:4px 10px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03)}
+  .toc a:hover{border-color:#E59303;color:#E59303}
+  main{padding:0 20px}
+  section{margin-top:26px}
+  h2{font-size:15px;font-weight:700;margin:0 0 10px 6px}
+  h2 em{font-style:normal;color:#9FB3CC;font-size:12px;margin-left:8px;font-weight:400}
+  .frame{overflow:auto;max-height:82vh;background:#131820;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:14px}
+  .frame .mermaid{min-width:max-content}
+  .legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+  .card{background:#131820;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px 14px}
+  .card h3{font-size:13px;margin-bottom:6px}
+  .card h3 b{color:#E59303}
+  .card p{font-size:12px;color:#9FB3CC;line-height:1.75}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.08);vertical-align:top}
+  th{color:#9FB3CC;font-weight:600;background:rgba(255,255,255,.03)}
+  td:first-child{color:#E59303;font-weight:600;white-space:nowrap}
+  table.dict td:first-child{white-space:normal;min-width:150px}
+  table.dict td{line-height:1.75}
+  .pmnote{margin-top:14px;padding:12px 14px;border-left:3px solid #E59303;background:rgba(229,147,3,.06);color:#B0C0D8;font-size:12px;line-height:1.85;border-radius:0 8px 8px 0}
+  .pmnote b{color:#E59303}
+  .pmnote code{background:rgba(255,255,255,.07);padding:1px 5px;border-radius:4px;color:#FFD9A0}
+  pre.src{display:none;white-space:pre;font-size:11px;color:#9FB3CC;background:#0B0E14;padding:12px;border-radius:8px;overflow:auto}
+  body.showsrc pre.src{display:block}
+  body.hidenote .pmnote{display:none}
+  .bar{position:fixed;right:16px;bottom:16px;display:flex;gap:8px}
+  .bar button{font:inherit;font-size:12px;color:#B0C0D8;background:#131820;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:6px 12px;cursor:pointer}
+  .bar button:hover{border-color:#E59303;color:#E59303}
+  .offline{display:none;margin:12px 0;padding:10px 14px;border-radius:8px;background:rgba(229,147,3,.08);border:1px solid rgba(229,147,3,.35);color:#E59303;font-size:12px}
+  body.nomermaid .offline{display:block}
+</style>
+</head>
+<body>
+
+<div class="hd">
+  <h1>白标 BaaS 平台 · <span>一期（MVP · 纯法币）业务抽象与底层数据建模</span></h1>
+  <div class="meta">
+    范围：<b>仅法币</b>（开立 VA · 入金归因 · 出金收付）；<b>不含</b>加密货币与发卡（图上标【二期 Phase 2】，虚线）<br>
+    上游：<b>Bridge</b>（USD · EUR · GBP）与 <b>OpenPayd</b>（EUR · GBP · Linked Client），EUR 与 GBP 为<b>双通道冗余（Multi-Rail）</b><br>
+    角色：能力聚合器与流动性提供商 · 下游 = B 端租户（发 API Key）· 终端用户对平台完全无感<br>
+    绘制语法：<b>Mermaid erDiagram（交付物 1）与 flowchart TD + subgraph（交付物 2）</b> · 缩写与业务含义见第 4 节
+  </div>
+  <nav class="toc">
+    <a href="#er">① 交付物 1 · ER 图</a>
+    <a href="#arch">② 交付物 2 · 分层架构图</a>
+    <a href="#legend">③ 分层说明</a>
+    <a href="#dict">④ 交付物 3 · 名词解释表</a>
+    <a href="#terms">⑤ 配套术语速查</a>
+    <a href="#note">⑥ PM 备注与待拍板</a>
+  </nav>
+</div>
+
+<main>
+
+  <section id="er">
+    <h2>① 交付物 1 · 核心实体关系图（ER Diagram）<em>多重性：||--|| 一对一 · ||--|{ 一对多强制 · ||--o{ 一对多可选 · 关系标签写业务约束</em></h2>
+    <div class="offline">Mermaid CDN 未加载（离线或被拦）。点右下「显示 Mermaid 源码」复制后粘贴到 mermaid.live 查看。</div>
+    <div class="frame">
+<div class="mermaid">
+erDiagram
+    TENANT ||--|{ API_KEY : "一租户可并存多枚（轮换期）"
+    TENANT ||--o{ TENANT_PRICING : "定价按 币种 与 方向 逐条配置"
+    TENANT ||--|{ USER_PROFILE : "终端用户身份按租户强隔离"
+    TENANT ||--o{ ROUTING_RULE : "租户级路由覆盖（空则用平台默认）"
+    TENANT ||--o{ AUDIT_LOG : "配置与状态变更全量留痕"
+    USER_PROFILE ||--|{ FIAT_ACCOUNT : "身份与资产解耦：一人每币种一个 VA"
+    USER_PROFILE ||--o{ TRANSACTION_LEDGER : "交易归属终端用户"
+    FIAT_ACCOUNT ||--o{ TRANSACTION_LEDGER : "收付发生地与入金归因落点"
+    ROUTING_RULE ||--o{ TRANSACTION_LEDGER : "命中规则可回溯走哪家"
+    TENANT_PRICING ||--o{ TRANSACTION_LEDGER : "本笔费率与计费金额来源"
+    API_KEY ||--o{ TRANSACTION_LEDGER : "发起请求的密钥可溯源"
+
+    TENANT {
+        string tenant_id PK "租户唯一标识：多租户隔离的根"
+        string name "租户企业名称"
+        string status "准入状态：待审核 已通过 已冻结 已终止"
+        string segment "业务类型：平台型 或 直客型"
+        string default_currency "默认结算币种：USD 或 EUR 或 GBP"
+        timestamp created_at "建档时间"
+    }
+    API_KEY {
+        string key_id PK "密钥唯一标识"
+        string tenant_id FK "所属租户：一切请求的隔离依据"
+        string key_prefix "密钥前缀（可展示）：用于定位与轮换"
+        string secret_hash "密钥摘要：平台不存明文，仅存哈希"
+        string env "环境：sandbox 或 production"
+        string scope "权限范围：如 fiat:va:write fiat:payout:write"
+        string state "状态：启用 轮换中 已吊销"
+        timestamp expires_at "有效期"
+        string ip_allowlist "来源 IP 白名单"
+    }
+    TENANT_PRICING {
+        string pricing_id PK "定价配置唯一标识"
+        string tenant_id FK "所属租户：定价按租户单独配置"
+        string direction "资金方向：deposit 入金 或 payout 出金"
+        string currency "适用币种：USD EUR GBP 或 all 全币种默认"
+        string fee_type "计费方式：percentage 比例 或 fixed 固定 或 tiered 阶梯"
+        string fee_value "费率或固定值：如 0.0100 表示 1 percent"
+        string min_fee "单笔最低收费：避免小额交易被抹平"
+        string max_fee "单笔最高收费（可空）"
+        date effective_from "生效起始日：改价不追溯已发生交易"
+        date effective_to "生效截止日（空等于长期有效）"
+        int version "版本号：调价即新增一版，不覆盖历史"
+    }
+    USER_PROFILE {
+        string user_id PK "终端用户内部标识：身份域主键"
+        string tenant_id FK "所属租户：身份数据按租户隔离"
+        string external_ref "租户侧客户号：外部引用，不承载 PII"
+        string compliance_status "合规状态：未提交 待审核 已通过 已驳回"
+        string legal_name "法定姓名或企业名称（合规必需）"
+        string id_type "证件类型：护照 或 身份证 或 营业执照"
+        string id_number_masked "证件号：掩码存储与展示"
+        string nationality "国籍或注册地：决定可开立币种与通道"
+        string address "居住或注册地址（合规必填）"
+        string risk_level "风险等级：低 中 高，来自筛查与人工复核"
+        string kyc_provider "合规主办方：Bridge 或 OpenPayd 或 平台自审"
+        timestamp verified_at "合规通过时间"
+    }
+    FIAT_ACCOUNT {
+        string account_id PK "VA 虚拟账户唯一标识"
+        string user_id FK "持有人：指向 USER_PROFILE，不重复存身份信息"
+        string tenant_id FK "隔离字段：与身份 与 交易同租户"
+        string currency "币种：USD EUR GBP，一人每币种一个"
+        string rail "开户通道：bridge 或 openpayd（VA 开立即绑定通道）"
+        string upstream_account_id "上游账户号：对账与归因的匹配键"
+        string account_number "IBAN 或 账号：客户实际收款的账号"
+        string routing_code "路由码或 Sort Code（按币种不同）"
+        string status "状态：开立中 已激活 已冻结 已关闭"
+        timestamp opened_at "开立时间"
+    }
+    TRANSACTION_LEDGER {
+        string tx_id PK "交易唯一标识"
+        string tenant_id FK "隔离字段：租户维度查账与计费"
+        string user_id FK "交易归属终端用户"
+        string account_id FK "收付发生地：VA 虚拟账户"
+        string direction "【流水】资金方向：inbound 入金 或 outbound 出金"
+        string biz_type "【流水】业务类型：open 开户 payout 出金 refund 退款 fee 计费调整"
+        string amount "【流水】交易金额（原币种）"
+        string fee_amount "【流水】本笔计费金额：按 TENANT_PRICING 命中费率算出"
+        string currency "【流水】币种：USD EUR GBP"
+        string status "【流水】状态：待处理 处理中 已完成 失败 已冲正"
+        string rail "【流水】实际走的上游通道：bridge 或 openpayd"
+        string hit_rule_id FK "【流水】命中的路由规则：回溯为何走这家"
+        string upstream_ref "【流水】上游流水号：对账与争议举证"
+        string attribution_key "【流水】归因键：入金认领客户与目的账户的依据"
+        string journal_id "【账本】记账批次号：同一笔业务的借贷分录成组"
+        string entry_side "【账本】分录方向：debit 借方 或 credit 贷方"
+        string account_code "【账本】会计科目：客户可用余额 在途 平台收益等"
+        string balance_after "【账本】记账后余额：便于核对与审计"
+        string reversal_of "【账本】反向冲正指向的原交易：原记录永不修改"
+        timestamp settled_at "结算或入账时间"
+    }
+    ROUTING_RULE {
+        string rule_id PK "路由规则唯一标识"
+        string tenant_id FK "租户级规则：为空表示平台默认规则"
+        string direction "适用方向：inbound 入金 或 outbound 出金"
+        string currency "适用币种：USD 单通道；EUR GBP 多通道冗余"
+        string priority "优先级：数字越小越优先，命中即停"
+        string target_rail "目标通道：bridge 或 openpayd"
+        string condition_expr "生效条件：金额区间 或 收款国 或 租户等级（JSON）"
+        string weight "权重：同优先级多通道时的加权分流比例"
+        string fallback_rail "兜底通道：目标通道熔断时自动切换"
+        bool enabled "开关：停用即不参与选路"
+        date effective_from "生效起始日"
+    }
+    AUDIT_LOG {
+        string log_id PK "审计记录唯一标识：独立实体，不挂业务主档"
+        string actor_type "操作主体类型：platform_ops 或 tenant_admin 或 system"
+        string actor_id "操作主体标识"
+        string tenant_id FK "影响范围：租户维度隔离与检索"
+        string action "动作：创建 修改 审批 冻结 轮换密钥 调价 改路由"
+        string target_type "对象类型：tenant api_key pricing routing_rule user_profile"
+        string target_id "对象标识：多态引用，不建外键"
+        string before_value "变更前值"
+        string after_value "变更后值"
+        string reason "变更原因：敏感操作强制填写"
+        string source_ip "来源 IP 与终端"
+        string prev_hash "前序哈希：链式防篡改"
+        timestamp created_at "发生时间，不可修改"
+    }
+</div>
+    </div>
+  </section>
+
+  <section id="arch">
+    <h2>② 交付物 2 · 全局分层系统架构图<em>L0 参与方 与 L0 界面层已拆开 · 一期实线 与 二期虚线强隔离</em></h2>
+    <div class="frame">
+<div class="mermaid">
+flowchart TD
+    %% ================= L0 参与方 ACTOR =================
+    subgraph S_ACTOR["L0 · 参与方 ACTOR — 人 / 系统"]
+        direction LR
+        ACT_TENANT["租户系统<br/>B 端企业：调我方 API、收我方 Webhook"]
+        ACT_ENDUSER["终端用户<br/>租户自己的客户：无我方入口，经租户界面间接使用"]
+        ACT_OPS["我方运营<br/>审核 · 放行 · 处置 · 调参"]
+    end
+
+    %% ================= L0 界面层 UI =================
+    subgraph S_UI["L0 · 界面层 UI — 三个完全独立的前端工程"]
+        direction LR
+        UI_PORTAL["白标门户<br/>注册 · 取密钥 · 文档 · 联调 · 账单"]
+        UI_CONSOLE["租户业务台<br/>客户 · 账户 · 交易 · 用量"]
+        UI_ADMIN["平台运营总台<br/>租户审核 · 通道与路由 · 风险处置"]
+    end
+
+    %% ================= L1 接入层 =================
+    subgraph S_L1["L1 · 接入层 GATEWAY — 唯一入口"]
+        direction LR
+        API_GW["统一 API 网关<br/>API Key 鉴权 · 签名 · 限流 · 幂等键 · 版本"]
+        TENANT_CTX["租户上下文注入<br/>tenant_id 贯穿全链路：多租户隔离"]
+    end
+
+    %% ================= L2 平台服务层 =================
+    subgraph S_L2["L2 · 平台服务层 SERVICE — 法币能力的领域实现"]
+        direction LR
+        SVC_TENANT["租户与密钥服务<br/>API Key 生命周期 · 额度 · 权限范围"]
+        SVC_IDENTITY["身份与合规服务<br/>USER_PROFILE 主档 · 合规状态机"]
+        SVC_FIAT["法币服务<br/>VA 开立 · 入金归因 · 出金收付"]
+        SVC_ROUTING["路由引擎<br/>读 ROUTING_RULE：币种 · 额度 · 健康度"]
+        SVC_LEDGER["账本服务<br/>全局账本 · 复式记账 · 反向冲正"]
+        SVC_PRICING["定价与计费服务<br/>TENANT_PRICING · 用量 · 账单"]
+        SVC_RISK["风控与合规服务<br/>制裁名单 · 限额 · 交易监控"]
+        SVC_NOTIFY["通知服务<br/>Webhook 投递 · 签名 · 退避重试"]
+        SVC_AUDIT["审计服务<br/>敏感变更留痕 · 链式防篡改"]
+        SVC_CRYPTO["加密服务【二期 Phase 2】"]
+        SVC_CARD["发卡服务【二期 Phase 2】"]
+    end
+
+    %% ================= L3 通道适配层 =================
+    subgraph S_L3["L3 · 通道适配层 ADAPTER — 法币适配器层（防腐层 Anti-Corruption Layer）"]
+        direction LR
+        ACL_CORE["防腐归一内核<br/>字段映射 · 状态字典 · 错误码归一 · raw_payload 落库"]
+        ADP_BRIDGE["Bridge 适配器<br/>协议与凭据 · 报文构造 · Webhook 验签"]
+        ADP_OPENPAYD["OpenPayd 适配器<br/>协议与凭据 · Linked Client 模式"]
+        ADP_EXT["加密与卡片适配器【二期 Phase 2】"]
+    end
+
+    %% ================= L4 上游提供商层 =================
+    subgraph S_L4["L4 · 上游提供商层 — 一期 2 家实线（交付范围）｜USD 单腿 · EUR 与 GBP 双腿冗余（Multi-Rail）｜二期 1 组虚线"]
+        direction LR
+        UP_BRIDGE["Bridge<br/>USD · EUR · GBP 三币种【一期】"]
+        UP_OPENPAYD["OpenPayd<br/>EUR · GBP 两币种【一期】<br/>与 Bridge 在 EUR 与 GBP 上能力重叠"]
+        UP_EXT["加密托管与发卡上游【二期 Phase 2】"]
+    end
+
+    %% ================= 参与方 与 界面层 =================
+    ACT_TENANT ---|"开发者自助"| UI_PORTAL
+    ACT_TENANT ---|"业务人员"| UI_CONSOLE
+    ACT_OPS ---|"运营作业"| UI_ADMIN
+    ACT_ENDUSER -.->|"无我方入口：只经租户界面"| ACT_TENANT
+    UI_ADMIN ---|"平台级参数：费率与路由"| SVC_ROUTING
+
+    %% ================= 接入闭环 =================
+    ACT_TENANT -->|"API Key 鉴权与签名"| API_GW
+    UI_PORTAL -.->|"自助取密钥"| API_GW
+    API_GW -->|"注入租户上下文"| TENANT_CTX
+    TENANT_CTX -->|"租户与密钥"| SVC_TENANT
+    TENANT_CTX -->|"身份与合规"| SVC_IDENTITY
+    TENANT_CTX -->|"法币业务"| SVC_FIAT
+    TENANT_CTX -.->|"【二期】"| SVC_CRYPTO
+    TENANT_CTX -.->|"【二期】"| SVC_CARD
+
+    %% ================= L2 业务闭环 =================
+    SVC_FIAT -->|"开户前置：合规须已通过"| SVC_IDENTITY
+    SVC_FIAT -->|"出金前询问走哪家"| SVC_ROUTING
+    SVC_ROUTING -->|"命中 ROUTING_RULE：锁定通道"| SVC_FIAT
+    SVC_TENANT -->|"额度与权限范围"| SVC_FIAT
+    SVC_FIAT -->|"限额 与 名单筛查"| SVC_RISK
+    SVC_IDENTITY -->|"合规结果与风险等级"| SVC_RISK
+    SVC_RISK -->|"放行 或 拦截（记账之前）"| SVC_FIAT
+    SVC_FIAT -->|"资金动作记账"| SVC_LEDGER
+    SVC_LEDGER -->|"用量计量"| SVC_PRICING
+    SVC_PRICING -->|"费率口径 与 计费金额"| SVC_LEDGER
+    SVC_CRYPTO -.->|"【二期】记账"| SVC_LEDGER
+    SVC_CARD -.->|"【二期】记账"| SVC_LEDGER
+    SVC_FIAT -->|"业务事件"| SVC_NOTIFY
+    SVC_LEDGER -->|"留痕"| SVC_AUDIT
+    SVC_TENANT -->|"留痕"| SVC_AUDIT
+    SVC_PRICING -->|"留痕"| SVC_AUDIT
+
+    %% ================= L2 到 L3 到 L4 =================
+    SVC_FIAT -->|"统一法币契约：币种 与 方向 与 金额"| ACL_CORE
+    ACL_CORE -->|"归一后调用"| ADP_BRIDGE
+    ACL_CORE -->|"归一后调用"| ADP_OPENPAYD
+    ACL_CORE -.->|"【二期】"| ADP_EXT
+    ADP_BRIDGE -->|"USD 唯一通道 · EUR GBP 冗余之一"| UP_BRIDGE
+    ADP_OPENPAYD -->|"EUR GBP 冗余之一"| UP_OPENPAYD
+    ADP_EXT -.->|"【二期】"| UP_EXT
+
+    %% ================= 入站 Webhook：触发源是上游，不是租户 =================
+    UP_BRIDGE -.->|"Webhook 到账 与 状态回调"| ACL_CORE
+    UP_OPENPAYD -.->|"Webhook 到账 与 状态回调"| ACL_CORE
+    ACL_CORE -->|"归一事件"| SVC_NOTIFY
+    SVC_NOTIFY -->|"Webhook 投递：签名 与 退避重试"| ACT_TENANT
+
+    %% ================= 分层配色（层 = subgraph 色块）=================
+    classDef cActor fill:#241B3A,stroke:#A855F7,stroke-width:2px,color:#E4D4FF
+    classDef cUI fill:#33132A,stroke:#EC4899,stroke-width:2px,color:#FFD3EC
+    classDef cL1 fill:#2A2110,stroke:#E59303,stroke-width:1.5px,color:#FFE3B8
+    classDef cL2 fill:#101E33,stroke:#3B82F6,stroke-width:1.5px,color:#D6E6FF
+    classDef cL3 fill:#0C2A28,stroke:#14B8A6,stroke-width:1.5px,color:#C9FBF3
+    classDef cUp fill:#2E1418,stroke:#EF4444,stroke-width:2px,color:#FFD6D6
+    classDef cP2 fill:#161A20,stroke:#7B8CA8,stroke-width:1.5px,stroke-dasharray:6 4,color:#9FB0C6
+    class ACT_TENANT,ACT_ENDUSER,ACT_OPS cActor
+    class UI_PORTAL,UI_CONSOLE,UI_ADMIN cUI
+    class API_GW,TENANT_CTX cL1
+    class SVC_TENANT,SVC_IDENTITY,SVC_FIAT,SVC_ROUTING,SVC_LEDGER,SVC_PRICING,SVC_RISK,SVC_NOTIFY,SVC_AUDIT cL2
+    class ACL_CORE,ADP_BRIDGE,ADP_OPENPAYD cL3
+    class UP_BRIDGE,UP_OPENPAYD cUp
+    class SVC_CRYPTO,SVC_CARD,ADP_EXT,UP_EXT cP2
+
+    style S_ACTOR fill:#120C1E,stroke:#A855F7,stroke-width:2px,color:#C4A8F0
+    style S_UI fill:#1A0D16,stroke:#EC4899,stroke-width:2px,color:#F79CCB
+    style S_L1 fill:#1E1608,stroke:#E59303,stroke-width:2px,color:#E59303
+    style S_L2 fill:#08111E,stroke:#3B82F6,stroke-width:2px,color:#7FB0F0
+    style S_L3 fill:#061A19,stroke:#14B8A6,stroke-width:2px,color:#5FD6CB
+    style S_L4 fill:#1A0C0C,stroke:#EF4444,stroke-width:2px,color:#F08C8C
+    linkStyle default stroke:#64748B,stroke-width:1.2px
+</div>
+    </div>
+  </section>
+
+  <section id="legend">
+    <h2>③ 分层说明<em>每层是什么 · 换了会怎样 · 本期边界在哪</em></h2>
+    <div class="legend">
+      <div class="card"><h3><i class="dot" style="background:#A855F7"></i> <b>L0 · 参与方 ACTOR</b></h3><p>租户系统（唯一集成方，持 API Key）、终端用户（<b>无我方入口</b>，只经租户界面）、我方运营。三者都<b>不直接触达上游</b>：这是白标的定义性边界 —— 终端用户甚至不知道平台存在。</p></div>
+      <div class="card"><h3><i class="dot" style="background:#EC4899"></i> <b>L0 · 界面层 UI</b></h3><p><b>三个完全独立的前端工程</b>：白标门户（外部开发者自助）、租户业务台（租户内部用）、平台运营总台（我方内部用）。三者不共享代码，可独立发版 —— 这是前端工程量的切分依据。</p></div>
+      <div class="card"><h3><i class="dot" style="background:#E59303"></i> <b>L1 · 接入层 GATEWAY</b></h3><p>统一入口：API Key 鉴权与签名、限流、幂等键、版本。核心动作是<b>租户上下文注入</b> —— <code>tenant_id</code> 一经解析就贯穿全链路，下游所有查询与写入都必须带它，这是多租户隔离的唯一实现点。上游 Webhook 走<b>独立入口</b>，不走此层。</p></div>
+      <div class="card"><h3><i class="dot" style="background:#3B82F6"></i> <b>L2 · 平台服务层 SERVICE</b></h3><p>法币能力的领域实现。四个核心服务：<b>法币服务</b>（开户 / 归因 / 收付）、<b>路由引擎</b>（决定走哪家）、<b>账本服务</b>（钱的真值）、<b>计费服务</b>（按租户定价收钱）。法币服务<b>不直接调上游</b>，一律经 L3。加密服务与发卡服务标【二期 Phase 2】，本期不建。</p></div>
+      <div class="card"><h3><i class="dot" style="background:#14B8A6"></i> <b>L3 · 通道适配层（防腐层）</b></h3><p>本层就是 <b>Anti-Corruption Layer</b>，拆两件东西：<b>防腐归一内核</b>（状态字典 / 字段映射 / 错误码归一 / 原始报文落库，全通道共用）与<b>每上游一个适配器</b>（协议、凭据、验签各自封装）。换上游只动 L3，L2 一行不改；上游方言永不渗进 L2 代码。</p></div>
+      <div class="card"><h3><i class="dot" style="background:#EF4444"></i> <b>L4 · 上游提供商层</b></h3><p>一期 <b>2 家</b>：Bridge 覆盖 USD · EUR · GBP 三币种，OpenPayd 覆盖 EUR · GBP 两币种。因此 <b>USD 只有一条腿</b>（Bridge，无冗余），<b>EUR 与 GBP 有两条腿</b>（Bridge 与 OpenPayd，Multi-Rail）。加密托管与发卡上游为二期虚线，不计入本期交付。</p></div>
+    </div>
+  </section>
+
+  <section id="dict">
+    <h2>④ 交付物 3 · 核心名词解释表（Data Dictionary）<em>给产研团队对齐口径用 · 末列是易错点，评审时逐条过</em></h2>
+    <table class="dict">
+      <thead><tr><th>名词（英文 / 缩写）</th><th>一句话定义</th><th>在本次 BaaS MVP 业务中的具体含义</th><th>关键设计约束与易错点</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>虚拟账户<br>Virtual Account (VA)</td>
+          <td>由上游持牌机构在指定通道上开立的、以终端用户名义收款的<b>收款账号</b>，不是平台自己开的内部记账账户。</td>
+          <td>落点在 <code>FIAT_ACCOUNT</code>。形态是 IBAN / 账号 + 路由码（Sort Code 等）。它是入金的<b>物理落点</b>，也是资金归因的唯一锚点。开立规则：<b>一终端用户 × 一币种 = 一个 VA</b>。</td>
+          <td><b>VA 在开立那一刻就绑定了通道</b>（Bridge 开的 VA 只能收 Bridge 通道的钱）。所以：<b>多通道冗余只对出金有意义</b>，入金侧一旦开户就锁死通道。若要求同一用户同币种可双通道入金，就得开 2 个 VA 并把两组收款信息都给客户看 —— 体验与对账成本都上升。这是 MVP 必须拍板的第一取舍。</td>
+        </tr>
+        <tr>
+          <td>全局账本<br>Global Ledger</td>
+          <td>平台内唯一、只可追加的<b>复式记账账本</b>：记录谁的钱、在哪、多少，是所有余额、账单与对账的真值源。</td>
+          <td>落点在 <code>TRANSACTION_LEDGER</code>。一期把「业务流水」与「账本分录」合在一条记录视图里（字段以【流水】【账本】前缀分组）。全租户共用一张账本，但每条记录强制带 <code>tenant_id</code>，按租户强隔离。</td>
+          <td>三条铁律：<b>只新增、不修改、不删除</b>（错账用反向冲正 <code>reversal_of</code>）；<b>状态与余额解耦</b>（通道回调是证据，不能直接改余额，余额只能由分录推导）；<b>一切拦截都在记账之前</b>（拦截等于零账务痕迹，钱一旦在途失败只能冲正）。易错点：把上游回调当记账指令直接改余额。</td>
+        </tr>
+        <tr>
+          <td>多通道路由<br>Multi-Rail Routing</td>
+          <td>同一币种存在两条及以上上游通道时，按规则决定「这一笔走哪家」的机制。</td>
+          <td>落点在 <code>ROUTING_RULE</code> + L2 路由引擎。本业务：<b>USD 单通道</b>（Bridge，不可路由）；<b>EUR / GBP 双通道</b>（Bridge 与 OpenPayd，可路由，可取主备或加权分流）。</td>
+          <td>判定链顺序不能变：<b>幂等命中 → 准入 → 风控拦截 → 额度 → 头寸 → 选路 → 通道健康度 → cut-off → 调用</b>，命中即停。每笔必须落 <code>hit_rule_id</code>，否则事后解释不了「为什么走这家」。最易做错的一条：<b>超时或 5xx 的第一动作是查单，不是重试</b>（上游可能已受理只是响应丢了，盲重试等于重复出金）。</td>
+        </tr>
+        <tr>
+          <td>防腐层<br>Anti-Corruption Layer (ACL)</td>
+          <td>隔离上游「方言」的翻译层：上游的字段名、状态枚举、错误码、金额单位，一律不得渗进我方领域模型。</td>
+          <td>本层 = L3，拆两件：<b>防腐归一内核</b>（字段映射 / 状态字典 / 错误码归一 / <code>raw_payload</code> 原样落库，全通道共用）+ <b>每上游一个适配器</b>（协议、凭据、验签）。核心价值：<b>换上游只动 L3，上层零改动</b>。</td>
+          <td>归一必须有字典且字典必须闭合：Bridge 的 <code>COMPLETED</code> 与 OpenPayd 的 <code>EXECUTED</code> 都归一为 <code>SETTLED</code>；<b>字典外的状态一律判 <code>UNKNOWN</code>，不推进、不记账、挂人工</b>（上游偷改枚举是常态，不认识就不猜）。易错点：为省事在上层直接判断上游原始状态字符串。</td>
+        </tr>
+        <tr>
+          <td>资金归因<br>Attribution</td>
+          <td>把一笔进入平台的资金，自动判定到「哪个租户的哪个终端用户、对应哪个 VA、用于哪笔业务」的过程。</td>
+          <td>出金归因容易（我们主动发起，自带外部引用号）。<b>入金归因是本模块最难的一环</b>：钱是别人打进来的，需三路匹配 —— <b>VA 账号</b>（打到哪个号）→ <b>附言 / reference</b>（客户主动填写）→ <b>上游 Webhook 的流水号</b>。三路交叉得出 <code>attribution_key</code>，它同时是对账主键。</td>
+          <td>只有三种合法出路：<b>唯一命中 → 记账并回调租户；多义命中 → 挂账待认领；无匹配 → 挂账</b>。<b>绝不允许默认归到某个客户账上</b>，也绝不允许直接退款了事。易错点：只用金额匹配（同额同日多笔必然撞车）。挂账必须有独立看板与时效告警，否则钱会静默躺在系统里。</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="terms">
+    <h2>⑤ 配套术语速查<em>上面五个是核心概念，这些是评审时高频出现的配套词汇</em></h2>
+    <table>
+      <thead><tr><th>术语</th><th>全称 / 英文</th><th>本次业务口径</th></tr></thead>
+      <tbody>
+        <tr><td>租户 / 白标租户</td><td>Tenant</td><td>下游 B 端企业。它有自己的客户与自己的品牌界面；我们的名字不出现在终端用户面前。数据隔离的根实体。</td></tr>
+        <tr><td>API Key</td><td>API Key</td><td>发给租户的访问凭据。平台只存哈希不存明文；带环境（sandbox / production）、权限范围（scope）、来源 IP 白名单与吊销状态。</td></tr>
+        <tr><td>多租户隔离</td><td>Tenant Isolation</td><td>不是「加了 tenant_id 就算隔离」：鉴权、查询、写入、回调、计费、日志六个环节都要带 <code>tenant_id</code>，且数据库层要有兜底约束。</td></tr>
+        <tr><td>身份与资产解耦</td><td>Identity-Asset Decoupling</td><td><code>USER_PROFILE</code> 只管合规身份，<code>FIAT_ACCOUNT</code> 只管资产。换通道、加币种、冻结账户都不动身份主档；反之身份信息变更也不必重建账户。</td></tr>
+        <tr><td>幂等键</td><td>Idempotency Key</td><td>租户发起资金类请求必须带。构成 =（<code>tenant_id</code> + 端点 + 幂等键）。重试与重放都靠它兜住，避免重复开户、重复出金。</td></tr>
+        <tr><td>上游流水号</td><td>upstream_ref / Ext_ref</td><td>上游通道给这笔业务的编号。对账双向匹配与争议举证的主键，必须与 <code>raw_payload</code> 一并落库且不可修改。</td></tr>
+        <tr><td>原始报文</td><td>raw_payload</td><td>上游 Webhook 的原样报文归档（含验签结果与时间戳）。对账核不平时的第一手证据，不允许只存归一后字段。</td></tr>
+        <tr><td>反向冲正</td><td>Reversal</td><td>已记账业务出错时的唯一纠错手段：新增一笔方向相反的分录指向原交易，原记录保留。禁止 UPDATE / DELETE 流水。</td></tr>
+        <tr><td>平台账户 / 主账户</td><td>Master Account</td><td>我方在每个上游通道持有的资金池。出金实际从这里出，故需余额监控与调拨；终端用户看不到它，它是<b>平台账本内的科目</b>而非客户资产。</td></tr>
+        <tr><td>截单时间</td><td>Cut-off Time</td><td>上游通道当日处理截止时刻。过点提交即为次一工作日，路由与到账时效承诺必须考虑它。</td></tr>
+        <tr><td>KYB</td><td>Know Your Business</td><td>对<b>租户</b>（企业主体）的合规审核，区别于对终端用户的合规身份审核。二者不可互相替代。</td></tr>
+        <tr><td>资金归集 / 归因落点</td><td>Sweep / Landing Point</td><td>资金最终沉淀到我方主账户的链路；归因落点指入金在哪一层被判定归属（本设计定在 VA + 附言 + upstream_ref 的交叉匹配）。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="note">
+    <h2>⑥ PM 备注与待拍板</h2>
+    <div class="pmnote"><b>PM 备注</b> 绘制语法：交付物 1 用 <code>erDiagram</code>（表达 1:1 / 1:N 多重性），交付物 2 用 <code>flowchart TD + subgraph</code> 做分层色块 —— erDiagram 画不出层容器，用它只能拿实体名前缀冒充分层。节点 ID 仅用于源码检索，不承担语义；层 = subgraph 色块 + 边框。</div>
+    <div class="pmnote"><b>PM 备注</b> 一期与二期强隔离：一期节点实线（<code>stroke-width:2px</code>）、标签带【一期】；二期节点虚线（<code>dasharray:6 4</code>）、标签带【二期 Phase 2】，且<b>二期链路同样走虚线</b>，避免研发把二期算进本期工程量。L4 的层标题直接写「一期 2 家实线（交付范围）」。</div>
+    <div class="pmnote"><b>PM 备注</b> 上游凭据（API Key / 商户号 / 私钥 / 回调验签密钥）一律不落文档、不落图、不落注释；文档里只出现通道名与能力范围。</div>
+    <div class="pmnote"><b>PM 备注</b> <b>本次设计的三条核心架构主张</b>：① <b>身份与资产解耦</b> —— <code>USER_PROFILE</code> 不含任何账户号 / 余额字段，<code>FIAT_ACCOUNT</code> 不重复存身份信息，换通道或加币种不动身份主档；② <b>多通道路由只在出金侧成立</b> —— VA 由通道开立、开立即绑通道，入金侧天然单通道，所以 EUR / GBP 的双腿冗余是<b>「出金主备 + 入金按开户通道锁定」</b>，不是「入金也能随便走」；③ <b>防腐层是上游可替换性的唯一保障</b> —— L2 代码里不允许出现任何上游专有字段名或状态名。</div>
+    <div class="pmnote"><b>PM 备注 · 待你拍板（未答即按现方案推进）</b><br>
+      ① <b>终端用户合规身份归属</b>：本次按你的要求画了 <code>USER_PROFILE</code>（含法定姓名 / 证件 / 地址），即<b>我方持有终端用户合规身份主档</b>；而 <code>diagrams/白标系统-全局系统架构图.html</code> 与《白标系统 · 一期业务流程》里的 <b>D4 决策记的是「我方不建 PII 主档，只存外部引用号」</b>。两口径互斥，需你选一个，我把另一份同步改齐。<br>
+      ② <b>API_KEY 多重性</b>：本次画 <b>1:N</b>（同一租户轮换期可并存多枚密钥）；既有全局架构图是 <b>1:1「一租户一 key」</b>。建议采 1:N（否则轮换必然断服务），需你确认。<br>
+      ③ <b>TENANT_PRICING 多重性</b>：本次画 <b>1:N</b>（按 币种 × 方向 逐条配置，才能表达「不同币种入金费率不同」）；既有页是 <b>1:1「一租户一套费率」</b>。你原话举的例子是「不同币种的入金费率」，与 1:N 一致，需你确认后我去改既有页。<br>
+      ④ <b>TRANSACTION_LEDGER 是否合一</b>：你指定「全局交易流水与统一账本」合为一个实体，本页照办（字段用【流水】【账本】分组）；但既有全局架构图是拆成 <code>TRANSACTION</code> + <code>LEDGER_ENTRY</code> 两张，研发侧更符合复式记账的常规建模。要不要二期拆表？<br>
+      ⑤ <b>本页与既有页的关系</b>：本页是<b>纯法币 MVP 底座</b>（上游仅 2 家、无加密无发卡），既有 <code>白标系统-全局系统架构图.html</code> 是<b>含加密 + 发卡的一期全量架构</b>（上游 4 家 + 二期 BitGo）。两页范围不同但实体高度重叠，建议二选一为主口径、另一页降级为专题附录，避免产研拿错版本。<br>
+      ⑥ 是否推 GitHub Pages 并登记进 <code>PROTOTYPE-LINKS.md</code>（默认不推，等你确认）。</div>
+  </section>
+
+</main>
+
+<div class="bar">
+  <button id="tSrc" type="button">显示 Mermaid 源码</button>
+  <button id="tNote" type="button">隐藏备注</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+(function () {
+  var blocks = Array.prototype.slice.call(document.querySelectorAll('.mermaid'));
+  // run() 会替换容器内容 → 渲染前把源码保到隐藏 pre，CDN 挂时还能救
+  blocks.forEach(function (el, i) {
+    var pre = document.createElement('pre');
+    pre.className = 'src';
+    pre.id = 'src-' + i;
+    pre.textContent = el.textContent.trim();
+    el.parentNode.insertBefore(pre, el);
+  });
+
+  document.getElementById('tSrc').onclick = function () {
+    document.body.classList.toggle('showsrc');
+    this.textContent = document.body.classList.contains('showsrc') ? '隐藏 Mermaid 源码' : '显示 Mermaid 源码';
+  };
+  document.getElementById('tNote').onclick = function () {
+    document.body.classList.toggle('hidenote');
+    this.textContent = document.body.classList.contains('hidenote') ? '显示备注' : '隐藏备注';
+  };
+
+  if (!window.mermaid) { document.body.classList.add('nomermaid'); return; }
+  mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: 'loose',
+    theme: 'base',
+    themeVariables: {
+      darkMode: true,
+      background: '#131820',
+      primaryColor: '#1B2230',
+      primaryTextColor: '#E8ECF0',
+      primaryBorderColor: '#E59303',
+      lineColor: '#9FB3CC',
+      nodeBorder: '#E59303',
+      defaultLinkColor: '#9FB3CC',
+      attributeBackgroundColorOdd: '#1B2230',
+      attributeBackgroundColorEven: '#161C27',
+      fontFamily: 'Inter, "Microsoft YaHei", system-ui, sans-serif',
+      fontSize: '13px'
+    },
+    // 默认 true 会把宽图压进容器宽度，字小到不可读
+    flow: { useMaxWidth: false, diagramPadding: 14 },
+    flowchart: { useMaxWidth: false, diagramPadding: 14 },
+    er: { useMaxWidth: false, diagramPadding: 14 },
+    sequence: { useMaxWidth: false },
+    state: { useMaxWidth: false }
+  });
+  mermaid.run({ querySelector: '.mermaid' }).catch(function (e) {
+    document.body.classList.add('nomermaid');
+    console.error('[mermaid]', e);
+  });
+})();
+</script>
+</body>
+</html>

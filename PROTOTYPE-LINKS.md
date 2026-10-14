@@ -215,7 +215,7 @@
 
 ---
 
-## 11. 🔀 流程图（15）
+## 11. 🔀 流程图（16）
 
 *`diagrams/`*
 
@@ -236,6 +236,7 @@
 | 白标系统 · 全局系统架构图 🆕 | 白标一期全局架构（Mermaid）：第 1 张分层集成视图 = flowchart TD + subgraph，6 个层色块 / 26 节点（L0 拆 参与方 ACTOR 与 界面层 UI；上游一期 4 家实线高亮、二期 BitGo 虚线 Phase 2）；第 2 张核心实体关系 = erDiagram，19 实体（含 TENANT_PRICING 租户定价、AUDIT_LOG 审计日志）/ 1:1 · 1:N · 1:0..1；含分层图例 + 缩写与 BaaS 业务含义表 | 2026-10-13 | [白标系统-全局系统架构图.html](https://xieyi0734-art.github.io/yasbe-prototypes/diagrams/白标系统-全局系统架构图.html) |
 | 白标系统 · 二期 API 与状态机设计 🆕 | 二期设计稿三件套：① 终端用户身份合规与开户状态机（stateDiagram-v2，6 状态 / 10 条转移 / 6 处 Webhook 标注）② 核心 API 接口清单（20 个接口 / 5 组：合规身份 · 子账户开立 · 法币出金 · 历史流水 · Webhook 订阅，含幂等键构成）③ 法币入金时序图（sequenceDiagram，7 参与者 / 20 条消息 + 挂账分支）④ Webhook 事件清单（15 行 / 19 个事件名，含 fiat.deposit.settled） | 2026-10-13 | [白标系统-二期-API与状态机设计.html](https://xieyi0734-art.github.io/yasbe-prototypes/diagrams/白标系统-二期-API与状态机设计.html) |
 | 白标系统 · 三期 路由与对账方案 🆕 | 三期三件套：① 多币种出金智能路由决策树（flowchart TD，28 节点 / 33 条边：幂等 → 准入 → 风控拦截 → 额度 → Master Account 余额 → 智能选路 USD→Bridge / EUR·GBP→OpenPayd → 健康度探活 → cut-off → 查单优先重试 → 熔断降级与排队）② 状态归一化与适配器防腐层（sequenceDiagram，7 参与者 / 16 条消息 + 13 行状态映射字典：Bridge COMPLETED 与 OpenPayd EXECUTED 均归一为 SETTLED，未知状态挂人工）③ T+1 全局对账与核平（5 类外部数据源 + 三层双向核对 + 9 类差错账处置表：单边账 / 金额错配 / 状态不一致 / 重复流水 / 跨日 / 链上重组 / 卡授权未清算） | 2026-10-13 | [白标系统-三期-路由与对账方案.html](https://xieyi0734-art.github.io/yasbe-prototypes/diagrams/白标系统-三期-路由与对账方案.html) |
+| 白标系统 · 一期 业务抽象与数据建模 🆕 | 一期（MVP · 纯法币）三件套：① 核心实体关系 = erDiagram，8 实体 / 92 字段 / 11 条关系（TENANT 与 API_KEY 轮换、TENANT_PRICING 租户定价、USER_PROFILE 合规身份独立于资产、FIAT_ACCOUNT 虚拟账户 VA、TRANSACTION_LEDGER 全局账本、ROUTING_RULE 多通道路由、AUDIT_LOG 审计）② 全局分层架构 = flowchart TD + subgraph，6 层色块 / 26 节点 / 40 条边（L0_ACTOR → L0_UI → L1_GATEWAY → L2_SERVICE → L3_ADAPTER 防腐层 → L4_UPSTREAM：Bridge 三币种、OpenPayd 两币种，EUR 与 GBP 双腿冗余 Multi-Rail）③ 名词解释表 19 行（VA / Global Ledger / Multi-Rail Routing / Anti-Corruption Layer / Attribution 等） | 2026-10-14 | [白标系统-一期-业务抽象与数据建模.html](https://xieyi0734-art.github.io/yasbe-prototypes/diagrams/白标系统-一期-业务抽象与数据建模.html) |
 
 ---
 
