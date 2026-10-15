@@ -209,74 +209,59 @@ body.hide-pmnote .pmnote{display:none!important}
   <div class="acts"><span class="badge ok">账号状态 正常</span></div>
 </div>
 
-<div class="grid2">
-  <div class="card">
-    <div class="card-h"><h2>账号信息</h2><span class="hint">姓名与所属租户由 YASBe 平台侧维护，如需变更请联系 YASBe 支持团队</span></div>
-    <div class="card-b">
-      <dl class="kv" style="grid-template-columns:96px 1fr">
-        <dt>姓名</dt><dd>谢毅</dd>
-        <dt>所属租户</dt><dd>Acme Payment Ltd. · TNT-000123</dd>
-        <dt>登录邮箱</dt><dd>j***@acme-payment.com</dd>
-        <dt>上次修改密码</dt><dd>2026-07-12</dd>
-        <dt>上次登录</dt><dd>2026-10-15 09:12 · 上海</dd>
-      </dl>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-h"><h2>修改密码</h2><span class="hint">建议每 90 天更换一次</span></div>
-    <div class="card-b">
-      <div class="fg2"><label>当前密码</label><input type="password" placeholder="请输入当前密码"></div>
-      <div class="fg2"><label>新密码</label><input type="password" placeholder="8-32 位，含大小写字母与数字"></div>
-      <div class="fg2"><label>确认新密码</label><input type="password" placeholder="请再次输入新密码"></div>
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <button class="btn btn-sm btn-primary" onclick="toast('[原型演示] 密码已更新，其它设备需重新登录')">保存新密码</button>
-        <span class="hint">修改成功后，其它设备上的登录会话会失效</span>
-      </div>
-    </div>
-  </div>
-</div>
-
 <div class="card">
-  <div class="card-h"><h2>修改邮箱</h2><span class="badge warn">敏感操作</span><span class="hint">登录邮箱用于接收验证码、账单与安全通知</span></div>
-  <div class="card-b">
-    <div class="grid2">
-      <div>
-        <div class="fg2"><label>当前邮箱</label><input value="j***@acme-payment.com" disabled></div>
-        <div class="fg2"><label>新邮箱</label><input placeholder="请输入新的登录邮箱"></div>
-        <div class="fg2"><label>验证码</label>
-          <div style="display:flex;gap:9px">
-            <input placeholder="6 位数字验证码" style="flex:1">
-            <button class="btn btn-sm btn-ghost" style="white-space:nowrap" onclick="toast('[原型演示] 验证码已发送至新邮箱')">发送验证码</button>
-          </div>
-        </div>
-      </div>
-      <div class="hint" style="line-height:1.9">
-        验证码发送至新邮箱，验证通过后新邮箱立即生效，原邮箱会收到一封变更通知。<br>
-        修改邮箱属于敏感操作，需要同时通过身份验证器动态码确认。
-      </div>
-    </div>
-    <div style="display:flex;gap:9px;margin-top:4px">
-      <button class="btn btn-sm btn-primary" onclick="toast('[原型演示] 登录邮箱已更新')">保存新邮箱</button>
-      <button class="btn btn-sm btn-ghost" onclick="toast('[原型演示] 已取消修改')">取消</button>
-    </div>
-  </div>
-</div>
-
-<div class="card">
-  <div class="card-h"><h2>身份验证器</h2><span class="badge ok">已绑定</span><span class="hint">Google Authenticator（TOTP）· 绑定于 2026-07-01</span>
-    <div class="acts">
-      <button class="btn btn-sm btn-ghost" onclick="openOv('m-2fa-bind')">重新绑定</button>
-      <button class="btn btn-sm btn-ghost" onclick="openOv('m-2fa-unbind')">解绑</button>
-    </div>
-  </div>
+  <div class="card-h"><h2>账号信息</h2><span class="hint">姓名与所属租户由 YASBe 平台侧维护，如需变更请联系 YASBe 支持团队</span></div>
   <div class="card-b">
     <dl class="kv" style="grid-template-columns:96px 1fr">
-      <dt>验证方式</dt><dd>动态码（6 位，30 秒刷新一次）</dd>
-      <dt>适用场景</dt><dd>生成与吊销 Live 环境 API Key、发起储备金充值、认领挂账等敏感操作</dd>
-      <dt>备用方式</dt><dd>邮箱验证码（仅在本页修改邮箱、解绑身份验证器时使用）</dd>
+      <dt>姓名</dt><dd>谢毅</dd>
+      <dt>所属租户</dt><dd>Acme Payment Ltd. · TNT-000123</dd>
+      <dt>上次登录</dt><dd>2026-10-15 09:12 · 上海 · Chrome / Windows 11</dd>
     </dl>
-    <div class="hint" style="margin-top:12px">请勿把密钥或动态码提供给任何人；YASBe 工作人员不会向你索取这些信息。</div>
+  </div>
+</div>
+
+<div class="grid3">
+  <div class="card">
+    <div class="card-h"><h2>登录密码</h2><span class="badge ok">已设置</span>
+      <div class="acts"><button class="btn btn-sm btn-ghost" onclick="openOv('m-pwd')">修改密码</button></div>
+    </div>
+    <div class="card-b">
+      <dl class="kv" style="grid-template-columns:76px 1fr">
+        <dt>上次修改</dt><dd>2026-07-12</dd>
+        <dt>建议周期</dt><dd>每 90 天更换一次</dd>
+      </dl>
+      <div class="hint" style="margin-top:10px">修改成功后，其它设备上的登录会话会失效。</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><h2>登录邮箱</h2><span class="badge ok">已验证</span>
+      <div class="acts"><button class="btn btn-sm btn-ghost" onclick="openOv('m-email')">修改邮箱</button></div>
+    </div>
+    <div class="card-b">
+      <dl class="kv" style="grid-template-columns:76px 1fr">
+        <dt>当前邮箱</dt><dd>j***@acme-payment.com</dd>
+        <dt>用途</dt><dd>验证码、账单与安全通知</dd>
+      </dl>
+      <div class="hint" style="margin-top:10px">修改邮箱属于敏感操作，需要动态码确认。</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><h2>身份验证器</h2><span class="badge ok">已绑定</span>
+      <div class="acts">
+        <button class="btn btn-sm btn-ghost" onclick="openOv('m-2fa-bind')">重新绑定</button>
+        <button class="btn btn-sm btn-ghost" onclick="openOv('m-2fa-unbind')">解绑</button>
+      </div>
+    </div>
+    <div class="card-b">
+      <dl class="kv" style="grid-template-columns:76px 1fr">
+        <dt>验证方式</dt><dd>Google Authenticator（TOTP）· 6 位动态码 30 秒刷新</dd>
+        <dt>绑定时间</dt><dd>2026-07-01</dd>
+        <dt>适用场景</dt><dd>生成与吊销 Live 环境 API Key、发起储备金充值、认领挂账</dd>
+      </dl>
+      <div class="hint" style="margin-top:10px">请勿把密钥或动态码提供给任何人；YASBe 工作人员不会向你索取这些信息。</div>
+    </div>
   </div>
 </div>
 
@@ -299,7 +284,7 @@ body.hide-pmnote .pmnote{display:none!important}
   </div>
 </div>
 
-<div class="pmnote"><b>PM 备注</b>本页只管「本人账号」的登录凭据与验证方式（修改密码 / 修改邮箱 / 身份验证器绑定与解绑 / 登录设备）。成员与角色归「团队与权限」、告警接收归「通知偏好」、操作留痕归「审计日志」，PRD 中属独立页面，本页不做（D12）。绑定流程（扫码 + 密钥 + 6 位动态码）与解绑流程（邮箱验证码确认身份）取自 prd/PRD-二次验证-出金.md；「解绑后敏感操作退回邮箱验证码」是那份 PRD 的口径，而客户端现网是「仅 TOTP、无邮箱回退」，两端不一致待定（D13）。「账号信息」里的姓名 / 租户 / 上次登录 / 上次改密为演示值，真实数据源待确认（D14）。管理员是否可在本页设「租户级强制 2FA 策略」（PRD 1.1 设置-安全 = Admin 租户级策略）本页未画，待定（D15）。侧栏入口目前只加在工作台首页与本页，是否同步其余 7 页待定（D11）。</div>
+<div class="pmnote"><b>PM 备注</b>本页只放「本人账号」的登录凭据与验证方式，每个功能一张卡（账号信息 / 登录密码 / 登录邮箱 / 身份验证器 / 登录设备）；凡涉及改值的一律走弹窗（修改密码 m-pwd、修改邮箱 m-email、绑定与解绑身份验证器 m-2fa-bind / m-2fa-unbind），卡片本身只做只读汇总，不在页内留表单。退出单台设备是列表内联动作、只演示提示；「退出所有其它设备」按危险动作走二次确认弹窗。绑定流程（扫码 + 密钥 + 6 位动态码）与解绑流程（邮箱验证码确认身份）取自 prd/PRD-二次验证-出金.md；「解绑后退回邮箱验证码」是那份 PRD 的口径，客户端现网是「仅 TOTP、无邮箱回退」，两端不一致待定（D13）。成员与角色归「团队与权限」、告警接收归「通知偏好」、留痕归「审计日志」，本页不做（D12）。「姓名 / 租户 / 上次登录 / 上次改密 / 3 台设备」为演示值，真实数据源待确认（D14）。管理员是否可在本页设「租户级强制 2FA 策略」（PRD 1.1 设置-安全 = Admin 租户级策略）本页未画，待定（D15）。</div>
 </div></div></div>
 <div id="toast" class="toast"></div>
 <script>
@@ -330,6 +315,33 @@ window.addEventListener('DOMContentLoaded',function(){
   for(var i=0;i<rows.length;i++){rows[i].style.cursor='pointer';}
 });
 </script>
+<div class="ov" id="m-pwd"><div class="modal" style="max-width:440px">
+  <div class="modal-h"><h2>修改密码</h2><button class="modal-x" onclick="closeOv('m-pwd')">×</button></div>
+  <div class="modal-b">
+    <div class="fg2"><label>当前密码</label><input type="password" placeholder="请输入当前密码"></div>
+    <div class="fg2"><label>新密码</label><input type="password" placeholder="8-32 位，含大小写字母与数字"></div>
+    <div class="fg2"><label>确认新密码</label><input type="password" placeholder="请再次输入新密码"></div>
+    <div class="hint" style="line-height:1.8">新密码不得与最近 3 次使用过的密码相同；保存成功后，其它设备上的登录会话会失效，需要重新登录。</div>
+  </div>
+  <div class="modal-f"><button class="btn btn-sm btn-ghost" onclick="closeOv('m-pwd')">取消</button><button class="btn btn-sm btn-primary" onclick="closeOv('m-pwd');toast('[原型演示] 密码已更新，其它设备需重新登录')">保存新密码</button></div>
+</div></div>
+
+<div class="ov" id="m-email"><div class="modal" style="max-width:440px">
+  <div class="modal-h"><h2>修改邮箱</h2><span class="badge warn" style="margin-left:10px">敏感操作</span><button class="modal-x" onclick="closeOv('m-email')">×</button></div>
+  <div class="modal-b">
+    <div class="fg2"><label>当前邮箱</label><input value="j***@acme-payment.com" disabled></div>
+    <div class="fg2"><label>新邮箱</label><input placeholder="请输入新的登录邮箱"></div>
+    <div class="fg2"><label>验证码</label>
+      <div style="display:flex;gap:9px">
+        <input placeholder="6 位数字验证码" style="flex:1">
+        <button class="btn btn-sm btn-ghost" style="white-space:nowrap" onclick="toast('[原型演示] 验证码已发送至新邮箱')">发送验证码</button>
+      </div>
+    </div>
+    <div class="hint" style="line-height:1.8">验证码发送至新邮箱，验证通过后新邮箱立即生效，原邮箱会收到一封变更通知；同时需要通过身份验证器动态码确认。</div>
+  </div>
+  <div class="modal-f"><button class="btn btn-sm btn-ghost" onclick="closeOv('m-email')">取消</button><button class="btn btn-sm btn-primary" onclick="closeOv('m-email');toast('[原型演示] 登录邮箱已更新')">保存新邮箱</button></div>
+</div></div>
+
 <div class="ov" id="m-2fa-bind"><div class="modal" style="max-width:440px">
   <div class="modal-h"><h2>绑定身份验证器</h2><button class="modal-x" onclick="closeOv('m-2fa-bind')">×</button></div>
   <div class="modal-b">
