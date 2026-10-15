@@ -103,6 +103,16 @@
 | 结算与对账 | 分润规则 · 租户子账（MoR）· 结算单（PENDING→CONFIRMED→PAID→CLOSED）· 争议挂账冻结 · 欠费与降级（不自动终止） | 2026-10-15 | [2026-10-15_结算与对账_管理端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/白标租户管理/2026-10-15_结算与对账_管理端.html) |
 | 权限与审计日志 | 角色权限矩阵（6 角色）· 多租户隔离（行级 tenant_id · 越权 403 + 告警）· 操作审计规范 · 审计日志 | 2026-10-15 | [2026-10-15_权限与审计日志_管理端.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/白标租户管理/2026-10-15_权限与审计日志_管理端.html) |
 
+> **PRD 与配套文档**（GitHub Pages 上为原文直出 `text/markdown`，浏览器只读/下载）
+> 
+> | 文档 | 内容 | 链接 |
+> |---|---|---|
+> | PRD · 后台结构大纲 v0.1 | PRD 结构大纲：M1–M8 功能需求（F-101~F-706）、角色权限矩阵、多租户隔离、计费与分润、审计规范、数据模型 | [白标租户管理后台-PRD结构大纲-v0.1.md](https://xieyi0734-art.github.io/yasbe-prototypes/prd/白标租户管理/白标租户管理后台-PRD结构大纲-v0.1.md) |
+> | PRD · 三端全景与一期页面清单 v0.1 | 三端（管理端 / 租户业务台 / 白标门户）全景与一期 9 页清单及规范 | [白标系统-三端全景与一期页面清单-v0.1.md](https://xieyi0734-art.github.io/yasbe-prototypes/prd/白标租户管理/白标系统-三端全景与一期页面清单-v0.1.md) |
+> | 准入流程 · Mermaid | 租户状态机：DRAFT → SUBMITTED → … → ACTIVE / SUSPENDED / TERMINATED | [白标租户管理-准入流程-Mermaid.md](https://xieyi0734-art.github.io/yasbe-prototypes/prd/白标租户管理/白标租户管理-准入流程-Mermaid.md) |
+> | 边缘场景与兜底交互 QA 清单 | 准入 / 结算 / 域名等边缘场景与兜底交互问答清单 | [白标租户管理-边缘场景与兜底交互-QA清单.md](https://xieyi0734-art.github.io/yasbe-prototypes/prd/白标租户管理/白标租户管理-边缘场景与兜底交互-QA清单.md) |
+
+
 ## 4. 🧑‍💼 专题 · VA 代理（双端）（12）
 
 *`prototypes/VA代理/`（2026-10-09 首版 10 页 · 2026-10-10 代理端两页改版）*
