@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>白标系统 · 域名与邮件</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',-apple-system,sans-serif; background:#F0F2F5; color:#1a1d29; }
+.sidebar { position:fixed; left:0; top:0; bottom:0; width:240px; background:#1D2129; display:flex; flex-direction:column; z-index:50; }
+.sidebar-brand { padding:20px 20px 16px; border-bottom:1px solid rgba(255,255,255,.08); }
+.sidebar-brand .logo { display:flex; align-items:center; gap:10px; color:#fff; font-size:15px; font-weight:600; letter-spacing:.3px; }
+.sidebar-brand .logo-mark { width:26px; height:26px; border-radius:7px; background:#E59303; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:#fff; }
+.sidebar-brand .logo-sub { margin-top:6px; font-size:12px; color:rgba(255,255,255,.45); }
+.sidebar-nav { padding:12px 12px 24px; overflow-y:auto; flex:1; }
+.sidebar-group { padding:14px 8px 6px; font-size:11px; letter-spacing:1px; color:rgba(255,255,255,.32); text-transform:uppercase; }
+.sidebar-item { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:6px; color:rgba(255,255,255,.72); font-size:13px; cursor:pointer; margin-bottom:2px; text-decoration:none; }
+.sidebar-item:hover { background:rgba(255,255,255,.08); color:#fff; }
+.sidebar-item.active { background:#E59303; color:#fff; font-weight:500; }
+.sidebar-item .ico { width:16px; text-align:center; opacity:.9; }
+.sidebar-foot { padding:12px 20px 16px; border-top:1px solid rgba(255,255,255,.08); font-size:11px; color:rgba(255,255,255,.35); }
+.main { margin-left:240px; min-height:100vh; }
+.header { background:#fff; padding:16px 32px; border-bottom:1px solid #eef0f4; display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; position:sticky; top:0; z-index:40; }
+.crumb { font-size:12px; color:#86909C; margin-bottom:6px; }
+.header h1 { font-size:20px; font-weight:600; }
+.header p { font-size:13px; color:#6b7280; margin-top:4px; }
+.container { max-width:1560px; margin:0 auto; padding:24px 32px 60px; }
+.btn { display:inline-flex; align-items:center; gap:6px; padding:8px 18px; border-radius:8px; font-size:13px; font-weight:500; border:none; cursor:pointer; transition:all .2s; text-decoration:none; font-family:inherit; }
+.btn-primary { background:#E59303; color:#fff; }
+.btn-primary:hover { background:#d08400; }
+.btn-secondary { background:#f3f4f6; color:#374151; }
+.btn-secondary:hover { background:#e5e7eb; }
+.btn-outline { background:#fff; border:1px solid #e5e7eb; color:#374151; }
+.btn-outline:hover { border-color:#E59303; color:#E59303; }
+.btn-sm { padding:5px 12px; font-size:12px; border-radius:6px; }
+.btn-danger { background:#fee2e2; color:#dc2626; }
+.btn-danger:hover { background:#fecaca; }
+.btn-ok { background:#d1fae5; color:#059669; }
+.btn-ok:hover { background:#a7f3d0; }
+.stats { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px; }
+.stat { background:#fff; border-radius:12px; padding:16px 18px; box-shadow:0 1px 3px rgba(0,0,0,.04); }
+.stat .s-label { font-size:12px; color:#6b7280; margin-bottom:6px; }
+.stat .s-value { font-size:24px; font-weight:700; letter-spacing:-.3px; }
+.stat .s-value.gold { color:#E59303; }
+.stat .s-value.green { color:#059669; }
+.stat .s-value.amber { color:#d97706; }
+.stat .s-sub { font-size:11.5px; color:#9ca3af; margin-top:4px; }
+.filters { background:#fff; border-radius:12px; padding:16px 20px; margin-bottom:16px; box-shadow:0 1px 3px rgba(0,0,0,.04); display:flex; align-items:flex-end; gap:16px; flex-wrap:wrap; }
+.filter-group { display:flex; flex-direction:column; gap:4px; }
+.filter-group label { font-size:12px; color:#6b7280; font-weight:500; }
+.filter-group input, .filter-group select { padding:8px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:13px; min-width:170px; outline:none; font-family:inherit; background:#fff; }
+.filter-group input:focus, .filter-group select:focus { border-color:#E59303; box-shadow:0 0 0 3px rgba(229,147,3,.08); }
+.table-wrapper { background:#fff; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.04); }
+.table-scroll { overflow-x:auto; border-radius:12px 12px 0 0; }
+table { width:100%; border-collapse:collapse; min-width:1360px; }
+thead { background:#f9fafb; }
+th { padding:12px 16px; text-align:left; font-size:12px; font-weight:600; color:#6b7280; text-transform:uppercase; letter-spacing:.03em; border-bottom:1px solid #eef0f4; white-space:nowrap; }
+td { padding:14px 16px; font-size:13px; border-bottom:1px solid #f3f4f6; vertical-align:middle; white-space:nowrap; }
+tbody tr:hover td { background:#fdfdfd; }
+.avatar { width:32px; height:32px; border-radius:50%; background:#fef3c7; color:#92400e; display:inline-flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; margin-right:10px; flex-shrink:0; }
+.tcell { display:flex; align-items:center; }
+.t-name { font-weight:600; }
+.t-sub { font-size:12px; color:#9ca3af; }
+.badge { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:6px; font-size:11.5px; font-weight:500; }
+.badge-active { background:#d1fae5; color:#059669; }
+.badge-part { background:#e0f2fe; color:#0369a1; }
+.badge-review { background:#eff6ff; color:#2563eb; }
+.badge-warn { background:#fef3c7; color:#92400e; }
+.badge-off { background:#f3f4f6; color:#9ca3af; }
+.badge-danger { background:#fee2e2; color:#dc2626; }
+.chips { display:flex; gap:6px; flex-wrap:nowrap; }
+.chip { display:inline-flex; align-items:center; gap:5px; padding:2px 9px; border-radius:14px; font-size:11.5px; font-weight:500; border:1px solid transparent; }
+.chip-prod { background:#ecfdf5; color:#059669; border-color:#a7f3d0; }
+.chip-limited { background:#fffbeb; color:#b45309; border-color:#fde68a; }
+.chip-off { background:#f9fafb; color:#9ca3af; border-color:#eef0f4; }
+.mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+.dim { color:#9ca3af; }
+.num { font-variant-numeric:tabular-nums; }
+.ops { display:flex; gap:6px; }
+.pagination { display:flex; justify-content:space-between; align-items:center; padding:14px 16px; border-top:1px solid #eef0f4; background:#fafbfc; flex-wrap:wrap; gap:10px; border-radius:0 0 12px 12px; }
+.pagination-info { font-size:12px; color:#6b7280; }
+.pagination-btns { display:flex; gap:6px; }
+.page-btn { padding:6px 12px; border:1px solid #e5e7eb; border-radius:6px; background:#fff; font-size:12px; color:#374151; cursor:pointer; font-family:inherit; }
+.page-btn.active { background:#E59303; color:#fff; border-color:#E59303; }
+.page-btn:disabled { color:#c9ccd1; cursor:not-allowed; }
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:1000; overflow-y:auto; padding:40px 16px; }
+.modal-overlay.active { display:flex; align-items:flex-start; justify-content:center; }
+.modal { background:#fff; border-radius:16px; width:100%; max-width:560px; margin:auto; box-shadow:0 20px 60px rgba(0,0,0,.12); }
+.modal-header { display:flex; justify-content:space-between; align-items:center; padding:20px 28px; border-bottom:1px solid #eef0f4; }
+.modal-header h2 { font-size:17px; font-weight:600; }
+.modal-close { width:32px; height:32px; border-radius:8px; border:none; background:#f3f4f6; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#6b7280; }
+.modal-body { padding:24px 28px; }
+.modal-footer { display:flex; justify-content:flex-end; gap:10px; padding:16px 28px; border-top:1px solid #eef0f4; }
+.form-group { display:flex; flex-direction:column; gap:6px; margin-bottom:16px; }
+.form-group label { font-size:12px; color:#6b7280; font-weight:500; }
+.form-group input, .form-group select, .form-group textarea { padding:9px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:13px; outline:none; font-family:inherit; }
+.form-group textarea { min-height:80px; resize:vertical; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color:#E59303; box-shadow:0 0 0 3px rgba(229,147,3,.08); }
+.tip { background:#f9fafb; border:1px solid #eef0f4; border-radius:10px; padding:12px 14px; font-size:12.5px; color:#6b7280; line-height:1.75; }
+.tip b { color:#374151; }
+.tip.warn { background:#fffbeb; border-color:#fde68a; color:#92400e; }
+.tip.warn b { color:#78350f; }
+.pmnote { background:#14171c; border-left:3px solid #FFCA00; border-radius:6px; padding:10px 12px; margin:10px 0; font-size:13px; line-height:1.75; color:#c8ccd4; }
+.pmnote b { color:#FFCA00; margin-right:8px; }
+.pmnote.dem { border-left-color:#4a5568; }
+.pmnote.dem b { color:#9aa3b2; }
+.pmnote-toggle { position:fixed; right:14px; bottom:14px; z-index:9999; background:#1a1e26; color:#FFCA00; border:1px solid #2a2f3a; border-radius:20px; padding:6px 14px; font-size:12px; cursor:pointer; font-family:inherit; }
+body.hide-pmnote .pmnote { display:none!important; }
+@media (max-width:1100px) { .stats { grid-template-columns:1fr 1fr; } }
+.card{background:#fff; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.04); padding:24px 28px; margin-bottom:16px;}
+.card h2{font-size:15px; font-weight:600; margin-bottom:4px;}
+.card .card-sub{font-size:12.5px; color:#6b7280; margin-bottom:18px;}
+.steps{display:flex; gap:0; background:#fff; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.04); padding:18px 20px; margin-bottom:16px; overflow-x:auto;}
+.step{display:flex; align-items:center; gap:8px; padding:0 14px; font-size:12.5px; color:#9ca3af; cursor:pointer; white-space:nowrap; flex:1; min-width:0;}
+.step .step-num{width:26px; height:26px; border-radius:50%; border:2px solid currentColor; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;}
+.step.active{color:#E59303; font-weight:600;}
+.step.active .step-num{background:#E59303; color:#fff; border-color:#E59303;}
+.step.done{color:#059669;}
+.step.done .step-num{background:#059669; color:#fff; border-color:#059669;}
+.step-line{flex:0 0 16px; height:2px; background:#eef0f4;}
+.form-grid{display:grid; grid-template-columns:1fr 1fr; gap:0 16px;}
+.form-grid-3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:0 16px;}
+.hint{font-size:11.5px; color:#9ca3af; margin-top:2px;}
+.file-drop{border:1.5px dashed #d1d5db; border-radius:10px; padding:18px; text-align:center; color:#9ca3af; font-size:12.5px; background:#fafbfc;}
+.file-drop b{display:block; color:#6b7280; font-size:12.5px; margin-bottom:4px;}
+.file-item{display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border:1px solid #eef0f4; border-radius:8px; margin-bottom:8px; font-size:12.5px;}
+.file-item .f-name{font-weight:500;}
+.file-item .f-meta{color:#9ca3af; font-size:11.5px;}
+.pill{display:inline-flex; align-items:center; padding:2px 9px; border-radius:6px; font-size:11px; font-weight:500;}
+.pill-ok{background:#d1fae5; color:#059669;}
+.pill-warn{background:#fef3c7; color:#92400e;}
+.pill-gray{background:#f3f4f6; color:#9ca3af;}
+.pill-blue{background:#eff6ff; color:#2563eb;}
+.checklist{list-style:none;}
+.checklist li{display:flex; align-items:flex-start; gap:8px; font-size:13px; padding:9px 0; border-bottom:1px solid #f3f4f6;}
+.checklist li:last-child{border-bottom:none;}
+.checklist .ck{width:16px; flex-shrink:0;}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
+.summary-row{display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f3f4f6; font-size:13px;}
+.summary-row:last-child{border-bottom:none;}
+.summary-row .k{color:#6b7280;}
+.summary-row .v{font-weight:500;}
+.result-view{text-align:center; padding:36px 20px;}
+.result-icon{font-size:56px; margin-bottom:14px;}
+.result-title{font-size:19px; font-weight:600; margin-bottom:8px;}
+.result-desc{color:#6b7280; font-size:13px; margin-bottom:22px; line-height:1.8;}
+.form-grid, .form-grid-3{grid-template-columns:1fr;}
+.subnav-local{margin:0 0 16px;font-size:13px;color:#6b7280}
+.subnav-local .crumb-link{color:#E59303;text-decoration:none}
+.subnav-local .crumb-link:hover{text-decoration:underline}
+.subnav-local .crumb-cur{color:#1D2129;font-weight:600}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.sec-title{font-size:14px;font-weight:600;margin:0 0 12px}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px dashed #eef0f4;font-size:13px}
+.kv:last-child{border-bottom:0}
+.kv .k{color:#6b7280}
+.kv .v{color:#1D2129;font-weight:500;text-align:right}
+.row-actions a{color:#E59303;text-decoration:none;margin-right:10px;font-size:13px;cursor:pointer}
+tr.locked td{background:#fafbfc;color:#9aa1ad}
+.mini{font-size:12px;color:#9aa1ad}
+.swatch{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:6px;border:1px solid rgba(0,0,0,.08)}
+
+</style>
+</head>
+<body>
+
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo"><span class="logo-mark">Y</span>YASBe 平台管理</div>
+    <div class="logo-sub">白标租户管理</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-group">租户运营</div>
+    <a class="sidebar-item active" href="2026-10-12_白标租户列表_管理端.html"><span class="ico">▦</span>租户列表</a>
+    <a class="sidebar-item" href="2026-10-12_白标租户开通向导_管理端.html"><span class="ico">＋</span>开通向导</a>
+    <div class="sidebar-group">日常作业</div>
+    <a class="sidebar-item" href="#" onclick="alert('[PM 备注] 待办中心将在后续增量产出');return false;"><span class="ico">☰</span>待办中心</a>
+    <a class="sidebar-item" href="#" onclick="alert('[PM 备注] 用量与收入将在后续增量产出');return false;"><span class="ico">◔</span>用量与收入</a>
+    <a class="sidebar-item" href="2026-10-15_结算与对账_管理端.html"><span class="ico">⇄</span>结算与对账</a>
+    <a class="sidebar-item" href="#" onclick="alert('[PM 备注] 交易流水查询将在后续增量产出');return false;"><span class="ico">≡</span>交易流水查询</a>
+    <div class="sidebar-group">平台治理</div>
+    <a class="sidebar-item" href="2026-10-15_权限与审计日志_管理端.html"><span class="ico">▣</span>权限与审计日志</a>
+  </nav>
+  <div class="sidebar-foot">v0.1 · 一期原型</div>
+</aside>
+
+<div class="main">
+  <button class="pmnote-toggle" onclick="document.body.classList.toggle('hide-pmnote');this.textContent=document.body.classList.contains('hide-pmnote')?'显示备注':'隐藏备注'">隐藏备注</button>
+  <div class="pmnote"><b>PM 备注</b>本页为「租户详情」下级页。域名 / SSL / 邮件各有独立状态机：Domain：UNBOUND → VERIFYING → VERIFIED → SSL_ISSUING → ACTIVE（→ EXPIRING → EXPIRED | RENEW_FAILED）；SMTP：UNCONFIGURED → PENDING_VERIFY → VERIFIED → ENABLED（→ SUSPENDED → DISABLED）。任何失败回退都必须显式告知，不静默。</div>
+  <div class="header">
+    <div>
+      <div class="crumb">白标租户管理 / 租户列表 / <b>星桥跨境科技</b> / <b>域名与邮件</b></div>
+      <h1>域名与邮件 · 星桥跨境科技</h1>
+      <p>自定义域名 · DNS 校验 · SSL 证书 · 邮件发件域 · SMTP 自建发件服务</p>
+    </div>
+    <div style="display:flex;gap:10px;"><button class="btn btn-outline" onclick="location.href='2026-10-15_租户详情总览_管理端.html'">⬅ 返回租户详情</button>
+      <button class="btn btn-primary" onclick="openModal('modalDomain')">＋ 添加域名</button></div>
+  </div>
+
+  <div class="container">
+  <div class="subnav-local">租户详情：<a class="crumb-link" href="2026-10-15_租户详情总览_管理端.html">详情总览</a> · <a class="crumb-link" href="2026-10-15_品牌配置_管理端.html">品牌配置</a> · <span class="crumb-cur">域名与邮件</span> · <a class="crumb-link" href="2026-10-15_能力与额度_管理端.html">能力与额度</a> · <a class="crumb-link" href="2026-10-15_费率与计费_管理端.html">费率与计费</a></div>
+  <div class="tip"><b>前置条件</b>品牌配置已保存；租户计划含「自定义域名」权限；租户对目标域名具备 DNS 管理权。</div>
+  <div class="pmnote dem"><b>PM 备注</b>字段依据 F-401（域名申请：提交域名 → 全局唯一性校验 → 平台保留域 / 主域冲突校验，如 yasbee.com 及其子域拒绑）+ F-402（DNS 校验：CNAME 目标 + TXT 校验值，定时轮询 + 手动立即校验）+ F-403（SSL 签发与续期：到期前 30/15/7 天多级提醒，续期失败进 SSL_FAILED 并降级提示）+ F-404（主 / 备用域名：备用重定向，切换不影响已签发证书）+ F-405（邮件发件域：SPF / DKIM / DMARC 指引 → 校验 → 生效）+ F-406（SMTP 自建：host / port / 加密方式 / 账号 / 密钥 / 发件人名称，测试发信通过才可启用）+ F-407（任一环节失败自动回退平台默认，且回退必须显式告知）。</div>
+
+  <div class="card">
+    <h2>自定义域名</h2>
+    <div class="card-sub">F-401 · F-404 · 主域名对外，备用域名重定向；切换不影响已签发证书</div>
+    <div class="table-wrapper"><div class="table-scroll">
+      <table>
+        <thead><tr><th>域名</th><th>类型</th><th>状态</th><th>SSL 到期</th><th>操作</th></tr></thead>
+        <tbody>
+          <tr><td class="t-name">pay.xingqiao.com<div class="t-sub">CNAME → edge.yasbee.app</div></td><td>主域名</td><td><span class="badge badge-active">ACTIVE</span></td><td>2027-03-14</td><td class="ops"><a onclick="alert('[原型演示] 已下发 DNS 校验值并立即校验')">立即校验</a><a onclick="alert('[PM 备注] 主域名需先降级为备用或解绑后才能更换')">更换</a></td></tr>
+          <tr><td class="t-name">checkout.xingqiao.com<div class="t-sub">CNAME → edge.yasbee.app</div></td><td>备用</td><td><span class="badge badge-warn">VERIFYING</span></td><td>—</td><td class="ops"><a onclick="alert('[原型演示] 已下发 DNS 校验值并立即校验')">立即校验</a><a onclick="alert('[原型演示] 已解除绑定')">解绑</a></td></tr>
+          <tr><td class="t-name">old.xingqiao.com<div class="t-sub">TXT 校验未通过 · 已回退平台默认域</div></td><td>备用</td><td><span class="badge badge-danger">EXPIRED</span></td><td>2026-09-30</td><td class="ops"><a onclick="alert('[原型演示] 已重新发起绑定申请')">重新申请</a><a onclick="alert('[原型演示] 已解除绑定')">解绑</a></td></tr>
+        </tbody>
+      </table>
+    </div></div>
+    <div style="margin-top:14px;"><button class="btn btn-primary" onclick="openModal('modalDomain')">＋ 添加域名</button></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>DNS 校验</h2>
+      <div class="card-sub">F-402 · 定时轮询 + 手动「立即校验」</div>
+      <div class="kv"><span class="k">记录类型</span><span class="v">CNAME / TXT</span></div>
+      <div class="kv"><span class="k">CNAME 目标</span><span class="v mono">edge.yasbee.app</span></div>
+      <div class="kv"><span class="k">TXT 校验值</span><span class="v mono">yasbee-verify=7f21c9…</span></div>
+      <div class="kv"><span class="k">最近轮询</span><span class="v">2026-10-15 17:40 · 未通过（checkout）</span></div>
+      <div style="margin-top:14px;display:flex;gap:10px;">
+        <button class="btn btn-secondary" onclick="alert('[原型演示] 立即校验已触发，结果将在 1 分钟内刷新')">立即校验</button>
+        <button class="btn btn-outline" onclick="alert('[原型演示] 校验指引已复制')">复制指引</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>SSL 证书</h2>
+      <div class="card-sub">F-403 · 校验通过后自动签发；到期前 30 / 15 / 7 天多级提醒</div>
+      <div class="kv"><span class="k">pay.xingqiao.com</span><span class="v"><span class="badge badge-active">已签发</span> 到期 2027-03-14（提前 150 天）</span></div>
+      <div class="kv"><span class="k">checkout.xingqiao.com</span><span class="v"><span class="badge badge-off">待校验</span> 校验通过后自动签发</span></div>
+      <div class="kv"><span class="k">old.xingqiao.com</span><span class="v"><span class="badge badge-danger">RENEW_FAILED</span> 已降级为平台默认域</span></div>
+      <div class="tip" style="margin-top:12px;"><b>续期失败</b>自动重试 3 次；仍失败则进 <span class="mono">RENEW_FAILED</span> 并<b>显式通知</b>租户管理员与平台超管，同时回退平台默认域保障可用性。</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>邮件发件域</h2>
+    <div class="card-sub">F-405 · 展示 SPF / DKIM / DMARC 记录指引 → 校验 → 生效</div>
+    <div class="table-wrapper"><div class="table-scroll">
+      <table>
+        <thead><tr><th>发件域</th><th>SPF</th><th>DKIM</th><th>DMARC</th><th>状态</th><th>操作</th></tr></thead>
+        <tbody>
+          <tr><td class="t-name">mail.xingqiao.com<div class="t-sub">发件人：星桥支付 &lt;no-reply@mail.xingqiao.com&gt;</div></td><td><span class="badge badge-active">已配置</span></td><td><span class="badge badge-active">已配置</span></td><td><span class="badge badge-warn">缺 DMARC</span></td><td><span class="badge badge-review">PENDING_VERIFY</span></td><td class="ops"><a onclick="alert('[原型演示] 已重新下发 SPF / DKIM / DMARC 指引')">查看指引</a><a onclick="alert('[原型演示] 已触发发件域校验')">立即校验</a></td></tr>
+          <tr><td class="t-name">billing.xingqiao.com<div class="t-sub">发件人：星桥对账 &lt;billing@xingqiao.com&gt;</div></td><td><span class="badge badge-active">已配置</span></td><td><span class="badge badge-active">已配置</span></td><td><span class="badge badge-active">已配置</span></td><td><span class="badge badge-active">VERIFIED</span></td><td class="ops"><a onclick="alert('[原型演示] 已触发发件域校验')">立即校验</a><a onclick="alert('[PM 备注] 停用后该域邮件回退平台默认发件人，并显式告知租户')">停用</a></td></tr>
+        </tbody>
+      </table>
+    </div></div>
+    <div style="margin-top:14px;"><button class="btn btn-primary" onclick="openModal('modalMail')">＋ 添加发件域</button></div>
+  </div>
+
+  <div class="card">
+    <h2>SMTP 自建发件服务</h2>
+    <div class="card-sub">F-406 · 保存后「测试发信」通过才可启用</div>
+    <div class="form-grid">
+      <div class="form-group"><label>SMTP Host</label><input value="smtp.xingqiao.com"></div>
+      <div class="form-group"><label>Port</label><input value="465"></div>
+      <div class="form-group"><label>加密方式</label><select><option selected>SSL</option><option>STARTTLS</option><option>无</option></select></div>
+      <div class="form-group"><label>账号</label><input value="no-reply@mail.xingqiao.com"></div>
+      <div class="form-group"><label>密钥</label><input type="password" value="••••••••••"></div>
+      <div class="form-group"><label>发件人名称</label><input value="星桥支付"></div>
+    </div>
+    <div class="kv"><span class="k">当前状态</span><span class="v"><span class="badge badge-review">PENDING_VERIFY</span> 测试发信未通过（上次 2026-10-15 17:12）</span></div>
+    <div class="tip warn" style="margin-top:12px;"><b>回退策略</b>SMTP 校验失败或服务商拒绝 / 配额超限时，邮件自动回退到平台默认发件人（<span class="mono">SUSPENDED → DISABLED</span>），并<b>显式告知</b>租户管理员与平台超管，不静默切换。</div>
+    <div style="margin-top:14px;display:flex;gap:10px;">
+      <button class="btn btn-primary" onclick="alert('[原型演示] 配置已保存')">保存</button>
+      <button class="btn btn-secondary" onclick="alert('[原型演示] 测试邮件已发送至 lixin@xingqiao.com，请查收')">测试发信</button>
+    </div>
+  </div>
+
+  </div>
+
+  <div class="modal-overlay" id="modalDomain"><div class="modal">
+    <div class="modal-header"><h2>添加自定义域名</h2><button class="modal-close" onclick="closeModal('modalDomain')">✕</button></div>
+    <div class="modal-body">
+      <div class="tip"><b>校验规则</b>全局唯一；平台主域与其子域（如 yasbee.com、*.yasbee.com）拒绑；需先完成 DNS 校验才会签发证书。</div>
+      <div class="form-group" style="margin-top:16px;"><label>域名</label><input placeholder="例：pay.yourbrand.com"></div>
+      <div class="form-group"><label>类型</label><select><option>主域名</option><option>备用域名（重定向）</option></select></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modalDomain')">取消</button><button class="btn btn-primary" onclick="confirmDomain()">提交并获取校验值</button></div>
+  </div></div>
+
+  <div class="modal-overlay" id="modalMail"><div class="modal">
+    <div class="modal-header"><h2>添加邮件发件域</h2><button class="modal-close" onclick="closeModal('modalMail')">✕</button></div>
+    <div class="modal-body">
+      <div class="tip"><b>需要 DNS 权限</b>提交后平台下发 SPF / DKIM / DMARC 记录指引，校验通过方可生效。</div>
+      <div class="form-group" style="margin-top:16px;"><label>发件域</label><input placeholder="例：mail.yourbrand.com"></div>
+      <div class="form-group"><label>发件人名称</label><input placeholder="例：星桥支付"></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modalMail')">取消</button><button class="btn btn-primary" onclick="closeModal('modalMail'),alert('[原型演示] 已下发 SPF / DKIM / DMARC 指引')">提交并获取指引</button></div>
+  </div></div>
+
+<script>
+function openModal(id){document.getElementById(id).classList.add('active');}
+function closeModal(id){document.getElementById(id).classList.remove('active');}
+function confirmDomain(){closeModal('modalDomain');alert('[原型演示] 域名已提交：已下发 CNAME 目标与 TXT 校验值，等待 DNS 校验。');}
+document.querySelectorAll('.modal-overlay').forEach(function(el){el.addEventListener('click',function(e){if(e.target===this)this.classList.remove('active');});});
+</script>
+</div><!-- /main -->
+
+</body>
+</html>

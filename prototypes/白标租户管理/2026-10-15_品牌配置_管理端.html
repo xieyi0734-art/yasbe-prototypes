@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>白标系统 · 品牌配置</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',-apple-system,sans-serif; background:#F0F2F5; color:#1a1d29; }
+.sidebar { position:fixed; left:0; top:0; bottom:0; width:240px; background:#1D2129; display:flex; flex-direction:column; z-index:50; }
+.sidebar-brand { padding:20px 20px 16px; border-bottom:1px solid rgba(255,255,255,.08); }
+.sidebar-brand .logo { display:flex; align-items:center; gap:10px; color:#fff; font-size:15px; font-weight:600; letter-spacing:.3px; }
+.sidebar-brand .logo-mark { width:26px; height:26px; border-radius:7px; background:#E59303; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:#fff; }
+.sidebar-brand .logo-sub { margin-top:6px; font-size:12px; color:rgba(255,255,255,.45); }
+.sidebar-nav { padding:12px 12px 24px; overflow-y:auto; flex:1; }
+.sidebar-group { padding:14px 8px 6px; font-size:11px; letter-spacing:1px; color:rgba(255,255,255,.32); text-transform:uppercase; }
+.sidebar-item { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:6px; color:rgba(255,255,255,.72); font-size:13px; cursor:pointer; margin-bottom:2px; text-decoration:none; }
+.sidebar-item:hover { background:rgba(255,255,255,.08); color:#fff; }
+.sidebar-item.active { background:#E59303; color:#fff; font-weight:500; }
+.sidebar-item .ico { width:16px; text-align:center; opacity:.9; }
+.sidebar-foot { padding:12px 20px 16px; border-top:1px solid rgba(255,255,255,.08); font-size:11px; color:rgba(255,255,255,.35); }
+.main { margin-left:240px; min-height:100vh; }
+.header { background:#fff; padding:16px 32px; border-bottom:1px solid #eef0f4; display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; position:sticky; top:0; z-index:40; }
+.crumb { font-size:12px; color:#86909C; margin-bottom:6px; }
+.header h1 { font-size:20px; font-weight:600; }
+.header p { font-size:13px; color:#6b7280; margin-top:4px; }
+.container { max-width:1560px; margin:0 auto; padding:24px 32px 60px; }
+.btn { display:inline-flex; align-items:center; gap:6px; padding:8px 18px; border-radius:8px; font-size:13px; font-weight:500; border:none; cursor:pointer; transition:all .2s; text-decoration:none; font-family:inherit; }
+.btn-primary { background:#E59303; color:#fff; }
+.btn-primary:hover { background:#d08400; }
+.btn-secondary { background:#f3f4f6; color:#374151; }
+.btn-secondary:hover { background:#e5e7eb; }
+.btn-outline { background:#fff; border:1px solid #e5e7eb; color:#374151; }
+.btn-outline:hover { border-color:#E59303; color:#E59303; }
+.btn-sm { padding:5px 12px; font-size:12px; border-radius:6px; }
+.btn-danger { background:#fee2e2; color:#dc2626; }
+.btn-danger:hover { background:#fecaca; }
+.btn-ok { background:#d1fae5; color:#059669; }
+.btn-ok:hover { background:#a7f3d0; }
+.stats { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px; }
+.stat { background:#fff; border-radius:12px; padding:16px 18px; box-shadow:0 1px 3px rgba(0,0,0,.04); }
+.stat .s-label { font-size:12px; color:#6b7280; margin-bottom:6px; }
+.stat .s-value { font-size:24px; font-weight:700; letter-spacing:-.3px; }
+.stat .s-value.gold { color:#E59303; }
+.stat .s-value.green { color:#059669; }
+.stat .s-value.amber { color:#d97706; }
+.stat .s-sub { font-size:11.5px; color:#9ca3af; margin-top:4px; }
+.filters { background:#fff; border-radius:12px; padding:16px 20px; margin-bottom:16px; box-shadow:0 1px 3px rgba(0,0,0,.04); display:flex; align-items:flex-end; gap:16px; flex-wrap:wrap; }
+.filter-group { display:flex; flex-direction:column; gap:4px; }
+.filter-group label { font-size:12px; color:#6b7280; font-weight:500; }
+.filter-group input, .filter-group select { padding:8px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:13px; min-width:170px; outline:none; font-family:inherit; background:#fff; }
+.filter-group input:focus, .filter-group select:focus { border-color:#E59303; box-shadow:0 0 0 3px rgba(229,147,3,.08); }
+.table-wrapper { background:#fff; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.04); }
+.table-scroll { overflow-x:auto; border-radius:12px 12px 0 0; }
+table { width:100%; border-collapse:collapse; min-width:1360px; }
+thead { background:#f9fafb; }
+th { padding:12px 16px; text-align:left; font-size:12px; font-weight:600; color:#6b7280; text-transform:uppercase; letter-spacing:.03em; border-bottom:1px solid #eef0f4; white-space:nowrap; }
+td { padding:14px 16px; font-size:13px; border-bottom:1px solid #f3f4f6; vertical-align:middle; white-space:nowrap; }
+tbody tr:hover td { background:#fdfdfd; }
+.avatar { width:32px; height:32px; border-radius:50%; background:#fef3c7; color:#92400e; display:inline-flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; margin-right:10px; flex-shrink:0; }
+.tcell { display:flex; align-items:center; }
+.t-name { font-weight:600; }
+.t-sub { font-size:12px; color:#9ca3af; }
+.badge { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:6px; font-size:11.5px; font-weight:500; }
+.badge-active { background:#d1fae5; color:#059669; }
+.badge-part { background:#e0f2fe; color:#0369a1; }
+.badge-review { background:#eff6ff; color:#2563eb; }
+.badge-warn { background:#fef3c7; color:#92400e; }
+.badge-off { background:#f3f4f6; color:#9ca3af; }
+.badge-danger { background:#fee2e2; color:#dc2626; }
+.chips { display:flex; gap:6px; flex-wrap:nowrap; }
+.chip { display:inline-flex; align-items:center; gap:5px; padding:2px 9px; border-radius:14px; font-size:11.5px; font-weight:500; border:1px solid transparent; }
+.chip-prod { background:#ecfdf5; color:#059669; border-color:#a7f3d0; }
+.chip-limited { background:#fffbeb; color:#b45309; border-color:#fde68a; }
+.chip-off { background:#f9fafb; color:#9ca3af; border-color:#eef0f4; }
+.mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+.dim { color:#9ca3af; }
+.num { font-variant-numeric:tabular-nums; }
+.ops { display:flex; gap:6px; }
+.pagination { display:flex; justify-content:space-between; align-items:center; padding:14px 16px; border-top:1px solid #eef0f4; background:#fafbfc; flex-wrap:wrap; gap:10px; border-radius:0 0 12px 12px; }
+.pagination-info { font-size:12px; color:#6b7280; }
+.pagination-btns { display:flex; gap:6px; }
+.page-btn { padding:6px 12px; border:1px solid #e5e7eb; border-radius:6px; background:#fff; font-size:12px; color:#374151; cursor:pointer; font-family:inherit; }
+.page-btn.active { background:#E59303; color:#fff; border-color:#E59303; }
+.page-btn:disabled { color:#c9ccd1; cursor:not-allowed; }
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:1000; overflow-y:auto; padding:40px 16px; }
+.modal-overlay.active { display:flex; align-items:flex-start; justify-content:center; }
+.modal { background:#fff; border-radius:16px; width:100%; max-width:560px; margin:auto; box-shadow:0 20px 60px rgba(0,0,0,.12); }
+.modal-header { display:flex; justify-content:space-between; align-items:center; padding:20px 28px; border-bottom:1px solid #eef0f4; }
+.modal-header h2 { font-size:17px; font-weight:600; }
+.modal-close { width:32px; height:32px; border-radius:8px; border:none; background:#f3f4f6; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#6b7280; }
+.modal-body { padding:24px 28px; }
+.modal-footer { display:flex; justify-content:flex-end; gap:10px; padding:16px 28px; border-top:1px solid #eef0f4; }
+.form-group { display:flex; flex-direction:column; gap:6px; margin-bottom:16px; }
+.form-group label { font-size:12px; color:#6b7280; font-weight:500; }
+.form-group input, .form-group select, .form-group textarea { padding:9px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:13px; outline:none; font-family:inherit; }
+.form-group textarea { min-height:80px; resize:vertical; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color:#E59303; box-shadow:0 0 0 3px rgba(229,147,3,.08); }
+.tip { background:#f9fafb; border:1px solid #eef0f4; border-radius:10px; padding:12px 14px; font-size:12.5px; color:#6b7280; line-height:1.75; }
+.tip b { color:#374151; }
+.tip.warn { background:#fffbeb; border-color:#fde68a; color:#92400e; }
+.tip.warn b { color:#78350f; }
+.pmnote { background:#14171c; border-left:3px solid #FFCA00; border-radius:6px; padding:10px 12px; margin:10px 0; font-size:13px; line-height:1.75; color:#c8ccd4; }
+.pmnote b { color:#FFCA00; margin-right:8px; }
+.pmnote.dem { border-left-color:#4a5568; }
+.pmnote.dem b { color:#9aa3b2; }
+.pmnote-toggle { position:fixed; right:14px; bottom:14px; z-index:9999; background:#1a1e26; color:#FFCA00; border:1px solid #2a2f3a; border-radius:20px; padding:6px 14px; font-size:12px; cursor:pointer; font-family:inherit; }
+body.hide-pmnote .pmnote { display:none!important; }
+@media (max-width:1100px) { .stats { grid-template-columns:1fr 1fr; } }
+.card{background:#fff; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.04); padding:24px 28px; margin-bottom:16px;}
+.card h2{font-size:15px; font-weight:600; margin-bottom:4px;}
+.card .card-sub{font-size:12.5px; color:#6b7280; margin-bottom:18px;}
+.steps{display:flex; gap:0; background:#fff; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.04); padding:18px 20px; margin-bottom:16px; overflow-x:auto;}
+.step{display:flex; align-items:center; gap:8px; padding:0 14px; font-size:12.5px; color:#9ca3af; cursor:pointer; white-space:nowrap; flex:1; min-width:0;}
+.step .step-num{width:26px; height:26px; border-radius:50%; border:2px solid currentColor; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;}
+.step.active{color:#E59303; font-weight:600;}
+.step.active .step-num{background:#E59303; color:#fff; border-color:#E59303;}
+.step.done{color:#059669;}
+.step.done .step-num{background:#059669; color:#fff; border-color:#059669;}
+.step-line{flex:0 0 16px; height:2px; background:#eef0f4;}
+.form-grid{display:grid; grid-template-columns:1fr 1fr; gap:0 16px;}
+.form-grid-3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:0 16px;}
+.hint{font-size:11.5px; color:#9ca3af; margin-top:2px;}
+.file-drop{border:1.5px dashed #d1d5db; border-radius:10px; padding:18px; text-align:center; color:#9ca3af; font-size:12.5px; background:#fafbfc;}
+.file-drop b{display:block; color:#6b7280; font-size:12.5px; margin-bottom:4px;}
+.file-item{display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border:1px solid #eef0f4; border-radius:8px; margin-bottom:8px; font-size:12.5px;}
+.file-item .f-name{font-weight:500;}
+.file-item .f-meta{color:#9ca3af; font-size:11.5px;}
+.pill{display:inline-flex; align-items:center; padding:2px 9px; border-radius:6px; font-size:11px; font-weight:500;}
+.pill-ok{background:#d1fae5; color:#059669;}
+.pill-warn{background:#fef3c7; color:#92400e;}
+.pill-gray{background:#f3f4f6; color:#9ca3af;}
+.pill-blue{background:#eff6ff; color:#2563eb;}
+.checklist{list-style:none;}
+.checklist li{display:flex; align-items:flex-start; gap:8px; font-size:13px; padding:9px 0; border-bottom:1px solid #f3f4f6;}
+.checklist li:last-child{border-bottom:none;}
+.checklist .ck{width:16px; flex-shrink:0;}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
+.summary-row{display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f3f4f6; font-size:13px;}
+.summary-row:last-child{border-bottom:none;}
+.summary-row .k{color:#6b7280;}
+.summary-row .v{font-weight:500;}
+.result-view{text-align:center; padding:36px 20px;}
+.result-icon{font-size:56px; margin-bottom:14px;}
+.result-title{font-size:19px; font-weight:600; margin-bottom:8px;}
+.result-desc{color:#6b7280; font-size:13px; margin-bottom:22px; line-height:1.8;}
+.form-grid, .form-grid-3{grid-template-columns:1fr;}
+.subnav-local{margin:0 0 16px;font-size:13px;color:#6b7280}
+.subnav-local .crumb-link{color:#E59303;text-decoration:none}
+.subnav-local .crumb-link:hover{text-decoration:underline}
+.subnav-local .crumb-cur{color:#1D2129;font-weight:600}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.sec-title{font-size:14px;font-weight:600;margin:0 0 12px}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px dashed #eef0f4;font-size:13px}
+.kv:last-child{border-bottom:0}
+.kv .k{color:#6b7280}
+.kv .v{color:#1D2129;font-weight:500;text-align:right}
+.row-actions a{color:#E59303;text-decoration:none;margin-right:10px;font-size:13px;cursor:pointer}
+tr.locked td{background:#fafbfc;color:#9aa1ad}
+.mini{font-size:12px;color:#9aa1ad}
+.swatch{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:6px;border:1px solid rgba(0,0,0,.08)}
+
+</style>
+</head>
+<body>
+
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo"><span class="logo-mark">Y</span>YASBe 平台管理</div>
+    <div class="logo-sub">白标租户管理</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-group">租户运营</div>
+    <a class="sidebar-item active" href="2026-10-12_白标租户列表_管理端.html"><span class="ico">▦</span>租户列表</a>
+    <a class="sidebar-item" href="2026-10-12_白标租户开通向导_管理端.html"><span class="ico">＋</span>开通向导</a>
+    <div class="sidebar-group">日常作业</div>
+    <a class="sidebar-item" href="#" onclick="alert('[PM 备注] 待办中心将在后续增量产出');return false;"><span class="ico">☰</span>待办中心</a>
+    <a class="sidebar-item" href="#" onclick="alert('[PM 备注] 用量与收入将在后续增量产出');return false;"><span class="ico">◔</span>用量与收入</a>
+    <a class="sidebar-item" href="2026-10-15_结算与对账_管理端.html"><span class="ico">⇄</span>结算与对账</a>
+    <a class="sidebar-item" href="#" onclick="alert('[PM 备注] 交易流水查询将在后续增量产出');return false;"><span class="ico">≡</span>交易流水查询</a>
+    <div class="sidebar-group">平台治理</div>
+    <a class="sidebar-item" href="2026-10-15_权限与审计日志_管理端.html"><span class="ico">▣</span>权限与审计日志</a>
+  </nav>
+  <div class="sidebar-foot">v0.1 · 一期原型</div>
+</aside>
+
+<div class="main">
+  <button class="pmnote-toggle" onclick="document.body.classList.toggle('hide-pmnote');this.textContent=document.body.classList.contains('hide-pmnote')?'显示备注':'隐藏备注'">隐藏备注</button>
+  <div class="pmnote"><b>PM 备注</b>本页为「租户详情」下级页（主从两级，面包屑返回，不做 Tab）。品牌化配置仅在平台为该租户开通该能力后可用；平台保留 key 与合规模板不可被覆写。</div>
+  <div class="header">
+    <div>
+      <div class="crumb">白标租户管理 / 租户列表 / <b>星桥跨境科技</b> / <b>品牌配置</b></div>
+      <h1>品牌配置 · 星桥跨境科技</h1>
+      <p>品牌资产 · 主题 token · 文案字典 · 邮件模板 · 版本与发布 · 合规闸门</p>
+    </div>
+    <div style="display:flex;gap:10px;"><button class="btn btn-outline" onclick="location.href='2026-10-15_租户详情总览_管理端.html'">⬅ 返回租户详情</button>
+      <button class="btn btn-secondary" onclick="alert('[原型演示] 已生成预览链接：preview.xingqiao.yasbe.app')">生成预览</button>
+      <button class="btn btn-primary" onclick="openModal('modalPublish')">＋ 发布版本</button></div>
+  </div>
+
+  <div class="container">
+  <div class="subnav-local">租户详情：<a class="crumb-link" href="2026-10-15_租户详情总览_管理端.html">详情总览</a> · <span class="crumb-cur">品牌配置</span> · <a class="crumb-link" href="2026-10-15_域名与邮件_管理端.html">域名与邮件</a> · <a class="crumb-link" href="2026-10-15_能力与额度_管理端.html">能力与额度</a> · <a class="crumb-link" href="2026-10-15_费率与计费_管理端.html">费率与计费</a></div>
+  <div class="tip"><b>前置条件</b>租户状态 ∈ {CONTRACT_SIGNED, ACTIVE} 且平台已为其开通「品牌配置」能力；未开通时本页只读并提示。</div>
+  <div class="pmnote dem"><b>PM 备注</b>字段依据 F-301（品牌资产：logo Light/Dark、favicon、登录页背景；格式与体积上限）+ F-302（主题 token：主色 / 渐变起止，默认 #FFCA00 → #FE5707，仅允许在默认区间内派生；对比度校验不达标即拒绝保存）+ F-303（文案字典：按 i18n key 覆写，平台保留 key 不可覆写）+ F-304（邮件模板四类：邀请 / 验证 / 对账单 / 异常通知，变量白名单）+ F-305（预览 → 平台审核（可选）→ 发布 → 一键回滚）+ F-306 品牌合规闸门。接口级校验（格式 / 体积 / 对比度）不落原型，以 PRD 字段表为准。</div>
+
+  <div class="card">
+    <h2>品牌资产</h2>
+    <div class="card-sub">F-301 · 支持 PNG / SVG / WebP；单文件上限 200KB（favicon 50KB）</div>
+    <div class="form-grid">
+      <div class="file-item"><div><div class="f-name">Logo（浅色底）</div><div class="f-meta">logo-light.svg · 18KB</div></div><span class="pill pill-ok">已上传</span></div>
+      <div class="file-item"><div><div class="f-name">Logo（深色底）</div><div class="f-meta">logo-dark.svg · 18KB</div></div><span class="pill pill-ok">已上传</span></div>
+      <div class="file-item"><div><div class="f-name">Favicon</div><div class="f-meta">favicon.png · 12KB</div></div><span class="pill pill-ok">已上传</span></div>
+      <div class="file-item"><div><div class="f-name">登录页背景</div><div class="f-meta">未上传 · 将使用平台默认背景</div></div><button class="btn btn-outline" style="padding:4px 12px;font-size:12px;" onclick="alert('[原型演示] 已选择文件：login-bg.webp')">上传</button></div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>主题 token</h2>
+      <div class="card-sub">F-302 · 仅允许在平台默认区间内派生</div>
+      <div class="form-grid">
+        <div class="form-group"><label>主色</label><input type="color" value="#FFCA00"></div>
+        <div class="form-group"><label>渐变起始色</label><input type="color" value="#FFCA00"></div>
+        <div class="form-group"><label>渐变结束色</label><input type="color" value="#FE5707"></div>
+      </div>
+      <div class="kv"><span class="k">当前主色</span><span class="v"><span class="swatch" style="background:#FFCA00;"></span>#FFCA00</span></div>
+      <div class="kv"><span class="k">当前渐变</span><span class="v"><span class="swatch" style="background:#FFCA00;"></span>#FFCA00 → <span class="swatch" style="background:#FE5707;"></span>#FE5707</span></div>
+      <div class="kv"><span class="k">对比度校验（正文）</span><span class="v"><span class="badge badge-active">4.8:1 通过</span></span></div>
+      <div class="kv"><span class="k">区间校验</span><span class="v"><span class="badge badge-active">在授权区间内</span></span></div>
+      <div style="margin-top:14px;"><button class="btn btn-primary" onclick="alert('[原型演示] 主题已保存，已进入预览待发布状态')">保存主题</button></div>
+    </div>
+    <div class="card">
+      <h2>品牌合规闸门</h2>
+      <div class="card-sub">F-306 · 上线前自动检查（设计占位）</div>
+      <ul class="checklist">
+        <li><span class="ck">☑</span><div>Logo / 文案关键词检查（禁用"银行""存款""保本"等表述）</div></li>
+        <li><span class="ck">☑</span><div>侵权与近似商标检查</div></li>
+        <li><span class="ck">☑</span><div>合规声明未被覆写（平台保留 key 完好）</div></li>
+        <li><span class="ck">⬜</span><div>待发布版本的人工复核（可选开关，由平台超管决定是否启用）</div></li>
+      </ul>
+      <div class="tip" style="margin-top:12px;">闸门未全绿时，<b>发布</b>按钮不可点击；仅可保存草稿与生成预览。</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>文案字典</h2>
+    <div class="card-sub">F-303 · 按 i18n key 覆写；<b>平台保留 key 不可覆写</b>（合规声明 / 费用说明 / 风控文案）</div>
+    <div class="table-wrapper"><div class="table-scroll">
+      <table>
+        <thead><tr><th>i18n key</th><th>默认文案（平台）</th><th>租户覆写</th><th>状态</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">app.title</td><td>YASBe 支付门户</td><td>星桥支付门户</td><td><span class="badge badge-active">已覆写</span></td></tr>
+          <tr><td class="mono">wallet.empty</td><td>暂无资产，去充值</td><td>暂无资产，立即充币</td><td><span class="badge badge-active">已覆写</span></td></tr>
+          <tr><td class="mono">card.apply.cta</td><td>申请开卡</td><td>—</td><td><span class="badge badge-review">继承平台</span></td></tr>
+          <tr class="locked"><td class="mono">legal.disclaimer</td><td>本服务由持牌机构提供…</td><td>不可覆写</td><td><span class="badge badge-off">平台保留 key</span></td></tr>
+          <tr class="locked"><td class="mono">fee.notice</td><td>费用以结算单为准…</td><td>不可覆写</td><td><span class="badge badge-off">平台保留 key</span></td></tr>
+          <tr class="locked"><td class="mono">risk.alert</td><td>该操作存在风险敞口…</td><td>不可覆写</td><td><span class="badge badge-off">平台保留 key</span></td></tr>
+        </tbody>
+      </table>
+    </div></div>
+  </div>
+
+  <div class="card">
+    <h2>邮件模板</h2>
+    <div class="card-sub">F-304 · 变量白名单：{{tenant_name}} · {{user_name}} · {{amount}} · {{date}} · {{link}}；禁止注入脚本</div>
+    <div class="table-wrapper"><div class="table-scroll">
+      <table>
+        <thead><tr><th>模板</th><th>触发时机</th><th>状态</th><th>操作</th></tr></thead>
+        <tbody>
+          <tr><td class="t-name">邀请邮件<div class="t-sub">invite</div></td><td>租户邀请成员注册</td><td><span class="badge badge-active">已定制</span></td><td class="ops"><a onclick="alert('[原型演示] 打开模板编辑器（变量白名单内）')">编辑</a><a onclick="alert('[原型演示] 渲染预览已生成')">预览</a></td></tr>
+          <tr><td class="t-name">验证邮件<div class="t-sub">verify</div></td><td>注册 / 改密 / 绑定</td><td><span class="badge badge-review">用平台默认</span></td><td class="ops"><a onclick="alert('[原型演示] 打开模板编辑器（变量白名单内）')">编辑</a><a onclick="alert('[原型演示] 渲染预览已生成')">预览</a></td></tr>
+          <tr><td class="t-name">对账单<div class="t-sub">statement</div></td><td>结算周期出账</td><td><span class="badge badge-active">已定制</span></td><td class="ops"><a onclick="alert('[原型演示] 打开模板编辑器（变量白名单内）')">编辑</a><a onclick="alert('[原型演示] 渲染预览已生成')">预览</a></td></tr>
+          <tr><td class="t-name">异常通知<div class="t-sub">alert</div></td><td>风控命中 / 结算失败</td><td><span class="badge badge-off">锁定（合规）</span></td><td class="ops"><a onclick="alert('[PM 备注] 异常通知模板含风控口径，平台保留，租户不可编辑')">查看</a></td></tr>
+        </tbody>
+      </table>
+    </div></div>
+  </div>
+
+  <div class="card">
+    <h2>版本与发布</h2>
+    <div class="card-sub">F-305 · 预览 → 平台审核（可选）→ 发布 → 可一键回滚到上一版本</div>
+    <div class="table-wrapper"><div class="table-scroll">
+      <table>
+        <thead><tr><th>版本</th><th>内容摘要</th><th>状态</th><th>发布时间</th><th>操作</th></tr></thead>
+        <tbody>
+          <tr><td>v3</td><td>主题色微调 + 首页文案覆写</td><td><span class="badge badge-review">预览中（未发布）</span></td><td>—</td><td class="ops"><a onclick="alert('[原型演示] 已生成预览链接：preview.xingqiao.yasbe.app')">预览</a><a onclick="openModal('modalPublish')">发布</a></td></tr>
+          <tr><td>v2</td><td>Logo 换版 + 邮件模板定制</td><td><span class="badge badge-active">当前线上</span></td><td>2026-10-12 15:20</td><td class="ops"><span class="mini">—</span></td></tr>
+          <tr><td>v1</td><td>初始品牌配置</td><td><span class="badge badge-off">已归档</span></td><td>2026-10-08 11:02</td><td class="ops"><a onclick="openModal('modalRollback')">回滚到此版本</a></td></tr>
+        </tbody>
+      </table>
+    </div></div>
+  </div>
+
+  </div>
+
+  <div class="modal-overlay" id="modalPublish"><div class="modal">
+    <div class="modal-header"><h2>发布品牌配置</h2><button class="modal-close" onclick="closeModal('modalPublish')">✕</button></div>
+    <div class="modal-body">
+      <div class="tip"><b>发布影响面</b>发布后租户门户（登录页 / 门户界面 / 邮件模板）立即使用新版本；不影响交易与结算口径。旧版本自动归档，可一键回滚。</div>
+      <div class="kv" style="margin-top:14px;"><span class="k">发布对象</span><span class="v">星桥跨境科技 · v3</span></div>
+      <div class="kv"><span class="k">合规闸门</span><span class="v"><span class="badge badge-active">已通过</span></span></div>
+      <div class="kv"><span class="k">平台复核</span><span class="v"><span class="badge badge-review">可选 · 未启用</span></span></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modalPublish')">取消</button><button class="btn btn-primary" onclick="confirmPublish()">确认发布</button></div>
+  </div></div>
+
+  <div class="modal-overlay" id="modalRollback"><div class="modal">
+    <div class="modal-header"><h2>回滚到 v1</h2><button class="modal-close" onclick="closeModal('modalRollback')">✕</button></div>
+    <div class="modal-body">
+      <div class="tip warn"><b>回滚的后果</b>当前线上版本（v2）将被 v1 覆盖，主题、文案与邮件模板全部回到 v1；v2 归档保留，可再次回滚。回滚<b>必定显式通知</b>租户管理员，不静默执行。</div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modalRollback')">取消</button><button class="btn btn-danger" onclick="confirmRollback()">确认回滚</button></div>
+  </div></div>
+
+<script>
+function openModal(id){document.getElementById(id).classList.add('active');}
+function closeModal(id){document.getElementById(id).classList.remove('active');}
+function confirmPublish(){closeModal('modalPublish');alert('[原型演示] v3 已发布；v2 归档。已通知租户管理员。');}
+function confirmRollback(){closeModal('modalRollback');alert('[原型演示] 已回滚到 v1，并已显式通知租户管理员。');}
+['modalPublish','modalRollback'].forEach(function(id){var el=document.getElementById(id);el.addEventListener('click',function(e){if(e.target===this)this.classList.remove('active');});});
+</script>
+</div><!-- /main -->
+
+</body>
+</html>
