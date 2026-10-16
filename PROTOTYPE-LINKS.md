@@ -69,7 +69,7 @@
 |---|---|---|---|
 | 页面目录（入口） | 8 页总览 + 范围与口径 + 三份交付物落点 | 2026-10-14 | [index.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/租户业务台/index.html) |
 | 工作台首页 | 平台服务开通状态（法币/加密货币/卡片）· 储备金三币种状态 · 待办 · 接入健康度 | 2026-10-15 | [2026-10-14_工作台首页_租户业务台.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/租户业务台/2026-10-14_工作台首页_租户业务台.html) |
-| 账号设置 | 本人账号（卡片式）：修改密码 · 修改邮箱 · 身份验证器绑定与解绑 · 登录设备 | 2026-10-15 |
+| 账号设置 | 本人账号（卡片式）：修改密码 · 修改邮箱 · 身份验证器绑定与解绑 · 登录设备 | 2026-10-15  [2026-10-15_账号设置_租户业务台.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/租户业务台/2026-10-15_账号设置_租户业务台.html) |
 | 账户管理 | 本租户成员与角色：邀请成员 · 改角色 · 停用与移除（仅管理员） | 2026-10-15 | [2026-10-15_账户管理_租户业务台.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/租户业务台/2026-10-15_账户管理_租户业务台.html) | [2026-10-15_账号设置_租户业务台.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/租户业务台/2026-10-15_账号设置_租户业务台.html) |
 | 虚拟账户（原「终端用户」） | 认证状态 · 持有账户 · 进入详情（需补件整行高亮）；菜单名 2026-10-15 改为「虚拟账户」，页头新增「＋ 新增虚拟账户」→ 开立法币 VA 弹窗 | 2026-10-15 | [2026-10-14_终端用户列表_租户业务台.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/租户业务台/2026-10-14_终端用户列表_租户业务台.html) |
 | 终端用户详情 | 认证材料与缺件清单 · 名下虚拟账户与收款信息（列表下钻页） | 2026-10-14 | [2026-10-14_终端用户详情_租户业务台.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/租户业务台/2026-10-14_终端用户详情_租户业务台.html) |
@@ -78,6 +78,7 @@
 | API Key 管理 | 生成（完整值只显示一次）· 掩码列表 · 轮换与吊销 | 2026-10-14 | [2026-10-14_API-Key管理_租户业务台.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/租户业务台/2026-10-14_API-Key管理_租户业务台.html) |
 | Webhook 端点 | 接收地址与订阅事件 · 签名密钥 · 验证投递 · 暂停恢复 | 2026-10-14 | [2026-10-14_Webhook端点_租户业务台.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/租户业务台/2026-10-14_Webhook端点_租户业务台.html) |
 | 投递日志 | 逐次投递记录 · 失败原因与自助排查 · 手动重投 | 2026-10-14 | [2026-10-14_投递日志_租户业务台.html](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/租户业务台/2026-10-14_投递日志_租户业务台.html) |
+| PRD · 租户业务台 v1.0 | 成文 PRD：业务背景与目标 · 角色与三级权限守卫 · 核心业务模型（外扣计费 / 开户费 / 通道映射 / 入金归因 / 状态机）· 9 个功能域需求 · 全局交互与文案规范 · 风控合规 · 成功指标 · 分期与验收标准 · Q/R 待确认清单 | 2026-10-15 | [租户业务台-PRD-v1.0.md](https://xieyi0734-art.github.io/yasbe-prototypes/prd/租户业务台/租户业务台-PRD-v1.0.md) |
 
 ---
 
