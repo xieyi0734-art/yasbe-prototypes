@@ -113,6 +113,7 @@
 > | 文档 | 内容 | 链接 |
 > |---|---|---|
 > | PRD · 后台结构大纲 v0.1 | PRD 结构大纲：M1–M8 功能需求（F-101~F-706）、角色权限矩阵、多租户隔离、计费与分润、审计规范、数据模型 | [白标租户管理后台-PRD结构大纲-v0.1.md](https://xieyi0734-art.github.io/yasbe-prototypes/prd/白标租户管理/白标租户管理后台-PRD结构大纲-v0.1.md) |
+| PRD · 白标租户管理后台 v1.0 | 成文 PRD：八个角色与权限矩阵 · 五条不可下放红线 · 隔离三层 · 租户生命周期状态机与 Go-Live 校验 · 计费与费率（含法币 VA 开户费 $100/$1,000）· 结算与对账 · VA 与开户作业 · 验收标准 · D/N 待确认清单 | 2026-10-15 | [白标租户管理后台-PRD-v1.0.md](https://xieyi0734-art.github.io/yasbe-prototypes/prd/白标租户管理/白标租户管理后台-PRD-v1.0.md) |
 > | PRD · 三端全景与一期页面清单 v0.1 | 三端（管理端 / 租户业务台 / 白标门户）全景与一期 9 页清单及规范 | [白标系统-三端全景与一期页面清单-v0.1.md](https://xieyi0734-art.github.io/yasbe-prototypes/prd/白标租户管理/白标系统-三端全景与一期页面清单-v0.1.md) |
 > | 准入流程 · Mermaid | 租户状态机：DRAFT → SUBMITTED → … → ACTIVE / SUSPENDED / TERMINATED | [白标租户管理-准入流程-Mermaid.md](https://xieyi0734-art.github.io/yasbe-prototypes/prd/白标租户管理/白标租户管理-准入流程-Mermaid.md) |
 > | 边缘场景与兜底交互 QA 清单 | 准入 / 结算 / 域名等边缘场景与兜底交互问答清单 | [白标租户管理-边缘场景与兜底交互-QA清单.md](https://xieyi0734-art.github.io/yasbe-prototypes/prd/白标租户管理/白标租户管理-边缘场景与兜底交互-QA清单.md) |
