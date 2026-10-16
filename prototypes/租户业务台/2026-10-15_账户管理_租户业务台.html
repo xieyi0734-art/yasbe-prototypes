@@ -183,7 +183,8 @@ body.hide-pmnote .pmnote{display:none!important}
 @media(max-width:1200px){.stats,.stats.c4,.stats.c3{grid-template-columns:repeat(2,1fr)}.grid2,.grid3{grid-template-columns:1fr}}
 .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--surface-3);border:1px solid var(--border-strong);color:var(--text);padding:9px 18px;border-radius:20px;font-size:12.5px;z-index:2000;opacity:0;transition:opacity .2s;pointer-events:none}
 .toast.on{opacity:1}
-.steps{display:flex;align-items:center;flex-wrap:wrap;gap:2px;margin:4px 0 14px}.step{display:flex;align-items:center;gap:8px;font-size:12.2px;color:var(--muted);padding:7px 12px 7px 0}.step .n{width:22px;height:22px;border-radius:50%;background:var(--surface-3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--muted);flex-shrink:0}.step.done .n{background:rgba(74,222,128,.16);color:var(--green)}.step.cur .n{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(255,202,0,.45)}.step.cur{color:var(--gold);font-weight:600}.step .ar{color:var(--muted-2)}tbody tr.rowhi td{background:rgba(239,68,68,.055)}tbody tr.rowhi:hover td{background:rgba(239,68,68,.095)}.uhead{display:flex;align-items:center;gap:14px;flex-wrap:wrap}.uhead .uav{width:46px;height:46px;border-radius:50%;background:var(--surface-3);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--gold)}</style>
+.steps{display:flex;align-items:center;flex-wrap:wrap;gap:2px;margin:4px 0 14px}.step{display:flex;align-items:center;gap:8px;font-size:12.2px;color:var(--muted);padding:7px 12px 7px 0}.step .n{width:22px;height:22px;border-radius:50%;background:var(--surface-3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--muted);flex-shrink:0}.step.done .n{background:rgba(74,222,128,.16);color:var(--green)}.step.cur .n{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(255,202,0,.45)}.step.cur{color:var(--gold);font-weight:600}.step .ar{color:var(--muted-2)}tbody tr.rowhi td{background:rgba(239,68,68,.055)}tbody tr.rowhi:hover td{background:rgba(239,68,68,.095)}.uhead{display:flex;align-items:center;gap:14px;flex-wrap:wrap}.uhead .uav{width:46px;height:46px;border-radius:50%;background:var(--surface-3);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--gold)}.btn.ro{opacity:.42;pointer-events:none;cursor:not-allowed}
+</style>
 </head>
 <body>
 <button class="pmnote-toggle" onclick="document.body.classList.toggle('hide-pmnote');this.textContent=document.body.classList.contains('hide-pmnote')?'显示备注':'隐藏备注'">隐藏备注</button>
@@ -198,7 +199,7 @@ body.hide-pmnote .pmnote{display:none!important}
 <div class="main">
 <div class="top">
 <div class="crumb">租户业务台 <span class="sep">/</span> 设置 <span class="sep">/</span> <b>账户管理</b></div>
-<div class="top-right"><span class="pill prod"><span class="dot"></span>生产环境</span><span class="who"><span class="av">谢</span>谢毅 · <span id="whoRole">管理员</span></span></div>
+<div class="top-right"><span class="pill prod"><span class="dot"></span>生产环境</span><a class="who" href="2026-10-15_账号设置_租户业务台.html" title="账号设置" style="text-decoration:none;color:inherit;cursor:pointer"><span class="av">谢</span>谢毅 · <span id="whoRole">管理员</span></a></div>
 </div>
 <div class="content">
 <div class="page-h">
@@ -206,7 +207,7 @@ body.hide-pmnote .pmnote{display:none!important}
     <div class="h1">账户管理</div>
     <div class="sub">本租户的成员账号与角色：邀请成员、分配角色、停用或移除。</div>
   </div>
-  <div class="acts"><button class="btn btn-primary btn-sm" onclick="openOv('m-invite')">＋ 邀请成员</button></div>
+  <div class="acts"><button class="btn btn-primary btn-sm" data-role-allow="ADMIN" onclick="openOv('m-invite')">＋ 邀请成员</button></div>
 </div>
 
 <div class="stats c4">
@@ -242,35 +243,35 @@ body.hide-pmnote .pmnote{display:none!important}
         <td><span class="badge info">财务 Finance</span></td>
         <td><span class="badge ok">正常</span></td>
         <td>2026-10-14 18:20</td>
-        <td><button class="btn btn-sm btn-ghost" onclick="openOv('m-role')">改角色</button> <button class="btn btn-sm btn-ghost" onclick="openOv('m-suspend')">停用</button> <button class="btn btn-sm btn-ghost" onclick="openOv('m-remove')">移除</button></td>
+        <td><button class="btn btn-sm btn-ghost" data-role-allow="ADMIN" onclick="openOv('m-role')">改角色</button> <button class="btn btn-sm btn-ghost" data-role-allow="ADMIN" onclick="openOv('m-suspend')">停用</button> <button class="btn btn-sm btn-ghost" data-role-allow="ADMIN" onclick="openOv('m-remove')">移除</button></td>
       </tr>
       <tr>
         <td><div class="b">赵 敏</div><div class="dim" style="font-size:11.5px">zhao.min@acme-payment.com</div></td>
         <td><span class="badge info">财务 Finance</span></td>
         <td><span class="badge ok">正常</span></td>
         <td>2026-10-13 10:05</td>
-        <td><button class="btn btn-sm btn-ghost" onclick="openOv('m-role')">改角色</button> <button class="btn btn-sm btn-ghost" onclick="openOv('m-suspend')">停用</button> <button class="btn btn-sm btn-ghost" onclick="openOv('m-remove')">移除</button></td>
+        <td><button class="btn btn-sm btn-ghost" data-role-allow="ADMIN" onclick="openOv('m-role')">改角色</button> <button class="btn btn-sm btn-ghost" data-role-allow="ADMIN" onclick="openOv('m-suspend')">停用</button> <button class="btn btn-sm btn-ghost" data-role-allow="ADMIN" onclick="openOv('m-remove')">移除</button></td>
       </tr>
       <tr>
         <td><div class="b">陈 立</div><div class="dim" style="font-size:11.5px">chen.li@acme-payment.com</div></td>
         <td><span class="badge mute">研发 Developer</span></td>
         <td><span class="badge ok">正常</span></td>
         <td>2026-10-15 08:40</td>
-        <td><button class="btn btn-sm btn-ghost" onclick="openOv('m-role')">改角色</button> <button class="btn btn-sm btn-ghost" onclick="openOv('m-suspend')">停用</button> <button class="btn btn-sm btn-ghost" onclick="openOv('m-remove')">移除</button></td>
+        <td><button class="btn btn-sm btn-ghost" data-role-allow="ADMIN" onclick="openOv('m-role')">改角色</button> <button class="btn btn-sm btn-ghost" data-role-allow="ADMIN" onclick="openOv('m-suspend')">停用</button> <button class="btn btn-sm btn-ghost" data-role-allow="ADMIN" onclick="openOv('m-remove')">移除</button></td>
       </tr>
       <tr>
         <td><div class="b">王 茜</div><div class="dim" style="font-size:11.5px">wang.qian@acme-payment.com</div></td>
         <td><span class="badge info">财务 Finance</span></td>
         <td><span class="badge warn">待接受邀请</span></td>
         <td><span class="dim">— 尚未登录</span></td>
-        <td><button class="btn btn-sm btn-ghost" onclick="toast('[原型演示] 邀请已重新发送')">重发邀请</button> <button class="btn btn-sm btn-ghost" onclick="openOv('m-remove')">撤销邀请</button></td>
+        <td><button class="btn btn-sm btn-ghost" data-role-allow="ADMIN" onclick="toast('[原型演示] 邀请已重新发送')">重发邀请</button> <button class="btn btn-sm btn-ghost" data-role-allow="ADMIN" onclick="openOv('m-remove')">撤销邀请</button></td>
       </tr>
       <tr>
         <td><div class="b">周 航</div><div class="dim" style="font-size:11.5px">zhou.hang@acme-payment.com</div></td>
         <td><span class="badge mute">研发 Developer</span></td>
         <td><span class="badge mute">已停用</span></td>
         <td>2026-09-30 16:02</td>
-        <td><button class="btn btn-sm btn-ghost" onclick="toast('[原型演示] 该成员已启用')">启用</button> <button class="btn btn-sm btn-ghost" onclick="openOv('m-remove')">移除</button></td>
+        <td><button class="btn btn-sm btn-ghost" data-role-allow="ADMIN" onclick="toast('[原型演示] 该成员已启用')">启用</button> <button class="btn btn-sm btn-ghost" data-role-allow="ADMIN" onclick="openOv('m-remove')">移除</button></td>
       </tr>
     </tbody>
   </table></div>
@@ -291,6 +292,13 @@ function applyRole(r){
   }
   var cur=document.querySelector('.nav-i.on');
   if(cur&&cur.style.display==='none'){toast('当前页面对「'+ROLE_NAME[r]+'」角色不可见（演示越权兜底）');}
+  var bl=document.querySelectorAll('[data-roles]:not(.nav-i)');
+  for(var b=0;b<bl.length;b++){var okb=bl[b].getAttribute('data-roles').split(',').indexOf(r)>=0;bl[b].style.display=okb?'':'none';}
+  var ro=document.querySelectorAll('[data-role-allow]');
+  for(var k=0;k<ro.length;k++){var oka=ro[k].getAttribute('data-role-allow').split(',').indexOf(r)>=0;
+    if(ro[k].tagName==='BUTTON'){ro[k].disabled=!oka;}
+    else{if(oka){ro[k].classList.remove('ro');}else{ro[k].classList.add('ro');}}
+    if(oka){ro[k].removeAttribute('title');}else{ro[k].title='你的角色为'+ROLE_NAME[r]+'，仅可查看';}}
   var u=document.getElementById('whoRole');if(u)u.textContent=ROLE_NAME[r];
   var s=document.getElementById('roleSel');if(s)s.value=r;
 }
@@ -301,6 +309,7 @@ function openDrawer(id){var e=document.getElementById(id);if(e)e.classList.add('
 function closeDrawer(id){var e=document.getElementById(id);if(e)e.classList.remove('on');}
 function dem(){toast('[原型演示] 该操作仅演示交互，不产生真实数据');}
 document.addEventListener('keydown',function(e){if(e.key==='Escape'){var o=document.querySelectorAll('.ov.on');for(var i=0;i<o.length;i++)o[i].classList.remove('on');var d=document.querySelectorAll('.drawer.on');for(var j=0;j<d.length;j++)d[j].classList.remove('on');}});
+document.addEventListener('click',function(e){var t=e.target;if(t&&t.classList&&t.classList.contains('ov')&&t.classList.contains('on')){t.classList.remove('on');}});
 window.addEventListener('DOMContentLoaded',function(){
   applyRole(ROLE);
   var rows=document.querySelectorAll('[data-click]');
@@ -318,7 +327,7 @@ window.addEventListener('DOMContentLoaded',function(){
     </select></div>
     <div class="hint" style="line-height:1.85">邀请邮件 24 小时内有效；对方接受后即可登录本租户，首次登录需要设置密码并绑定身份验证器。</div>
   </div>
-  <div class="modal-f"><button class="btn btn-sm btn-ghost" onclick="closeOv('m-invite')">取消</button><button class="btn btn-sm btn-primary" onclick="closeOv('m-invite');toast('[原型演示] 邀请已发送')">发送邀请</button></div>
+  <div class="modal-f"><button class="btn btn-sm btn-ghost" onclick="closeOv('m-invite')">取消</button><button class="btn btn-sm btn-primary" data-role-allow="ADMIN" onclick="closeOv('m-invite');toast('[原型演示] 邀请已发送')">发送邀请</button></div>
 </div></div>
 
 <div class="ov" id="m-role"><div class="modal" style="max-width:440px">
@@ -332,19 +341,19 @@ window.addEventListener('DOMContentLoaded',function(){
     </select></div>
     <div class="hint" style="line-height:1.85">调整后该成员下次操作即按新角色生效；已打开的页面需要刷新。</div>
   </div>
-  <div class="modal-f"><button class="btn btn-sm btn-ghost" onclick="closeOv('m-role')">取消</button><button class="btn btn-sm btn-primary" onclick="closeOv('m-role');toast('[原型演示] 角色已调整')">保存角色</button></div>
+  <div class="modal-f"><button class="btn btn-sm btn-ghost" onclick="closeOv('m-role')">取消</button><button class="btn btn-sm btn-primary" data-role-allow="ADMIN" onclick="closeOv('m-role');toast('[原型演示] 角色已调整')">保存角色</button></div>
 </div></div>
 
 <div class="ov" id="m-suspend"><div class="modal" style="max-width:420px">
   <div class="modal-h"><h2>停用成员</h2><button class="modal-x" onclick="closeOv('m-suspend')">×</button></div>
   <div class="modal-b"><div style="font-size:12.5px;line-height:1.85;color:var(--text-2)">停用后，该成员无法登录，已登录的会话立即失效；账号与历史操作记录保留，可随时启用。</div></div>
-  <div class="modal-f"><button class="btn btn-sm btn-ghost" onclick="closeOv('m-suspend')">取消</button><button class="btn btn-sm btn-danger" onclick="closeOv('m-suspend');toast('[原型演示] 该成员已停用')">确认停用</button></div>
+  <div class="modal-f"><button class="btn btn-sm btn-ghost" onclick="closeOv('m-suspend')">取消</button><button class="btn btn-sm btn-danger" data-role-allow="ADMIN" onclick="closeOv('m-suspend');toast('[原型演示] 该成员已停用')">确认停用</button></div>
 </div></div>
 
 <div class="ov" id="m-remove"><div class="modal" style="max-width:420px">
   <div class="modal-h"><h2>移除成员</h2><button class="modal-x" onclick="closeOv('m-remove')">×</button></div>
   <div class="modal-b"><div style="font-size:12.5px;line-height:1.85;color:var(--text-2)">移除后，该成员立即失去本租户的访问权限，也不再出现在成员列表；历史操作记录仍保留在审计日志中。</div></div>
-  <div class="modal-f"><button class="btn btn-sm btn-ghost" onclick="closeOv('m-remove')">取消</button><button class="btn btn-sm btn-danger" onclick="closeOv('m-remove');toast('[原型演示] 该成员已移除')">确认移除</button></div>
+  <div class="modal-f"><button class="btn btn-sm btn-ghost" onclick="closeOv('m-remove')">取消</button><button class="btn btn-sm btn-danger" data-role-allow="ADMIN" onclick="closeOv('m-remove');toast('[原型演示] 该成员已移除')">确认移除</button></div>
 </div></div>
 
 <div class="ov" id="m-logout"><div class="modal" style="max-width:380px">

@@ -183,7 +183,8 @@ body.hide-pmnote .pmnote{display:none!important}
 @media(max-width:1200px){.stats,.stats.c4,.stats.c3{grid-template-columns:repeat(2,1fr)}.grid2,.grid3{grid-template-columns:1fr}}
 .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--surface-3);border:1px solid var(--border-strong);color:var(--text);padding:9px 18px;border-radius:20px;font-size:12.5px;z-index:2000;opacity:0;transition:opacity .2s;pointer-events:none}
 .toast.on{opacity:1}
-.steps{display:flex;align-items:center;flex-wrap:wrap;gap:2px;margin:4px 0 14px}.step{display:flex;align-items:center;gap:8px;font-size:12.2px;color:var(--muted);padding:7px 12px 7px 0}.step .n{width:22px;height:22px;border-radius:50%;background:var(--surface-3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--muted);flex-shrink:0}.step.done .n{background:rgba(74,222,128,.16);color:var(--green)}.step.cur .n{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(255,202,0,.45)}.step.cur{color:var(--gold);font-weight:600}.step .ar{color:var(--muted-2)}tbody tr.rowhi td{background:rgba(239,68,68,.055)}tbody tr.rowhi:hover td{background:rgba(239,68,68,.095)}.uhead{display:flex;align-items:center;gap:14px;flex-wrap:wrap}.uhead .uav{width:46px;height:46px;border-radius:50%;background:var(--surface-3);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--gold)}</style>
+.steps{display:flex;align-items:center;flex-wrap:wrap;gap:2px;margin:4px 0 14px}.step{display:flex;align-items:center;gap:8px;font-size:12.2px;color:var(--muted);padding:7px 12px 7px 0}.step .n{width:22px;height:22px;border-radius:50%;background:var(--surface-3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--muted);flex-shrink:0}.step.done .n{background:rgba(74,222,128,.16);color:var(--green)}.step.cur .n{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(255,202,0,.45)}.step.cur{color:var(--gold);font-weight:600}.step .ar{color:var(--muted-2)}tbody tr.rowhi td{background:rgba(239,68,68,.055)}tbody tr.rowhi:hover td{background:rgba(239,68,68,.095)}.uhead{display:flex;align-items:center;gap:14px;flex-wrap:wrap}.uhead .uav{width:46px;height:46px;border-radius:50%;background:var(--surface-3);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--gold)}.btn.ro{opacity:.42;pointer-events:none;cursor:not-allowed}
+</style>
 </head>
 <body>
 <button class="pmnote-toggle" onclick="document.body.classList.toggle('hide-pmnote');this.textContent=document.body.classList.contains('hide-pmnote')?'显示备注':'隐藏备注'">隐藏备注</button>
@@ -197,11 +198,11 @@ body.hide-pmnote .pmnote{display:none!important}
 <div class="main">
 <div class="top">
 <div class="crumb">租户业务台 <span class="sep">/</span> <b>页面目录</b></div>
-<div class="top-right"><span class="pill prod"><span class="dot"></span>生产环境</span><span class="who"><span class="av">谢</span>谢毅 · <span id="whoRole">管理员</span></span></div>
+<div class="top-right"><span class="pill prod"><span class="dot"></span>生产环境</span><a class="who" href="2026-10-15_账号设置_租户业务台.html" title="账号设置" style="text-decoration:none;color:inherit;cursor:pointer"><span class="av">谢</span>谢毅 · <span id="whoRole">管理员</span></a></div>
 </div>
 <div class="content">
 <div class="page-h"><div><div class="h1">YASBe 租户业务台</div><div class="sub">BaaS 白标系统 · 租户侧控制台 · MVP 8 页 + 账号设置 / 账户管理</div></div><div class="acts"><a class="btn btn-primary" href="2026-10-14_工作台首页_租户业务台.html">从工作台首页开始 →</a></div></div>
-<div class="alert blue"><span class="ic">ⓘ</span><div><b>MVP 版：8 个页面 + 账号设置 + 账户管理。</b>左侧导航即页面清单（未列出的模块属一期后补）。左下角可切换角色，菜单与按钮会随角色隐藏。</div></div><div class="card"><div class="card-h"><h2>范围与口径</h2></div><div class="card-b"><div class="grid3"><div class="tile"><div class="tn">业务范围</div><div class="td">仅法币（USD / EUR / GBP）虚拟账户的开户、入金与出金；不含加密与卡片。</div></div><div class="tile"><div class="tn">计费模式（外扣）</div><div class="td">租户预存储备金，每笔出入金手续费从储备金扣减，不从终端用户本金中扣。</div></div><div class="tile"><div class="tn">角色</div><div class="td">管理员（全部）· 财务（资金与流水）· 研发（开发者配置），三档固定权限。</div></div></div></div></div><div class="card"><div class="card-h"><h2>三份交付物的落点</h2></div><div class="card-b"><div class="grid3"><div class="tile"><div class="tn">交付物 1 · 导航与权限</div><div class="td">左侧导航即权限树，切换左下角角色可直接验证隐藏与禁用。</div></div><div class="tile"><div class="tn">交付物 2 · 三个核心页</div><div class="td">储备金与账单 / 终端用户详情 / 交易流水（抽屉里拆出本金与手续费）。</div></div><div class="tile"><div class="tn">交付物 3 · 防呆设计</div><div class="td">API Key（密钥只显示一次）· Webhook 端点与投递日志（失败原因与自助排查）。</div></div></div></div></div><div class="tip">完整口径与待拍板事项见 PRD：<span class="mono">prd/租户业务台/租户业务台-页面结构与字段定义-v0.1.md</span>（含 9 条待确认，其中第 4 条「终端用户资料归属」会直接决定终端用户详情页的形态）。</div><!-- PM-NOTE: 原型备注 --><div class="pmnote"><b>PM 备注</b>MVP 只留 8 页：工作台首页（入口）、终端用户列表与详情、交易流水、储备金与账单、API Key 管理、Webhook 端点、投递日志。挂账待认领 / 账单与发票 / 事件清单 / 团队与权限 / 安全 / 通知偏好 / 审计日志 / 充值独立页 / 虚拟账户独立页 / 待办独立页 属一期后补，其中充值已并入储备金页弹窗、虚拟账户已并入终端用户详情。2026-10-15 新增「账号设置」页，放本人的登录凭据与安全验证方式（修改密码 / 修改邮箱 / 身份验证器绑定与解绑 / 登录设备）；侧栏底部新增 DOCS（新开标签页跳白标开发者门户 API 文档首页）与 登出（二次确认弹窗）。2026-10-15 新增「账户管理」页（本租户成员与角色：邀请成员 / 改角色 / 停用 / 移除，按 RBAC 仅管理员可见），侧栏新增「设置」分组，其下并排 账户管理（成员与角色）与 账号设置（本人凭据），底部只留 DOCS 与 登出。</div>
+<div class="alert blue"><span class="ic">ⓘ</span><div><b>MVP 版：8 个页面 + 账号设置 + 账户管理。</b>左侧导航即页面清单（未列出的模块属一期后补）。左下角可切换角色，菜单与按钮会随角色隐藏。</div></div><div class="card"><div class="card-h"><h2>范围与口径</h2></div><div class="card-b"><div class="grid3"><div class="tile"><div class="tn">业务范围</div><div class="td">仅法币（USD / EUR / GBP）虚拟账户的开户、入金与出金；不含加密与卡片。</div></div><div class="tile"><div class="tn">计费模式（外扣）</div><div class="td">租户预存储备金，每笔出入金手续费从储备金扣减，不从终端用户本金中扣。</div></div><div class="tile"><div class="tn">角色</div><div class="td">管理员（全部）· 财务（资金与流水）· 研发（开发者配置），三档固定权限。</div></div></div></div></div><div class="card"><div class="card-h"><h2>三份交付物的落点</h2></div><div class="card-b"><div class="grid3"><div class="tile"><div class="tn">交付物 1 · 导航与权限</div><div class="td">左侧导航即权限树，切换左下角角色可直接验证隐藏与禁用。</div></div><div class="tile"><div class="tn">交付物 2 · 三个核心页</div><div class="td">储备金与账单 / 终端用户详情 / 交易流水（抽屉里拆出本金与手续费）。</div></div><div class="tile"><div class="tn">交付物 3 · 防呆设计</div><div class="td">API Key（密钥只显示一次）· Webhook 端点与投递日志（失败原因与自助排查）。</div></div></div></div></div><div class="tip">完整口径与待拍板事项见 PRD：<span class="mono">prd/租户业务台/租户业务台-页面结构与字段定义-v0.1.md</span>（含 9 条待确认，其中第 4 条「终端用户资料归属」会直接决定终端用户详情页的形态）。</div><!-- PM-NOTE: 原型备注 --><div class="pmnote"><b>PM 备注</b>MVP 只留 8 页：工作台首页（入口）、终端用户列表与详情、交易流水、储备金与账单、API Key 管理、Webhook 端点、投递日志。挂账待认领 / 账单与发票 / 事件清单 / 团队与权限 / 安全 / 通知偏好 / 审计日志 / 充值独立页 / 虚拟账户独立页 / 待办独立页 属一期后补，其中充值已并入储备金页弹窗、虚拟账户已并入终端用户详情。2026-10-15 新增「账号设置」页，放本人的登录凭据与安全验证方式（修改密码 / 修改邮箱 / 身份验证器绑定与解绑 / 登录设备）；侧栏底部新增 DOCS（新开标签页跳白标开发者门户 API 文档首页）与 登出（二次确认弹窗）。2026-10-15 新增「账户管理」页（本租户成员与角色：邀请成员 / 改角色 / 停用 / 移除，按 RBAC 仅管理员可见），侧栏新增「设置」分组，其下并排 账户管理（成员与角色）与 账号设置（本人凭据），底部只留 DOCS 与 登出。　模块级权限护栏：写操作按钮带 data-role-allow，无权角色看到禁用态 + 悬浮说明；首页按角色收窄卡片与通知；顶栏用户区可点进账号设置；弹窗支持点遮罩关闭。所有页面通过 data-roles / data-role-allow 两个属性驱动，改权限只改属性、不动 JS。</div>
 </div>
 </div>
 </div>
@@ -218,6 +219,13 @@ function applyRole(r){
   }
   var cur=document.querySelector('.nav-i.on');
   if(cur&&cur.style.display==='none'){toast('当前页面对「'+ROLE_NAME[r]+'」角色不可见（演示越权兜底）');}
+  var bl=document.querySelectorAll('[data-roles]:not(.nav-i)');
+  for(var b=0;b<bl.length;b++){var okb=bl[b].getAttribute('data-roles').split(',').indexOf(r)>=0;bl[b].style.display=okb?'':'none';}
+  var ro=document.querySelectorAll('[data-role-allow]');
+  for(var k=0;k<ro.length;k++){var oka=ro[k].getAttribute('data-role-allow').split(',').indexOf(r)>=0;
+    if(ro[k].tagName==='BUTTON'){ro[k].disabled=!oka;}
+    else{if(oka){ro[k].classList.remove('ro');}else{ro[k].classList.add('ro');}}
+    if(oka){ro[k].removeAttribute('title');}else{ro[k].title='你的角色为'+ROLE_NAME[r]+'，仅可查看';}}
   var u=document.getElementById('whoRole');if(u)u.textContent=ROLE_NAME[r];
   var s=document.getElementById('roleSel');if(s)s.value=r;
 }
@@ -228,6 +236,7 @@ function openDrawer(id){var e=document.getElementById(id);if(e)e.classList.add('
 function closeDrawer(id){var e=document.getElementById(id);if(e)e.classList.remove('on');}
 function dem(){toast('[原型演示] 该操作仅演示交互，不产生真实数据');}
 document.addEventListener('keydown',function(e){if(e.key==='Escape'){var o=document.querySelectorAll('.ov.on');for(var i=0;i<o.length;i++)o[i].classList.remove('on');var d=document.querySelectorAll('.drawer.on');for(var j=0;j<d.length;j++)d[j].classList.remove('on');}});
+document.addEventListener('click',function(e){var t=e.target;if(t&&t.classList&&t.classList.contains('ov')&&t.classList.contains('on')){t.classList.remove('on');}});
 window.addEventListener('DOMContentLoaded',function(){
   applyRole(ROLE);
   var rows=document.querySelectorAll('[data-click]');
