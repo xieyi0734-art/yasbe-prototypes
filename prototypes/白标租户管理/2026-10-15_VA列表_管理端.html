@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>白标系统 · VA 列表</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',-apple-system,sans-serif; background:#F0F2F5; color:#1a1d29; }
+.sidebar { position:fixed; left:0; top:0; bottom:0; width:240px; background:#1D2129; display:flex; flex-direction:column; z-index:50; }
+.sidebar-brand { padding:20px 20px 16px; border-bottom:1px solid rgba(255,255,255,.08); }
+.sidebar-brand .logo { display:flex; align-items:center; gap:10px; color:#fff; font-size:15px; font-weight:600; letter-spacing:.3px; }
+.sidebar-brand .logo-mark { width:26px; height:26px; border-radius:7px; background:#E59303; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:#fff; }
+.sidebar-brand .logo-sub { margin-top:6px; font-size:12px; color:rgba(255,255,255,.45); }
+.sidebar-nav { padding:12px 12px 24px; overflow-y:auto; flex:1; }
+.sidebar-group { padding:14px 8px 6px; font-size:11px; letter-spacing:1px; color:rgba(255,255,255,.32); text-transform:uppercase; }
+.sidebar-item { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:6px; color:rgba(255,255,255,.72); font-size:13px; cursor:pointer; margin-bottom:2px; text-decoration:none; }
+.sidebar-item:hover { background:rgba(255,255,255,.08); color:#fff; }
+.sidebar-item.active { background:#E59303; color:#fff; font-weight:500; }
+.sidebar-item .ico { width:16px; text-align:center; opacity:.9; }
+.sidebar-foot { padding:12px 20px 16px; border-top:1px solid rgba(255,255,255,.08); font-size:11px; color:rgba(255,255,255,.35); }
+.main { margin-left:240px; min-height:100vh; }
+.header { background:#fff; padding:16px 32px; border-bottom:1px solid #eef0f4; display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; position:sticky; top:0; z-index:40; }
+.crumb { font-size:12px; color:#86909C; margin-bottom:6px; }
+.header h1 { font-size:20px; font-weight:600; }
+.header p { font-size:13px; color:#6b7280; margin-top:4px; }
+.container { max-width:1560px; margin:0 auto; padding:24px 32px 60px; }
+.btn { display:inline-flex; align-items:center; gap:6px; padding:8px 18px; border-radius:8px; font-size:13px; font-weight:500; border:none; cursor:pointer; transition:all .2s; text-decoration:none; font-family:inherit; }
+.btn-primary { background:#E59303; color:#fff; }
+.btn-primary:hover { background:#d08400; }
+.btn-secondary { background:#f3f4f6; color:#374151; }
+.btn-secondary:hover { background:#e5e7eb; }
+.btn-outline { background:#fff; border:1px solid #e5e7eb; color:#374151; }
+.btn-outline:hover { border-color:#E59303; color:#E59303; }
+.btn-sm { padding:5px 12px; font-size:12px; border-radius:6px; }
+.btn-danger { background:#fee2e2; color:#dc2626; }
+.btn-danger:hover { background:#fecaca; }
+.btn-ok { background:#d1fae5; color:#059669; }
+.btn-ok:hover { background:#a7f3d0; }
+.stats { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px; }
+.stat { background:#fff; border-radius:12px; padding:16px 18px; box-shadow:0 1px 3px rgba(0,0,0,.04); }
+.stat .s-label { font-size:12px; color:#6b7280; margin-bottom:6px; }
+.stat .s-value { font-size:24px; font-weight:700; letter-spacing:-.3px; }
+.stat .s-value.gold { color:#E59303; }
+.stat .s-value.green { color:#059669; }
+.stat .s-value.amber { color:#d97706; }
+.stat .s-sub { font-size:11.5px; color:#9ca3af; margin-top:4px; }
+.filters { background:#fff; border-radius:12px; padding:16px 20px; margin-bottom:16px; box-shadow:0 1px 3px rgba(0,0,0,.04); display:flex; align-items:flex-end; gap:16px; flex-wrap:wrap; }
+.filter-group { display:flex; flex-direction:column; gap:4px; }
+.filter-group label { font-size:12px; color:#6b7280; font-weight:500; }
+.filter-group input, .filter-group select { padding:8px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:13px; min-width:170px; outline:none; font-family:inherit; background:#fff; }
+.filter-group input:focus, .filter-group select:focus { border-color:#E59303; box-shadow:0 0 0 3px rgba(229,147,3,.08); }
+.table-wrapper { background:#fff; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.04); }
+.table-scroll { overflow-x:auto; border-radius:12px 12px 0 0; }
+table { width:100%; border-collapse:collapse; min-width:1360px; }
+thead { background:#f9fafb; }
+th { padding:12px 16px; text-align:left; font-size:12px; font-weight:600; color:#6b7280; text-transform:uppercase; letter-spacing:.03em; border-bottom:1px solid #eef0f4; white-space:nowrap; }
+td { padding:14px 16px; font-size:13px; border-bottom:1px solid #f3f4f6; vertical-align:middle; white-space:nowrap; }
+tbody tr:hover td { background:#fdfdfd; }
+.avatar { width:32px; height:32px; border-radius:50%; background:#fef3c7; color:#92400e; display:inline-flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; margin-right:10px; flex-shrink:0; }
+.tcell { display:flex; align-items:center; }
+.t-name { font-weight:600; }
+.t-sub { font-size:12px; color:#9ca3af; }
+.badge { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:6px; font-size:11.5px; font-weight:500; }
+.badge-active { background:#d1fae5; color:#059669; }
+.badge-part { background:#e0f2fe; color:#0369a1; }
+.badge-review { background:#eff6ff; color:#2563eb; }
+.badge-warn { background:#fef3c7; color:#92400e; }
+.badge-off { background:#f3f4f6; color:#9ca3af; }
+.badge-danger { background:#fee2e2; color:#dc2626; }
+.chips { display:flex; gap:6px; flex-wrap:nowrap; }
+.chip { display:inline-flex; align-items:center; gap:5px; padding:2px 9px; border-radius:14px; font-size:11.5px; font-weight:500; border:1px solid transparent; }
+.chip-prod { background:#ecfdf5; color:#059669; border-color:#a7f3d0; }
+.chip-limited { background:#fffbeb; color:#b45309; border-color:#fde68a; }
+.chip-off { background:#f9fafb; color:#9ca3af; border-color:#eef0f4; }
+.mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+.dim { color:#9ca3af; }
+.num { font-variant-numeric:tabular-nums; }
+.ops { display:flex; gap:6px; }
+.pagination { display:flex; justify-content:space-between; align-items:center; padding:14px 16px; border-top:1px solid #eef0f4; background:#fafbfc; flex-wrap:wrap; gap:10px; border-radius:0 0 12px 12px; }
+.pagination-info { font-size:12px; color:#6b7280; }
+.pagination-btns { display:flex; gap:6px; }
+.page-btn { padding:6px 12px; border:1px solid #e5e7eb; border-radius:6px; background:#fff; font-size:12px; color:#374151; cursor:pointer; font-family:inherit; }
+.page-btn.active { background:#E59303; color:#fff; border-color:#E59303; }
+.page-btn:disabled { color:#c9ccd1; cursor:not-allowed; }
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:1000; overflow-y:auto; padding:40px 16px; }
+.modal-overlay.active { display:flex; align-items:flex-start; justify-content:center; }
+.modal { background:#fff; border-radius:16px; width:100%; max-width:560px; margin:auto; box-shadow:0 20px 60px rgba(0,0,0,.12); }
+.modal-header { display:flex; justify-content:space-between; align-items:center; padding:20px 28px; border-bottom:1px solid #eef0f4; }
+.modal-header h2 { font-size:17px; font-weight:600; }
+.modal-close { width:32px; height:32px; border-radius:8px; border:none; background:#f3f4f6; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#6b7280; }
+.modal-body { padding:24px 28px; }
+.modal-footer { display:flex; justify-content:flex-end; gap:10px; padding:16px 28px; border-top:1px solid #eef0f4; }
+.form-group { display:flex; flex-direction:column; gap:6px; margin-bottom:16px; }
+.form-group label { font-size:12px; color:#6b7280; font-weight:500; }
+.form-group input, .form-group select, .form-group textarea { padding:9px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:13px; outline:none; font-family:inherit; }
+.form-group textarea { min-height:80px; resize:vertical; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color:#E59303; box-shadow:0 0 0 3px rgba(229,147,3,.08); }
+.tip { background:#f9fafb; border:1px solid #eef0f4; border-radius:10px; padding:12px 14px; font-size:12.5px; color:#6b7280; line-height:1.75; }
+.tip b { color:#374151; }
+.tip.warn { background:#fffbeb; border-color:#fde68a; color:#92400e; }
+.tip.warn b { color:#78350f; }
+.pmnote { background:#14171c; border-left:3px solid #FFCA00; border-radius:6px; padding:10px 12px; margin:10px 0; font-size:13px; line-height:1.75; color:#c8ccd4; }
+.pmnote b { color:#FFCA00; margin-right:8px; }
+.pmnote.dem { border-left-color:#4a5568; }
+.pmnote.dem b { color:#9aa3b2; }
+.pmnote-toggle { position:fixed; right:14px; bottom:14px; z-index:9999; background:#1a1e26; color:#FFCA00; border:1px solid #2a2f3a; border-radius:20px; padding:6px 14px; font-size:12px; cursor:pointer; font-family:inherit; }
+body.hide-pmnote .pmnote { display:none!important; }
+@media (max-width:1100px) { .stats { grid-template-columns:1fr 1fr; } }
+
+    .kv { display:flex; justify-content:space-between; gap:12px; padding:9px 0; border-bottom:1px dashed #eef0f4; font-size:13px; }
+    .kv:last-child { border-bottom:0; }
+    .kv .k { color:#6b7280; }
+    .kv .v { color:#1D2129; font-weight:500; text-align:right; }
+    .pill { display:inline-block; padding:2px 9px; border-radius:11px; font-size:11.5px; font-weight:500; }
+    .chip-link { border:0; cursor:pointer; font:inherit; }
+    .pill-ok { background:#eaf7ef; color:#1a7f4b; }
+    .pill-gray { background:#f2f3f5; color:#8b93a1; }
+  .card{background:#fff; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.04); padding:24px 28px; margin-bottom:16px;}
+.card h2{font-size:15px; font-weight:600; margin-bottom:4px;}
+.card .card-sub{font-size:12.5px; color:#6b7280; margin-bottom:18px;}
+.steps{display:flex; gap:0; background:#fff; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.04); padding:18px 20px; margin-bottom:16px; overflow-x:auto;}
+.step{display:flex; align-items:center; gap:8px; padding:0 14px; font-size:12.5px; color:#9ca3af; cursor:pointer; white-space:nowrap; flex:1; min-width:0;}
+.step .step-num{width:26px; height:26px; border-radius:50%; border:2px solid currentColor; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;}
+.step.active{color:#E59303; font-weight:600;}
+.step.active .step-num{background:#E59303; color:#fff; border-color:#E59303;}
+.step.done{color:#059669;}
+.step.done .step-num{background:#059669; color:#fff; border-color:#059669;}
+.step-line{flex:0 0 16px; height:2px; background:#eef0f4;}
+.form-grid{display:grid; grid-template-columns:1fr 1fr; gap:0 16px;}
+.form-grid-3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:0 16px;}
+.hint{font-size:11.5px; color:#9ca3af; margin-top:2px;}
+.file-drop{border:1.5px dashed #d1d5db; border-radius:10px; padding:18px; text-align:center; color:#9ca3af; font-size:12.5px; background:#fafbfc;}
+.file-drop b{display:block; color:#6b7280; font-size:12.5px; margin-bottom:4px;}
+.file-item{display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border:1px solid #eef0f4; border-radius:8px; margin-bottom:8px; font-size:12.5px;}
+.file-item .f-name{font-weight:500;}
+.file-item .f-meta{color:#9ca3af; font-size:11.5px;}
+.pill{display:inline-flex; align-items:center; padding:2px 9px; border-radius:6px; font-size:11px; font-weight:500;}
+.pill-ok{background:#d1fae5; color:#059669;}
+.pill-warn{background:#fef3c7; color:#92400e;}
+.pill-gray{background:#f3f4f6; color:#9ca3af;}
+.pill-blue{background:#eff6ff; color:#2563eb;}
+.checklist{list-style:none;}
+.checklist li{display:flex; align-items:flex-start; gap:8px; font-size:13px; padding:9px 0; border-bottom:1px solid #f3f4f6;}
+.checklist li:last-child{border-bottom:none;}
+.checklist .ck{width:16px; flex-shrink:0;}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
+.summary-row{display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f3f4f6; font-size:13px;}
+.summary-row:last-child{border-bottom:none;}
+.summary-row .k{color:#6b7280;}
+.summary-row .v{font-weight:500;}
+.result-view{text-align:center; padding:36px 20px;}
+.result-icon{font-size:56px; margin-bottom:14px;}
+.result-title{font-size:19px; font-weight:600; margin-bottom:8px;}
+.result-desc{color:#6b7280; font-size:13px; margin-bottom:22px; line-height:1.8;}
+.form-grid, .form-grid-3{grid-template-columns:1fr;}
+.subnav-local{margin:0 0 16px;font-size:13px;color:#6b7280}
+.subnav-local .crumb-link{color:#E59303;text-decoration:none}
+.subnav-local .crumb-link:hover{text-decoration:underline}
+.subnav-local .crumb-cur{color:#1D2129;font-weight:600}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.sec-title{font-size:14px;font-weight:600;margin:0 0 12px}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px dashed #eef0f4;font-size:13px}
+.kv:last-child{border-bottom:0}
+.kv .k{color:#6b7280}
+.kv .v{color:#1D2129;font-weight:500;text-align:right}
+.row-actions a{color:#E59303;text-decoration:none;margin-right:10px;font-size:13px;cursor:pointer}
+tr.locked td{background:#fafbfc;color:#9aa1ad}
+.mini{font-size:12px;color:#9aa1ad}
+.swatch{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:6px;border:1px solid rgba(0,0,0,.08)}
+
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <a class="logo" href="index.html"><span class="logo-mark">Y</span>YASBe 平台管理</a>
+    <div class="logo-sub">白标租户管理</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-group">白标租户管理</div>
+    <a class="sidebar-item" href="index.html"><span class="ico">■</span>原型目录</a>
+    <a class="sidebar-item" href="2026-10-12_白标租户列表_管理端.html"><span class="ico">▦</span>租户列表</a>
+    <a class="sidebar-item active" href="2026-10-15_VA列表_管理端.html"><span class="ico">▤</span>VA 列表</a>
+    <a class="sidebar-item" href="2026-10-15_开户记录_管理端.html"><span class="ico">▥</span>开户记录</a>
+    <a class="sidebar-item" href="2026-10-15_交易流水查询_管理端.html"><span class="ico">≡</span>交易流水查询</a>
+    <a class="sidebar-item" href="2026-10-15_结算与对账_管理端.html"><span class="ico">⇄</span>结算与对账</a>
+    <a class="sidebar-item" href="2026-10-15_权限与审计日志_管理端.html"><span class="ico">▣</span>权限与审计日志</a>
+  </nav>
+  <div class="sidebar-foot">v0.1 · 一期原型</div>
+</aside>
+
+<div class="main">
+  <button class="pmnote-toggle" onclick="document.body.classList.toggle('hide-pmnote');this.textContent=document.body.classList.contains('hide-pmnote')?'显示备注':'隐藏备注'">隐藏备注</button>
+  <div class="pmnote"><b>PM 备注</b>本页为一级菜单页：跨租户查看所有已开出的法币虚拟账户；开户费按个人 $100 / 企业 $1,000（每币种）；开户流程与开户记录见「开户记录」。</div>
+  <div class="header">
+    <div>
+      <div class="crumb">白标租户管理 / <b>VA 列表</b></div>
+      <h1>VA 列表</h1>
+      <p>跨租户全部 VA · 状态与开户费 · 出入金与余额 · 全量字段详情</p>
+    </div>
+    <div style="display:flex;gap:10px;"><button class="btn btn-outline" onclick="alert('[原型演示] 导出当前筛选的 VA 列表 CSV')">⬇ 导出</button>
+      <a class="btn btn-outline" href="2026-10-15_开户记录_管理端.html">开户记录 →</a>
+      <button class="btn btn-primary" onclick="openOpenVa()">＋ 开立法币 VA</button></div>
+  </div>
+
+  <div class="container">
+  <div class="tip"><b>口径</b>本页为全局 VA 视图：跨租户看所有已开出的法币虚拟账户；一个终端客户可按用途持多个 VA（一用户一币种一 VA）。平台侧只做开立 / 停用 / 查询与入金指引，不做客户侧界面。</div>
+  <div class="pmnote dem"><b>PM 备注</b>字段：VA 号 / 租户 / 终端客户（引用号 · 个人·企业）/ 币种（USD · EUR · GBP）/ 状态（已开通 · 开立中 · 已停用）/ 开户费 / 开立时间 / 本月入金·出金 / 余额；详情弹窗给全量字段（含按币种的收款信息字段组、通道（仅平台内部）、关联交易入口）。收款账号与路由码位数以上游开户返回为准，前端不硬编码校验。</div>
+
+  <div class="stats">
+    <div class="stat"><div class="s-label">VA 总数</div><div class="s-value">3,214</div><div class="s-sub">已开通 3,180 · 开立中 22 · 已停用 12</div></div>
+    <div class="stat"><div class="s-label">本月新增</div><div class="s-value">186</div><div class="s-sub">个人 158 · 企业 28</div></div>
+    <div class="stat"><div class="s-label">本月开户费收入</div><div class="s-value gold">$43,800.00</div><div class="s-sub">个人 $100 / 币种 · 企业 $1,000 / 币种</div></div>
+    <div class="stat"><div class="s-label">本月出入金（笔）</div><div class="s-value">11,841</div><div class="s-sub">与交易流水查询同源</div></div>
+  </div>
+
+  <div class="filters">
+    <div class="filter-group"><label>关键词</label><input id="kw" type="text" placeholder="VA 号 / 终端客户引用号 / 姓名" oninput="applyFilter()"></div>
+    <div class="filter-group"><label>租户</label><select id="fTen" onchange="applyFilter()"><option value="">全部租户</option><option>星桥支付 StarBridge</option><option>Meridian Pay</option><option>Nova Bank</option><option>Atlas Wallet</option><option>Orbit Pay</option></select></div>
+    <div class="filter-group"><label>类型</label><select id="fType" onchange="applyFilter()"><option value="">全部类型</option><option>个人</option><option>企业</option></select></div>
+    <div class="filter-group"><label>币种</label><select id="fCur" onchange="applyFilter()"><option value="">全部币种</option><option>USD</option><option>EUR</option><option>GBP</option></select></div>
+    <div class="filter-group"><label>状态</label><select id="fSt" onchange="applyFilter()"><option value="">全部状态</option><option>已开通</option><option>开立中</option><option>已停用</option></select></div>
+    <button class="btn btn-secondary" onclick="resetFilter()">重置</button>
+  </div>
+
+  <div class="card">
+    <h2>VA 列表</h2>
+    <div class="card-sub">跨租户的全部法币虚拟账户；详情含全量字段</div>
+    <div class="table-wrapper"><div class="table-scroll">
+      <table>
+        <thead><tr><th>租户</th><th>VA 号</th><th>终端客户</th><th>类型</th><th>币种</th><th>状态</th><th>开户费</th><th>开立时间</th><th>本月入金</th><th>本月出金</th><th>余额</th><th>操作</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="pagination"><div class="pagination-info" id="pageInfo">共 8 条 · 每页 10 条</div><div class="pagination-btns"><button class="page-btn" disabled>上一页</button><button class="page-btn active">1</button><button class="page-btn" disabled>下一页</button></div></div>
+    </div>
+  </div>
+
+  </div>
+<div class="modal-overlay" id="modalOpenVa"><div class="modal" style="max-width:720px;">
+    <div class="modal-header"><h2>开立法币 VA</h2><button class="modal-close" onclick="closeModal('modalOpenVa')">✕</button></div>
+    <div class="modal-body">
+      <div class="tip"><b>口径</b>平台代客开立：一终端客户一币种一 VA；开户费按 <b>个人 $100 / 企业 $1,000（每币种）</b>收取，不支持减免。上游返回后 VA 生效，收款账号与路由码由上游开户结果回填，前端不做位数校验。</div>
+      <div class="sec-title" style="margin-top:14px;">开立主体</div>
+      <div class="form-grid">
+        <div class="form-group"><label>租户</label><select id="ovTenant"><option>T-1001 Meridian Pay</option><option>T-1002 Nova Bank</option><option>T-1003 星桥支付 StarBridge</option><option>T-1004 Atlas Wallet</option><option>T-1007 Orbit Pay</option></select></div>
+        <div class="form-group"><label>客户类型</label><select id="ovType" onchange="syncOpenFee()"><option value="个人">个人</option><option value="企业">企业</option></select></div>
+        <div class="form-group"><label>币种</label><select id="ovCur"><option>USD</option><option>EUR</option><option>GBP</option></select></div>
+        <div class="form-group"><label>终端客户名称</label><input id="ovName" placeholder="个人姓名 / 企业主体名"></div>
+        <div class="form-group"><label>引用号</label><input id="ovRef" class="mono" placeholder="租户系统内该客户的唯一 ID"></div>
+        <div class="form-group"><label>应缴开户费</label><input id="ovFee" class="mono" value="$100.00" readonly></div>
+      </div>
+      <div class="sec-title" style="margin-top:16px;">扣费钱包（终端用户链上钱包）</div>
+      <div class="form-grid">
+        <div class="form-group"><label>收费方式</label><select id="ovPay"><option>终端用户钱包 · USDT（ERC-20）</option><option>终端用户钱包 · USDC（ERC-20）</option><option>租户储备金代付</option></select></div>
+        <div class="form-group"><label>生效时间</label><input value="上游开立成功后立即生效" readonly></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;">
+        <span class="pill pill-ok">钱包余额 USDT 1,240.00 · 充足</span>
+        <span class="pill pill-warn">钱包余额 USDC 86.40 · 不足（差额 13.60）</span>
+      </div>
+      <div class="form-group" style="margin-top:12px;"><label>备注</label><textarea placeholder="例：客户线下确认开户 / 首次入金用途说明"></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modalOpenVa')">取消</button><button class="btn btn-primary" onclick="submitOpenVa()">确认开立</button></div>
+  </div></div>
+
+<div class="modal-overlay" id="modalVaDetail"><div class="modal">
+    <div class="modal-header"><h2>VA 全量字段</h2><button class="modal-close" onclick="closeModal('modalVaDetail')">✕</button></div>
+    <div class="modal-body"><div id="vdRows"></div></div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modalVaDetail')">关闭</button>
+      <a class="btn btn-outline" href="2026-10-15_交易流水查询_管理端.html">该 VA 交易记录 →</a></div>
+  </div></div>
+
+  <div class="modal-overlay" id="modalVaGuid"><div class="modal">
+    <div class="modal-header"><h2>入金指引</h2><button class="modal-close" onclick="closeModal('modalVaGuid')">✕</button></div>
+    <div class="modal-body"><div class="tip"><b>仅向该终端客户展示</b>字段组按币种不同；路由码位数以上游开户返回为准。</div><div id="vgRows" style="margin-top:12px;"></div></div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modalVaGuid')">关闭</button><button class="btn btn-primary" onclick="alert('[原型演示] 已复制入金指引')">复制指引</button></div>
+  </div></div>
+
+  <div class="modal-overlay" id="modalVaToggle"><div class="modal">
+    <div class="modal-header"><h2 id="tgTitle">停用 VA</h2><button class="modal-close" onclick="closeModal('modalVaToggle')">✕</button></div>
+    <div class="modal-body">
+      <div class="tip warn"><b>影响面</b>停用后该 VA 不可入金、不可出金；存量余额可查询、可退回；该终端客户名下其它 VA 不受影响。</div>
+      <div class="form-group" style="margin-top:16px;"><label>VA 号</label><input id="tgVa" readonly></div>
+      <div class="form-group"><label>操作原因</label><textarea placeholder="例：终端客户申请注销 / 风控命中待核实"></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modalVaToggle')">取消</button><button class="btn btn-danger" onclick="confirmToggle()">确认</button></div>
+  </div></div>
+
+  <div class="modal-overlay" id="modalDone"><div class="modal">
+    <div class="modal-header"><h2 id="doneTitle">已提交</h2><button class="modal-close" onclick="closeModal('modalDone')">✕</button></div>
+    <div class="modal-body"><div class="tip" id="doneBody">已提交。</div></div>
+    <div class="modal-footer"><button class="btn btn-primary" onclick="closeModal('modalDone')">知道了</button></div>
+  </div></div>
+
+
+<script>
+var VAS = [["T-1001 Meridian Pay", "VA-1001-0009", "李强", "个人", "USD", "已开通", "$100.00", "312", "148", "$18,240.00"], ["T-1002 Nova Bank", "VA-1002-0012", "Wang Lei", "个人", "USD", "已开通", "$100.00", "204", "96", "$9,120.50"], ["T-1003 星桥支付 StarBridge", "VA-1003-0001", "陈伟", "个人", "USD", "已开通", "$100.00", "186", "92", "$12,480.55"], ["T-1003 星桥支付 StarBridge", "VA-1003-0003", "Zhao Min", "个人", "EUR", "已开通", "$100.00", "118", "60", "$6,120.00"], ["T-1003 星桥支付 StarBridge", "VA-1003-0005", "Alex Tan", "企业", "USD", "已开通", "$1,000.00", "154", "112", "$9,760.30"], ["T-1003 星桥支付 StarBridge", "VA-1003-0007", "Kim Lee", "企业", "USD", "开立中", "$1,000.00", "—", "—", "$0.00"], ["T-1004 Atlas Wallet", "VA-1004-0002", "Chen Yu", "个人", "USD", "已停用", "$100.00", "96", "0", "$1,240.00"], ["T-1007 Orbit Pay", "VA-1007-0004", "Hasan A.", "企业", "USD", "已开通", "$1,000.00", "88", "40", "$3,480.90"]];
+var OPEN = {'VA-1001-0009':'2026-06-12 10:20','VA-1002-0012':'2026-07-03 14:05','VA-1003-0001':'2026-05-21 09:44','VA-1003-0003':'2026-06-08 16:12','VA-1003-0005':'2026-07-19 11:30','VA-1003-0007':'2026-10-14 17:02','VA-1004-0002':'2026-08-02 10:15','VA-1007-0004':'2026-09-11 13:48'};
+function renderRows(list) {
+  var tb = document.getElementById('tbody'), html = '';
+  list.forEach(function(v) {
+    var bcls = { '已开通':'badge badge-active', '开立中':'badge badge-review', '已停用':'badge badge-danger' }[v[5]];
+    var ops = '<a onclick="openVaDetail(\'' + v[1] + '\')">详情</a>';
+    if (v[5] === '已开通') ops += '<a onclick="openVaGuid(\'' + v[1] + '\')">入金指引</a>';
+    ops += '<a onclick="openVaToggle(\'' + v[1] + '\')">' + (v[5] === '已停用' ? '启用' : '停用') + '</a>';
+    html += '<tr><td class="t-name">' + v[0] + '</td><td class="mono">' + v[1] + '</td><td>' + v[2] + '</td><td>' + v[3] + '</td><td>' + v[4] + '</td>'
+      + '<td><span class="' + bcls + '">' + v[5] + '</span></td><td class="num">' + v[6] + '</td><td>' + (OPEN[v[1]] || '—') + '</td><td class="num">' + v[7] + '</td>'
+      + '<td class="num">' + v[8] + '</td><td class="num">' + v[9] + '</td><td class="ops">' + ops + '</td></tr>';
+  });
+  tb.innerHTML = list.length ? html : '<tr><td colspan="12" style="text-align:center;color:#9aa1ad;padding:30px 0;">没有匹配的 VA · 试试「重置」</td></tr>';
+  document.getElementById('pageInfo').textContent = '共 ' + list.length + ' 条 · 每页 10 条';
+}
+function applyFilter() {
+  var kw = document.getElementById('kw').value.trim().toLowerCase(), ten = document.getElementById('fTen').value;
+  var ty = document.getElementById('fType').value, cur = document.getElementById('fCur').value, st = document.getElementById('fSt').value;
+  renderRows(VAS.filter(function(v) {
+    var hitKw = !kw || (v[1] + v[2]).toLowerCase().indexOf(kw) >= 0;
+    return hitKw && (!ten || v[0].indexOf(ten) >= 0) && (!ty || v[3] === ty) && (!cur || v[4] === cur) && (!st || v[5] === st);
+  }));
+}
+function resetFilter() {
+  ['kw'].forEach(function(id) { document.getElementById(id).value = ''; });
+  ['fTen', 'fType', 'fCur', 'fSt'].forEach(function(id) { document.getElementById(id).value = ''; });
+  renderRows(VAS);
+}
+function byNo(no) { return VAS.filter(function(v) { return v[1] === no; })[0]; }
+function openOpenVa() { document.getElementById('ovFee').value = '$100.00'; document.getElementById('ovType').value = '个人'; openModal('modalOpenVa'); }
+function syncOpenFee() { document.getElementById('ovFee').value = document.getElementById('ovType').value === '企业' ? '$1,000.00' : '$100.00'; }
+function submitOpenVa() {
+  var nm = document.getElementById('ovName').value.trim();
+  if (!nm) { alert('[原型演示] 请先填写终端客户名称'); return; }
+  closeModal('modalOpenVa');
+  alert('[原型演示] 已提交开立申请：' + nm + ' · ' + document.getElementById('ovCur').value + ' · 开户费 ' + document.getElementById('ovFee').value + '（上游受理后置「开立中」，成功后「已开通」）');
+}
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+function openVaDetail(no) {
+  var v = byNo(no);
+  var rail = v[4] === 'USD' ? ['收款人姓名|' + v[2], '银行账号|12345' + v[1].slice(-3), '路由号|021000021', '银行名称 / 地址|开户后由上游持牌行返回']
+    : (v[4] === 'EUR' ? ['账户持有人|' + v[2], 'IBAN|DE89 3704 0044 0532 0130 00', 'BIC|COBADEFFXXX']
+      : ['账户持有人|' + v[2], 'Sort Code|04-00-04', '账号|12345678']);
+  document.getElementById('vdRows').innerHTML =
+    '<div class="kv"><span class="k">VA 号 / 租户</span><span class="v mono">' + v[1] + '</span></div>'
+    + '<div class="kv"><span class="k">所属租户</span><span class="v">' + v[0] + '</span></div>'
+    + '<div class="kv"><span class="k">终端客户 / 类型</span><span class="v">' + v[2] + ' · ' + v[3] + '</span></div>'
+    + '<div class="kv"><span class="k">币种 / 状态</span><span class="v">' + v[4] + ' · ' + v[5] + '</span></div>'
+    + '<div class="kv"><span class="k">开户费 / 收费方式</span><span class="v">' + v[6] + ' · ' + (v[3] === '企业' ? '记账后收取' : '终端用户钱包 USDT / USDC 覆盖') + '</span></div>'
+    + '<div class="kv"><span class="k">本月入金 / 出金（笔）</span><span class="v">' + v[7] + ' / ' + v[8] + '</span></div>'
+    + '<div class="kv"><span class="k">余额（USD）</span><span class="v">' + v[9] + '</span></div>'
+    + '<div class="kv"><span class="k">通道（仅平台内部）</span><span class="v mono">' + (v[4] === 'USD' ? 'Bridge' : 'OpenPayd') + ' · 租户侧不展示</span></div>'
+    + '<div class="sec-title" style="margin-top:14px;">收款信息（按币种字段组）</div>'
+    + rail.map(function(x) { var p = x.split('|'); return '<div class="kv"><span class="k">' + p[0] + '</span><span class="v">' + p[1] + '</span></div>'; }).join('');
+  openModal('modalVaDetail');
+}
+function openVaGuid(no) {
+  var v = byNo(no);
+  document.getElementById('vgRows').innerHTML =
+    '<div class="kv"><span class="k">VA 号 / 参考号</span><span class="v mono">' + v[1] + '</span></div>'
+    + '<div class="kv"><span class="k">币种 / 入金方式</span><span class="v">' + v[4] + ' · ' + (v[4] === 'USD' ? 'ACH / Wire' : (v[4] === 'EUR' ? 'SEPA 转账' : 'Faster Payments')) + '</span></div>'
+    + '<div class="kv"><span class="k">收款方</span><span class="v">' + v[2] + '（终端客户）</span></div>';
+  openModal('modalVaGuid');
+}
+function openVaToggle(no) {
+  var v = byNo(no);
+  document.getElementById('tgVa').value = no;
+  document.getElementById('tgTitle').textContent = (v[5] === '已停用') ? '启用 VA' : '停用 VA';
+  openModal('modalVaToggle');
+}
+function confirmToggle() {
+  var no = document.getElementById('tgVa').value, t = document.getElementById('tgTitle').textContent;
+  closeModal('modalVaToggle');
+  document.getElementById('doneTitle').textContent = t + '已提交';
+  document.getElementById('doneBody').innerHTML = '原型演示：' + no + ' 已' + (t.indexOf('启用') >= 0 ? '启用，入金与出金恢复。' : '停用，入金与出金被拒绝，存量余额可退回。') + '操作已写入审计。';
+  openModal('modalDone');
+}
+['modalVaDetail', 'modalVaGuid', 'modalVaToggle', 'modalDone'].forEach(function(id) {
+  var el = document.getElementById(id);
+  if (el) el.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('active'); });
+});
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.active').forEach(function(m) { m.classList.remove('active'); }); });
+renderRows(VAS);
+</script>
+</div><!-- /main -->
+
+</body>
+</html>

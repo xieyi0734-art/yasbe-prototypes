@@ -206,6 +206,7 @@ body.hide-pmnote .pmnote{display:none!important}
 </div>
 </div>
 </div>
+<div class="card" style="margin-top:16px;border-color:#5a3a1a;"><h2>流水核对 · 常驻提醒</h2><div style="font-size:12px;color:var(--text-2);margin-top:2px;">本区块固定在本页页脚，不随筛选、分页与重试状态变化</div><div class="tip warn" style="margin-top:10px;"><b>Webhook 是通知，不是最终依据。</b>投递失败、丢失或乱序时，余额与流水一律以接口为准 —— 请用查询接口 <span class="mono">GET /v1/reconciliation</span> 按日拉取全量流水核对，<b>不要用回调补账</b>。</div><div class="tip" style="margin-top:10px;line-height:1.9;"><b>验签：</b>用原始请求体 + 原始请求头参与 HMAC-SHA256 计算，不要用重新序列化后的 JSON。<br><b>重试：</b>失败按 1 / 5 / 30 分钟…最长 8 次退避重试，超过转「待重投」人工介入。<br><b>重复投递：</b>按 <span class="mono">X-YASBe-Event-Id</span> 去重，同一事件被投递多次只处理一次，不会重复入账。</div></div>
 <div id="toast" class="toast"></div>
 <script>
 var ROLE='ADMIN';
