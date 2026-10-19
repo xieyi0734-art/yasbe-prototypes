@@ -318,7 +318,7 @@ function copyLink(){
    口径：代理身份 = 可见性开关。非「已开通」态下代理数据面不渲染、不占位。
    ========================================================= */
 var AGENT_STATE_NAMES = {none:'普通用户',pending:'申请中',rejected:'核验未通过',active:'已开通代理',suspended:'已停用'};
-function agentState(){try{var v=localStorage.getItem('yasbe_agent_state');return AGENT_STATE_NAMES[v]?v:'none'}catch(e){return 'none'}}
+function agentState(){try{var v=localStorage.getItem('yasbe_agent_state');return AGENT_STATE_NAMES[v]?v:'active'}catch(e){return 'none'}}
 function setAgentState(v){try{localStorage.setItem('yasbe_agent_state',v)}catch(e){}location.reload()}
 function agentLockHtml(st){
   var M={

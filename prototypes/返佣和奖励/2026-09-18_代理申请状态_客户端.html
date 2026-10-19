@@ -311,7 +311,7 @@ function showState(v){
 <script>
 /* [原型演示] 代理身份态联动：状态页展示的核验结果取自全局身份态；页内「状态演示」仍可单独切换对比两种结果。 */
 var AGENT_STATE_NAMES = {none:'普通用户',pending:'申请中',rejected:'核验未通过',active:'已开通代理',suspended:'已停用'};
-function agentState(){try{var v=localStorage.getItem('yasbe_agent_state');return AGENT_STATE_NAMES[v]?v:'none'}catch(e){return 'none'}}
+function agentState(){try{var v=localStorage.getItem('yasbe_agent_state');return AGENT_STATE_NAMES[v]?v:'active'}catch(e){return 'none'}}
 function setAgentState(v){try{localStorage.setItem('yasbe_agent_state',v)}catch(e){}location.reload()}
 document.addEventListener('DOMContentLoaded', function(){
   var st = agentState();
