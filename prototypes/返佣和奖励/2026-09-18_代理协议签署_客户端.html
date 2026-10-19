@@ -100,7 +100,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,'Pin
     .pmnote-toggle{position:fixed;right:14px;bottom:14px;z-index:9999;background:#1a1e26;color:#FFCA00;border:1px solid #2a2f3a;border-radius:20px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:inherit}
     .pmnote-toggle:hover{background:#22262f}
     body.hide-pmnote .pmnote{display:none!important}
-  </style>
+  .demo-agent{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border:1px dashed rgba(255,255,255,.22);border-radius:999px;font-size:11px;color:rgba(255,255,255,.55)}
+.demo-agent label{white-space:nowrap}
+.demo-agent select{background:transparent;border:0;color:#FFCA00;font-size:11.5px;font-weight:600;outline:none;cursor:pointer}
+.demo-agent select option{background:#14171c;color:#fff}
+.agent-lock{margin:8px 0 18px;padding:18px 20px;border-radius:14px;border:1px solid rgba(255,202,0,.28);background:linear-gradient(135deg,rgba(255,202,0,.10),rgba(254,87,7,.06))}
+.agent-lock .al-t{font-size:16px;font-weight:700;margin-bottom:6px}
+.agent-lock .al-d{font-size:13px;color:rgba(255,255,255,.66);line-height:1.6;margin-bottom:14px}
+.agent-lock .al-b{display:inline-block;padding:9px 16px;border-radius:999px;font-size:12.5px;font-weight:700;text-decoration:none;margin-right:8px}
+.agent-lock .al-b.gold{background:linear-gradient(90deg,#FFCA00,#FE5707);color:#111418}
+.agent-lock .al-b.ghost{border:1px solid rgba(255,255,255,.22);color:#fff}
+
+body.agent-locked .layout{display:none}
+body.agent-locked .page-head p{display:none}
+.es-slip{margin:0 0 16px;padding:16px 18px;border-radius:14px;border:1px solid rgba(74,222,128,.28);background:rgba(74,222,128,.06)}
+.es-slip .es-h{font-size:13px;font-weight:700;color:#4ade80;margin-bottom:8px}
+.es-slip .es-r{font-size:12.5px;color:rgba(255,255,255,.72);line-height:1.9}
+.es-slip .es-r b{color:#fff;font-weight:600}
+</style>
 </head>
 <body>
   <button class="pmnote-toggle" onclick="document.body.classList.toggle('hide-pmnote');this.textContent=document.body.classList.contains('hide-pmnote')?'显示备注':'隐藏备注'">隐藏备注</button>
@@ -110,11 +127,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,'Pin
 
 <div class="topbar">
   <div class="brand"><span class="mark">Y</span>YASBe</div>
-  <div class="top-right"><span class="avatar">A</span></div>
+  <div class="top-right">
+    <span class="demo-agent">
+      <label for="agentStateSel">原型演示 · 代理身份</label>
+      <select id="agentStateSel" onchange="setAgentState(this.value)">
+        <option value="none">普通用户</option>
+        <option value="pending">申请中</option>
+        <option value="rejected">核验未通过</option>
+        <option value="active">已开通代理</option>
+        <option value="suspended">已停用</option>
+      </select>
+    </span>
+    <span class="avatar">A</span>
+  </div>
 </div>
 
 <div class="container">
   <div class="crumb"><a href="#">Rewards</a> / <a href="2026-09-18_代理申请入口_客户端.html">代理中心</a> / 签署协议</div>
+  <!-- 签署页闸门：按代理身份态决定可签署 / 只读存证 / 不可签署 -->
+  <div id="agentLock"></div>
 
   <div class="page-head">
     <h1>签署《YASBe 代理合作协议》</h1>
@@ -325,6 +356,64 @@ function submitSign(){
   if(document.getElementById('signBtn').disabled){ return; }
   window.location.href = '2026-09-18_代理申请状态_客户端.html?state=opened';
 }
+</script>
+<script>
+/* =========================================================
+   [原型演示] 代理身份态（全局共用 localStorage）
+   签署页闸门：无代理身份 / 未通过 → 可签署；申请中 → 已提交不可重复签署；已开通 → 只读存证；已停用 → 不可签署。
+   ========================================================= */
+var AGENT_STATE_NAMES = {none:'普通用户',pending:'申请中',rejected:'核验未通过',active:'已开通代理',suspended:'已停用'};
+function agentState(){try{var v=localStorage.getItem('yasbe_agent_state');return AGENT_STATE_NAMES[v]?v:'none'}catch(e){return 'none'}}
+function setAgentState(v){try{localStorage.setItem('yasbe_agent_state',v)}catch(e){}location.reload()}
+var SIGN_GATE = {
+  none:      null,
+  rejected:  {t:'上次申请未通过', d:'补充材料后可重新签署并提交。', b:[['查看上次结果','2026-09-18_代理申请状态_客户端.html','ghost']], lock:false},
+  pending:   {t:'协议已签署，申请审核中', d:'无需重复签署，审核期间协议不可修改。', b:[['查看申请进度','2026-09-18_代理申请状态_客户端.html','gold']], lock:true},
+  active:    {t:'已签署完成 · 本页为只读存证', d:'代理身份已开通，电子签名与协议存证长期有效，无需重复签署。', b:[['进入代理中心','2026-09-18_代理中心_客户端.html','gold']], lock:true},
+  suspended: {t:'代理资格已暂停', d:'暂停期间不可重新签署协议，如需恢复请联系客服。', b:[['联系客服','#','ghost']], lock:true}
+};
+document.addEventListener('DOMContentLoaded', function(){
+  var st = agentState();
+  var sel = document.getElementById('agentStateSel'); if(sel) sel.value = st;
+  var g = SIGN_GATE[st];
+  var box = document.getElementById('agentLock');
+  if(box && g){
+    box.innerHTML = '<div class="agent-lock"><div class="al-t">'+g.t+'</div><div class="al-d">'+g.d+'</div>'+
+      (g.b||[]).map(function(x){return '<a class="al-b '+x[2]+'" href="'+x[1]+'">'+x[0]+'</a>';}).join('')+'</div>';
+  }
+  if(g && g.lock){
+    var btn = document.getElementById('signBtn'); if(btn){ btn.disabled = true; btn.textContent = st==='active' ? '已签署（只读）' : '不可重复签署'; }
+    var cv = document.getElementById('signCanvas') || document.querySelector('canvas'); if(cv){ cv.style.pointerEvents='none'; cv.style.opacity='.45'; }
+    var ni = document.getElementById('nameInput'); if(ni) ni.disabled = true;
+  }
+});
+</script>
+<script>
+/* 签署页闸门：代理身份 = 可见性开关（F-303）
+   none / rejected → 可签署（rejected 提示可重新提交）；pending / suspended → 不可签署；active → 只读签署存证 */
+var ES_SLIP = {id:'ES-20260918-4F7A2C', time:'2026-09-18 14:32:07', ip:'203.0.113.42', ua:'Chrome 128 · macOS', ver:'协议版本 v1.1'};
+function signLockHtml(st){
+  var M = {
+    pending:  {t:'代理申请审核中', d:'协议已提交，正在自动核验，无需重复签署。', b:[['查看申请进度','2026-09-18_代理申请状态_客户端.html','gold']]},
+    suspended:{t:'代理资格已暂停', d:'资格暂停期间不可签署或重新提交，如需恢复请联系客服。', b:[['联系客服','#','ghost']]},
+    active:   {t:'协议已签署 · 只读存证', d:'你已签署《YASBe 代理合作协议》，协议正文转为只读，签署存证如下。', b:[['进入代理中心','2026-09-18_代理中心_客户端.html','gold']]}
+  }[st];
+  if(!M) return '';
+  var h = '<div class="agent-lock"><div class="al-t">'+M.t+'</div><div class="al-d">'+M.d+'</div>'+
+    M.b.map(function(x){return '<a class="al-b '+x[2]+'" href="'+x[1]+'">'+x[0]+'</a>';}).join('')+'</div>';
+  if(st==='active'){
+    h += '<div class="es-slip"><div class="es-h">✅ 签署存证</div><div class="es-r">'+
+      '存证编号 <b>'+ES_SLIP.id+'</b><br>签署时间 <b>'+ES_SLIP.time+'</b>　签署 IP <b>'+ES_SLIP.ip+'</b><br>'+
+      '签署设备 <b>'+ES_SLIP.ua+'</b>　协议 <b>'+ES_SLIP.ver+'</b></div></div>';
+  }
+  return h;
+}
+document.addEventListener('DOMContentLoaded', function(){
+  var st = agentState();
+  var sel = document.getElementById('agentStateSel'); if(sel) sel.value = st;
+  var lock = document.getElementById('agentLock'); if(lock) lock.innerHTML = signLockHtml(st);
+  document.body.classList.toggle('agent-locked', st==='pending' || st==='suspended' || st==='active');
+});
 </script>
 </body>
 </html>

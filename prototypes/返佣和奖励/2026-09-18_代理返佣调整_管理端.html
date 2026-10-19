@@ -89,6 +89,7 @@ tbody tr:hover td { background: #fdfdfd; }
 .action-bar .ab-left { font-size: 12.5px; color: #6b7280; }
 .action-bar .ab-right { display: flex; gap: 10px; }
 @media (max-width: 1200px) { .layout { grid-template-columns: 1fr; } }
+@media (max-width: 1700px) { .layout { grid-template-columns: 1fr; } .layout > * { min-width: 0; } }
     /* PM-NOTE: 原型备注统一格式（PM 备注 / 原型演示），右上角按钮可整体隐藏 */
     .pmnote{background:#14171c;border-left:3px solid #FFCA00;border-radius:6px;padding:10px 12px;margin:10px 0;font-size:13px;line-height:1.75;color:#c8ccd4}
     .pmnote b{color:#FFCA00;margin-right:8px}
@@ -98,8 +99,32 @@ tbody tr:hover td { background: #fdfdfd; }
     .pmnote-toggle:hover{background:#22262f}
     body.hide-pmnote .pmnote{display:none!important}
   </style>
+<style>
+/* ===== 全局一级侧边栏（与奖励页 sidebar 同构；代理体系各页经此接入全局导航） ===== */
+body{padding-left:240px !important}
+.gnav{position:fixed;left:0;top:0;bottom:0;width:240px;background:#1d2129;color:#fff;z-index:100;overflow-y:auto}
+.gnav-h{padding:18px 20px;font-size:17px;font-weight:700;color:#E59303;border-bottom:1px solid rgba(255,255,255,.08)}
+.gnav-l{padding:14px 20px 4px;font-size:11px;color:#6b7280;letter-spacing:1px}
+.gnav-i{display:flex;align-items:center;gap:8px;padding:10px 20px;color:#9ca3af;font-size:13.5px;text-decoration:none}
+.gnav-i:hover{color:#fff;background:rgba(255,255,255,.05)}
+.gnav-i.on{color:#E59303;background:rgba(229,147,3,.1);border-right:3px solid #E59303;font-weight:600}
+</style>
 </head>
 <body>
+<div class="gnav">
+  <div class="gnav-h">YASBee Admin</div>
+  <div class="gnav-l">分销管理</div>
+  <a class="gnav-i" href="2026-09-18_代理管理_管理端.html">👥 代理管理</a>
+  <a class="gnav-i" href="2026-09-18_代理兜底值规则_管理端.html">⚙️ 代理兜底值规则</a>
+  <a class="gnav-i on" href="2026-09-18_代理返佣调整_管理端.html">💸 返佣调整与结算</a>
+  <a class="gnav-i" href="2026-09-10_YASBee-Points奖励记录与规则设置_管理端.html">⭐ YASBee Points 奖励</a>
+  <div class="gnav-l">账户与订单</div>
+  <a class="gnav-i" href="#">🏦 提现账户管理</a>
+  <a class="gnav-i" href="#">🧾 开卡订单与退款</a>
+  <div class="gnav-l">系统</div>
+  <a class="gnav-i" href="#">👤 操作员管理</a>
+</div>
+
   <button class="pmnote-toggle" onclick="document.body.classList.toggle('hide-pmnote');this.textContent=document.body.classList.contains('hide-pmnote')?'显示备注':'隐藏备注'">隐藏备注</button>
   <!-- PM-NOTE: 管理端 -->
   <div class="pmnote"><b>PM 备注</b>返 U 可二次调整，Points 走标准值；调整即时生效、仅对之后新发生的业务适用，并在操作日志留痕。</div>
@@ -115,6 +140,13 @@ tbody tr:hover td { background: #fdfdfd; }
   </div>
 </div>
 <div class="crumb"><a href="2026-09-18_代理管理_管理端.html">代理管理</a> / 返佣调整</div>
+
+<div class="subnav">
+  <a class="subnav-item" href="2026-09-18_代理管理_管理端.html">代理管理</a>
+  <a class="subnav-item" href="2026-09-18_代理兜底值规则_管理端.html">代理兜底值规则</a>
+  <a class="subnav-item active" href="2026-09-18_代理返佣调整_管理端.html">返佣调整与结算</a>
+  <a class="subnav-item" href="2026-09-10_YASBee-Points奖励记录与规则设置_管理端.html">YASBee Points 奖励</a>
+</div>
 
 <div class="container">
 <div class="layout">
@@ -224,7 +256,7 @@ tbody tr:hover td { background: #fdfdfd; }
         <div class="perm-row" style="margin-bottom:0;">
           <div>
             <div class="pt">Points 返点：按平台兜底值生效</div>
-            <div class="pd">Points 兜底值为平台统一配置，不支持代理级差异化调整；随开通即时生效，计入用户 yasbee+ 奖励记录。</div>
+            <div class="pd">Points 兜底值为平台统一配置，不支持代理级差异化调整；随开通即时生效，计入用户 YASBe Points 奖励记录。</div>
           </div>
           <label class="switch"><input type="checkbox" checked disabled><span class="slider"></span></label>
         </div>

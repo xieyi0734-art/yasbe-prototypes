@@ -118,6 +118,17 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
   .table-card{overflow-x:auto}
   table{min-width:860px}
 }
+.demo-agent{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border:1px dashed rgba(255,255,255,.22);border-radius:999px;font-size:11px;color:rgba(255,255,255,.55)}
+.demo-agent label{white-space:nowrap}
+.demo-agent select{background:transparent;border:0;color:#FFCA00;font-size:11.5px;font-weight:600;outline:none;cursor:pointer}
+.demo-agent select option{background:#14171c;color:#fff}
+/* 代理计划入口卡（随身份态切换渲染，非代理态不占位） */
+.agent-entry{margin:0 0 16px;padding:16px 18px;border-radius:14px;border:1px solid rgba(255,202,0,.28);background:linear-gradient(135deg,rgba(255,202,0,.10),rgba(254,87,7,.06));display:flex;align-items:center;justify-content:space-between;gap:16px}
+.agent-entry .ae-t{font-size:15px;font-weight:700;margin-bottom:4px}
+.agent-entry .ae-d{font-size:12.5px;color:rgba(255,255,255,.62);line-height:1.5}
+.agent-entry .ae-b{flex:0 0 auto;padding:9px 16px;border-radius:999px;font-size:12.5px;font-weight:700;text-decoration:none;white-space:nowrap}
+.agent-entry .ae-b.gold{background:linear-gradient(90deg,#FFCA00,#FE5707);color:#111418}
+.agent-entry .ae-b.ghost{border:1px solid rgba(255,255,255,.22);color:#fff}
 </style>
 </head>
 <body>
@@ -127,6 +138,16 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
   <div class="top-right">
     <span class="token-pill cash"><span class="t-name">YASBee Cash</span><span class="t-val" id="pillCash">1,286.4</span><span class="t-unit">持有</span></span>
     <span class="token-pill points"><span class="t-name">YASBee Points</span><span class="t-val" id="pillPoints">0.0</span><span class="t-unit">累计到账</span></span>
+    <span class="demo-agent">
+      <label for="agentStateSel">原型演示 · 代理身份</label>
+      <select id="agentStateSel" onchange="setAgentState(this.value)">
+        <option value="none">普通用户</option>
+        <option value="pending">申请中</option>
+        <option value="rejected">核验未通过</option>
+        <option value="active">已开通代理</option>
+        <option value="suspended">已停用</option>
+      </select>
+    </span>
     <span class="avatar">A</span>
   </div>
 </div>
@@ -135,7 +156,7 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
   <div class="page-head">
     <div class="ph-left">
       <h1>Rewards</h1>
-      <p>购买与空投赠送获得 <span class="p">YASBee Cash</span>；开卡、卡充值、币兑获得 <span class="n">YASBee Points</span> 奖励。</p>
+      <p>购买与空投赠送获得 <span class="p">YASBee Cash</span>；注册、开通虚拟账户、开卡、卡充值、币兑获得 <span class="n">YASBee Points</span> 奖励。</p>
     </div>
     <div class="ts-seg" id="tsSeg">
       <button type="button" class="ts-btn active" data-g="cash">YASBee Cash</button>
@@ -145,6 +166,9 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
 
   <!-- 统计条：随下方表格的类型切换联动 -->
   <div class="stats-row" id="statsRow"></div>
+
+  <!-- 代理计划入口：代理身份 = 可见性开关；普通用户仅此一张邀约卡，非代理态下代理数据面一律不渲染 -->
+  <div id="agentEntry"></div>
 
   <!-- 奖励明细：单张表 + 类型切换（Cash / Points） + 分页 -->
   <div class="table-card">
@@ -166,31 +190,33 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
      · YASBee Cash   —— 购买 / 空投赠送 获得的资产
                         字段对齐现网客户端「奖励」页奖励详情表：
                         资产 / 持有数量 / 单价 / 持有价值 / 锁仓信息(月) / 交易日期
-     · YASBee Points —— 开卡 / 卡充值 / 币兑 产生的奖励（原 yasbee+ 奖励记录）
+     · YASBee Points —— 注册 / 开通虚拟账户 / 开卡 / 卡充值 / 币兑 产生的奖励（原奖励记录页，现已并入本页）
    切换控件位于页面顶部标题行右侧，统辖统计条与表格；两类型各自记忆页码；统计条随切换联动现算。
    分页文案对齐现网：显示第 X 到 Y 条，共 N 条记录
    ========================================================= */
 
 /* ---- YASBee Cash：购入 rewards + 空投赠送（含锁仓月数） ---- */
 var CASH = [
-  {k:'airdrop', ico:'🎁', name:'YASBee Cash', code:'yasbee+', src:'空投赠送', detail:'空投活动发放',
+  {k:'airdrop', ico:'🎁', name:'YASBee Cash', code:'', src:'空投赠送', detail:'空投活动发放',
    qty:50.0,  price:10.00, cliff:0, st:'pending', stTxt:'发放中', time:'2026-09-08 11:05:00'},
-  {k:'airdrop', ico:'🎁', name:'YASBee Cash', code:'yasbee+', src:'空投赠送', detail:'社区活动空投',
+  {k:'airdrop', ico:'🎁', name:'YASBee Cash', code:'', src:'空投赠送', detail:'社区活动空投',
    qty:106.4, price:10.00, cliff:0, st:'done',    stTxt:'已入账', time:'2026-08-10 16:45:29'},
-  {k:'purchase', ico:'🛒', name:'YASBee Cash', code:'yasbee+', src:'购买', detail:'USD 2,000.00',
+  {k:'purchase', ico:'🛒', name:'YASBee Cash', code:'', src:'购买', detail:'USD 2,000.00',
    qty:200.0, price:10.00, cliff:6, st:'done',    stTxt:'已入账', time:'2026-07-08 09:20:47'},
-  {k:'airdrop', ico:'🎁', name:'YASBee Cash', code:'yasbee+', src:'空投赠送', detail:'首次持仓空投',
+  {k:'airdrop', ico:'🎁', name:'YASBee Cash', code:'', src:'空投赠送', detail:'首次持仓空投',
    qty:180.0, price:10.00, cliff:0, st:'done',    stTxt:'已入账', time:'2026-06-01 12:00:00'},
-  {k:'purchase', ico:'🛒', name:'YASBee Cash', code:'yasbee+', src:'购买', detail:'USDT 3,000.00',
+  {k:'purchase', ico:'🛒', name:'YASBee Cash', code:'', src:'购买', detail:'USDT 3,000.00',
    qty:300.0, price:10.00, cliff:6, st:'done',    stTxt:'已入账', time:'2026-05-15 14:32:11'},
-  {k:'purchase', ico:'🛒', name:'YASBee Cash', code:'yasbee+', src:'购买', detail:'USD 5,000.00',
+  {k:'purchase', ico:'🛒', name:'YASBee Cash', code:'', src:'购买', detail:'USD 5,000.00',
    qty:500.0, price:10.00, cliff:6, st:'done',    stTxt:'已入账', time:'2026-04-02 10:15:00'}
 ];
 
 var POINTS = [
   {k:'open',  ico:'💳', name:'开卡 · 实体卡', desc:'尾号 8842',               amt:10.0, st:'done',    stTxt:'已入账', time:'2026-09-06 14:22:08'},
+  {k:'reg',   ico:'📝', name:'注册',          desc:'Email 注册',              amt:5.0,  st:'done',    stTxt:'已入账', time:'2026-09-06 09:05:12'},
   {k:'topup', ico:'➕', name:'卡充值',        desc:'尾号 8842 · USD 500.00',  amt:50.0, st:'done',    stTxt:'已入账', time:'2026-09-05 09:41:33'},
   {k:'swap',  ico:'⇄',  name:'币兑',          desc:'USDT → USD 2,000.00',     amt:20.0, st:'done',    stTxt:'已入账', time:'2026-09-04 16:05:19'},
+  {k:'va',    ico:'🏦', name:'开通虚拟账户',  desc:'USD 虚拟账户',            amt:10.0, st:'done',    stTxt:'已入账', time:'2026-09-03 08:45:30'},
   {k:'open',  ico:'💳', name:'开卡 · 虚拟卡', desc:'尾号 3091',               amt:10.0, st:'done',    stTxt:'已入账', time:'2026-09-02 11:17:45'},
   {k:'topup', ico:'➕', name:'卡充值',        desc:'尾号 3091 · USD 300.00',  amt:30.0, st:'done',    stTxt:'已入账', time:'2026-09-01 20:58:02'},
   {k:'swap',  ico:'⇄',  name:'币兑',          desc:'BTC → USDT 0.02',         amt:12.0, st:'pending', stTxt:'处理中', time:'2026-08-31 10:12:26'},
@@ -221,7 +247,7 @@ function rowsOf(g){ return g === 'cash' ? CASH : POINTS; }
 function cashRowHtml(r){
   var badge = r.st === 'done' ? '' : ' <span class="badge '+stCls(r.st)+'">'+r.stTxt+'</span>';
   return '<td><div class="biz-cell"><div class="biz-ico '+r.k+'">'+r.ico+'</div>'+
-         '<div><div class="biz-name">'+r.name+'<span class="code">'+r.code+'</span></div>'+
+         '<div><div class="biz-name">'+r.name+(r.code?'<span class="code">'+r.code+'</span>':'')+'</div>'+
          '<div class="biz-sub"><span class="tag-src '+r.k+'">'+r.src+'</span>'+r.detail+'</div></div></div></td>'+
          '<td style="text-align:right"><span class="num">'+fmt(r.qty,1)+'</span></td>'+
          '<td style="text-align:right"><span class="num dim">$'+fmt(r.price,2)+'</span></td>'+
@@ -356,6 +382,36 @@ document.getElementById('tsSeg').addEventListener('click', function(e){
 });
 
 render();
+
+/* =========================================================
+   [原型演示] 代理身份态（全局共用 localStorage）
+   五态：none 普通用户 / pending 申请中 / rejected 核验未通过 / active 已开通代理 / suspended 已停用
+   口径：代理身份 = 可见性开关。非代理态下代理数据面不渲染、不占位；本页仅保留「代理计划」入口卡。
+   ========================================================= */
+var AGENT_STATE_NAMES = {none:'普通用户',pending:'申请中',rejected:'核验未通过',active:'已开通代理',suspended:'已停用'};
+function agentState(){try{var v=localStorage.getItem('yasbe_agent_state');return AGENT_STATE_NAMES[v]?v:'none'}catch(e){return 'none'}}
+function setAgentState(v){try{localStorage.setItem('yasbe_agent_state',v)}catch(e){}location.reload()}
+
+/* 代理计划入口卡：随身份态渲染 */
+function applyAgentState(st){
+  var box = document.getElementById('agentEntry'); if(!box) return;
+  var CARD = {
+    none:      {t:'加入 YASBee 代理计划', d:'开通后按开卡每笔与卡充值金额比例获得 USDT 返佣，并同步累计 YASBee Points 返点。', b:[['了解并申请','2026-09-18_代理申请入口_客户端.html','gold']]},
+    pending:   {t:'代理申请审核中',       d:'协议已签署，正在自动核验，预计 1 个工作日内出结果。', b:[['查看申请进度','2026-09-18_代理申请状态_客户端.html','ghost']]},
+    rejected:  {t:'代理申请未通过',       d:'自动核验未通过，可在申请状态页查看原因，补充材料后可重新提交。', b:[['查看原因','2026-09-18_代理申请状态_客户端.html','ghost']]},
+    active:    {t:'YASBee 代理中心',      d:'你已是代理，可查看推广链接、返佣记录与我的返佣比例。', b:[['进入代理中心','2026-09-18_代理中心_客户端.html','gold']]},
+    /* 待确认（PRD 附录 B #19）：停用后客户端入口表现，暂按「说明态」演示 */
+    suspended: {t:'代理资格已暂停',       d:'你的代理资格当前处于暂停状态，如需恢复请联系客服。', b:[]}
+  }[st] || null;
+  if(!CARD){ box.innerHTML=''; return; }
+  var btns = CARD.b.map(function(x){return '<a class="ae-b '+x[2]+'" href="'+x[1]+'">'+x[0]+'</a>';}).join('');
+  box.innerHTML = '<div class="agent-entry"><div><div class="ae-t">'+CARD.t+'</div><div class="ae-d">'+CARD.d+'</div></div>'+btns+'</div>';
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var sel = document.getElementById('agentStateSel'); if(sel) sel.value = agentState();
+  applyAgentState(agentState());
+});
 </script>
 </body>
 </html>

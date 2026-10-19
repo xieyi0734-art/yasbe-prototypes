@@ -101,7 +101,17 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
     .pmnote-toggle{position:fixed;right:14px;bottom:14px;z-index:9999;background:#1a1e26;color:#FFCA00;border:1px solid #2a2f3a;border-radius:20px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:inherit}
     .pmnote-toggle:hover{background:#22262f}
     body.hide-pmnote .pmnote{display:none!important}
-  </style>
+  .demo-agent{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border:1px dashed rgba(255,255,255,.22);border-radius:999px;font-size:11px;color:rgba(255,255,255,.55)}
+.demo-agent label{white-space:nowrap}
+.demo-agent select{background:transparent;border:0;color:#FFCA00;font-size:11.5px;font-weight:600;outline:none;cursor:pointer}
+.demo-agent select option{background:#14171c;color:#fff}
+.agent-lock{margin:8px 0 18px;padding:18px 20px;border-radius:14px;border:1px solid rgba(255,202,0,.28);background:linear-gradient(135deg,rgba(255,202,0,.10),rgba(254,87,7,.06))}
+.agent-lock .al-t{font-size:16px;font-weight:700;margin-bottom:6px}
+.agent-lock .al-d{font-size:13px;color:rgba(255,255,255,.66);line-height:1.6;margin-bottom:14px}
+.agent-lock .al-b{display:inline-block;padding:9px 16px;border-radius:999px;font-size:12.5px;font-weight:700;text-decoration:none;margin-right:8px}
+.agent-lock .al-b.gold{background:linear-gradient(90deg,#FFCA00,#FE5707);color:#111418}
+.agent-lock .al-b.ghost{border:1px solid rgba(255,255,255,.22);color:#fff}
+</style>
 </head>
 <body>
   <button class="pmnote-toggle" onclick="document.body.classList.toggle('hide-pmnote');this.textContent=document.body.classList.contains('hide-pmnote')?'显示备注':'隐藏备注'">隐藏备注</button>
@@ -111,7 +121,19 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
 
 <div class="topbar">
   <div class="brand"><span class="mark">Y</span>YASBe</div>
-  <div class="top-right"><span class="avatar">A</span></div>
+  <div class="top-right">
+    <span class="demo-agent">
+      <label for="agentStateSel">原型演示 · 代理身份</label>
+      <select id="agentStateSel" onchange="setAgentState(this.value)">
+        <option value="none">普通用户</option>
+        <option value="pending">申请中</option>
+        <option value="rejected">核验未通过</option>
+        <option value="active">已开通代理</option>
+        <option value="suspended">已停用</option>
+      </select>
+    </span>
+    <span class="avatar">A</span>
+  </div>
 </div>
 
 <div class="container">
@@ -123,6 +145,8 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
       <p>协议签署完成后由系统即时自动核验，通过即开通代理身份并按平台标准返佣值生效。</p>
     </div>
   </div>
+
+  <div id="stGate"></div>
 
   <div class="switch-bar">
     <span class="sw-label">状态演示：</span>
@@ -283,6 +307,32 @@ function showState(v){
     b.classList.toggle('active', b.dataset.v===v);
   });
 }
+</script>
+<script>
+/* [原型演示] 代理身份态联动：状态页展示的核验结果取自全局身份态；页内「状态演示」仍可单独切换对比两种结果。 */
+var AGENT_STATE_NAMES = {none:'普通用户',pending:'申请中',rejected:'核验未通过',active:'已开通代理',suspended:'已停用'};
+function agentState(){try{var v=localStorage.getItem('yasbe_agent_state');return AGENT_STATE_NAMES[v]?v:'none'}catch(e){return 'none'}}
+function setAgentState(v){try{localStorage.setItem('yasbe_agent_state',v)}catch(e){}location.reload()}
+document.addEventListener('DOMContentLoaded', function(){
+  var st = agentState();
+  var sel = document.getElementById('agentStateSel'); if(sel) sel.value = st;
+  var GATE = {
+    none:     {t:'尚未提交代理申请', d:'代理申请需先在代理中心在线签署《YASBe 代理合作协议》。当前身份为普通用户，无申请结果可展示。', b:[['去申请成为代理','2026-09-18_代理申请入口_客户端.html','gold']]},
+    pending:  {t:'代理申请审核中',   d:'协议已提交，系统正在自动核验，结果将以本页状态为准。', b:[ ['返回代理中心','2026-09-18_代理申请入口_客户端.html','ghost'] ]},
+    suspended:{t:'代理资格已暂停',   d:'资格暂停期间不展示核验结果与返佣方案，如需恢复请联系客服。', b:[['联系客服','#','ghost']]}
+  }[st];
+  var gate = document.getElementById('stGate');
+  var showDemo = !GATE;
+  if(gate) gate.innerHTML = GATE ? ('<div class="agent-lock"><div class="al-t">'+GATE.t+'</div><div class="al-d">'+GATE.d+'</div>'+
+      GATE.b.map(function(x){return '<a class="al-b '+x[2]+'" href="'+x[1]+'">'+x[0]+'</a>';}).join('')+'</div>') : '';
+  document.querySelectorAll('#st-auto,#st-manual,.switch-bar').forEach(function(el){ el.classList.toggle('hidden', !showDemo); });
+  var MAP = {rejected:'manual', active:'auto'};
+  if(showDemo && typeof showState==='function'){
+    var v = MAP[st];
+    showState(v);
+    document.querySelectorAll('.seg-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.v===v); });
+  }
+});
 </script>
 </body>
 </html>

@@ -88,11 +88,35 @@ tbody tr:hover td { background: #fdfdfd; }
     .pmnote-toggle:hover{background:#22262f}
     body.hide-pmnote .pmnote{display:none!important}
   </style>
+<style>
+/* ===== 全局一级侧边栏（与奖励页 sidebar 同构；代理体系各页经此接入全局导航） ===== */
+body{padding-left:240px !important}
+.gnav{position:fixed;left:0;top:0;bottom:0;width:240px;background:#1d2129;color:#fff;z-index:100;overflow-y:auto}
+.gnav-h{padding:18px 20px;font-size:17px;font-weight:700;color:#E59303;border-bottom:1px solid rgba(255,255,255,.08)}
+.gnav-l{padding:14px 20px 4px;font-size:11px;color:#6b7280;letter-spacing:1px}
+.gnav-i{display:flex;align-items:center;gap:8px;padding:10px 20px;color:#9ca3af;font-size:13.5px;text-decoration:none}
+.gnav-i:hover{color:#fff;background:rgba(255,255,255,.05)}
+.gnav-i.on{color:#E59303;background:rgba(229,147,3,.1);border-right:3px solid #E59303;font-weight:600}
+</style>
 </head>
 <body>
+<div class="gnav">
+  <div class="gnav-h">YASBee Admin</div>
+  <div class="gnav-l">分销管理</div>
+  <a class="gnav-i" href="2026-09-18_代理管理_管理端.html">👥 代理管理</a>
+  <a class="gnav-i on" href="2026-09-18_代理兜底值规则_管理端.html">⚙️ 代理兜底值规则</a>
+  <a class="gnav-i" href="2026-09-18_代理返佣调整_管理端.html">💸 返佣调整与结算</a>
+  <a class="gnav-i" href="2026-09-10_YASBee-Points奖励记录与规则设置_管理端.html">⭐ YASBee Points 奖励</a>
+  <div class="gnav-l">账户与订单</div>
+  <a class="gnav-i" href="#">🏦 提现账户管理</a>
+  <a class="gnav-i" href="#">🧾 开卡订单与退款</a>
+  <div class="gnav-l">系统</div>
+  <a class="gnav-i" href="#">👤 操作员管理</a>
+</div>
+
   <button class="pmnote-toggle" onclick="document.body.classList.toggle('hide-pmnote');this.textContent=document.body.classList.contains('hide-pmnote')?'显示备注':'隐藏备注'">隐藏备注</button>
   <!-- PM-NOTE: 管理端 -->
-  <div class="pmnote"><b>PM 备注</b>标准返佣真值 —— 返 U 开卡 $6.00 / 单 · 充值 0.25%；Points 充值 0.02% · 开卡 10 yasbee+ / 单。待定：Points 口径与「代理中心」示例记录存在数量级差异（待确认 D5）。</div>
+  <div class="pmnote"><b>PM 备注</b>标准返佣真值 —— 返 U 开卡 $6.00 / 单 · 充值 0.25%；Points 充值 0.02% · 开卡 10 Points / 单。Points 返点计入「Rewards · YASBee Points」明细，代理中心「累计 Points 返点」为其汇总；两页示例数值取自不同演示账号，勿跨页横向比对。</div>
 
 
 <div class="header">
@@ -106,9 +130,8 @@ tbody tr:hover td { background: #fdfdfd; }
 <div class="subnav">
   <a class="subnav-item" href="2026-09-18_代理管理_管理端.html">代理管理</a>
   <a class="subnav-item active" href="2026-09-18_代理兜底值规则_管理端.html">代理兜底值规则</a>
-  <a class="subnav-item" href="2026-08-10_卡片代理返佣配置_管理端.html">卡片代理配置</a>
-  <a class="subnav-item" href="2026-08-11_返佣记录_管理端.html">返佣记录</a>
-  <a class="subnav-item" href="2026-08-10_结算记录_管理端.html">结算记录</a>
+  <a class="subnav-item" href="2026-09-18_代理返佣调整_管理端.html">返佣调整与结算</a>
+  <a class="subnav-item" href="2026-09-10_YASBee-Points奖励记录与规则设置_管理端.html">YASBee Points 奖励</a>
 </div>
 
 <div class="container">
@@ -162,12 +185,12 @@ tbody tr:hover td { background: #fdfdfd; }
         </div>
         <div class="form-group">
           <label>兜底开卡返点</label>
-          <div class="fld"><input value="10"><span class="unit">yasbee+ / 单</span></div>
+          <div class="fld"><input value="10"><span class="unit">Points / 单</span></div>
           <div class="desc">下级客户开卡成功，代理按此固定值获得 Points 返点。</div>
         </div>
       </div>
       <div class="notice blue" style="margin-top:16px;">
-        📌 <div>Points 兜底值为<b>平台统一配置</b>，对所有代理一致适用，代理身份自动开通时立即生效。本次仅<b>返 U 比例</b>支持按代理二次调整，Points 返点不支持代理级差异化。返点计入客户 yasbee+ 奖励记录，与 USDT 返 U 并行发放。</div>
+        📌 <div>Points 兜底值为<b>平台统一配置</b>，对所有代理一致适用，代理身份自动开通时立即生效。本次仅<b>返 U 比例</b>支持按代理二次调整，Points 返点不支持代理级差异化。返点计入客户 YASBe Points 奖励记录，与 USDT 返 U 并行发放。</div>
       </div>
     </div>
   </div>

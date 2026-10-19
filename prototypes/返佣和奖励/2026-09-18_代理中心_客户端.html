@@ -98,7 +98,18 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
     .pmnote-toggle{position:fixed;right:14px;bottom:14px;z-index:9999;background:#1a1e26;color:#FFCA00;border:1px solid #2a2f3a;border-radius:20px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:inherit}
     .pmnote-toggle:hover{background:#22262f}
     body.hide-pmnote .pmnote{display:none!important}
-  </style>
+  .demo-agent{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border:1px dashed rgba(255,255,255,.22);border-radius:999px;font-size:11px;color:rgba(255,255,255,.55)}
+.demo-agent label{white-space:nowrap}
+.demo-agent select{background:transparent;border:0;color:#FFCA00;font-size:11.5px;font-weight:600;outline:none;cursor:pointer}
+.demo-agent select option{background:#14171c;color:#fff}
+.agent-lock{margin:8px 0 18px;padding:20px;border-radius:14px;border:1px solid rgba(255,202,0,.28);background:linear-gradient(135deg,rgba(255,202,0,.10),rgba(254,87,7,.06))}
+.agent-lock .al-t{font-size:17px;font-weight:700;margin-bottom:6px}
+.agent-lock .al-d{font-size:13px;color:rgba(255,255,255,.66);line-height:1.6;margin-bottom:14px}
+.agent-lock .al-b{display:inline-block;padding:9px 16px;border-radius:999px;font-size:12.5px;font-weight:700;text-decoration:none;margin-right:8px}
+.agent-lock .al-b.gold{background:linear-gradient(90deg,#FFCA00,#FE5707);color:#111418}
+.agent-lock .al-b.ghost{border:1px solid rgba(255,255,255,.22);color:#fff}
+body.agent-locked .container > *:not(#agentLock):not(.crumb){display:none}
+</style>
 </head>
 <body>
   <button class="pmnote-toggle" onclick="document.body.classList.toggle('hide-pmnote');this.textContent=document.body.classList.contains('hide-pmnote')?'显示备注':'隐藏备注'">隐藏备注</button>
@@ -109,14 +120,26 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
 <div class="topbar">
   <div class="brand"><span class="mark">Y</span>YASBe</div>
   <div class="top-right">
-    <span class="token-pill cash"><span class="t-name">Cash</span><span class="t-val">$862.40</span></span>
-    <span class="token-pill points"><span class="t-name">Points</span><span class="t-val">2,460.00</span><span class="t-unit">yasbee+</span></span>
+    <span class="token-pill cash"><span class="t-name">Cash</span><span class="t-val">$1,286.40</span></span>
+    <span class="token-pill points"><span class="t-name">Points</span><span class="t-val">165.00</span><span class="t-unit">累计到账</span></span>
+    <span class="demo-agent">
+      <label for="agentStateSel">原型演示 · 代理身份</label>
+      <select id="agentStateSel" onchange="setAgentState(this.value)">
+        <option value="none">普通用户</option>
+        <option value="pending">申请中</option>
+        <option value="rejected">核验未通过</option>
+        <option value="active">已开通代理</option>
+        <option value="suspended">已停用</option>
+      </select>
+    </span>
     <span class="avatar">A</span>
   </div>
 </div>
 
 <div class="container">
   <div class="crumb"><a href="#">Rewards</a> / 代理中心</div>
+  <!-- 非「已开通代理」态：下方数据面整体不渲染，仅显示门禁卡 -->
+  <div id="agentLock"></div>
 
   <div class="page-head">
     <div>
@@ -135,7 +158,7 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
     </div>
     <div class="stat-card">
       <div class="s-label">累计 Points 返点</div>
-      <div class="s-value green">560.00<span class="unit">yasbee+</span></div>
+      <div class="s-value green">560.00<span class="unit">Points</span></div>
       <div class="s-sub">开卡返点 400 · 充值返点 160</div>
     </div>
     <div class="stat-card">
@@ -227,17 +250,17 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
             <tr><th>时间</th><th>业务类型</th><th>业务信息</th><th>奖励</th><th>状态</th></tr>
           </thead>
           <tbody>
-            <tr><td class="mono">2026-09-16 10:22</td><td>开卡返点</td><td>Marco L.*** 开通 Gold Elite Card</td><td class="amt-pos">+8.00 yasbee+</td><td><span class="chip green">已入账</span></td></tr>
-            <tr><td class="mono">2026-09-16 14:03</td><td>充值返点</td><td>Marco L.*** 充值 $200</td><td class="amt-pos">+4.00 yasbee+</td><td><span class="chip green">已入账</span></td></tr>
-            <tr><td class="mono">2026-09-15 09:15</td><td>充值返点</td><td>Ada W.*** 充值 $500</td><td class="amt-pos">+10.00 yasbee+</td><td><span class="chip green">已入账</span></td></tr>
-            <tr><td class="mono">2026-09-14 18:40</td><td>开卡返点</td><td>Kevin T.*** 开通 Standard Debit Card</td><td class="amt-pos">+5.00 yasbee+</td><td><span class="chip gold">待入账</span></td></tr>
-            <tr><td class="mono">2026-09-13 11:02</td><td>奖励撤回</td><td>Kevin T.*** 退卡，开卡返点撤回</td><td class="amt-neg">-5.00 yasbee+</td><td><span class="chip red">已撤回</span></td></tr>
-            <tr><td class="mono">2026-09-12 16:28</td><td>充值返点</td><td>Ada W.*** 充值 $2,450</td><td class="amt-pos">+49.00 yasbee+</td><td><span class="chip green">已入账</span></td></tr>
+            <tr><td class="mono">2026-09-16 10:22</td><td>开卡返点</td><td>Marco L.*** 开通 Gold Elite Card</td><td class="amt-pos">+8.00 Points</td><td><span class="chip green">已入账</span></td></tr>
+            <tr><td class="mono">2026-09-16 14:03</td><td>充值返点</td><td>Marco L.*** 充值 $200</td><td class="amt-pos">+4.00 Points</td><td><span class="chip green">已入账</span></td></tr>
+            <tr><td class="mono">2026-09-15 09:15</td><td>充值返点</td><td>Ada W.*** 充值 $500</td><td class="amt-pos">+10.00 Points</td><td><span class="chip green">已入账</span></td></tr>
+            <tr><td class="mono">2026-09-14 18:40</td><td>开卡返点</td><td>Kevin T.*** 开通 Standard Debit Card</td><td class="amt-pos">+5.00 Points</td><td><span class="chip gold">待入账</span></td></tr>
+            <tr><td class="mono">2026-09-13 11:02</td><td>奖励撤回</td><td>Kevin T.*** 退卡，开卡返点撤回</td><td class="amt-neg">-5.00 Points</td><td><span class="chip red">已撤回</span></td></tr>
+            <tr><td class="mono">2026-09-12 16:28</td><td>充值返点</td><td>Ada W.*** 充值 $2,450</td><td class="amt-pos">+49.00 Points</td><td><span class="chip green">已入账</span></td></tr>
           </tbody>
         </table>
       </div>
       <div class="pg">
-        <span>共 64 条记录 · 累计 560.00 yasbee+</span>
+        <span>共 64 条记录 · 累计 560.00 Points</span>
         <div class="pg-btns">
           <button class="pg-b">上一页</button>
           <button class="pg-b on">1</button>
@@ -273,7 +296,7 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
 
   <div class="note">
     <span>ℹ️</span>
-    <div>返佣以 <b>USDT</b> 结算，Points 返点按平台标准返点计入 yasbee+ 奖励记录。<b>标准返佣</b>为开通时自动适用的标准比例；<b>专属调整</b>为平台就您单独做的二次调整。比例调整<b>仅对调整生效后新发生的业务</b>适用，调整前已产生的返佣不受影响。客户退卡或发生异常时，对应返佣将自动追回。</div>
+    <div>返佣以 <b>USDT</b> 结算，Points 返点按平台标准返点计入 YASBe Points 奖励记录。顶栏 Points 为当前 Points 余额，本页统计条金额为代理带来的累计返点；<b>标准返佣</b>为开通时自动适用的标准比例；<b>专属调整</b>为平台就您单独做的二次调整。比例调整<b>仅对调整生效后新发生的业务</b>适用，调整前已产生的返佣不受影响。客户退卡或发生异常时，对应返佣将自动追回。</div>
   </div>
 </div>
 
@@ -288,6 +311,36 @@ function copyLink(){
   t.style.display = 'block';
   setTimeout(function(){ t.style.display='none'; }, 2000);
 }
+
+/* =========================================================
+   [原型演示] 代理身份态（全局共用 localStorage）
+   五态：none 普通用户 / pending 申请中 / rejected 核验未通过 / active 已开通代理 / suspended 已停用
+   口径：代理身份 = 可见性开关。非「已开通」态下代理数据面不渲染、不占位。
+   ========================================================= */
+var AGENT_STATE_NAMES = {none:'普通用户',pending:'申请中',rejected:'核验未通过',active:'已开通代理',suspended:'已停用'};
+function agentState(){try{var v=localStorage.getItem('yasbe_agent_state');return AGENT_STATE_NAMES[v]?v:'none'}catch(e){return 'none'}}
+function setAgentState(v){try{localStorage.setItem('yasbe_agent_state',v)}catch(e){}location.reload()}
+function agentLockHtml(st){
+  var M={
+    none:     {t:'你还不是 YASBee 代理', d:'代理中心的数据面（返佣统计、返佣记录、我的返佣比例）仅在开通代理后可见。当前身份为普通用户。', b:[['了解并申请','2026-09-18_代理申请入口_客户端.html','gold']]},
+    pending:  {t:'代理申请审核中',       d:'协议已签署，正在自动核验。审核期间代理数据面不可见。', b:[['查看申请进度','2026-09-18_代理申请状态_客户端.html','gold']]},
+    rejected: {t:'代理申请未通过',       d:'自动核验未通过，可在申请状态页查看原因，补充材料后可重新提交。', b:[['查看原因','2026-09-18_代理申请状态_客户端.html','gold']]},
+    suspended:{t:'代理资格已暂停',       d:'你的代理资格当前处于暂停状态，代理数据面不可见。如需恢复请联系客服。', b:[['联系客服','#','ghost']]}
+  }[st];
+  if(!M) return '';
+  return '<div class="agent-lock"><div class="al-t">'+M.t+'</div><div class="al-d">'+M.d+'</div>'+
+    M.b.map(function(x){return '<a class="al-b '+x[2]+'" href="'+x[1]+'">'+x[0]+'</a>';}).join('')+'</div>';
+}
+document.addEventListener('DOMContentLoaded', function(){
+  var st = agentState();
+  var sel = document.getElementById('agentStateSel'); if(sel) sel.value = st;
+  var lock = document.getElementById('agentLock');
+  if(lock){
+    var h = (st==='active') ? '' : agentLockHtml(st);
+    lock.innerHTML = h;
+    document.body.classList.toggle('agent-locked', !!h);
+  }
+});
 </script>
 </body>
 </html>

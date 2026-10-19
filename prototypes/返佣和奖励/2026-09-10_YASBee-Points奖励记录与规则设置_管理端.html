@@ -89,6 +89,8 @@ tbody tr:last-child td{border-bottom:none}
 .biz-ico.open{background:#F4F0FF;color:#7C3AED}
 .biz-ico.topup{background:#FFF1E6;color:#D46B08}
 .biz-ico.swap{background:#E6F4EA;color:#16A34A}
+.biz-ico.reg{background:#E8F0FF;color:#2563EB}
+.biz-ico.va{background:#E6F7FF;color:#0891B2}
 .empty{padding:48px;text-align:center;color:#86909c;font-size:13px}
 /* ===== Pagination ===== */
 .pagination{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-top:1px solid #f0f0f0;background:#fff}
@@ -134,10 +136,11 @@ tbody tr:last-child td{border-bottom:none}
 <div class="sidebar">
   <div class="sidebar-header">YASBee Admin</div>
   <div class="sidebar-label">分销管理</div>
-  <a class="sidebar-item" href="2026-07-08_分销返佣配置_管理端.html"><span class="icon">⚙️</span>分销配置</a>
-  <a class="sidebar-item" href="2026-08-10_卡片代理返佣配置_管理端.html"><span class="icon">👥</span>代理管理</a>
+  <a class="sidebar-item" href="2026-09-18_代理管理_管理端.html"><span class="icon">👥</span>代理管理</a>
+  <a class="sidebar-item" href="2026-09-18_代理兜底值规则_管理端.html"><span class="icon">⚙️</span>代理兜底值规则</a>
   <a class="sidebar-item active"><span class="icon">⭐</span>YASBee Points 奖励</a>
-  <a class="sidebar-item" href="2026-08-11_返佣记录_管理端.html"><span class="icon">💸</span>返佣与结算记录</a>
+  <a class="sidebar-item" href="2026-09-18_代理返佣调整_管理端.html"><span class="icon">💸</span>返佣调整与结算</a>
+  <div class="sidebar-label">账户与订单</div>
   <a class="sidebar-item"><span class="icon">🏦</span>提现账户管理</a>
   <a class="sidebar-item"><span class="icon">🧾</span>开卡订单与退款</a>
   <div class="sidebar-label">卡片管理</div>
@@ -172,12 +175,12 @@ tbody tr:last-child td{border-bottom:none}
       <div class="stats-row">
         <div class="stat-card">
           <div class="s-label">本月已发放</div>
-          <div class="s-value gold"><span id="s1">—</span><span class="s-unit">yasbee points</span></div>
+          <div class="s-value gold"><span id="s1">—</span><span class="s-unit">Points</span></div>
           <div class="s-sub" id="s1sub">—</div>
         </div>
         <div class="stat-card">
           <div class="s-label">累计已发放</div>
-          <div class="s-value"><span id="s2">—</span><span class="s-unit">yasbee points</span></div>
+          <div class="s-value"><span id="s2">—</span><span class="s-unit">Points</span></div>
           <div class="s-sub" id="s2sub">—</div>
         </div>
         <div class="stat-card">
@@ -187,7 +190,7 @@ tbody tr:last-child td{border-bottom:none}
         </div>
         <div class="stat-card">
           <div class="s-label">待入账</div>
-          <div class="s-value" style="color:#86909c"><span id="s4">—</span><span class="s-unit">yasbee points</span></div>
+          <div class="s-value" style="color:#86909c"><span id="s4">—</span><span class="s-unit">Points</span></div>
           <div class="s-sub" id="s4sub">—</div>
         </div>
       </div>
@@ -197,6 +200,8 @@ tbody tr:last-child td{border-bottom:none}
           <label>业务类型</label>
           <select id="f-k" onchange="applyFilters()">
             <option value="all">全部</option>
+            <option value="reg">注册</option>
+            <option value="va">开通虚拟账户</option>
             <option value="open">开卡</option>
             <option value="topup">卡充值</option>
             <option value="swap">币兑</option>
@@ -247,7 +252,7 @@ tbody tr:last-child td{border-bottom:none}
               <th>业务类型</th>
               <th>卡种</th>
               <th>业务信息</th>
-              <th class="num-col">奖励 (yasbee points)</th>
+              <th class="num-col">奖励 (Points)</th>
               <th>状态</th>
               <th>时间</th>
             </tr>
@@ -274,8 +279,8 @@ tbody tr:last-child td{border-bottom:none}
       <div class="page-head">
         <div class="page-title">
           <h1>奖励规则设置</h1>
-          <div class="page-sub">客户维度（用户自操作）奖励规则：配置客户本人开卡 / 卡充值 / 币兑可获得的 YASBee Points。
-            开卡奖励按 <b>实体卡</b> 与 <b>虚拟卡</b> 两条卡种线分别设置；卡充值、币兑不区分卡种。</div>
+          <div class="page-sub">客户维度（用户自操作）奖励规则：配置客户本人注册 / 开通虚拟账户 / 开卡 / 卡充值 / 币兑可获得的 YASBee Points。
+            开卡奖励按 <b>实体卡</b> 与 <b>虚拟卡</b> 两条卡种线分别设置；注册、开通虚拟账户、卡充值、币兑不区分卡种。</div>
         </div>
         <div class="page-actions">
           <button class="btn btn-primary" onclick="saveAll()">保存配置</button>
@@ -287,16 +292,76 @@ tbody tr:last-child td{border-bottom:none}
           <h2>📊 奖励场景配置</h2>
           <div style="display:flex;gap:8px;align-items:center;">
             <span style="font-size:12px;color:#86909c;">奖励币种</span>
-            <span class="tchip">yasbee points</span>
+            <span class="tchip">Points</span>
           </div>
         </div>
         <div class="card-body">
+
+          <!-- 注册 -->
+          <div class="scn" id="scn-reg">
+            <div class="icon-wrap" style="background:#E8F0FF;color:#2563EB;">📝</div>
+            <div class="info">
+              <h3>注册奖励 <span class="tchip">Points</span></h3>
+              <div class="desc">客户完成账号注册后发放；每位客户仅首次注册发放一次，不区分卡种</div>
+              <table class="cfg-tbl">
+                <thead>
+                  <tr><th style="width:200px;">奖励方式</th><th>奖励值</th><th style="width:210px;">发放频次</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <select class="tbl-input sel">
+                        <option value="fixed" selected>固定数量（每客户）</option>
+                      </select>
+                    </td>
+                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="0.1" value="5.0"><span class="suffix">Points / 客户</span></div></td>
+                    <td><span class="ctype none">每客户限 1 次（终身）</span></td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="note">演示口径：客户首次注册 +5.0 Points（可配）；同一客户重复注册不重复发放。</div>
+            </div>
+            <div class="right">
+              <span class="switch on" onclick="toggle(this)"></span>
+              <span class="enabled-tag">已启用</span>
+            </div>
+          </div>
+
+          <!-- 开通虚拟账户 -->
+          <div class="scn" id="scn-va">
+            <div class="icon-wrap" style="background:#E6F7FF;color:#0891B2;">🏦</div>
+            <div class="info">
+              <h3>开通虚拟账户奖励 <span class="tchip">Points</span></h3>
+              <div class="desc">客户完成虚拟账户（VA）开通后发放；按账户计，同一客户开通多个账户可多次发放，不区分卡种</div>
+              <table class="cfg-tbl">
+                <thead>
+                  <tr><th style="width:200px;">奖励方式</th><th>奖励值</th><th style="width:210px;">每月上限</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <select class="tbl-input sel">
+                        <option value="fixed" selected>固定数量（每账户）</option>
+                      </select>
+                    </td>
+                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="0.1" value="10.0"><span class="suffix">Points / 账户</span></div></td>
+                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="1" value="5" style="flex:0 0 64px;width:64px"><span class="suffix">个账户 / 客户 / 月</span></div></td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="note">演示口径：每个虚拟账户开通 +10.0 Points（可配）；同一客户可开通多个虚拟账户，按账户计，每月上限 5 个账户。</div>
+            </div>
+            <div class="right">
+              <span class="switch on" onclick="toggle(this)"></span>
+              <span class="enabled-tag">已启用</span>
+            </div>
+          </div>
 
           <!-- 开卡 -->
           <div class="scn" id="scn-open">
             <div class="icon-wrap" style="background:#F4F0FF;color:#7C3AED;">💳</div>
             <div class="info">
-              <h3>开卡奖励 <span class="tchip">yasbee points</span></h3>
+              <h3>开卡奖励 <span class="tchip">Points</span></h3>
               <div class="desc">客户本人完成开卡后按卡种发放；实体卡 / 虚拟卡 可分别设置奖励值</div>
               <table class="cfg-tbl">
                 <thead>
@@ -311,7 +376,7 @@ tbody tr:last-child td{border-bottom:none}
                         <option value="pct">按开卡费比例</option>
                       </select>
                     </td>
-                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="0.1" value="10.0"><span class="suffix">yasbee points / 张</span></div></td>
+                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="0.1" value="10.0"><span class="suffix">Points / 张</span></div></td>
                   </tr>
                   <tr>
                     <td><span class="ctype virt">🪪 虚拟卡</span></td>
@@ -321,11 +386,11 @@ tbody tr:last-child td{border-bottom:none}
                         <option value="pct">按开卡费比例</option>
                       </select>
                     </td>
-                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="0.1" value="10.0"><span class="suffix">yasbee points / 张</span></div></td>
+                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="0.1" value="10.0"><span class="suffix">Points / 张</span></div></td>
                   </tr>
                 </tbody>
               </table>
-              <div class="note">演示口径：实体卡 / 虚拟卡 均为开卡 +10 yasbee points / 张；两卡种奖励值可分别调整。</div>
+              <div class="note">演示口径：实体卡 / 虚拟卡 均为开卡 +10 Points / 张；两卡种奖励值可分别调整。</div>
             </div>
             <div class="right">
               <span class="switch on" onclick="toggle(this)"></span>
@@ -337,7 +402,7 @@ tbody tr:last-child td{border-bottom:none}
           <div class="scn" id="scn-topup">
             <div class="icon-wrap" style="background:#FFF1E6;color:#D46B08;">➕</div>
             <div class="info">
-              <h3>卡充值奖励 <span class="tchip">yasbee points</span></h3>
+              <h3>卡充值奖励 <span class="tchip">Points</span></h3>
               <div class="desc">客户本人向卡片充值成功后发放；实体卡 / 虚拟卡 适用同一折算比例与上限</div>
               <table class="cfg-tbl">
                 <thead>
@@ -351,13 +416,13 @@ tbody tr:last-child td{border-bottom:none}
                         <option value="fixed">固定数量（每笔）</option>
                       </select>
                     </td>
-                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="1" value="10"><span class="suffix">USD = 1 yasbee points</span></div></td>
-                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="0.1" value="500.0"><span class="suffix">yasbee points</span></div></td>
-                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="1" value="2000"><span class="suffix">yasbee points</span></div></td>
+                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="1" value="10"><span class="suffix">USD = 1 Points</span></div></td>
+                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="0.1" value="500.0"><span class="suffix">Points</span></div></td>
+                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="1" value="2000"><span class="suffix">Points</span></div></td>
                   </tr>
                 </tbody>
               </table>
-              <div class="note">演示口径：客户每充值 $10 得 1 yasbee points；奖励保留小数点后一位，低于 0.1 的部分不计入（不四舍五入）。实体卡与虚拟卡适用同一折算比例与上限。</div>
+              <div class="note">演示口径：客户每充值 $10 得 1 Points；奖励保留小数点后一位，低于 0.1 的部分不计入（不四舍五入）。实体卡与虚拟卡适用同一折算比例与上限。</div>
             </div>
             <div class="right">
               <span class="switch on" onclick="toggle(this)"></span>
@@ -369,7 +434,7 @@ tbody tr:last-child td{border-bottom:none}
           <div class="scn" id="scn-swap">
             <div class="icon-wrap" style="background:#E6F4EA;color:#16A34A;">⇄</div>
             <div class="info">
-              <h3>币兑奖励 <span class="tchip">yasbee points</span></h3>
+              <h3>币兑奖励 <span class="tchip">Points</span></h3>
               <div class="desc">客户本人完成币币兑换后发放；奖励按兑换金额折算为美元后计奖，保留小数点后一位，低于 0.1 的部分不计入</div>
               <table class="cfg-tbl">
                 <thead>
@@ -383,13 +448,13 @@ tbody tr:last-child td{border-bottom:none}
                         <option value="fixed">固定数量（每笔）</option>
                       </select>
                     </td>
-                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="1" value="100" style="flex:0 0 64px;width:64px"><span class="suffix">USD =</span><input class="tbl-input" type="number" step="0.1" value="1" style="flex:0 0 64px;width:64px"><span class="suffix">yasbee points</span></div></td>
-                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="0.1" value="100.0" style="flex:0 0 60px;width:60px"><span class="suffix">yasbee points</span></div></td>
-                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="1" value="500" style="flex:0 0 60px;width:60px"><span class="suffix">yasbee points</span></div></td>
+                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="1" value="100" style="flex:0 0 64px;width:64px"><span class="suffix">USD =</span><input class="tbl-input" type="number" step="0.1" value="1" style="flex:0 0 64px;width:64px"><span class="suffix">Points</span></div></td>
+                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="0.1" value="100.0" style="flex:0 0 60px;width:60px"><span class="suffix">Points</span></div></td>
+                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="1" value="500" style="flex:0 0 60px;width:60px"><span class="suffix">Points</span></div></td>
                   </tr>
                 </tbody>
               </table>
-              <div class="note">演示口径：每 100 USD = 1 yasbee points；奖励保留小数点后一位，低于 0.1 的部分不计入（不四舍五入）。单笔上限 100 yasbee points、每月上限 500 yasbee points。</div>
+              <div class="note">演示口径：每 100 USD = 1 Points；奖励保留小数点后一位，低于 0.1 的部分不计入（不四舍五入）。单笔上限 100 Points、每月上限 500 Points。</div>
             </div>
             <div class="right">
               <span class="switch on" onclick="toggle(this)"></span>
@@ -405,7 +470,7 @@ tbody tr:last-child td{border-bottom:none}
           <h2>👥 代理返佣设置</h2>
           <div style="display:flex;gap:8px;align-items:center;">
             <span style="font-size:12px;color:#86909c;">返佣币种</span>
-            <span class="tchip">yasbee points</span>
+            <span class="tchip">Points</span>
           </div>
         </div>
         <div class="card-body">
@@ -414,7 +479,7 @@ tbody tr:last-child td{border-bottom:none}
           <div class="scn" id="scn-ag-open">
             <div class="icon-wrap" style="background:#F4F0FF;color:#7C3AED;">💳</div>
             <div class="info">
-              <h3>下级开卡返佣 <span class="tchip">yasbee points</span></h3>
+              <h3>下级开卡返佣 <span class="tchip">Points</span></h3>
               <div class="desc">被代理人（下级）在代理关系下完成开卡后，代理按卡种获得返佣</div>
               <table class="cfg-tbl">
                 <thead>
@@ -429,7 +494,7 @@ tbody tr:last-child td{border-bottom:none}
                         <option value="pct">按开卡费比例</option>
                       </select>
                     </td>
-                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="0.1" value="10.0"><span class="suffix">yasbee points / 张</span></div></td>
+                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="0.1" value="10.0"><span class="suffix">Points / 张</span></div></td>
                   </tr>
                   <tr>
                     <td><span class="ctype virt">🪪 虚拟卡</span></td>
@@ -439,11 +504,11 @@ tbody tr:last-child td{border-bottom:none}
                         <option value="pct">按开卡费比例</option>
                       </select>
                     </td>
-                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="0.1" value="10.0"><span class="suffix">yasbee points / 张</span></div></td>
+                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="0.1" value="10.0"><span class="suffix">Points / 张</span></div></td>
                   </tr>
                 </tbody>
               </table>
-              <div class="note">演示口径：下级每开一张实体卡 / 虚拟卡，代理 +10 yasbee points / 张；两卡种返佣值可分别调整。</div>
+              <div class="note">演示口径：下级每开一张实体卡 / 虚拟卡，代理 +10 Points / 张；两卡种返佣值可分别调整。</div>
             </div>
             <div class="right">
               <span class="switch on" onclick="toggle(this)"></span>
@@ -455,7 +520,7 @@ tbody tr:last-child td{border-bottom:none}
           <div class="scn" id="scn-ag-topup">
             <div class="icon-wrap" style="background:#FFF1E6;color:#D46B08;">➕</div>
             <div class="info">
-              <h3>下级充值返佣 <span class="tchip">yasbee points</span></h3>
+              <h3>下级充值返佣 <span class="tchip">Points</span></h3>
               <div class="desc">被代理人（下级）完成充值后，代理按充值金额折算获得返佣</div>
               <table class="cfg-tbl">
                 <thead>
@@ -469,13 +534,13 @@ tbody tr:last-child td{border-bottom:none}
                         <option value="fixed">固定数量（每笔）</option>
                       </select>
                     </td>
-                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="1" value="50"><span class="suffix">USD = 1 yasbee points</span></div></td>
-                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="0.1" value="200.0"><span class="suffix">yasbee points</span></div></td>
-                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="1" value="1000"><span class="suffix">yasbee points</span></div></td>
+                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="1" value="50"><span class="suffix">USD = 1 Points</span></div></td>
+                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="0.1" value="200.0"><span class="suffix">Points</span></div></td>
+                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="1" value="1000"><span class="suffix">Points</span></div></td>
                   </tr>
                 </tbody>
               </table>
-              <div class="note">演示口径：下级每充值 $50，代理 +1 yasbee points；保留小数点后一位，低于 0.1 的部分不计入（不四舍五入）。</div>
+              <div class="note">演示口径：下级每充值 $50，代理 +1 Points；保留小数点后一位，低于 0.1 的部分不计入（不四舍五入）。</div>
             </div>
             <div class="right">
               <span class="switch on" onclick="toggle(this)"></span>
@@ -487,7 +552,7 @@ tbody tr:last-child td{border-bottom:none}
           <div class="scn" id="scn-ag-swap">
             <div class="icon-wrap" style="background:#E6F4EA;color:#16A34A;">⇄</div>
             <div class="info">
-              <h3>下级币兑返佣 <span class="tchip">yasbee points</span></h3>
+              <h3>下级币兑返佣 <span class="tchip">Points</span></h3>
               <div class="desc">被代理人（下级）完成币币兑换后，代理按兑换金额折算获得返佣</div>
               <table class="cfg-tbl">
                 <thead>
@@ -501,13 +566,13 @@ tbody tr:last-child td{border-bottom:none}
                         <option value="fixed">固定数量（每笔）</option>
                       </select>
                     </td>
-                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="1" value="100" style="flex:0 0 64px;width:64px"><span class="suffix">USD =</span><input class="tbl-input" type="number" step="0.1" value="1" style="flex:0 0 64px;width:64px"><span class="suffix">yasbee points</span></div></td>
-                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="0.1" value="100.0" style="flex:0 0 60px;width:60px"><span class="suffix">yasbee points</span></div></td>
-                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="1" value="500" style="flex:0 0 60px;width:60px"><span class="suffix">yasbee points</span></div></td>
+                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="1" value="100" style="flex:0 0 64px;width:64px"><span class="suffix">USD =</span><input class="tbl-input" type="number" step="0.1" value="1" style="flex:0 0 64px;width:64px"><span class="suffix">Points</span></div></td>
+                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="0.1" value="100.0" style="flex:0 0 60px;width:60px"><span class="suffix">Points</span></div></td>
+                    <td><div class="inline-suffix"><input class="tbl-input" type="number" step="1" value="500" style="flex:0 0 60px;width:60px"><span class="suffix">Points</span></div></td>
                   </tr>
                 </tbody>
               </table>
-              <div class="note">演示口径：下级每币兑 100 USD，代理 +1 yasbee points；保留小数点后一位，低于 0.1 的部分不计入（不四舍五入）。单笔上限 100 yasbee points、每月上限 500 yasbee points。</div>
+              <div class="note">演示口径：下级每币兑 100 USD，代理 +1 Points；保留小数点后一位，低于 0.1 的部分不计入（不四舍五入）。单笔上限 100 Points、每月上限 500 Points。</div>
             </div>
             <div class="right">
               <span class="switch on" onclick="toggle(this)"></span>
@@ -526,6 +591,8 @@ tbody tr:last-child td{border-bottom:none}
 <script>
 /* ===== 数据：客户维度 YASBee Points 奖励记录 ===== */
 var RECS = [
+  {id:'PT-260908-0148', cust:'袁媛',   cid:'CU-100938', k:'va',   ct:null,   info:'USD 虚拟账户',           amt:10.0,  st:'done',    time:'2026-09-08 11:48:03'},
+  {id:'PT-260908-0145', cust:'袁媛',   cid:'CU-100938', k:'reg',  ct:null,   info:'Email 注册',             amt:5.0,   st:'done',    time:'2026-09-08 11:32:47'},
   {id:'PT-260908-0142', cust:'李思远', cid:'CU-100412', k:'open',  ct:'phys', info:'尾号 8842',                amt:10.0,  st:'pending', time:'2026-09-08 11:05:22'},
   {id:'PT-260908-0139', cust:'王曼',   cid:'CU-100388', k:'topup', ct:'phys', info:'尾号 8842 · USD 500.00',  amt:50.0,  st:'done',    time:'2026-09-08 09:41:33'},
   {id:'PT-260907-0131', cust:'张伟',   cid:'CU-100238', k:'swap',  ct:null,   info:'USDT → USD 2,000.00',    amt:20.0,  st:'done',    time:'2026-09-07 16:05:19'},
@@ -552,8 +619,8 @@ var RECS = [
   {id:'PT-260814-0004', cust:'卢晨',   cid:'CU-100863', k:'swap',  ct:null,   info:'USDT → USD 5,000.00',    amt:50.0,  st:'done',    time:'2026-08-14 08:52:41'}
 ];
 
-var KIND = {open:'开卡', topup:'卡充值', swap:'币兑'};
-var KICO = {open:'💳', topup:'➕', swap:'⇄'};
+var KIND = {reg:'注册', va:'开通虚拟账户', open:'开卡', topup:'卡充值', swap:'币兑'};
+var KICO = {reg:'📝', va:'🏦', open:'💳', topup:'➕', swap:'⇄'};
 var KSTR = {done:'已入账', pending:'处理中', wait:'待入账'};
 var CTS  = {phys:'实体卡', virt:'虚拟卡'};
 
@@ -574,17 +641,19 @@ function renderStats(){
   var mDone = mRecs.filter(isDone);
   var done  = RECS.filter(isDone);
   var pend  = RECS.filter(function(r){ return !isDone(r); });
-  var mSum  = {open:0, topup:0, swap:0}, mCnt = {open:0, topup:0, swap:0};
+  var mSum  = {reg:0, va:0, open:0, topup:0, swap:0}, mCnt = {reg:0, va:0, open:0, topup:0, swap:0};
   mRecs.forEach(function(r){ mSum[r.k] += r.amt; mCnt[r.k] += 1; });
 
   document.getElementById('s1').textContent = fmt(sum(mDone), 1);
   document.getElementById('s1sub').textContent = '本月 ' + mRecs.length + ' 笔 · 已入账 ' + mDone.length + ' 笔';
   document.getElementById('s2').textContent = fmt(sum(done), 1);
-  document.getElementById('s2sub').textContent = '开卡 ' + fmt(sum(done.filter(byKind('open'))), 1) +
+  document.getElementById('s2sub').textContent = '注册 ' + fmt(sum(done.filter(byKind('reg'))), 1) +
+    ' · 开通虚拟账户 ' + fmt(sum(done.filter(byKind('va'))), 1) +
+    ' · 开卡 ' + fmt(sum(done.filter(byKind('open'))), 1) +
     ' · 卡充值 ' + fmt(sum(done.filter(byKind('topup'))), 1) +
     ' · 币兑 ' + fmt(sum(done.filter(byKind('swap'))), 1);
   document.getElementById('s3').textContent = String(mRecs.length);
-  document.getElementById('s3sub').textContent = '开卡 ' + mCnt.open + ' · 卡充值 ' + mCnt.topup + ' · 币兑 ' + mCnt.swap;
+  document.getElementById('s3sub').textContent = '注册 ' + mCnt.reg + ' · 开通虚拟账户 ' + mCnt.va + ' · 开卡 ' + mCnt.open + ' · 卡充值 ' + mCnt.topup + ' · 币兑 ' + mCnt.swap;
   document.getElementById('s4').textContent = fmt(sum(pend), 1);
   document.getElementById('s4sub').textContent = pend.length + ' 笔处理中 / 待入账';
 }
@@ -688,7 +757,7 @@ function closeRules(){
 /* ===== 导出 ===== */
 function exportCSV(){
   var list = filtered();
-  var head = ['奖励编号','客户','客户ID','业务类型','卡种','业务信息','奖励(yasbee points)','状态','时间'];
+  var head = ['奖励编号','客户','客户ID','业务类型','卡种','业务信息','奖励(Points)','状态','时间'];
   var lines = [head.join(',')].concat(list.map(function(r){
     return [r.id, r.cust, r.cid, KIND[r.k], r.ct ? CTS[r.ct] : '与卡种无关',
             '"' + r.info + '"', r.amt.toFixed(1), KSTR[r.st], r.time].join(',');
