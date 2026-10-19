@@ -201,8 +201,152 @@ body.hide-pmnote .pmnote{display:none!important}
 <div class="top-right"><span class="pill prod"><span class="dot"></span>生产环境</span><a class="who" href="2026-10-15_账号设置_租户业务台.html" title="账号设置" style="text-decoration:none;color:inherit;cursor:pointer"><span class="av">谢</span>谢毅 · <span id="whoRole">管理员</span></a></div>
 </div>
 <div class="content">
-<div class="page-h"><div><div class="h1">储备金与账单</div><div class="sub">三个币种可用余额 · 三档告警 · 逐笔手续费扣减</div></div><div class="acts"><button class="btn btn-primary btn-sm" data-role-allow="ADMIN,FINANCE" onclick="openOv('m-topup')">＋ 充值储备金</button></div></div>
-<div class="alert red"><span class="ic">⚠</span><div><b>GBP 储备金不足，该币种的新出金已被拦截。</b>充值到账后自动恢复。</div></div><div class="grid3"><div class="ccard"><div class="ch"><span class="cur">USD</span><span class="st" style="color:var(--green)">● 充足</span></div><div class="bl">可用余额</div><div class="bal">12,340.50</div><div class="rows"><div class="r"><span>预警线</span><span>2,000.00</span></div><div class="r"><span>出金拦截线</span><span>50.00</span></div></div></div><div class="ccard"><div class="ch"><span class="cur">EUR</span><span class="st" style="color:var(--green)">● 充足</span></div><div class="bl">可用余额</div><div class="bal">4,120.00</div><div class="rows"><div class="r"><span>预警线</span><span>1,000.00</span></div><div class="r"><span>出金拦截线</span><span>45.00</span></div></div></div><div class="ccard dep"><div class="ch"><span class="cur">GBP</span><span class="st" style="color:#f87171">● 不足</span></div><div class="bl">可用余额</div><div class="bal">0.00</div><div class="rows"><div class="r"><span>预警线</span><span>500.00</span></div><div class="r"><span>出金拦截线</span><span>40.00</span></div></div><div class="tip danger" style="margin-top:11px;padding:8px 10px">已低于单笔最高手续费预估值，新出金会被拒绝；入金不受影响。</div></div></div><div class="card"><div class="card-h"><h2>手续费扣减明细</h2><div class="hint">示例：最近 5 笔（非连续账期）；每笔出入金对应一条扣减记录，可逐笔核对余额</div><div class="acts"><button class="btn btn-sm btn-primary" data-role-allow="ADMIN,FINANCE" onclick="openOv('m-topup')">＋ 充值储备金</button></div></div><div class="filters"><div class="fg"><label>币种</label><select><option>全部币种</option><option>USD</option><option>EUR</option><option>GBP</option></select></div><div class="fg"><label>业务类型</label><select><option>全部</option><option>入金</option><option>出金</option></select></div><div class="fg"><label>搜索</label><input placeholder="费用单据号 / 终端用户"></div><div class="fg"><label>&nbsp;</label><button class="btn btn-primary btn-sm" onclick="dem()">查询</button></div></div><div class="tbl-scroll"><table style="min-width:1240px"><thead><tr><th>扣费时间</th><th>费用单据号</th><th>币种</th><th>业务类型</th><th>用户本金</th><th>手续费</th><th>扣减后余额</th><th>状态</th></tr></thead><tbody><tr><td>2026-10-14 10:02</td><td><span class="mono">FEE-…-000331</span></td><td>USD</td><td><span class="badge warn">出金</span></td><td><span class="mono">1,000.00</span></td><td><span class="mono b">3.50</span></td><td><span class="mono">12,340.50</span></td><td><span class="badge ok">已扣减</span></td></tr><tr><td>2026-10-14 09:31</td><td><span class="mono">FEE-…-000327</span></td><td>GBP</td><td><span class="badge warn">出金</span></td><td><span class="mono">1,200.00</span></td><td><span class="mono b">4.20</span></td><td><span class="mono">0.00</span></td><td><span class="badge ok">已扣减</span></td></tr><tr><td>2026-10-13 18:40</td><td><span class="mono">FEE-…-000298</span></td><td>USD</td><td><span class="badge info">入金</span></td><td><span class="mono">1,000.00</span></td><td><span class="mono b">3.50</span></td><td><span class="mono">12,344.00</span></td><td><span class="badge ok">已扣减</span></td></tr><tr><td>2026-10-12 11:02</td><td><span class="mono">FEE-…-000244</span></td><td>EUR</td><td><span class="badge warn">出金</span></td><td><span class="mono">480.00</span></td><td><span class="mono b">1.68</span></td><td><span class="mono">4,120.00</span></td><td><span class="badge ok">已扣减</span></td></tr><tr><td>2026-10-11 16:31</td><td><span class="mono">FEE-…-000208</span></td><td>GBP</td><td><span class="badge info">入金</span></td><td><span class="mono">250.00</span></td><td><span class="mono b">0.88</span></td><td><span class="mono">4.20</span></td><td><span class="badge ok">已扣减</span></td></tr></tbody></table></div><div style="padding:11px 16px;border-top:1px solid var(--border);font-size:11.5px;color:var(--muted)">本页 5 笔手续费合计：USD 7.00 · EUR 1.68 · GBP 5.08（三个币种不折算计总）</div></div><div class="card"><div class="card-h"><h2>月度账单</h2><span class="hint">每月 1 日生成上月账单；账单明细与发票可按月下载</span><div class="acts"><button class="btn btn-sm btn-ghost" data-role-allow="ADMIN,FINANCE" onclick="dem()">导出台账 CSV</button></div></div><div class="tbl-scroll"><table style="min-width:940px"><thead><tr><th>账期</th><th>币种</th><th>手续费合计</th><th>扣减笔数</th><th>状态</th><th>操作</th></tr></thead><tbody><tr><td>2026-09</td><td>USD</td><td><span class="mono b">152.00</span></td><td>1,088</td><td><span class="badge ok">已结算</span></td><td><button class="btn btn-sm btn-ghost" data-role-allow="ADMIN,FINANCE" onclick="dem()">账单明细 CSV</button> <button class="btn btn-sm btn-ghost" data-role-allow="ADMIN,FINANCE" onclick="dem()">发票 PDF</button></td></tr><tr><td>2026-09</td><td>EUR</td><td><span class="mono b">41.60</span></td><td>268</td><td><span class="badge ok">已结算</span></td><td><button class="btn btn-sm btn-ghost" data-role-allow="ADMIN,FINANCE" onclick="dem()">账单明细 CSV</button> <button class="btn btn-sm btn-ghost" data-role-allow="ADMIN,FINANCE" onclick="dem()">发票 PDF</button></td></tr><tr><td>2026-09</td><td>GBP</td><td><span class="mono b">12.40</span></td><td>96</td><td><span class="badge ok">已结算</span></td><td><button class="btn btn-sm btn-ghost" data-role-allow="ADMIN,FINANCE" onclick="dem()">账单明细 CSV</button> <button class="btn btn-sm btn-ghost" data-role-allow="ADMIN,FINANCE" onclick="dem()">发票 PDF</button></td></tr></tbody></table></div><div style="padding:11px 16px;border-top:1px solid var(--border);font-size:11.5px;color:var(--muted)">本期（2026-10）进行中：截至今日累计已扣 USD 168.00 · EUR 52.00 · GBP 12.40；账单在 2026-11-01 生成。</div></div><div class="ov" id="m-topup"><div class="modal" style="max-width:640px"><div class="modal-h"><h2>充值储备金</h2><button class="modal-x" onclick="closeOv('m-topup')">×</button></div><div class="modal-b"><div class="fg2"><label>充值币种</label><select><option selected>GBP</option><option>USD</option><option>EUR</option></select></div><div class="fg2"><label>充值金额</label><input placeholder="例如 1000.00"></div><dl class="kv"><dt>收款方</dt><dd>YASBe Pte. Ltd.</dd><dt>Sort Code</dt><dd><span class="mono">040075</span></dd><dt>Account Number</dt><dd><span class="mono">63882109</span></dd><dt>充值参考号</dt><dd><span class="mono b">ACME-TOPUP-000131-GBP</span></dd></dl><div class="tip" style="margin-top:12px">汇款附言请填上面的参考号。提交后以平台账户实际到账为准，本页状态会变为「已到账」。</div></div><div class="modal-f"><button class="btn btn-ghost" onclick="closeOv('m-topup')">取消</button><button class="btn btn-primary" data-role-allow="ADMIN,FINANCE" onclick="closeOv('m-topup');toast('[原型演示] 充值申请已提交，待到账')">提交充值申请</button></div></div></div><!-- PM-NOTE: 原型备注 --><div class="pmnote"><b>PM 备注</b>告警三档：充足（≥ 预警线）/ 预警（低于预警线，仍放行但通知）/ 不足（≤ 出金拦截线 = 单笔最高手续费预估值，出金在记账之前被拦截）。三个币种不折算计总，故卡片、明细、账单都分币种列示。币种卡新增「出金拦截线」一行，让「不足」可自证，不再只靠一行小字解释。扣减明细新增「扣减后余额」列，逐笔可核对；并注明表内为最近 5 笔、非连续账期（中间还有很多笔未列出）。新增「月度账单」区块：按账期 × 币种列手续费合计与扣减笔数，已结算账期可下载账单明细 CSV 与发票 PDF，本期未关账（次月 1 日生成）。本次新增的数字（9 月账单 152.00 / 41.60 / 12.40 与本期累计 168.00 / 52.00 / 12.40、拦截线 50.00 / 45.00 / 40.00）为演示值，真实数据源待确认（D20）。充值弹窗的收款信息仍是 GBP 口径（Sort Code + Account Number），切币种不联动：USD 走 Bridge 应是 account_number + routing、EUR 走 OpenPayd 应是 IBAN，需要真实收款信息后才能做（D21）。扣减状态只演示「已扣减」，错账的反向冲正状态未画（D22）。本页的充值收款账户是给租户自己充值的、必须展示；平台资金归集地址不在租户界面出现，两者不要混在一处。</div>
+<div class="page-h"><div><div class="h1">储备金与账单</div><div class="sub">账单 · 线下汇款 · 费用明细 · 储备金仅约束出金流动性</div></div><div class="acts"><button class="btn btn-primary btn-sm" data-role-allow="ADMIN,FINANCE" onclick="openOv('m-topup')">＋ 充值储备金</button></div></div>
+
+<div class="stats" style="grid-template-columns:1.45fr 1fr 1fr 1fr">
+  <div class="stat"><div class="sl">本期账单金额<span class="badge warn" style="margin-left:auto">2026-10 进行中</span></div>
+    <div style="display:flex;gap:20px;margin-top:4px">
+      <div><div style="font-size:10.5px;color:var(--muted-2)">USD</div><div class="mono b" style="font-size:17px">1,284.60</div></div>
+      <div><div style="font-size:10.5px;color:var(--muted-2)">EUR</div><div class="mono b" style="font-size:17px">0.00</div></div>
+      <div><div style="font-size:10.5px;color:var(--muted-2)">GBP</div><div class="mono b" style="font-size:17px">96.40</div></div>
+    </div>
+    <div class="ss">分币种列示，不跨币种折算合计</div>
+  </div>
+  <div class="stat"><div class="sl">待收款账单</div><div class="sv" style="color:var(--amber)">3</div><div class="ss">含待确认 / 已出账 / 已收款</div></div>
+  <div class="stat"><div class="sl">已核销账单</div><div class="sv green">8</div><div class="ss">累计核销，下表仅列最近 6 张</div></div>
+  <div class="stat"><div class="sl">当前账期</div><div class="sv" style="font-size:19px">2026-10</div><div class="ss">每月 1 日出上月账单</div></div>
+</div>
+
+<div class="card">
+  <div class="card-h"><h2>账单</h2><span class="hint">按「账期 × 渠道 × 币种」聚合；状态流转：待确认 → 已出账 → 已收款 → 已核销</span>
+    <div class="acts"><button class="btn btn-sm btn-ghost" onclick="dem()">导出账单 CSV</button></div></div>
+  <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:13px 16px;border-bottom:1px solid var(--border);background:rgba(255,202,0,.04)">
+    <div><div class="bl">当前账期</div><div class="mono b" style="font-size:14px">2026-10 <span class="badge warn">进行中</span></div></div>
+    <div style="display:flex;gap:16px;font-size:12.2px;color:var(--muted)">
+      <span>USD <b class="mono" style="color:var(--text)">1,284.60</b></span>
+      <span>EUR <b class="mono" style="color:var(--text)">0.00</b></span>
+      <span>GBP <b class="mono" style="color:var(--text)">96.40</b></span>
+    </div>
+    <div style="margin-left:auto"><button class="btn btn-sm btn-ghost" data-bill="2026-10" onclick="billDetail(this.dataset.bill)">查看本期明细</button></div>
+  </div>
+  <div class="tbl-scroll"><table style="min-width:880px">
+    <thead><tr><th>账期</th><th>渠道</th><th>币种</th><th>金额</th><th>状态</th><th>操作</th></tr></thead>
+    <tbody id="billBody">
+<tr id="bill-2026-09-USD"><td><span class="mono b">2026-09</span><div class="dim" style="font-size:11px">BILL-202609-BRIDGE</div></td><td>Bridge</td><td><span class="chip">USD</span></td><td><span class="mono b">152.00</span></td><td><span class="badge info" data-bill-st>已出账</span></td><td data-bill-op><button class="btn btn-sm btn-ghost" data-bill="2026-09-USD" onclick="billDetail(this.dataset.bill)">查看明细</button></td></tr>
+<tr id="bill-2026-09-EUR"><td><span class="mono b">2026-09</span><div class="dim" style="font-size:11px">BILL-202609-OPENPAYD</div></td><td>OpenPayd</td><td><span class="chip">EUR</span></td><td><span class="mono b">41.60</span></td><td><span class="badge ok" data-bill-st>已收款</span></td><td data-bill-op><button class="btn btn-sm btn-ghost" data-bill="2026-09-EUR" onclick="billDetail(this.dataset.bill)">查看明细</button></td></tr>
+<tr id="bill-2026-09-GBP"><td><span class="mono b">2026-09</span><div class="dim" style="font-size:11px">BILL-202609-OPENPAYD</div></td><td>OpenPayd</td><td><span class="chip">GBP</span></td><td><span class="mono b">96.40</span></td><td><span class="badge warn" data-bill-st>待确认</span></td><td data-bill-op><button class="btn btn-sm btn-ghost" data-bill="2026-09-GBP" onclick="billDetail(this.dataset.bill)">查看明细</button></td></tr>
+<tr id="bill-2026-08-USD"><td><span class="mono b">2026-08</span><div class="dim" style="font-size:11px">BILL-202608-BRIDGE</div></td><td>Bridge</td><td><span class="chip">USD</span></td><td><span class="mono b">138.20</span></td><td><span class="badge gold" data-bill-st>已核销</span></td><td data-bill-op><button class="btn btn-sm btn-ghost" data-bill="2026-08-USD" onclick="billDetail(this.dataset.bill)">查看明细</button></td></tr>
+<tr id="bill-2026-08-USDT"><td><span class="mono b">2026-08</span><div class="dim" style="font-size:11px">BILL-202608-CHAIN</div></td><td>链上</td><td><span class="chip">USDT</span></td><td><span class="mono b">12.50</span></td><td><span class="badge gold" data-bill-st>已核销</span></td><td data-bill-op><button class="btn btn-sm btn-ghost" data-bill="2026-08-USDT" onclick="billDetail(this.dataset.bill)">查看明细</button></td></tr>
+<tr id="bill-2026-08-EUR"><td><span class="mono b">2026-08</span><div class="dim" style="font-size:11px">BILL-202608-OPENPAYD</div></td><td>OpenPayd</td><td><span class="chip">EUR</span></td><td><span class="mono b">18.00</span></td><td><span class="badge gold" data-bill-st>已核销</span></td><td data-bill-op><button class="btn btn-sm btn-ghost" data-bill="2026-08-EUR" onclick="billDetail(this.dataset.bill)">查看明细</button></td></tr>
+    </tbody>
+  </table></div>
+  <div style="padding:11px 16px;border-top:1px solid var(--border);font-size:11.5px;color:var(--muted)">金额为该账单的手续费合计（含席位费、VA 开户费），不含用户本金；不同币种不折算。本期账单在 2026-11-01 出账。</div>
+</div>
+
+<div class="card">
+  <div class="card-h"><h2>线下汇款指引</h2><span class="hint">账单出账后由租户线下汇款，平台财务确认到账后核销</span></div>
+  <div class="card-b">
+    <div class="grid2" style="gap:18px">
+      <div>
+        <div class="bl" style="margin-bottom:8px">收款账户（按币种，只收本租户账单款项）</div>
+        <div class="tbl-scroll"><table style="font-size:12px">
+          <thead><tr><th>币种</th><th>收款方</th><th>收款账号</th></tr></thead>
+          <tbody>
+            <tr><td><span class="chip">USD</span></td><td>YASBe Pte. Ltd.</td><td><span class="mono">Bridge · 8820 4417 03</span></td></tr>
+            <tr><td><span class="chip">EUR</span></td><td>YASBe Pte. Ltd.</td><td><span class="mono">OpenPayd · GB29 OPEN 0400 7563 8821 09</span></td></tr>
+            <tr><td><span class="chip">GBP</span></td><td>YASBe Pte. Ltd.</td><td><span class="mono">OpenPayd · Sort 04-00-75 / Acct 63882109</span></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <div>
+        <div class="tip" style="margin-bottom:12px"><b>参考号规则：</b><span class="mono">账单号-币种</span>，示例 <span class="mono b">BILL-202609-BRIDGE-USD</span>。同一账期不同渠道、不同币种是不同账单，请分别汇款并各自填写参考号。</div>
+        <div class="tip warn"><b>汇款附言：</b>必须填写参考号；附言长度受限时至少保留参考号后 12 位。未填写参考号的款项将转入人工认领，到账确认可能延迟 1 个工作日。</div>
+        <div style="margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-primary btn-sm" data-role-allow="ADMIN,FINANCE" onclick="openPay()">我已完成汇款</button>
+          <span style="font-size:11.5px;color:var(--muted)">提交后对应账单转为「待确认」，等待平台确认到账</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-h"><h2>费用明细</h2><span class="hint">本账期 2026-10 已发生的费用单据，只读；逐笔计入账单，用户本金不参与计费</span>
+    <div class="acts"><span class="chip">8 张单据</span><button class="btn btn-sm btn-ghost" onclick="dem()">导出明细 CSV</button></div></div>
+  <div class="tbl-scroll"><table style="min-width:1240px">
+    <thead><tr><th>费用单据号</th><th>时间</th><th>渠道</th><th>币种</th><th>业务类型</th><th>用户本金</th><th>手续费</th><th>价格快照</th><th>所属账期</th></tr></thead>
+    <tbody>
+<tr><td><span class="mono">FEE-20261001-000012</span></td><td class="dim">2026-10-01 00:05</td><td>Bridge</td><td><span class="chip">USD</span></td><td><span class="badge gold">席位费（4 席）</span></td><td><span class="mono">—</span></td><td><span class="mono b">120.00</span></td><td class="dim">30.00/席</td><td class="mono">2026-10</td></tr>
+<tr><td><span class="mono">FEE-20261003-000061</span></td><td class="dim">2026-10-03 11:24</td><td>Bridge</td><td><span class="chip">USD</span></td><td><span class="badge info">入金手续费</span></td><td><span class="mono">120,000.00</span></td><td><span class="mono b">420.00</span></td><td class="dim">0.35%</td><td class="mono">2026-10</td></tr>
+<tr><td><span class="mono">FEE-20261006-000124</span></td><td class="dim">2026-10-06 16:08</td><td>Bridge</td><td><span class="chip">USD</span></td><td><span class="badge warn">出金手续费</span></td><td><span class="mono">96,000.00</span></td><td><span class="mono b">336.00</span></td><td class="dim">0.35%</td><td class="mono">2026-10</td></tr>
+<tr><td><span class="mono">FEE-20261008-000171</span></td><td class="dim">2026-10-08 09:47</td><td>Bridge</td><td><span class="chip">USD</span></td><td><span class="badge info">入金手续费</span></td><td><span class="mono">77,150.00</span></td><td><span class="mono b">308.60</span></td><td class="dim">0.40%</td><td class="mono">2026-10</td></tr>
+<tr><td><span class="mono">FEE-20261010-000205</span></td><td class="dim">2026-10-10 14:20</td><td>Bridge</td><td><span class="chip">USD</span></td><td><span class="badge">VA 开户费（个人）</span></td><td><span class="mono">—</span></td><td><span class="mono b">100.00</span></td><td class="dim">100.00/户</td><td class="mono">2026-10</td></tr>
+<tr><td><span class="mono">FEE-20261005-000098</span></td><td class="dim">2026-10-05 10:12</td><td>OpenPayd</td><td><span class="chip">GBP</span></td><td><span class="badge info">入金手续费</span></td><td><span class="mono">8,000.00</span></td><td><span class="mono b">40.00</span></td><td class="dim">0.50%</td><td class="mono">2026-10</td></tr>
+<tr><td><span class="mono">FEE-20261011-000238</span></td><td class="dim">2026-10-11 15:36</td><td>OpenPayd</td><td><span class="chip">GBP</span></td><td><span class="badge warn">出金手续费</span></td><td><span class="mono">6,400.00</span></td><td><span class="mono b">32.00</span></td><td class="dim">0.50%</td><td class="mono">2026-10</td></tr>
+<tr><td><span class="mono">FEE-20261013-000271</span></td><td class="dim">2026-10-13 09:02</td><td>OpenPayd</td><td><span class="chip">GBP</span></td><td><span class="badge">VA 开户费（个人）</span></td><td><span class="mono">—</span></td><td><span class="mono b">24.40</span></td><td class="dim">24.40/户</td><td class="mono">2026-10</td></tr>
+    </tbody>
+    <tfoot><tr><td colspan="6" style="font-weight:600;color:var(--text)">本账期合计（2026-10）</td><td class="mono b">USD 1,284.60<br>EUR 0.00<br>GBP 96.40</td><td class="dim">—</td><td class="mono">2026-10</td></tr></tfoot>
+  </table></div>
+  <div style="padding:11px 16px;border-top:1px solid var(--border);font-size:11.5px;color:var(--muted)">费用由租户承担，不从储备金或账户余额扣减，按月计入账单、线下收款后核销；终端用户本金不受影响。</div>
+</div>
+
+<div class="sec-t">储备金（仅出金流动性）</div>
+<div class="alert red"><span class="ic">⚠</span><div><b>GBP 储备金不足，该币种的新出金已被拦截。</b>充值到账后自动恢复；入金与账单费用不受影响。</div></div>
+<div class="grid3">
+  <div class="ccard">
+    <div class="ch"><span class="cur">USD</span><span class="st" style="color:var(--green)">● 充足</span></div>
+    <div style="font-size:11px;color:var(--muted);margin:2px 0 10px;line-height:1.5">仅用于出金流动性垫付，费用不从储备金扣减</div>
+    <div class="bl">可用余额</div><div class="bal">12,340.50</div>
+    <div class="rows"><div class="r"><span>预警线</span><span>2,000.00</span></div><div class="r"><span>出金拦截线</span><span>50.00</span></div></div>
+  </div>
+  <div class="ccard">
+    <div class="ch"><span class="cur">EUR</span><span class="st" style="color:var(--green)">● 充足</span></div>
+    <div style="font-size:11px;color:var(--muted);margin:2px 0 10px;line-height:1.5">仅用于出金流动性垫付，费用不从储备金扣减</div>
+    <div class="bl">可用余额</div><div class="bal">4,120.00</div>
+    <div class="rows"><div class="r"><span>预警线</span><span>1,500.00</span></div><div class="r"><span>出金拦截线</span><span>45.00</span></div></div>
+  </div>
+  <div class="ccard">
+    <div class="ch"><span class="cur">GBP</span><span class="st" style="color:var(--red)">● 不足</span></div>
+    <div style="font-size:11px;color:var(--muted);margin:2px 0 10px;line-height:1.5">仅用于出金流动性垫付，费用不从储备金扣减</div>
+    <div class="bl">可用余额</div><div class="bal" style="color:var(--red)">0.00</div>
+    <div class="rows"><div class="r"><span>预警线</span><span>1,200.00</span></div><div class="r"><span>出金拦截线</span><span>40.00</span></div></div>
+    <div class="tip warn" style="margin-top:11px;font-size:11.5px">已低于出金拦截线（40.00），该币种新出金将被拒绝；入金不受影响。</div>
+  </div>
+</div>
+<div style="font-size:11.5px;color:var(--muted);margin:10px 0 4px;line-height:1.7">可用余额只约束出金能否放行：低于预警线时通知、仍放行；低于出金拦截线时该币种新出金被拒绝。三个币种不折算计总，卡片与账单均分币种列示。</div>
+
+<div class="ov" id="m-bill"><div class="modal" style="max-width:720px">
+  <div class="modal-h"><h2 id="dlgBillTitle">账单明细</h2><button class="modal-x" onclick="closeOv('m-bill')">×</button></div>
+  <div class="modal-b">
+    <div id="dlgBillMeta" style="font-size:12.5px;color:var(--muted);margin-bottom:12px;line-height:1.9"></div>
+    <div class="tbl-scroll"><table>
+      <thead><tr><th>费用单据号</th><th>业务类型</th><th>手续费</th><th>所属账期</th></tr></thead>
+      <tbody id="dlgBillBody"></tbody>
+    </table></div>
+    <div id="dlgBillTotal" style="margin-top:12px;font-size:13px"></div>
+    <div class="tip" style="margin-top:12px">账单金额 = 该账期该渠道该币种的手续费合计；用户本金不进入账单，也不从储备金或余额扣减。</div>
+  </div>
+  <div class="modal-f"><button class="btn btn-ghost" onclick="closeOv('m-bill')">关闭</button></div>
+</div></div>
+
+<div class="ov" id="m-paid"><div class="modal" style="max-width:560px">
+  <div class="modal-h"><h2>登记线下汇款</h2><button class="modal-x" onclick="closeOv('m-paid')">×</button></div>
+  <div class="modal-b">
+    <div class="tip warn" style="margin-bottom:14px">仅登记已实际汇出的款项。平台确认到账后账单从「待确认」推进为「已收款」，核销后变为「已核销」。</div>
+    <div class="grid2" style="gap:12px">
+      <div class="fg2"><label>币种</label><select id="payCur"><option>USD</option><option>EUR</option><option>GBP</option></select></div>
+      <div class="fg2"><label>汇款金额</label><input id="payAmt" placeholder="0.00"></div>
+    </div>
+    <div class="grid2" style="gap:12px">
+      <div class="fg2"><label>汇款日期</label><input id="payDate" type="date" value="2026-10-19"></div>
+      <div class="fg2"><label>银行流水号</label><input id="payRef" placeholder="银行回单上的交易流水号"></div>
+    </div>
+    <div class="fg2"><label>付款凭证</label><input id="payFile" type="file" accept="image/*,.pdf" style="padding:10px;border-style:dashed;color:var(--muted);font-size:12px"><span style="font-size:11px;color:var(--muted-2)">支持 JPG / PNG / PDF，单文件不超过 5 MB；演示环境不实际上传。</span></div>
+    <div id="payHint" style="font-size:11.5px;color:var(--muted)"></div>
+  </div>
+  <div class="modal-f"><button class="btn btn-ghost" onclick="closeOv('m-paid')">取消</button><button class="btn btn-primary" data-role-allow="ADMIN,FINANCE" onclick="submitPay()">提交汇款登记</button></div>
+</div></div>
+<div class="ov" id="m-topup"><div class="modal" style="max-width:640px"><div class="modal-h"><h2>充值储备金（补充出金流动性）</h2><button class="modal-x" onclick="closeOv('m-topup')">×</button></div><div class="modal-b"><div class="fg2"><label>充值币种</label><select><option selected>GBP</option><option>USD</option><option>EUR</option></select></div><div class="fg2"><label>充值金额</label><input placeholder="例如 1000.00"></div><dl class="kv"><dt>收款方</dt><dd>YASBe Pte. Ltd.</dd><dt>Sort Code</dt><dd><span class="mono">040075</span></dd><dt>Account Number</dt><dd><span class="mono">63882109</span></dd><dt>充值参考号</dt><dd><span class="mono b">ACME-TOPUP-000131-GBP</span></dd></dl><div class="tip" style="margin-top:12px">充值只用于补足出金流动性，平台费用不在充值中扣减，费用见上方账单。汇款附言请填上面的参考号；提交后以平台账户实际到账为准。</div></div><div class="modal-f"><button class="btn btn-ghost" onclick="closeOv('m-topup')">取消</button><button class="btn btn-primary" data-role-allow="ADMIN,FINANCE" onclick="closeOv('m-topup');toast('[原型演示] 充值申请已提交，待到账')">提交充值申请</button></div></div></div><!-- PM-NOTE: 本页按 PRD v1.2 计费口径重排 --><div class="pmnote"><b>PM 备注</b>计费口径：外扣 + 线下月结。席位费 / VA 开户费 / 出入金手续费全部由租户承担，不从储备金或余额实时扣减，按「账期 × 渠道 × 币种」出账单，财务线下收款后核销；状态四态：待确认 → 已出账 → 已收款 → 已核销（「查看明细」按账单聚合费用单据，「我已完成汇款」登记凭证后该行转「待确认」）。储备金降为流动性视图：只用于出金流动性垫付与最低预存门槛，低于出金拦截线则该币种新出金被拒绝，与费用无关。本期数字（USD 1,284.60 / EUR 0.00 / GBP 96.40，拦截线 50.00 / 45.00 / 40.00）与往期账单均为演示值，真实数据源待确认（D20）。充值弹窗收款信息仍是 GBP 口径，切币种不联动（D21，未在本次范围内）。本页收款账户是平台开给该租户的专属账户，必须展示；平台资金归集地址不在租户界面出现。</div>
 </div>
 </div>
 </div>
@@ -235,6 +379,83 @@ function closeOv(id){var e=document.getElementById(id);if(e)e.classList.remove('
 function openDrawer(id){var e=document.getElementById(id);if(e)e.classList.add('on');}
 function closeDrawer(id){var e=document.getElementById(id);if(e)e.classList.remove('on');}
 function dem(){toast('[原型演示] 该操作仅演示交互，不产生真实数据');}
+
+var BILLS={
+ '2026-09-USD':{billNo:'BILL-202609-BRIDGE',period:'2026-09',channel:'Bridge',cur:'USD',amt:'152.00',total:'USD 152.00',status:'已出账'},
+ '2026-09-EUR':{billNo:'BILL-202609-OPENPAYD',period:'2026-09',channel:'OpenPayd',cur:'EUR',amt:'41.60',total:'EUR 41.60',status:'已收款'},
+ '2026-09-GBP':{billNo:'BILL-202609-OPENPAYD',period:'2026-09',channel:'OpenPayd',cur:'GBP',amt:'96.40',total:'GBP 96.40',status:'待确认'},
+ '2026-08-USD':{billNo:'BILL-202608-BRIDGE',period:'2026-08',channel:'Bridge',cur:'USD',amt:'138.20',total:'USD 138.20',status:'已核销'},
+ '2026-08-USDT':{billNo:'BILL-202608-CHAIN',period:'2026-08',channel:'链上',cur:'USDT',amt:'12.50',total:'USDT 12.50',status:'已核销'},
+ '2026-08-EUR':{billNo:'BILL-202608-OPENPAYD',period:'2026-08',channel:'OpenPayd',cur:'EUR',amt:'18.00',total:'EUR 18.00',status:'已核销'},
+ '2026-10':{billNo:'BILL-202610',period:'2026-10',channel:'全部渠道（进行中）',cur:'USD / EUR / GBP',amt:'1,284.60 / 0.00 / 96.40',total:'USD 1,284.60 · EUR 0.00 · GBP 96.40',status:'进行中'}
+};
+var BILL_DOCS={
+ '2026-09-USD':[['入金手续费','120.00'],['出金手续费','32.00']],
+ '2026-09-EUR':[['入金手续费','30.00'],['出金手续费','11.60']],
+ '2026-09-GBP':[['入金手续费','62.00'],['VA 开户费（个人）','34.40']],
+ '2026-08-USD':[['出金手续费','108.20'],['席位费（3 席）','30.00']],
+ '2026-08-USDT':[['出金手续费','12.50']],
+ '2026-08-EUR':[['入金手续费','18.00']],
+ '2026-10':[['席位费（4 席）','120.00'],['入金手续费','420.00'],['出金手续费','336.00'],['入金手续费','308.60'],['VA 开户费（个人）','100.00'],['入金手续费','40.00'],['出金手续费','32.00'],['VA 开户费（个人）','24.40']]
+};
+var DOC_NO={
+ '2026-09-USD':['FEE-20260922-003981','FEE-20260927-004117'],
+ '2026-09-EUR':['FEE-20260918-003812','FEE-20260925-004052'],
+ '2026-09-GBP':['FEE-20260916-003744','FEE-20260929-004196'],
+ '2026-08-USD':['FEE-20260814-003201','FEE-20260831-003560'],
+ '2026-08-USDT':['FEE-20260819-003377'],
+ '2026-08-EUR':['FEE-20260809-003118'],
+ '2026-10':['FEE-20261001-000012','FEE-20261003-000061','FEE-20261006-000124','FEE-20261008-000171','FEE-20261010-000205','FEE-20261005-000098','FEE-20261011-000238','FEE-20261013-000271']
+};
+function stCls(s){return s==='待确认'?'warn':s==='已出账'?'info':s==='已收款'?'ok':s==='已核销'?'gold':'';}
+function stBadge(s){return '<span class="badge '+stCls(s)+'">'+s+'</span>';}
+function billDetail(id){
+  var b=BILLS[id];if(!b)return;
+  var t=document.getElementById('dlgBillTitle');if(t)t.textContent='账单明细 · '+b.billNo;
+  var m=document.getElementById('dlgBillMeta');
+  if(m)m.innerHTML='账期 <b style="color:var(--text)">'+b.period+'</b> · 渠道 '+b.channel+' · 币种 '+b.cur+' · 金额 <span class="mono b" style="color:var(--text)">'+b.amt+'</span> · 状态 '+stBadge(b.status);
+  var docs=BILL_DOCS[id]||[],no=DOC_NO[id]||[],h='';
+  for(var i=0;i<docs.length;i++){
+    h+='<tr><td><span class="mono">'+(no[i]||'—')+'</span></td><td>'+docs[i][0]+'</td><td><span class="mono b">'+docs[i][1]+'</span></td><td class="mono">'+b.period+'</td></tr>';
+  }
+  var bd=document.getElementById('dlgBillBody');
+  if(bd)bd.innerHTML=h||'<tr><td colspan="4" class="dim">该账期暂无费用单据</td></tr>';
+  var bt=document.getElementById('dlgBillTotal');
+  if(bt)bt.innerHTML='合计：<span class="mono b">'+b.total+'</span>';
+  openOv('m-bill');
+}
+function openPay(){
+  var target=null,k;
+  for(k in BILLS){if(BILLS[k].status==='已出账'){target=BILLS[k];break;}}
+  var cur=document.getElementById('payCur'),amt=document.getElementById('payAmt'),ref=document.getElementById('payRef'),hint=document.getElementById('payHint');
+  if(target&&cur&&amt){cur.value=target.cur;amt.value=target.amt;}
+  if(ref)ref.value='';
+  if(hint&&target)hint.textContent='对应账单：'+target.billNo+'-'+target.cur+'（参考号 '+target.billNo+'-'+target.cur+'）';
+  openOv('m-paid');
+}
+function renderBillRow(id){
+  var b=BILLS[id],tr=document.getElementById('bill-'+id);if(!b||!tr)return;
+  var st=tr.querySelector('[data-bill-st]');
+  if(st){st.className='badge '+stCls(b.status);st.textContent=b.status;}
+  var op=tr.querySelector('[data-bill-op]');
+  if(op){op.innerHTML='<button class="btn btn-sm btn-ghost" data-bill="'+id+'" onclick="billDetail(this.dataset.bill)">查看明细</button>'+(b.paid?'<div class="dim" style="font-size:11px;margin-top:4px">已登记汇款 '+b.paid.date+'</div>':'');}
+}
+function submitPay(){
+  var cur=document.getElementById('payCur').value;
+  var amt=(document.getElementById('payAmt').value||'').replace(/[,\s]/g,'');
+  var ref=(document.getElementById('payRef').value||'').replace(/\s/g,'');
+  var dt=document.getElementById('payDate').value;
+  if(!amt||isNaN(Number(amt))||Number(amt)<=0){toast('请填写正确的汇款金额');return;}
+  if(!ref){toast('请填写银行流水号，便于平台核对到账');return;}
+  var id='',k;
+  for(k in BILLS){if(BILLS[k].status==='已出账'&&BILLS[k].cur===cur){id=k;break;}}
+  if(!id){toast('当前没有该币种下「已出账」的账单，无需登记');return;}
+  BILLS[id].status='待确认';
+  BILLS[id].paid={amt:amt,ref:ref,date:dt};
+  renderBillRow(id);
+  closeOv('m-paid');
+  toast('已登记汇款凭证：'+BILLS[id].billNo+'-'+cur+' 状态更新为「待确认」');
+}
 document.addEventListener('keydown',function(e){if(e.key==='Escape'){var o=document.querySelectorAll('.ov.on');for(var i=0;i<o.length;i++)o[i].classList.remove('on');var d=document.querySelectorAll('.drawer.on');for(var j=0;j<d.length;j++)d[j].classList.remove('on');}});
 document.addEventListener('click',function(e){var t=e.target;if(t&&t.classList&&t.classList.contains('ov')&&t.classList.contains('on')){t.classList.remove('on');}});
 window.addEventListener('DOMContentLoaded',function(){

@@ -168,19 +168,17 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
 
 <aside class="sidebar">
   <div class="sidebar-brand">
-    <div class="logo"><span class="logo-mark">Y</span>YASBe 平台管理</div>
+    <a class="logo" href="index.html"><span class="logo-mark">Y</span>YASBe 平台管理</a>
     <div class="logo-sub">白标租户管理</div>
   </div>
   <nav class="sidebar-nav">
-    <div class="sidebar-group">租户运营</div>
+    <div class="sidebar-group">白标租户管理</div>
+    <a class="sidebar-item" href="index.html"><span class="ico">■</span>原型目录</a>
     <a class="sidebar-item active" href="2026-10-12_白标租户列表_管理端.html"><span class="ico">▦</span>租户列表</a>
-    <a class="sidebar-item" href="2026-10-12_白标租户开通向导_管理端.html"><span class="ico">＋</span>开通向导</a>
-    <div class="sidebar-group">日常作业</div>
-    <a class="sidebar-item" href="#" onclick="alert('[PM 备注] 待办中心将在后续增量产出');return false;"><span class="ico">☰</span>待办中心</a>
-    <a class="sidebar-item" href="#" onclick="alert('[PM 备注] 用量与收入将在后续增量产出');return false;"><span class="ico">◔</span>用量与收入</a>
+    <a class="sidebar-item" href="2026-10-15_VA列表_管理端.html"><span class="ico">▤</span>VA 列表</a>
+    <a class="sidebar-item" href="2026-10-15_开户记录_管理端.html"><span class="ico">▥</span>开户记录</a>
+    <a class="sidebar-item" href="2026-10-15_交易流水查询_管理端.html"><span class="ico">≡</span>交易流水查询</a>
     <a class="sidebar-item" href="2026-10-15_结算与对账_管理端.html"><span class="ico">⇄</span>结算与对账</a>
-    <a class="sidebar-item" href="#" onclick="alert('[PM 备注] 交易流水查询将在后续增量产出');return false;"><span class="ico">≡</span>交易流水查询</a>
-    <div class="sidebar-group">平台治理</div>
     <a class="sidebar-item" href="2026-10-15_权限与审计日志_管理端.html"><span class="ico">▣</span>权限与审计日志</a>
   </nav>
   <div class="sidebar-foot">v0.1 · 一期原型</div>
@@ -191,17 +189,17 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
   <div class="pmnote"><b>PM 备注</b>本页为「租户详情」下级页。能力与额度为平台超管专属（租户侧只读）；风控闸门为平台可见可调、租户侧无入口。</div>
   <div class="header">
     <div>
-      <div class="crumb">白标租户管理 / 租户列表 / <b>星桥跨境科技</b> / <b>能力与额度</b></div>
-      <h1>能力与额度 · 星桥跨境科技</h1>
+      <div class="crumb">白标租户管理 / <a class="crumb-link" style="color:#8b93a1;text-decoration:none;" href="2026-10-12_白标租户列表_管理端.html">租户列表</a> / <a class="crumb-link" style="color:#8b93a1;text-decoration:none;" href="2026-10-15_租户详情总览_管理端.html">星桥支付 StarBridge</a> / <b>能力与额度</b></div>
+      <h1>能力与额度 · 星桥支付 StarBridge</h1>
       <p>能力矩阵开关 · 额度配置 · 通道与币种授权 · 风控闸门（只读）· 授权变更审计</p>
     </div>
     <div style="display:flex;gap:10px;"><button class="btn btn-outline" onclick="location.href='2026-10-15_租户详情总览_管理端.html'">⬅ 返回租户详情</button></div>
   </div>
 
   <div class="container">
-  <div class="subnav-local">租户详情：<a class="crumb-link" href="2026-10-15_租户详情总览_管理端.html">详情总览</a> · <a class="crumb-link" href="2026-10-15_品牌配置_管理端.html">品牌配置</a> · <a class="crumb-link" href="2026-10-15_域名与邮件_管理端.html">域名与邮件</a> · <span class="crumb-cur">能力与额度</span> · <a class="crumb-link" href="2026-10-15_费率与计费_管理端.html">费率与计费</a></div>
-  <div class="tip"><b>前置条件</b>租户状态 ∈ {ACTIVE, CONTRACT_SIGNED（预配）}；能力开关与额度变更均落审计，变更后可指定生效时间。</div>
-  <div class="pmnote dem"><b>PM 备注</b>字段依据 F-501（能力矩阵开关：卡发行 / 虚拟账户 / 加密出入金 / 法币出入金 / API 接入 / 白标门户，逐项开 / 关 + 生效时间）+ F-502（额度配置：单次开卡上限、持卡人上限、人均卡数、交易限额、日 / 月累计限额）+ F-503（通道与币种授权：USD=Bridge、EUR/GBP=OpenPayd）+ F-504（风控闸门：阈值与拦截规则仅平台可见可调，租户侧只看到结果口径、无覆盖入口）+ F-505（授权变更审计：操作人 / 前后值 / 生效时间）。</div>
+  <div class="subnav-local">租户详情：<a class="crumb-link" href="2026-10-15_租户详情总览_管理端.html">详情总览</a> · <span class="crumb-cur">能力与额度</span> · <a class="crumb-link" href="2026-10-15_费率与计费_管理端.html">费率与计费</a></div>
+  <div class="tip"><b>前置条件</b>租户状态 = 已开户（暂停态下能力开关与额度只读）；能力开关与额度变更均落审计，变更后可指定生效时间。</div>
+  <div class="pmnote dem"><b>PM 备注</b>字段依据 F-501（能力矩阵开关，MVP 收敛为「法币虚拟账户（VA）」与「API 接入」两项，逐项开 / 关 + 生效时间）+ F-502（额度配置：单笔入金 / 出金上限、虚拟账户数量上限、日 / 月累计限额）+ F-503（通道与币种授权：USD=Bridge、EUR/GBP=OpenPayd）+ F-504（风控闸门：阈值与拦截规则仅平台可见可调，租户侧只看到结果口径、无覆盖入口）+ F-505（授权变更审计：操作人 / 前后值 / 生效时间）。</div>
 
   <div class="card">
     <h2>能力矩阵开关</h2>
@@ -210,13 +208,9 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
       <table>
         <thead><tr><th>能力</th><th>说明</th><th>状态</th><th>生效时间</th><th>操作</th></tr></thead>
         <tbody>
-          <tr><td class="t-name">法币出入金<div class="t-sub">fiat</div></td><td>通道：USD=Bridge</td><td><span class="pill pill-ok">已开启</span></td><td>2026-10-12 16:48</td><td class="ops"><a onclick="openModal('modalAbility')">关闭</a></td></tr>
-          <tr><td class="t-name">卡片发行<div class="t-sub">card</div></td><td>卡产品与持卡人管理</td><td><span class="pill pill-ok">已开启</span></td><td>2026-10-12 16:48</td><td class="ops"><a onclick="openModal('modalAbility')">关闭</a></td></tr>
+          <tr><td class="t-name">法币虚拟账户（VA）<div class="t-sub">fiat_va</div></td><td>USD 虚拟账户 · 通道 Bridge</td><td><span class="pill pill-ok">已开启</span></td><td>2026-10-12 16:48</td><td class="ops"><a onclick="openModal('modalAbility')">关闭</a></td></tr>
           <tr><td class="t-name">API 接入<div class="t-sub">api</div></td><td>Sandbox / Prod 双套密钥</td><td><span class="pill pill-ok">已开启</span></td><td>2026-10-08 11:02</td><td class="ops"><a onclick="openModal('modalAbility')">关闭</a></td></tr>
-          <tr><td class="t-name">加密出入金<div class="t-sub">crypto</div></td><td>需完成地址风险扫描接入</td><td><span class="pill pill-warn">待切生产（受限中）</span></td><td>—</td><td class="ops"><a onclick="openModal('modalAbility')">切生产</a></td></tr>
-          <tr><td class="t-name">虚拟账户<div class="t-sub">va</div></td><td>EUR / GBP 独立虚拟账户</td><td><span class="pill pill-gray">未授权</span></td><td>—</td><td class="ops"><a onclick="openModal('modalAbility')">授权</a></td></tr>
-          <tr><td class="t-name">白标门户<div class="t-sub">portal</div></td><td>自有品牌门户与域名</td><td><span class="pill pill-gray">未授权</span></td><td>—</td><td class="ops"><a onclick="openModal('modalAbility')">授权</a></td></tr>
-        </tbody>
+          </tbody>
       </table>
     </div></div>
   </div>
@@ -226,24 +220,29 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
       <h2>额度配置</h2>
       <div class="card-sub">F-502 · 限额口径以平台风控为准，租户区间内可申请调整</div>
       <div class="form-grid">
-        <div class="form-group"><label>单次开卡上限（USD）</label><input value="5,000"></div>
-        <div class="form-group"><label>持卡人上限</label><input value="500"></div>
-        <div class="form-group"><label>人均卡数</label><input value="3"></div>
-        <div class="form-group"><label>单笔交易限额（USD）</label><input value="20,000"></div>
+        <div class="form-group"><label>单笔入金上限（USD）</label><input value="40,000"></div>
+        <div class="form-group"><label>单笔出金上限（USD）</label><input value="20,000"></div>
+        <div class="form-group"><label>虚拟账户数量上限</label><input value="500"></div>
         <div class="form-group"><label>日累计限额（USD）</label><input value="200,000"></div>
         <div class="form-group"><label>月累计限额（USD）</label><input value="3,000,000"></div>
       </div>
+      <div class="form-group"><label>最低储备金（USD）</label><input value="40,000"></div>
+        <div class="form-group"><label>储备金预警线（USD）</label><input value="2,000"></div>
+      </div>
+      <div class="tip" style="margin-top:12px;"><b>阈值口径</b>最低储备金来自合同 / 平台下发；<b>预警线租户可调高不可调低</b>。储备金三档：充足 ≥ 预警线｜预警（放行 + 通知财务与 Admin）｜不足（出金拦截、仍可充值）。</div>
+      <div class="form-grid" style="margin-top:12px;">
       <div class="kv"><span class="k">本月已用</span><span class="v">$860,420 / $3,000,000（28.7%）</span></div>
       <div style="margin-top:14px;"><button class="btn btn-primary" onclick="alert('[原型演示] 额度已保存，变更已写入授权变更审计')">保存额度</button></div>
     </div>
     <div class="card">
       <h2>通道与币种授权</h2>
       <div class="card-sub">F-503 · 通道由平台统一接入，租户仅可选用已授权范围</div>
-      <div class="kv"><span class="k">USD 通道</span><span class="v"><span class="pill pill-ok">Bridge</span> 收款 / 付款 / 换汇</span></div>
-      <div class="kv"><span class="k">EUR · GBP 通道</span><span class="v"><span class="pill pill-gray">OpenPayd（Linked Client）· 未开通</span></span></div>
-      <div class="kv"><span class="k">已授权币种</span><span class="v">USD · USDT · USDC</span></div>
-      <div class="kv"><span class="k">可申请币种</span><span class="v">EUR · GBP · HKD</span></div>
-      <div class="tip" style="margin-top:12px;">币种授权与通道绑定：未授权通道的币种不可用于收款或换汇。</div>
+      <div class="kv"><span class="k">USD</span><span class="v">ACH / Wire · 通道 <span class="mini">Bridge（仅平台内部）</span> · <span class="pill pill-ok">已授权</span></span></div>
+      <div class="kv"><span class="k">EUR</span><span class="v">SEPA 转账 · 通道 <span class="mini">OpenPayd（仅平台内部）</span> · <span class="pill pill-ok">已授权</span></span></div>
+      <div class="kv"><span class="k">GBP</span><span class="v">Faster Payments · 通道 <span class="mini">OpenPayd（仅平台内部）</span> · <span class="pill pill-gray">未开通</span></span></div>
+      <div class="kv"><span class="k">储备金充值</span><span class="v">线下打款（法币）· 收 U（USDT / USDC，以太链 / 波场链）—— 平台管理端手动入账</span></div>
+      <div class="kv"><span class="k">收款信息字段组</span><span class="v">USD 账号 + 路由号；EUR IBAN + BIC；GBP Sort Code + 账号</span></div>
+      <div class="tip" style="margin-top:12px;">币种与支付方式为固定枚举 <b>USD / EUR / GBP</b>（与「租户业务台」一致）；<b>通道品牌名仅平台侧可见</b>，租户侧与终端用户界面均不展示。路由码位数以上游开户返回为准，前端不硬编码校验。</div>
     </div>
   </div>
 
@@ -251,7 +250,6 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
     <h2>风控闸门（只读）</h2>
     <div class="card-sub">F-504 · 阈值与拦截规则仅平台可见可调；租户侧无覆盖入口</div>
     <div class="tip warn"><b>平台专属</b>本区块只在平台管理端展示：<b>租户侧无入口、不可查看、不可覆盖</b>。租户在与终端客户的界面中只会看到风控结果口径。</div>
-    <div class="kv" style="margin-top:12px;"><span class="k">加密地址风险阈值</span><span class="v">risk_level ≥ 3 转人工（0-2 自动通过）</span></div>
     <div class="kv"><span class="k">单笔异地 / 异常频次拦截</span><span class="v">10 分钟 ≥ 20 笔 · 命中即挂起</span></div>
     <div class="kv"><span class="k">拦结后处置</span><span class="v">入金拒结 → 自动退款；出金拒结 → 退回发起方</span></div>
     <div class="kv"><span class="k">调整入口</span><span class="v"><a style="color:#E59303;text-decoration:none;" onclick="alert('[PM 备注] 风控阈值由平台风控在平台侧统一维护，本页仅只读展示')">平台风控 ›</a></span></div>
@@ -264,7 +262,7 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
       <table>
         <thead><tr><th>时间</th><th>操作人</th><th>变更项</th><th>前值 → 后值</th><th>生效时间</th></tr></thead>
         <tbody>
-          <tr><td>2026-10-12 16:48</td><td>平台超管</td><td>能力 · 法币出入金</td><td>关闭 → 开启</td><td>2026-10-12 16:48</td></tr>
+          <tr><td>2026-10-12 16:48</td><td>平台超管</td><td>能力 · 法币虚拟账户（VA）</td><td>关闭 → 开启</td><td>2026-10-12 16:48</td></tr>
           <tr><td>2026-10-10 09:15</td><td>平台超管</td><td>额度 · 月累计限额</td><td>$1,000,000 → $3,000,000</td><td>2026-10-10 09:15</td></tr>
           <tr><td>2026-10-08 11:02</td><td>平台超管</td><td>能力 · API 接入</td><td>未授权 → 开启（Sandbox）</td><td>2026-10-08 11:02</td></tr>
         </tbody>
@@ -277,9 +275,9 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
   <div class="modal-overlay" id="modalAbility"><div class="modal">
     <div class="modal-header"><h2>变更能力授权</h2><button class="modal-close" onclick="closeModal('modalAbility')">✕</button></div>
     <div class="modal-body">
-      <div class="tip warn"><b>影响面</b>关闭能力后该租户对应接口立即返回不可用；已发生交易不受影响。加密 / 卡片等能力关闭时，存量载体进入只读状态。</div>
-      <div class="form-group" style="margin-top:16px;"><label>生效时间</label><select><option>立即生效</option><option>指定时间生效</option><option>下个结算周期生效</option></select></div>
-      <div class="form-group"><label>变更原因</label><textarea placeholder="例：租户申请开通加密出入金"></textarea></div>
+      <div class="tip warn"><b>影响面</b>关闭后该租户法币 VA 接口立即返回不可用；已发生交易不受影响，存量虚拟账户进入只读状态。</div>
+      <div class="form-group" style="margin-top:16px;"><label>生效时间</label><select><option>立即生效</option><option>指定时间生效</option><option>下个自然月生效</option></select></div>
+      <div class="form-group"><label>变更原因</label><textarea placeholder="例：租户申请开通法币 VA"></textarea></div>
     </div>
     <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modalAbility')">取消</button><button class="btn btn-primary" onclick="confirmAbility()">确认变更</button></div>
   </div></div>

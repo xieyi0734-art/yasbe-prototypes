@@ -161,6 +161,22 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
 .mini{font-size:12px;color:#9aa1ad}
 .swatch{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:6px;border:1px solid rgba(0,0,0,.08)}
 
+.cur-lines{display:flex;flex-direction:column;gap:5px;margin-top:2px}
+.cur-lines div{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13.5px;color:#1D2129}
+.cur-lines div span{font-size:11.5px;color:#9ca3af;font-weight:500}
+.cur-lines div b{font-weight:700;letter-spacing:-.2px}
+.bill-amt{font-weight:600;white-space:nowrap}
+.radio-row{display:flex;gap:20px;align-items:center;margin-top:2px}
+.radio-row label{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:400;color:#374151;cursor:pointer}
+.radio-row input{accent-color:#E59303}
+.ops a.dis{color:#c3cad4;cursor:not-allowed}
+.toast-wrap{position:fixed;right:20px;top:20px;z-index:3000;display:flex;flex-direction:column;gap:8px}
+.toast{background:#1D2129;color:#fff;border-left:3px solid #E59303;border-radius:8px;padding:11px 16px;font-size:12.5px;line-height:1.6;max-width:440px;box-shadow:0 8px 24px rgba(0,0,0,.18);animation:tin .18s ease}
+.toast.ok{border-left-color:#059669}
+@keyframes tin{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.tip.danger{background:#fef2f2;border-color:#fecaca;color:#b91c1c}
+.tip.danger b{color:#991b1b}
+.st-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:#6b7280;margin-top:12px;align-items:center}
 </style>
 </head>
 <body>
@@ -168,19 +184,17 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
 
 <aside class="sidebar">
   <div class="sidebar-brand">
-    <div class="logo"><span class="logo-mark">Y</span>YASBe 平台管理</div>
+    <a class="logo" href="index.html"><span class="logo-mark">Y</span>YASBe 平台管理</a>
     <div class="logo-sub">白标租户管理</div>
   </div>
   <nav class="sidebar-nav">
-    <div class="sidebar-group">租户运营</div>
+    <div class="sidebar-group">白标租户管理</div>
+    <a class="sidebar-item" href="index.html"><span class="ico">■</span>原型目录</a>
     <a class="sidebar-item" href="2026-10-12_白标租户列表_管理端.html"><span class="ico">▦</span>租户列表</a>
-    <a class="sidebar-item" href="2026-10-12_白标租户开通向导_管理端.html"><span class="ico">＋</span>开通向导</a>
-    <div class="sidebar-group">日常作业</div>
-    <a class="sidebar-item" href="#" onclick="alert('[PM 备注] 待办中心将在后续增量产出');return false;"><span class="ico">☰</span>待办中心</a>
-    <a class="sidebar-item" href="#" onclick="alert('[PM 备注] 用量与收入将在后续增量产出');return false;"><span class="ico">◔</span>用量与收入</a>
+    <a class="sidebar-item" href="2026-10-15_VA列表_管理端.html"><span class="ico">▤</span>VA 列表</a>
+    <a class="sidebar-item" href="2026-10-15_开户记录_管理端.html"><span class="ico">▥</span>开户记录</a>
+    <a class="sidebar-item" href="2026-10-15_交易流水查询_管理端.html"><span class="ico">≡</span>交易流水查询</a>
     <a class="sidebar-item active" href="2026-10-15_结算与对账_管理端.html"><span class="ico">⇄</span>结算与对账</a>
-    <a class="sidebar-item" href="#" onclick="alert('[PM 备注] 交易流水查询将在后续增量产出');return false;"><span class="ico">≡</span>交易流水查询</a>
-    <div class="sidebar-group">平台治理</div>
     <a class="sidebar-item" href="2026-10-15_权限与审计日志_管理端.html"><span class="ico">▣</span>权限与审计日志</a>
   </nav>
   <div class="sidebar-foot">v0.1 · 一期原型</div>
@@ -188,109 +202,461 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
 
 <div class="main">
   <button class="pmnote-toggle" onclick="document.body.classList.toggle('hide-pmnote');this.textContent=document.body.classList.contains('hide-pmnote')?'显示备注':'隐藏备注'">隐藏备注</button>
-  <div class="pmnote"><b>PM 备注</b>本页为一级菜单页（平台财务主用，租户管理员只读且仅看自己）。结算周期在租户合同的「结算周期」字段维护（T+1 / T+7 可配）；争议挂账冻结单笔，裁定结论同步至租户对账单。</div>
+  <div class="pmnote"><b>PM 备注</b>口径依据 PRD v1.2 §4.8：结算是<b style="color:#FFCA00">账期账单</b>（自然月 × 渠道 × 币种），状态四态 <b>待确认 → 已出账 → 已收款 → 已核销</b>；全部费用<b>线下打款</b>，财务收款后登记流水并核销。支持部分收款（核销金额可小于账单金额，差额走调整单），一笔收款可跨多张账单核销。结算不再使用英文状态机，统一按账期账单四态流转。账单金额来自费用单据的价格快照，费率改价不追溯。</div>
+
   <div class="header">
     <div>
-      <div class="crumb">白标租户管理 / <b>结算与对账</b></div>
-      <h1>结算与对账</h1>
-      <p>分润规则 · 租户子账 · 结算单 · 争议处理 · 账单归属 · 欠费与降级</p>
+      <div class="crumb">平台管理 / <b>结算与对账</b></div>
+      <h1>结算与对账 · 账期账单</h1>
+      <p>自然月 × 渠道 × 币种 · 待确认 → 已出账 → 已收款 → 已核销 · 线下打款 · 财务核销 · 争议裁定</p>
     </div>
-    <div style="display:flex;gap:10px;"><button class="btn btn-outline" onclick="alert('[原型演示] 导出本期结算汇总 CSV')">⬇ 导出汇总</button>
-      <button class="btn btn-primary" onclick="alert('[PM 备注] 结算周期在租户合同「结算周期」字段维护（T+1 / T+7）')">结算周期设置</button></div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-outline" onclick="exportBills()">⬇ 导出账单</button>
+      <a class="btn btn-secondary" href="2026-10-15_费率与计费_管理端.html">← 渠道费率表</a>
+    </div>
   </div>
 
   <div class="container">
+    <div class="stats">
+      <div class="stat">
+        <div class="s-label">待收款金额</div>
+        <div class="cur-lines">
+          <div><span>USD</span><b>$9,600.80</b></div>
+          <div><span>EUR</span><b>€480.00</b></div>
+          <div><span>USDT</span><b>1,284.50</b></div>
+        </div>
+        <div class="s-sub">已出账未收款 · 4 张账单</div>
+      </div>
+      <div class="stat">
+        <div class="s-label">已收款待核销</div>
+        <div class="cur-lines">
+          <div><span>EUR</span><b>€1,860.40</b></div>
+          <div><span>USDT</span><b>760.20</b></div>
+        </div>
+        <div class="s-sub">财务已收流水 · 待核销</div>
+      </div>
+      <div class="stat">
+        <div class="s-label">本月已核销</div>
+        <div class="cur-lines">
+          <div><span>USD</span><b>$2,860.00</b></div>
+          <div><span>EUR</span><b>€1,240.00</b></div>
+        </div>
+        <div class="s-sub">2026-09 账期已核销</div>
+      </div>
+      <div class="stat">
+        <div class="s-label">逾期未收款</div>
+        <div class="cur-lines">
+          <div><span>USD</span><b>$1,240.00</b></div>
+          <div><span>EUR</span><b>€480.00</b></div>
+        </div>
+        <div class="s-sub">已出账超 15 天 · 2 张</div>
+      </div>
+    </div>
 
-  <div class="pmnote dem"><b>PM 备注</b>字段依据 F-701（分润规则：平台留存 = 上游成本 + 平台 Markup；租户所得 = 终端定价 − 平台留存；是否含阶梯分成 = 待确认 D6）+ F-702（租户子账：MoR 下资金先入平台主账户，按周期结算至租户预存子账，用于抵扣开卡费与后续消耗）+ F-703（结算单：周期聚合、明细可下钻到交易号，状态 PENDING → CONFIRMED → PAID → CLOSED）+ F-704（争议：发起 → 挂账冻结该笔 → 财务裁定 → 调整或驳回，全链路留痕）+ F-705（账单归属：平台 → 租户出账为平台品牌；租户 → 终端用户出账为其自有品牌，模板可配，平台不代出）+ F-706（欠费与降级：余额不足扣月费 → 宽限期提醒 → 逾期降级，仅暂停增量动作，<b>不自动终止</b>）。</div>
+    <div class="filters" style="margin-top:16px;">
+      <div class="filter-group"><label>账期</label><input id="bMonth" type="month"></div>
+      <div class="filter-group"><label>租户</label><input id="bTenant" placeholder="租户名称，如 星桥"></div>
+      <div class="filter-group"><label>渠道</label>
+        <select id="bCh"><option value="">全部渠道</option><option>Bridge</option><option>OpenPayd</option><option>链上</option></select>
+      </div>
+      <div class="filter-group"><label>币种</label>
+        <select id="bCur"><option value="">全部币种</option><option>USD</option><option>EUR</option><option>GBP</option><option>USDT</option><option>USDC</option></select>
+      </div>
+      <div class="filter-group"><label>状态</label>
+        <select id="bStatus"><option value="">全部状态</option><option>待确认</option><option>已出账</option><option>已收款</option><option>已核销</option></select>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-primary" onclick="billQuery()">查询</button>
+        <button class="btn btn-secondary" onclick="billReset()">重置</button>
+      </div>
+    </div>
 
-  <div class="stats">
-    <div class="stat"><div class="s-label">本期待结算</div><div class="s-value">$48,220.40</div><div class="s-sub">7 个租户 · 周期 T+7（可配 T+1）</div></div>
-    <div class="stat"><div class="s-label">待处理结算单</div><div class="s-value amber">3</div><div class="s-sub">待确认 2 · 待支付 1</div></div>
-    <div class="stat"><div class="s-label">争议挂账</div><div class="s-value">1</div><div class="s-sub">冻结金额 $2,140.00</div></div>
-    <div class="stat"><div class="s-label">欠费宽限期</div><div class="s-value">1</div><div class="s-sub">逾期降级 0 · 已恢复 0</div></div>
-  </div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div class="table-scroll">
+        <table id="billTable">
+          <thead>
+            <tr>
+              <th>账单号</th><th>账期</th><th>租户</th><th>渠道</th><th>币种</th><th>金额</th><th>状态</th><th>到账日期</th><th style="min-width:180px;">操作</th>
+            </tr>
+          </thead>
+          <tbody id="billBody"></tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <div class="pagination-info" id="billInfo">共 0 条</div>
+        <div class="pagination-btns" id="billPager"></div>
+      </div>
+    </div>
 
-  <div class="grid2">
+    <div class="st-legend">
+      <span>状态流转：</span>
+      <span class="badge badge-warn">待确认</span><span>→</span>
+      <span class="badge badge-review">已出账</span><span>→</span>
+      <span class="badge badge-part">已收款</span><span>→</span>
+      <span class="badge badge-active">已核销</span>
+      <span style="margin-left:10px;">待确认 = 账期结束生成、待租户确认金额；已出账 = 账单成立待线下打款；已收款 = 财务登记银行流水；已核销 = 收款与账单勾对完成。</span>
+    </div>
+
     <div class="card">
-      <h2>分润规则</h2>
-      <div class="card-sub">F-701 · 一期为「上游成本 + 平台 Markup」口径</div>
-      <div class="kv"><span class="k">平台留存</span><span class="v">上游成本 + 平台 Markup</span></div>
-      <div class="kv"><span class="k">租户所得</span><span class="v">终端定价 − 平台留存</span></div>
-      <div class="kv"><span class="k">阶梯分成</span><span class="v"><span class="badge badge-warn">待确认 D6</span></span></div>
-      <div class="kv"><span class="k">分润明细</span><span class="v row-actions"><a onclick="alert('[原型演示] 打开分润明细（按租户 / 按费用类型）')">查看明细</a></span></div>
-    </div>
-    <div class="card">
-      <h2>租户子账（MoR）</h2>
-      <div class="card-sub">F-702 · MoR 资金先入平台主账户，再按周期结算至租户预存子账</div>
-      <div class="kv"><span class="k">星桥跨境科技</span><span class="v">$42,180.00 <span class="mini">（预存 · 已达标）</span></span></div>
-      <div class="kv"><span class="k">海联数字</span><span class="v">$18,640.50</span></div>
-      <div class="kv"><span class="k">子账用途</span><span class="v">抵扣开卡费与后续消耗</span></div>
-      <div class="kv"><span class="k">归集账户口径</span><span class="v"><span class="mini">平台账本内容 · 不向客户展示</span></span></div>
+      <h2>争议裁定</h2>
+      <div class="card-sub">租户对账单金额有异议时，先<b>冻结</b>该费用单据（不进账单、不计入账期），再由平台财务裁定「调整」或「驳回」；裁定结论写审计并留痕。</div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>费用单据号</th><th>租户</th><th>金额</th><th>冻结时间</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody id="disputeBody"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
-  <div class="card">
-    <h2>结算单</h2>
-    <div class="card-sub">F-703 · 周期聚合；明细可下钻到交易号；状态 PENDING → CONFIRMED → PAID → CLOSED</div>
-    <div class="filters">
-      <div class="filter-group"><label>租户</label><select><option>全部租户</option><option>星桥跨境科技</option><option>海联数字</option></select></div>
-      <div class="filter-group"><label>状态</label><select><option>全部</option><option>PENDING</option><option>CONFIRMED</option><option>PAID</option><option>CLOSED</option></select></div>
-      <div class="filter-group"><label>周期</label><input value="2026-10-01 ~ 2026-10-31"></div>
-      <button class="btn btn-secondary">查询</button>
-    </div>
-    <div class="table-wrapper"><div class="table-scroll">
-      <table>
-        <thead><tr><th>结算单号</th><th>租户</th><th>周期</th><th>金额（USD）</th><th>状态</th><th>操作</th></tr></thead>
-        <tbody>
-          <tr><td class="mono">ST-2026-10-31-07</td><td class="t-name">星桥跨境科技<div class="t-sub">T+7</div></td><td>2026-10-22 ~ 10-31</td><td>$7,860.20</td><td><span class="badge badge-review">PENDING</span></td><td class="ops"><a onclick="alert('[原型演示] 明细下钻：可按交易号查看每笔）')">明细</a><a onclick="alert('[原型演示] 已确认该结算单')">确认</a></td></tr>
-          <tr><td class="mono">ST-2026-10-31-06</td><td class="t-name">海联数字<div class="t-sub">T+7</div></td><td>2026-10-22 ~ 10-31</td><td>$16,420.00</td><td><span class="badge badge-review">PENDING</span></td><td class="ops"><a onclick="alert('[原型演示] 明细下钻：可按交易号查看每笔')">明细</a><a onclick="alert('[原型演示] 已确认该结算单')">确认</a></td></tr>
-          <tr><td class="mono">ST-2026-10-31-05</td><td class="t-name">星桥跨境科技<div class="t-sub">T+7 · 含争议挂账 $2,140.00</div></td><td>2026-10-12 ~ 10-21</td><td>$23,940.20</td><td><span class="badge badge-warn">CONFIRMED</span></td><td class="ops"><a onclick="alert('[原型演示] 明细下钻：可按交易号查看每笔')">明细</a><a onclick="alert('[原型演示] 已标记支付，等待上游回执')">支付</a></td></tr>
-          <tr><td class="mono">ST-2026-10-21-04</td><td class="t-name">星桥跨境科技</td><td>2026-10-12 ~ 10-21</td><td>$31,120.00</td><td><span class="badge badge-active">PAID</span></td><td class="ops"><a onclick="alert('[原型演示] 明细下钻：可按交易号查看每笔')">明细</a><a onclick="alert('[原型演示] 导出结算单 PDF')">导出</a></td></tr>
-          <tr><td class="mono">ST-2026-09-30-03</td><td class="t-name">星桥跨境科技</td><td>2026-09-21 ~ 09-30</td><td>$18,240.60</td><td><span class="badge badge-off">CLOSED</span></td><td class="ops"><a onclick="alert('[原型演示] 导出结算单 PDF')">导出</a></td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="pagination"><div class="pagination-info">共 5 条</div><div class="pagination-btns"><button class="page-btn" disabled>上一页</button><button class="page-btn active">1</button><button class="page-btn" disabled>下一页</button></div></div>
+  <div class="modal-overlay" id="modalDetail">
+    <div class="modal" style="width:820px;max-width:94vw;">
+      <div class="modal-header"><h2>账单明细</h2><button class="modal-close" onclick="closeModal('modalDetail')">✕</button></div>
+      <div class="modal-body">
+        <div class="kv"><span class="k">账单号 / 账期</span><span class="v mono" id="dtNo">—</span></div>
+        <div class="kv"><span class="k">租户 / 渠道 / 币种</span><span class="v" id="dtTen">—</span></div>
+        <div class="kv"><span class="k">账单金额 / 状态</span><span class="v" id="dtAmt">—</span></div>
+        <div class="table-scroll" style="margin-top:14px;">
+          <table>
+            <thead><tr><th>费用单据号</th><th>交易号</th><th>费用类型</th><th>金额</th><th>价格快照</th></tr></thead>
+            <tbody id="dtBody"></tbody>
+          </table>
+        </div>
+        <div class="summary-row" style="margin-top:12px;border-bottom:none;font-weight:600;"><span class="k">合计</span><span class="v mono" id="dtTotal">—</span></div>
+        <div class="tip" style="margin-top:6px;">明细由该账期该租户该渠道该币种下的费用单据归集；金额取单据价格快照，不随费率改价变化。可下钻到交易号核对原始交易。</div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modalDetail')">关闭</button></div>
     </div>
   </div>
 
-  <div class="card">
-    <h2>争议处理</h2>
-    <div class="card-sub">F-704 · 发起争议 → 挂账冻结该笔 → 财务裁定 → 调整或驳回，全链路留痕</div>
-    <div class="table-wrapper"><div class="table-scroll">
-      <table>
-        <thead><tr><th>交易号</th><th>租户</th><th>金额（USD）</th><th>发起时间</th><th>状态</th><th>操作</th></tr></thead>
-        <tbody>
-          <tr><td class="mono">DEP-77c1a4</td><td>星桥跨境科技</td><td>$2,140.00</td><td>2026-10-14 09:22</td><td><span class="badge badge-warn">挂账冻结 · 裁定中</span></td><td class="ops"><a onclick="alert('[原型演示] 打开裁定面板：调整金额 / 驳回')">裁定</a></td></tr>
-          <tr><td class="mono">FX-31d0be</td><td>海联数字</td><td>$318.75</td><td>2026-10-09 15:04</td><td><span class="badge badge-active">已调整（下期补差）</span></td><td class="ops"><a onclick="alert('[原型演示] 查看裁定记录')">留痕</a></td></tr>
-          <tr><td class="mono">WDR-6ab904</td><td>海联数字</td><td>$2.00</td><td>2026-10-02 10:41</td><td><span class="badge badge-off">已驳回（费率无误）</span></td><td class="ops"><a onclick="alert('[原型演示] 查看裁定记录')">留痕</a></td></tr>
-        </tbody>
-      </table>
-    </div></div>
-  </div>
-
-  <div class="grid2">
-    <div class="card">
-      <h2>账单归属</h2>
-      <div class="card-sub">F-705 · 两级出账，品牌各自归属</div>
-      <div class="kv"><span class="k">平台 → 租户</span><span class="v">平台服务费与成本（平台品牌出账）</span></div>
-      <div class="kv"><span class="k">租户 → 终端用户</span><span class="v">自有品牌出账（模板可配）</span></div>
-      <div class="kv"><span class="k">平台代出</span><span class="v">不代出终端账单</span></div>
-    </div>
-    <div class="card">
-      <h2>欠费与降级</h2>
-      <div class="card-sub">F-706 · 只暂停增量动作，不自动终止租户</div>
-      <div class="kv"><span class="k">宽限期</span><span class="v">站内 + 邮件提醒</span></div>
-      <div class="kv"><span class="k">逾期降级动作</span><span class="v">暂停新开卡 · 暂停新卡激活</span></div>
-      <div class="kv"><span class="k">恢复方式</span><span class="v">补缴后自动恢复</span></div>
-      <div class="tip" style="margin-top:12px;"><b>不自动终止</b>欠费不触发终止租户；终止仅由平台超管显式操作并二次确认。</div>
+  <div class="modal-overlay" id="modalPay">
+    <div class="modal">
+      <div class="modal-header"><h2>登记收款</h2><button class="modal-close" onclick="closeModal('modalPay')">✕</button></div>
+      <div class="modal-body">
+        <div class="kv"><span class="k">账单号</span><span class="v mono" id="pyNo">—</span></div>
+        <div class="kv"><span class="k">账单金额</span><span class="v mono" id="pyBill">—</span></div>
+        <div class="form-grid" style="margin-top:14px;">
+          <div class="form-group"><label>到账日期 *</label><input id="pyDate" type="date" value="2026-10-19"></div>
+          <div class="form-group"><label>币种</label><input id="pyCur" readonly></div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group"><label>到账金额 *</label><input id="pyAmt" class="mono" placeholder="支持部分收款"></div>
+          <div class="form-group"><label>银行流水号 *</label><input id="pyRef" class="mono" placeholder="如 BOC2026101900371"></div>
+        </div>
+        <div class="form-group"><label>付款凭证</label>
+          <div class="file-drop" id="pyFile" onclick="pickFile()">点击上传付款凭证（占位）· PDF / JPG，≤5MB</div>
+        </div>
+        <div class="form-group"><label>备注</label><input id="pyNote" placeholder="如：分两笔到账，本笔为第一笔"></div>
+        <div class="tip warn"><b>线下打款</b>收款登记仅记录银行流水，不发起在线扣款；登记后状态变为「已收款」，核销由财务在收款核对后操作。到账金额小于账单金额时标记「部分收款」。</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('modalPay')">取消</button>
+        <button class="btn btn-primary" onclick="confirmPay()">提交收款登记</button>
+      </div>
     </div>
   </div>
 
+  <div class="modal-overlay" id="modalVerify">
+    <div class="modal">
+      <div class="modal-header"><h2>核销账单</h2><button class="modal-close" onclick="closeModal('modalVerify')">✕</button></div>
+      <div class="modal-body">
+        <div class="kv"><span class="k">账单号</span><span class="v mono" id="vfNo">—</span></div>
+        <div class="kv"><span class="k">账单金额</span><span class="v mono" id="vfBill">—</span></div>
+        <div class="kv"><span class="k">已收金额</span><span class="v mono" id="vfPaid">—</span></div>
+        <div class="form-group" style="margin-top:14px;"><label>本次核销金额 *</label><input id="vfAmt" class="mono"></div>
+        <div class="form-group"><label>核销说明</label><input id="vfNote" placeholder="如：与 2026-10-19 到账流水勾对"></div>
+        <div class="tip danger" style="margin-top:4px;"><b>二次确认</b>核销金额可小于账单金额（= 部分收款），差额需走<b>调整单</b>，不直接冲减账单金额；核销后状态变为「已核销」，写审计留痕，不可撤回。</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('modalVerify')">取消</button>
+        <button class="btn btn-primary" onclick="confirmVerify()">确认核销</button>
+      </div>
+    </div>
   </div>
+
+  <div class="modal-overlay" id="modalDispute">
+    <div class="modal">
+      <div class="modal-header"><h2>争议裁定</h2><button class="modal-close" onclick="closeModal('modalDispute')">✕</button></div>
+      <div class="modal-body">
+        <div class="kv"><span class="k">费用单据号</span><span class="v mono" id="dsNo">—</span></div>
+        <div class="kv"><span class="k">租户 / 金额</span><span class="v" id="dsTen">—</span></div>
+        <div class="form-group" style="margin-top:14px;"><label>裁定结论 *</label>
+          <div class="radio-row">
+            <label><input type="radio" name="dsAct" value="adjust" checked onchange="dsSync()">调整金额（下期账单补差）</label>
+            <label><input type="radio" name="dsAct" value="reject" onchange="dsSync()">驳回（费率无误）</label>
+          </div>
+        </div>
+        <div class="form-group" id="dsAmtBox"><label>调整后金额</label><input id="dsAmt" class="mono" placeholder="如 98.00"></div>
+        <div class="form-group"><label>裁定说明 *</label><input id="dsNote" placeholder="如：按 0.25% 重算，原单据费率快照有误"></div>
+        <div class="tip">裁定结论写审计；调整类结论生成调整单进入下一账期账单，驳回类结论解除冻结并保留原金额。</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('modalDispute')">取消</button>
+        <button class="btn btn-primary" onclick="confirmDispute()">提交裁定</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-wrap" id="toastWrap"></div>
 
 <script>
-document.querySelectorAll('.modal-overlay').forEach(function(el){el.addEventListener('click',function(e){if(e.target===this)this.classList.remove('active');});});
+var BILLS = [
+  {no:'BILL-202610-BRG-001',per:'2026-10',ten:'星桥支付 StarBridge',ch:'Bridge',cur:'USD',amt:'$3,240.80',num:3240.80,st:'已出账',paid:'',recv:0},
+  {no:'BILL-202610-OPD-002',per:'2026-10',ten:'星桥支付 StarBridge',ch:'OpenPayd',cur:'EUR',amt:'€1,860.40',num:1860.40,st:'已收款',paid:'2026-10-18',recv:1860.40},
+  {no:'BILL-202610-BRG-003',per:'2026-10',ten:'Meridian Pay',ch:'Bridge',cur:'USD',amt:'$5,120.00',num:5120.00,st:'待确认',paid:'',recv:0},
+  {no:'BILL-202610-OPD-004',per:'2026-10',ten:'Meridian Pay',ch:'OpenPayd',cur:'GBP',amt:'£942.60',num:942.60,st:'待确认',paid:'',recv:0},
+  {no:'BILL-202610-CHN-005',per:'2026-10',ten:'Nova Bank',ch:'链上',cur:'USDT',amt:'1,284.50 USDT',num:1284.50,st:'已出账',paid:'',recv:0},
+  {no:'BILL-202609-BRG-006',per:'2026-09',ten:'Nova Bank',ch:'Bridge',cur:'USD',amt:'$2,860.00',num:2860.00,st:'已核销',paid:'2026-10-09',recv:2860.00},
+  {no:'BILL-202609-OPD-007',per:'2026-09',ten:'Atlas Wallet',ch:'OpenPayd',cur:'EUR',amt:'€1,240.00',num:1240.00,st:'已核销',paid:'2026-10-08',recv:1240.00},
+  {no:'BILL-202609-CHN-008',per:'2026-09',ten:'Atlas Wallet',ch:'链上',cur:'USDT',amt:'760.20 USDT',num:760.20,st:'已收款',paid:'2026-10-15',recv:760.20},
+  {no:'BILL-202609-BRG-009',per:'2026-09',ten:'Orbit Pay',ch:'Bridge',cur:'USD',amt:'$1,240.00',num:1240.00,st:'已出账',paid:'',recv:0},
+  {no:'BILL-202609-OPD-010',per:'2026-09',ten:'Orbit Pay',ch:'OpenPayd',cur:'EUR',amt:'€480.00',num:480.00,st:'已出账',paid:'',recv:0}
+];
+var BILL_FEES = {
+  'BILL-202610-BRG-001':[['FEE-20261015-0912','DEP-7c41a90f','入金手续费','$112.00','PS-20261015-0912'],['FEE-20261012-0803','SEAT-202610-01','席位费','$49.00','PS-20261012-0803'],['FEE-20261010-0741','WDR-90ab13cd','出金手续费','$3,079.80','PS-20261010-0741']],
+  'BILL-202610-OPD-002':[['FEE-20261015-0911','WDR-31b8e250','出金手续费','€86.40','PS-20261015-0911'],['FEE-20261011-0762','DEP-4c8a1e77','入金手续费','€1,774.00','PS-20261011-0762']],
+  'BILL-202610-BRG-003':[['FEE-20261015-0908','SEAT-202610-03','席位费','$98.00','PS-20261015-0908'],['FEE-20261009-0701','WDR-77c0aa91','出金手续费','$5,022.00','PS-20261009-0701']],
+  'BILL-202610-OPD-004':[['FEE-20261014-0884','DEP-9f02c117','入金手续费','£64.20','PS-20261014-0884'],['FEE-20261008-0688','WDR-2b31d0f4','出金手续费','£878.40','PS-20261008-0688']],
+  'BILL-202610-CHN-005':[['FEE-20261013-0856','WDR-5d77a3c9','出金手续费','3.62 USDT','PS-20261013-0856'],['FEE-20261007-0664','SEAT-202610-05','席位费','1,280.88 USDT','PS-20261007-0664']],
+  'BILL-202609-BRG-006':[['FEE-20260930-1735','WDR-88c1d402','出金手续费','$212.80','PS-20260930-1735'],['FEE-20260926-1651','DEP-1a77b3e9','入金手续费','$2,647.20','PS-20260926-1651']],
+  'BILL-202609-OPD-007':[['FEE-20260928-1688','DEP-4e11f6b0','入金手续费','€1,240.00','PS-20260928-1688']],
+  'BILL-202609-CHN-008':[['FEE-20260927-1671','WDR-6f20c8b1','出金手续费','760.20 USDT','PS-20260927-1671']],
+  'BILL-202609-BRG-009':[['FEE-20260925-1633','WDR-3c88e012','出金手续费','$1,191.00','PS-20260925-1633'],['FEE-20260922-1580','SEAT-202609-01','席位费','$49.00','PS-20260922-1580']],
+  'BILL-202609-OPD-010':[['FEE-20260929-1702','SEAT-202609-02','席位费','€441.00','PS-20260929-1702'],['FEE-20260921-1566','DEP-7b0a52ef','入金手续费','€39.00','PS-20260921-1566']]
+};
+var DISPUTES = [
+  {no:'FEE-20261014-0871',ten:'Novo Retail Ltd',amt:'$100.00',froze:'2026-10-16 10:22',st:'冻结 · 待裁定'},
+  {no:'FEE-20261011-0762',ten:'Orbit Pay',amt:'€24.80',froze:'2026-10-15 16:40',st:'冻结 · 待裁定'},
+  {no:'FEE-20261005-0611',ten:'Meridian Pay',amt:'$318.75',froze:'2026-10-09 15:04',st:'已调整（下期补账）'},
+  {no:'FEE-20261002-0540',ten:'Atlas Wallet',amt:'$2.00',froze:'2026-10-02 10:41',st:'已驳回（费率无误）'}
+];
+var billFiltered = BILLS.slice(), billPageNo = 1, BILL_SIZE = 6;
+var payCtx = null, vfCtx = null, dsCtx = null, payFile = '';
+
+var ST_CLS = {'待确认':'badge-warn','已出账':'badge-review','已收款':'badge-part','已核销':'badge-active'};
+
+function toast(msg, kind){
+  var w = document.getElementById('toastWrap');
+  var d = document.createElement('div');
+  d.className = 'toast' + (kind === 'ok' ? ' ok' : '');
+  d.textContent = msg;
+  w.appendChild(d);
+  setTimeout(function(){ if(d.parentNode) d.parentNode.removeChild(d); }, 4600);
+}
+function openModal(id){ document.getElementById(id).classList.add('active'); }
+function closeModal(id){ document.getElementById(id).classList.remove('active'); }
+
+function billQuery(){
+  var mon = document.getElementById('bMonth').value;
+  var ten = document.getElementById('bTenant').value.trim();
+  var ch = document.getElementById('bCh').value;
+  var cur = document.getElementById('bCur').value;
+  var st = document.getElementById('bStatus').value;
+  billFiltered = BILLS.filter(function(b){
+    if(mon && b.per !== mon) return false;
+    if(ten && b.ten.indexOf(ten) < 0) return false;
+    if(ch && b.ch !== ch) return false;
+    if(cur && b.cur !== cur) return false;
+    if(st && b.st !== st) return false;
+    return true;
+  });
+  billPageNo = 1;
+  renderBills();
+  toast('查询完成：命中 ' + billFiltered.length + ' 张账单（共 ' + BILLS.length + ' 张）');
+}
+function billReset(){
+  document.getElementById('bMonth').value = '';
+  document.getElementById('bTenant').value = '';
+  document.getElementById('bCh').value = '';
+  document.getElementById('bCur').value = '';
+  document.getElementById('bStatus').value = '';
+  billFiltered = BILLS.slice(); billPageNo = 1; renderBills();
+}
+function billPage(n){ billPageNo = n; renderBills(); }
+
+function renderBills(){
+  var total = billFiltered.length;
+  var pages = Math.max(1, Math.ceil(total / BILL_SIZE));
+  if(billPageNo > pages) billPageNo = pages;
+  var start = (billPageNo - 1) * BILL_SIZE;
+  var rows = billFiltered.slice(start, start + BILL_SIZE);
+  var body = document.getElementById('billBody');
+  if(!rows.length){
+    body.innerHTML = '<tr><td colspan="9" style="text-align:center;color:#9ca3af;padding:40px 0;">没有符合条件的账期账单</td></tr>';
+  } else {
+    body.innerHTML = rows.map(function(b){
+      var ops = '<a onclick="openDetail(\'' + b.no + '\')">明细</a>';
+      if(b.st === '已出账'){ ops += ' · <a onclick="openPay(\'' + b.no + '\')">登记收款</a>'; }
+      if(b.st === '已收款'){ ops += ' · <a onclick="openVerify(\'' + b.no + '\')">核销</a>'; }
+      if(b.st === '待确认'){ ops += ' · <a onclick="issueBill(\'' + b.no + '\')">确认出账</a>'; }
+      if(b.st === '已核销'){ ops += ' · <span class="mini">已完成</span>'; }
+      return '<tr>' +
+        '<td class="mono" style="font-weight:600;">' + b.no + '</td>' +
+        '<td class="mono">' + b.per + '</td>' +
+        '<td>' + b.ten + '</td>' +
+        '<td>' + b.ch + '</td>' +
+        '<td>' + b.cur + '</td>' +
+        '<td class="bill-amt mono">' + b.amt + '</td>' +
+        '<td><span class="badge ' + ST_CLS[b.st] + '">' + b.st + '</span></td>' +
+        '<td class="mini mono">' + (b.paid || '—') + '</td>' +
+        '<td class="ops">' + ops + '</td>' +
+      '</tr>';
+    }).join('');
+  }
+  document.getElementById('billInfo').textContent = '共 ' + total + ' 条 · 第 ' + billPageNo + ' / ' + pages + ' 页（每页 ' + BILL_SIZE + ' 条）';
+  var pager = document.getElementById('billPager');
+  var html = '<button class="page-btn" onclick="billPage(' + (billPageNo - 1) + ')"' + (billPageNo === 1 ? ' disabled' : '') + '>上一页</button>';
+  for(var i = 1; i <= pages; i++){
+    html += '<button class="page-btn' + (i === billPageNo ? ' active' : '') + '" onclick="billPage(' + i + ')">' + i + '</button>';
+  }
+  html += '<button class="page-btn" onclick="billPage(' + (billPageNo + 1) + ')"' + (billPageNo === pages ? ' disabled' : '') + '>下一页</button>';
+  pager.innerHTML = html;
+}
+
+function findBill(no){
+  for(var i = 0; i < BILLS.length; i++){ if(BILLS[i].no === no) return BILLS[i]; }
+  return null;
+}
+function issueBill(no){
+  var b = findBill(no); if(!b) return;
+  if(b.st !== '待确认'){ toast('仅「待确认」账单可出账'); return; }
+  b.st = '已出账';
+  renderBills();
+  toast('已出账：' + b.no + ' ' + b.amt + '；状态 待确认 → 已出账，等待租户线下打款（已写审计 · 平台财务 2026-10-19）', 'ok');
+}
+function openDetail(no){
+  var b = findBill(no); if(!b) return;
+  document.getElementById('dtNo').textContent = b.no + ' · ' + b.per;
+  document.getElementById('dtTen').textContent = b.ten + ' · ' + b.ch + ' · ' + b.cur;
+  document.getElementById('dtAmt').innerHTML = b.amt + ' · <span class="badge ' + ST_CLS[b.st] + '">' + b.st + '</span>';
+  var fs = BILL_FEES[b.no] || [];
+  document.getElementById('dtBody').innerHTML = fs.map(function(f){
+    return '<tr><td class="mono">' + f[0] + '</td><td class="mono mini">' + f[1] + '</td><td>' + f[2] + '</td><td class="mono">' + f[3] + '</td><td class="mono mini">' + f[4] + '</td></tr>';
+  }).join('');
+  document.getElementById('dtTotal').textContent = b.amt;
+  openModal('modalDetail');
+}
+
+function openPay(no){
+  var b = findBill(no); if(!b) return;
+  if(b.st !== '已出账'){ toast('仅「已出账」账单可登记收款'); return; }
+  payCtx = b; payFile = '';
+  document.getElementById('pyNo').textContent = b.no;
+  document.getElementById('pyBill').textContent = b.amt;
+  document.getElementById('pyCur').value = b.cur;
+  document.getElementById('pyAmt').value = b.num.toFixed(2);
+  document.getElementById('pyDate').value = '2026-10-19';
+  document.getElementById('pyRef').value = '';
+  document.getElementById('pyNote').value = '';
+  var f = document.getElementById('pyFile');
+  f.textContent = '点击上传付款凭证（占位）· PDF / JPG，≤5MB';
+  f.style.color = '';
+  openModal('modalPay');
+}
+function pickFile(){
+  if(!payCtx) return;
+  payFile = '付款凭证_' + payCtx.no + '.pdf';
+  var f = document.getElementById('pyFile');
+  f.textContent = '✔ ' + payFile + '（占位，已选择）';
+  f.style.color = '#059669';
+}
+function confirmPay(){
+  if(!payCtx) return;
+  var b = payCtx;
+  var d = document.getElementById('pyDate').value;
+  var amt = parseFloat(document.getElementById('pyAmt').value);
+  var ref = document.getElementById('pyRef').value.trim();
+  if(!d){ toast('请选择到账日期'); return; }
+  if(!(amt > 0)){ toast('请填写有效到账金额'); return; }
+  if(!ref){ toast('请填写银行流水号'); return; }
+  if(amt > b.num){ toast('到账金额不能大于账单金额；多余款项请分单核销'); return; }
+  b.st = '已收款'; b.paid = d; b.recv = amt;
+  renderBills();
+  closeModal('modalPay');
+  var sym = b.cur === 'USD' ? '$' : b.cur === 'EUR' ? '€' : b.cur === 'GBP' ? '£' : '';
+  toast('已登记收款：' + b.no + ' 到账 ' + sym + amt.toFixed(2) + (sym ? '' : ' ' + b.cur) + ' · 流水 ' + ref + ' · 凭证 ' + (payFile || '未上传') + (amt < b.num ? ' · 部分收款，差额走调整单' : '') + '；状态 已出账 → 已收款，已写审计（财务 · 2026-10-19）', 'ok');
+}
+
+function openVerify(no){
+  var b = findBill(no); if(!b) return;
+  if(b.st !== '已收款'){ toast('仅「已收款」账单可核销'); return; }
+  vfCtx = b;
+  document.getElementById('vfNo').textContent = b.no;
+  document.getElementById('vfBill').textContent = b.amt;
+  document.getElementById('vfPaid').textContent = b.amt;
+  document.getElementById('vfAmt').value = b.num.toFixed(2);
+  document.getElementById('vfNote').value = '';
+  openModal('modalVerify');
+}
+function confirmVerify(){
+  if(!vfCtx) return;
+  var b = vfCtx;
+  var amt = parseFloat(document.getElementById('vfAmt').value);
+  var note = document.getElementById('vfNote').value.trim();
+  if(!(amt > 0)){ toast('请填写核销金额'); return; }
+  if(amt > b.num){ toast('核销金额不能大于账单金额'); return; }
+  b.st = '已核销';
+  renderBills();
+  closeModal('modalVerify');
+  toast('已核销：' + b.no + ' 核销 ' + amt.toFixed(2) + ' ' + b.cur + (amt < b.num ? '（部分核销，差额 ' + (b.num - amt).toFixed(2) + ' 走调整单）' : '') + '；状态 已收款 → 已核销，已写审计' + (note ? '（' + note + '）' : ''), 'ok');
+}
+
+function dsSync(){
+  var v = document.querySelector('input[name=dsAct]:checked').value;
+  document.getElementById('dsAmtBox').style.display = (v === 'adjust') ? 'block' : 'none';
+}
+function openDispute(no){
+  var d = null;
+  for(var i = 0; i < DISPUTES.length; i++){ if(DISPUTES[i].no === no) d = DISPUTES[i]; }
+  if(!d) return;
+  if(d.st.indexOf('冻结') < 0){ toast('该单据已裁定，结论见留痕'); return; }
+  dsCtx = d;
+  document.getElementById('dsNo').textContent = d.no;
+  document.getElementById('dsTen').textContent = d.ten + ' · ' + d.amt;
+  document.getElementById('dsAmt').value = '';
+  document.getElementById('dsNote').value = '';
+  document.querySelector('input[name=dsAct][value=adjust]').checked = true;
+  dsSync();
+  openModal('modalDispute');
+}
+function confirmDispute(){
+  if(!dsCtx) return;
+  var d = dsCtx;
+  var act = document.querySelector('input[name=dsAct]:checked').value;
+  var note = document.getElementById('dsNote').value.trim();
+  var amt = document.getElementById('dsAmt').value.trim();
+  if(!note){ toast('请填写裁定说明'); return; }
+  if(act === 'adjust' && !amt){ toast('调整金额不能为空'); return; }
+  d.st = (act === 'adjust') ? ('已调整（下期补账）· ' + amt) : '已驳回（费率无误）';
+  renderDisputes();
+  closeModal('modalDispute');
+  toast('裁定已提交：' + d.no + ' → ' + d.st + '；已写审计（平台财务 · 2026-10-19）' + (act === 'adjust' ? '，调整单进入下一账期账单' : '，解除冻结保留原金额'), 'ok');
+}
+function renderDisputes(){
+  document.getElementById('disputeBody').innerHTML = DISPUTES.map(function(d){
+    var cls = d.st.indexOf('冻结') === 0 ? 'badge-warn' : (d.st.indexOf('已调整') === 0 ? 'badge-active' : 'badge-off');
+    var op = d.st.indexOf('冻结') === 0 ? '<a onclick="openDispute(\'' + d.no + '\')">裁定</a>' : '<a onclick="toast(\'裁定留痕：' + d.no + ' · ' + d.st + '\')">留痕</a>';
+    return '<tr><td class="mono">' + d.no + '</td><td>' + d.ten + '</td><td class="mono">' + d.amt + '</td><td class="mini mono">' + d.froze + '</td><td><span class="badge ' + cls + '">' + d.st + '</span></td><td class="ops">' + op + '</td></tr>';
+  }).join('');
+}
+
+function exportBills(){
+  var head = ['账单号','账期','租户','渠道','币种','金额','状态','到账日期'];
+  var lines = [head.join(',')];
+  billFiltered.forEach(function(b){
+    lines.push([b.no, b.per, b.ten, b.ch, b.cur, b.amt, b.st, b.paid || '—'].join(','));
+  });
+  var blob = new Blob(['\ufeff' + lines.join('\n')], {type:'text/csv;charset=utf-8'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '账期账单_' + (document.getElementById('bMonth').value || '全部账期') + '.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  toast('已导出 ' + billFiltered.length + ' 张账期账单（CSV）', 'ok');
+}
+document.addEventListener('DOMContentLoaded', function(){ renderBills(); renderDisputes(); });
+document.querySelectorAll('.modal-overlay').forEach(function(el){
+  el.addEventListener('click', function(e){ if(e.target === this) this.classList.remove('active'); });
+});
 </script>
 </div><!-- /main -->
 

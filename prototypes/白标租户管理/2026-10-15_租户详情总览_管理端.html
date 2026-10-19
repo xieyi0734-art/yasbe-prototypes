@@ -168,19 +168,17 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
 
 <aside class="sidebar">
   <div class="sidebar-brand">
-    <div class="logo"><span class="logo-mark">Y</span>YASBe 平台管理</div>
+    <a class="logo" href="index.html"><span class="logo-mark">Y</span>YASBe 平台管理</a>
     <div class="logo-sub">白标租户管理</div>
   </div>
   <nav class="sidebar-nav">
-    <div class="sidebar-group">租户运营</div>
+    <div class="sidebar-group">白标租户管理</div>
+    <a class="sidebar-item" href="index.html"><span class="ico">■</span>原型目录</a>
     <a class="sidebar-item active" href="2026-10-12_白标租户列表_管理端.html"><span class="ico">▦</span>租户列表</a>
-    <a class="sidebar-item" href="2026-10-12_白标租户开通向导_管理端.html"><span class="ico">＋</span>开通向导</a>
-    <div class="sidebar-group">日常作业</div>
-    <a class="sidebar-item" href="#" onclick="alert('[PM 备注] 待办中心将在后续增量产出');return false;"><span class="ico">☰</span>待办中心</a>
-    <a class="sidebar-item" href="#" onclick="alert('[PM 备注] 用量与收入将在后续增量产出');return false;"><span class="ico">◔</span>用量与收入</a>
+    <a class="sidebar-item" href="2026-10-15_VA列表_管理端.html"><span class="ico">▤</span>VA 列表</a>
+    <a class="sidebar-item" href="2026-10-15_开户记录_管理端.html"><span class="ico">▥</span>开户记录</a>
+    <a class="sidebar-item" href="2026-10-15_交易流水查询_管理端.html"><span class="ico">≡</span>交易流水查询</a>
     <a class="sidebar-item" href="2026-10-15_结算与对账_管理端.html"><span class="ico">⇄</span>结算与对账</a>
-    <a class="sidebar-item" href="#" onclick="alert('[PM 备注] 交易流水查询将在后续增量产出');return false;"><span class="ico">≡</span>交易流水查询</a>
-    <div class="sidebar-group">平台治理</div>
     <a class="sidebar-item" href="2026-10-15_权限与审计日志_管理端.html"><span class="ico">▣</span>权限与审计日志</a>
   </nav>
   <div class="sidebar-foot">v0.1 · 一期原型</div>
@@ -188,11 +186,11 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
 
 <div class="main">
   <button class="pmnote-toggle" onclick="document.body.classList.toggle('hide-pmnote');this.textContent=document.body.classList.contains('hide-pmnote')?'显示备注':'隐藏备注'">隐藏备注</button>
-  <div class="pmnote"><b>PM 备注</b>本页为「租户列表」的下级页（主从两级，面包屑返回，不做 Tab）；详情下挂品牌配置 / 域名与邮件 / 能力与额度 / 费率与计费四个下级页。所有状态变更与账号操作均落审计日志。</div>
+  <div class="pmnote"><b>PM 备注</b>本页为「租户列表」的下级页（主从两级，面包屑返回，不做 Tab）；详情下挂法币 VA / 能力与额度 / 费率与计费三个下级页。所有状态变更与账号操作均落审计日志。</div>
   <div class="header">
     <div>
-      <div class="crumb">白标租户管理 / 租户列表 / <b>星桥跨境科技</b></div>
-      <h1>租户详情 · 星桥跨境科技</h1>
+      <div class="crumb">白标租户管理 / <a class="crumb-link" style="color:#8b93a1;text-decoration:none;" href="2026-10-12_白标租户列表_管理端.html">租户列表</a> / <b>星桥支付 StarBridge</b></div>
+      <h1>租户详情 · 星桥支付 StarBridge</h1>
       <p>主体信息 · KYB 结论与合约 · 运行态 · 关联账号 · 状态变更留痕</p>
     </div>
     <div style="display:flex;gap:10px;"><button class="btn btn-outline" onclick="location.href='2026-10-12_白标租户列表_管理端.html'">⬅ 返回列表</button>
@@ -201,61 +199,63 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
   </div>
 
   <div class="container">
-  <div class="subnav-local">租户详情：<span class="crumb-cur">详情总览</span> · <a class="crumb-link" href="2026-10-15_品牌配置_管理端.html">品牌配置</a> · <a class="crumb-link" href="2026-10-15_域名与邮件_管理端.html">域名与邮件</a> · <a class="crumb-link" href="2026-10-15_能力与额度_管理端.html">能力与额度</a> · <a class="crumb-link" href="2026-10-15_费率与计费_管理端.html">费率与计费</a></div>
-  <div class="pmnote dem"><b>PM 备注</b>字段依据 F-202（主体信息 / KYB 结论 / 合约 / 网关 / 余额 / 能力开关 / 域名与邮件健康态）+ F-203（状态变更：暂停 / 恢复 / 终止）+ F-204（关联账号）。租户详情走主从两级（列表 → 本页），面包屑返回；详情下挂 5 个下级页，不做 Tab。</div>
+  <div class="subnav-local">租户详情：<span class="crumb-cur">详情总览</span> · <a class="crumb-link" href="2026-10-15_能力与额度_管理端.html">能力与额度</a> · <a class="crumb-link" href="2026-10-15_费率与计费_管理端.html">费率与计费</a></div>
+  <div class="pmnote dem"><b>PM 备注</b>字段依据 F-202（主体信息 / KYB 结论 / 合约 / 网关 / 余额 / 能力开关 / VA 运行态）+ F-203（状态变更：暂停 / 恢复 / 终止）+ F-204（关联账号）。租户详情走主从两级（列表 → 本页），面包屑返回；详情下挂 5 个下级页，不做 Tab。</div>
 
   <div class="stats">
-    <div class="stat"><div class="s-label">当前阶段</div><div class="s-value amber">部分生产</div><div class="s-sub">已切生产：法币 · 待切：卡片</div></div>
+    <div class="stat"><div class="s-label">当前阶段</div><div class="s-value amber">已开户</div><div class="s-sub">按笔收费 · 当笔结算</div></div>
     <div class="stat"><div class="s-label">预存子账余额</div><div class="s-value">$42,180.00</div><div class="s-sub">门槛 $20,000 · 已达标</div></div>
-    <div class="stat"><div class="s-label">本月用量</div><div class="s-value">5,120</div><div class="s-sub">笔 · 法币入金 / 出金</div></div>
-    <div class="stat"><div class="s-label">本月应收（USD）</div><div class="s-value gold">$7,860.20</div><div class="s-sub">T+7 · 下期账单 10-22</div></div>
+    <div class="stat"><div class="s-label">本月用量</div><div class="s-value">1,540</div><div class="s-sub">笔 · 法币入金 / 出金</div></div>
+    <div class="stat"><div class="s-label">本月应收（USD）</div><div class="s-value gold">$1,890.40</div><div class="s-sub">当笔结算 · 实时从储备金扣减</div></div>
   </div>
 
   <div class="grid2">
     <div class="card">
       <h2>主体信息</h2>
-      <div class="card-sub">来源：开通向导「企业信息」（F-103）</div>
-      <div class="kv"><span class="k">企业名称</span><span class="v">星桥跨境科技有限公司</span></div>
-      <div class="kv"><span class="k">租户 ID</span><span class="v mono">T-2026-0031</span></div>
-      <div class="kv"><span class="k">注册邮箱</span><span class="v">admin@xingqiao.com</span></div>
+      <div class="card-sub">来源：新增租户弹窗「企业基础信息」（F-103）</div>
+      <div class="kv"><span class="k">企业名称</span><span class="v">星桥支付 StarBridge有限公司</span></div>
+      <div class="kv"><span class="k">租户 ID</span><span class="v mono">WL-1003</span></div>
+      <div class="kv"><span class="k">注册邮箱</span><span class="v">api@starbridge.cn</span></div>
       <div class="kv"><span class="k">法定代表人</span><span class="v">陈立</span></div>
       <div class="kv"><span class="k">联系人 / 电话</span><span class="v">李欣 / +86 138 0000 7788</span></div>
       <div class="kv"><span class="k">注册地址</span><span class="v">上海市浦东新区世纪大道 100 号 32F</span></div>
-      <div class="kv"><span class="k">创建时间</span><span class="v">2026-09-18 14:22</span></div>
+      <div class="kv"><span class="k">创建时间</span><span class="v">2026-08-11 09:40</span></div>
     </div>
     <div class="card">
       <h2>KYB 结论与合约</h2>
       <div class="card-sub">KYB 走线下审核；合同四要素 + 附件登记留痕（F-107）</div>
       <div class="kv"><span class="k">KYB 结论</span><span class="v"><span class="badge badge-active">线下审核通过</span></span></div>
       <div class="kv"><span class="k">登记人 / 时间</span><span class="v">平台超管 · 2026-10-08 10:31</span></div>
-      <div class="kv"><span class="k">合同编号</span><span class="v mono">CT-2026-0031</span></div>
+      <div class="kv"><span class="k">合同编号</span><span class="v mono">CT-2026-1003</span></div>
       <div class="kv"><span class="k">签署 / 生效</span><span class="v">2026-10-08 / 2026-10-15</span></div>
-      <div class="kv"><span class="k">结算周期</span><span class="v">T+7</span></div>
+      <div class="kv"><span class="k">结算方式</span><span class="v">按笔结算（当笔实时扣减）</span></div>
       <div class="kv"><span class="k">附件</span><span class="v">合作协议 · Fee Plan · SLA（3/3）</span></div>
-      <div class="kv"><span class="k">操作</span><span class="v row-actions"><a onclick="alert('[原型演示] 打开合同附件归档')">查看附件</a><a href="2026-10-12_白标租户开通向导_管理端.html">改登记</a></span></div>
+      <div class="kv"><span class="k">操作</span><span class="v row-actions"><a onclick="alert('[原型演示] 打开合同附件归档')">查看附件</a><a onclick="alert('[PM 备注] 原型演示：登记信息在租户档案中修改')">改登记</a></span></div>
     </div>
   </div>
 
   <div class="card">
     <h2>运行态</h2>
-    <div class="card-sub">网关 / 预存 / 能力开关 / 域名与邮件健康态（F-108 · F-501 · F-404 · F-405）</div>
+    <div class="card-sub">网关 / 预存 / 法币 VA 运行态 / 能力开关（F-108 · F-501）</div>
     <div class="grid2">
       <div>
         <div class="kv"><span class="k">支付网关</span><span class="v"><span class="badge badge-active">已绑定</span> Bridge（USD）</span></div>
-        <div class="kv"><span class="k">预存状态</span><span class="v"><span class="badge badge-active">已达标</span> 余额 $42,180.00</span></div>
-        <div class="kv"><span class="k">API 密钥</span><span class="v mono">sk_live_••••••3f21（生产）</span></div>
+        <div class="kv"><span class="k">载体（终端客户）</span><span class="v">486</span></div>
+        <div class="kv"><span class="k">虚拟账户（VA）</span><span class="v">486 个 · USD 434 / EUR 52 · 全部已开通 &nbsp;<a style="color:#E59303;text-decoration:none;" href="2026-10-15_VA列表_管理端.html">查看 VA 列表 →</a></span></div>
+        <div class="kv"><span class="k">费率摘要（按笔 · 当笔结算）</span><span class="v">入金 0.28% · 出金 $2.00/笔 · 换汇 80bps · 退款 $0.50/笔</span></div>
+        <div class="kv"><span class="k">VA 开户费</span><span class="v">个人 $100 / 企业 $1,000（每币种 · 不支持减免）</span></div>
+        <div class="kv"><span class="k">U 收款地址</span><span class="v">以太链 <span class="mono">0x7A3f…9E21</span> · 波场链 <span class="mono">TQ5n8…8Kd</span>（USDT / USDC）</span></div>
+        <div class="kv"><span class="k">储备金</span><span class="v"><span class="badge badge-active">充足</span> 余额 $42,180.00（最低 $40,000.00）</span></div>
+        <div class="kv"><span class="k">API 密钥</span><span class="v mono">受限 key + 生产 key</span></div>
       </div>
       <div>
-        <div class="kv"><span class="k">自定义域名</span><span class="v"><span class="badge badge-active">ACTIVE</span> pay.xingqiao.com</span></div>
-        <div class="kv"><span class="k">SSL 证书</span><span class="v">有效 · 到期 2027-03-14</span></div>
-        <div class="kv"><span class="k">邮件发件域</span><span class="v"><span class="badge badge-active">VERIFIED</span> mail.xingqiao.com</span></div>
+        
       </div>
     </div>
     <div style="margin-top:12px;">
       <span class="mini" style="margin-right:8px;">能力开关：</span>
-      <span class="chip chip-prod">法币出入金</span> <span class="chip chip-prod">卡片发行</span> <span class="chip chip-prod">API 接入</span>
-      <span class="chip chip-limited">加密出入金 · 待切</span> <span class="chip chip-off">虚拟账户 · 未授权</span> <span class="chip chip-off">白标门户 · 未授权</span>
-      <a class="row-actions" style="margin-left:8px;" href="2026-10-15_能力与额度_管理端.html"><a style="color:#E59303;text-decoration:none;font-size:13px;" href="2026-10-15_能力与额度_管理端.html">调整 →</a></a>
+      <span class="chip chip-prod">法币虚拟账户（VA）· 已切生产</span>
+      <a style="color:#E59303;text-decoration:none;font-size:13px;margin-left:8px;" href="2026-10-15_能力与额度_管理端.html">调整 →</a>
     </div>
   </div>
 
@@ -266,9 +266,9 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
       <table>
         <thead><tr><th>账号</th><th>角色</th><th>状态</th><th>最近登录</th><th>操作</th></tr></thead>
         <tbody>
-          <tr><td class="t-name">lixin@xingqiao.com<div class="t-sub">李欣 · 租户管理员</div></td><td>租户管理员</td><td><span class="badge badge-active">启用</span></td><td>2026-10-15 09:12</td><td class="ops"><a onclick="alert('[原型演示] 已向该账号发送重置密码邮件')">重置密码</a><a onclick="alert('[原型演示] 查看该账号登录审计')">登录审计</a></td></tr>
-          <tr><td class="t-name">ops01@xingqiao.com<div class="t-sub">王强 · 运营子账号</div></td><td>租户运营</td><td><span class="badge badge-active">启用</span></td><td>2026-10-14 18:40</td><td class="ops"><a onclick="alert('[原型演示] 已向该账号发送重置密码邮件')">重置密码</a><a onclick="alert('[PM 备注] 停用后该账号立即无法登录，历史操作记录保留')">停用</a></td></tr>
-          <tr><td class="t-name">fin01@xingqiao.com<div class="t-sub">赵敏 · 财务子账号</div></td><td>租户财务</td><td><span class="badge badge-off">已停用</span></td><td>2026-09-30 11:05</td><td class="ops"><a onclick="alert('[原型演示] 已启用该账号')">启用</a><a onclick="alert('[原型演示] 查看该账号登录审计')">登录审计</a></td></tr>
+          <tr><td class="t-name">li.xin@starbridge.cn<div class="t-sub">李欣 · 租户管理员</div></td><td>租户管理员</td><td><span class="badge badge-active">启用</span></td><td>2026-10-15 09:12</td><td class="ops"><a onclick="alert('[原型演示] 已向该账号发送重置密码邮件')">重置密码</a><a onclick="alert('[原型演示] 查看该账号登录审计')">登录审计</a></td></tr>
+          <tr><td class="t-name">ops01@starbridge.cn<div class="t-sub">王强 · 运营子账号</div></td><td>租户运营</td><td><span class="badge badge-active">启用</span></td><td>2026-10-14 18:40</td><td class="ops"><a onclick="alert('[原型演示] 已向该账号发送重置密码邮件')">重置密码</a><a onclick="alert('[PM 备注] 停用后该账号立即无法登录，历史操作记录保留')">停用</a></td></tr>
+          <tr><td class="t-name">fin01@starbridge.cn<div class="t-sub">赵敏 · 财务子账号</div></td><td>租户财务</td><td><span class="badge badge-off">已停用</span></td><td>2026-09-30 11:05</td><td class="ops"><a onclick="alert('[原型演示] 已启用该账号')">启用</a><a onclick="alert('[原型演示] 查看该账号登录审计')">登录审计</a></td></tr>
         </tbody>
       </table>
     </div></div>
@@ -281,9 +281,9 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
       <table>
         <thead><tr><th>时间</th><th>操作人</th><th>变更</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td>2026-10-15 10:02</td><td>平台超管</td><td class="t-name">CONTRACT_SIGNED → PENDING_FUNDING<div class="t-sub">预存到账后自动转 ACTIVE</div></td><td>预存 $42,180.00 到账</td></tr>
-          <tr><td>2026-10-12 16:48</td><td>平台超管</td><td class="t-name">部分生产<div class="t-sub">法币切生产</div></td><td>Gateway 联调通过，法币模块切生产</td></tr>
-          <tr><td>2026-10-08 10:31</td><td>平台超管</td><td class="t-name">SUBMITTED → CONTRACT_SIGNED<div class="t-sub">线下 KYB 通过 + 合同归档</div></td><td>登记合同 CT-2026-0031</td></tr>
+          <tr><td>2026-10-12 16:48</td><td>平台超管</td><td class="t-name">开户完成 → 已开户<div class="t-sub">线下 KYB 核验通过 + 合同归档</div></td><td>登记合同 CT-2026-1003、基础资料与合同归档</td></tr>
+          <tr><td>2026-10-09 10:02</td><td>平台超管</td><td class="t-name">储备金充值到账<div class="t-sub">高于最低储备金 $40,000.00</div></td><td>入账 $42,180.00，状态保持已开户</td></tr>
+          <tr><td>2026-10-08 10:31</td><td>平台超管</td><td class="t-name">基础资料 + 合同登记<div class="t-sub">KYB 走线下</div></td><td>线下完成主体核验与合同用印</td></tr>
         </tbody>
       </table>
     </div></div>
@@ -294,8 +294,8 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
   <div class="modal-overlay" id="modalPause"><div class="modal">
     <div class="modal-header"><h2>暂停租户</h2><button class="modal-close" onclick="closeModal('modalPause')">✕</button></div>
     <div class="modal-body">
-      <div class="tip warn"><b>暂停的后果</b>该租户立即停止新交易（新建载体、入金、出金、开卡、刷卡均被拒绝），存量载体仍可查询、可退回；已绑定域名与邮件域保留。恢复后解除。</div>
-      <div class="form-group" style="margin-top:16px;"><label>租户</label><input type="text" value="星桥跨境科技（T-2026-0031）" readonly></div>
+      <div class="tip warn"><b>暂停的后果</b>该租户立即停止新交易（新建虚拟账户、入金、出金均被拒绝），存量虚拟账户仍可查询、可退回。恢复后解除。</div>
+      <div class="form-group" style="margin-top:16px;"><label>租户</label><input type="text" value="星桥支付 StarBridge（WL-1003）" readonly></div>
       <div class="form-group"><label>暂停原因</label><textarea placeholder="例：资质到期需补件 / 客户申请暂停"></textarea></div>
     </div>
     <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modalPause')">取消</button><button class="btn btn-danger" onclick="confirmPause()">确认暂停</button></div>
@@ -304,8 +304,8 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
   <div class="modal-overlay" id="modalTerm"><div class="modal">
     <div class="modal-header"><h2>终止租户</h2><button class="modal-close" onclick="closeModal('modalTerm')">✕</button></div>
     <div class="modal-body">
-      <div class="tip warn"><b>终止不可逆</b>终止后该租户所有密钥立即失效、门户与域名下线、未结算余额转人工处理；存量载体进入清退流程。请二次确认。</div>
-      <div class="form-group" style="margin-top:16px;"><label>输入租户名称以确认</label><input id="termName" type="text" placeholder="星桥跨境科技"></div>
+      <div class="tip warn"><b>终止不可逆</b>终止后该租户所有密钥立即失效、全部虚拟账户停用、未结算余额转人工处理；存量载体进入清退流程。请二次确认。</div>
+      <div class="form-group" style="margin-top:16px;"><label>输入租户名称以确认</label><input id="termName" type="text" placeholder="星桥支付 StarBridge"></div>
       <div class="form-group"><label>终止原因</label><textarea placeholder="例：客户主动退出 / 重大合规事件"></textarea></div>
     </div>
     <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modalTerm')">取消</button><button class="btn btn-danger" onclick="confirmTerm()">确认终止</button></div>
@@ -320,8 +320,8 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
 <script>
 function openModal(id){document.getElementById(id).classList.add('active');}
 function closeModal(id){document.getElementById(id).classList.remove('active');}
-function confirmPause(){closeModal('modalPause');alert('[原型演示] 星桥跨境科技 已暂停；状态变更已写入审计日志。');}
-function confirmTerm(){var v=document.getElementById('termName').value.trim();if(v!=='星桥跨境科技'){alert('[PM 备注] 租户名称不匹配，不可终止。');return;}closeModal('modalTerm');alert('[原型演示] 已进入终止流程（存量载体清退中）。');}
+function confirmPause(){closeModal('modalPause');alert('[原型演示] 星桥支付 StarBridge 已暂停；状态变更已写入审计日志。');}
+function confirmTerm(){var v=document.getElementById('termName').value.trim();if(v!=='星桥支付 StarBridge'){alert('[PM 备注] 租户名称不匹配，不可终止。');return;}closeModal('modalTerm');alert('[原型演示] 已进入终止流程（存量载体清退中）。');}
 ['modalPause','modalTerm','modalDone'].forEach(function(id){var el=document.getElementById(id);el.addEventListener('click',function(e){if(e.target===this)this.classList.remove('active');});});
 </script>
 </div><!-- /main -->

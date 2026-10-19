@@ -161,6 +161,33 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
 .mini{font-size:12px;color:#9aa1ad}
 .swatch{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:6px;border:1px solid rgba(0,0,0,.08)}
 
+.rate-matrix{min-width:1180px}
+.rate-matrix th{white-space:nowrap;font-size:12px}
+.rate-matrix td{padding:13px 16px;vertical-align:middle}
+.rate-matrix tbody tr:hover{background:#fffdf7}
+.rate-matrix .ch-cell{font-weight:600;white-space:nowrap}
+.rate-cell{cursor:pointer;position:relative;transition:box-shadow .15s,background .15s}
+.rate-cell .v{font-weight:600;color:#1D2129}
+.rate-cell .cell-sub{display:block;font-size:11px;color:#9ca3af;font-weight:400;margin-top:2px}
+.rate-cell:hover{background:#fffbf2;box-shadow:inset 0 0 0 1.5px #E59303}
+.rate-cell.off{color:#b3b9c4;font-size:12.5px}
+.rate-cell.off:hover{background:#f6f7f9;box-shadow:inset 0 0 0 1.5px #c3cad4}
+.rate-cell.na{color:#b3b9c4;font-size:12px;cursor:not-allowed;background:#fbfbfc}
+.rate-cell.na:hover{box-shadow:none;background:#fbfbfc}
+.mx-legend{display:flex;gap:18px;flex-wrap:wrap;font-size:11.5px;color:#6b7280;margin-top:14px}
+.mx-legend span{display:inline-flex;align-items:center;gap:6px}
+.mx-dot{width:10px;height:10px;border-radius:3px;display:inline-block}
+.cur-lines{display:flex;flex-direction:column;gap:4px;margin-top:2px}
+.cur-lines div{display:flex;justify-content:space-between;gap:10px;font-size:14px;color:#1D2129}
+.cur-lines div span{font-size:11.5px;color:#9ca3af;font-weight:500}
+.cur-lines div b{font-weight:700;letter-spacing:-.2px}
+.radio-row{display:flex;gap:20px;align-items:center;margin-top:2px}
+.radio-row label{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:400;color:#374151;cursor:pointer}
+.radio-row input{accent-color:#E59303}
+.toast-wrap{position:fixed;right:20px;top:20px;z-index:3000;display:flex;flex-direction:column;gap:8px}
+.toast{background:#1D2129;color:#fff;border-left:3px solid #E59303;border-radius:8px;padding:11px 16px;font-size:12.5px;line-height:1.6;max-width:420px;box-shadow:0 8px 24px rgba(0,0,0,.18);animation:tin .18s ease}
+.toast.ok{border-left-color:#059669}
+@keyframes tin{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
 </style>
 </head>
 <body>
@@ -168,19 +195,17 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
 
 <aside class="sidebar">
   <div class="sidebar-brand">
-    <div class="logo"><span class="logo-mark">Y</span>YASBe 平台管理</div>
+    <a class="logo" href="index.html"><span class="logo-mark">Y</span>YASBe 平台管理</a>
     <div class="logo-sub">白标租户管理</div>
   </div>
   <nav class="sidebar-nav">
-    <div class="sidebar-group">租户运营</div>
+    <div class="sidebar-group">白标租户管理</div>
+    <a class="sidebar-item" href="index.html"><span class="ico">■</span>原型目录</a>
     <a class="sidebar-item active" href="2026-10-12_白标租户列表_管理端.html"><span class="ico">▦</span>租户列表</a>
-    <a class="sidebar-item" href="2026-10-12_白标租户开通向导_管理端.html"><span class="ico">＋</span>开通向导</a>
-    <div class="sidebar-group">日常作业</div>
-    <a class="sidebar-item" href="#" onclick="alert('[PM 备注] 待办中心将在后续增量产出');return false;"><span class="ico">☰</span>待办中心</a>
-    <a class="sidebar-item" href="#" onclick="alert('[PM 备注] 用量与收入将在后续增量产出');return false;"><span class="ico">◔</span>用量与收入</a>
+    <a class="sidebar-item" href="2026-10-15_VA列表_管理端.html"><span class="ico">▤</span>VA 列表</a>
+    <a class="sidebar-item" href="2026-10-15_开户记录_管理端.html"><span class="ico">▥</span>开户记录</a>
+    <a class="sidebar-item" href="2026-10-15_交易流水查询_管理端.html"><span class="ico">≡</span>交易流水查询</a>
     <a class="sidebar-item" href="2026-10-15_结算与对账_管理端.html"><span class="ico">⇄</span>结算与对账</a>
-    <a class="sidebar-item" href="#" onclick="alert('[PM 备注] 交易流水查询将在后续增量产出');return false;"><span class="ico">≡</span>交易流水查询</a>
-    <div class="sidebar-group">平台治理</div>
     <a class="sidebar-item" href="2026-10-15_权限与审计日志_管理端.html"><span class="ico">▣</span>权限与审计日志</a>
   </nav>
   <div class="sidebar-foot">v0.1 · 一期原型</div>
@@ -188,122 +213,360 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
 
 <div class="main">
   <button class="pmnote-toggle" onclick="document.body.classList.toggle('hide-pmnote');this.textContent=document.body.classList.contains('hide-pmnote')?'显示备注':'隐藏备注'">隐藏备注</button>
-  <div class="pmnote"><b>PM 备注</b>本页为「租户详情」下级页。费率模板由平台财务维护；租户 Override 受授权区间约束。价格快照是关键规则：改价不追溯已发生交易。</div>
+  <div class="pmnote"><b>PM 备注</b>口径依据 PRD v1.2 §4.8：费率按「渠道 × 币种 × 方向 × 费用类型」逐格独立配置，格与格之间不继承、不折算、不取平均；全平台一套价格表，由平台超管维护，<b style="color:#FFCA00">租户不参与定价</b>。不存在租户级价格覆盖、价格区间授权或价格保护机制；未配置费率的组合不可开户、不可交易，不做默认价兜底。改价仅允许「立即」或「指定未来时间」，写审计，不追溯已发生的费用单据（价格快照）。</div>
+
   <div class="header">
     <div>
-      <div class="crumb">白标租户管理 / 租户列表 / <b>星桥跨境科技</b> / <b>费率与计费</b></div>
-      <h1>费率与计费 · 星桥跨境科技</h1>
-      <p>费率模板 · 租户 Override · 优先级与继承 · 价格快照 · Fee Ledger · 费用明细查询</p>
+      <div class="crumb">平台管理 / <b>费率与计费</b></div>
+      <h1>费率与计费 · 渠道费率表</h1>
+      <p>渠道 × 币种 × 方向 × 费用类型 · 逐格独立 · 全平台一套价格表 · 价格快照 · 费用单据查询</p>
     </div>
-    <div style="display:flex;gap:10px;"><button class="btn btn-outline" onclick="location.href='2026-10-15_租户详情总览_管理端.html'">⬅ 返回租户详情</button>
-      <a class="btn btn-secondary" href="2026-10-15_结算与对账_管理端.html">结算与对账 →</a></div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-outline" onclick="exportFees()">⬇ 导出费用单据</button>
+      <a class="btn btn-secondary" href="2026-10-15_结算与对账_管理端.html">账期账单 →</a>
+    </div>
   </div>
 
   <div class="container">
-  <div class="subnav-local">租户详情：<a class="crumb-link" href="2026-10-15_租户详情总览_管理端.html">详情总览</a> · <a class="crumb-link" href="2026-10-15_品牌配置_管理端.html">品牌配置</a> · <a class="crumb-link" href="2026-10-15_域名与邮件_管理端.html">域名与邮件</a> · <a class="crumb-link" href="2026-10-15_能力与额度_管理端.html">能力与额度</a> · <span class="crumb-cur">费率与计费</span></div>
-  <div class="tip"><b>前置条件</b>平台已下发费率模板；租户状态 ≥ CONTRACT_SIGNED。费率变更<b>只影响变更后发生的计费事件</b>。</div>
-  <div class="pmnote dem"><b>PM 备注</b>字段依据 F-601（费率模板：模板 = 一组费用类型的基准价，模板与租户套餐 Tier 绑定）+ F-602（租户 Override：Markup / Discount 只能在授权区间内调整，低于平台底价直接拒绝并提示下限）+ F-603（优先级与继承：租户 Override > 租户模板 > 平台默认；未授权调价的能力沿用模板价）+ F-604（价格快照：所有计费事件取<b>事件发生时刻</b>的价格，改价不追溯已发生交易）+ F-605（计费事件与 Fee Ledger：开卡费 / 充值费 / 交易 Spread(bps) / 月费·席位费 / 提现费 / 退款手续费逐笔落账并挂租户维度）+ F-606（费用明细查询：按租户 / 时间 / 费用类型 / 交易号筛选，支持导出）。</div>
+    <div class="tip"><b>每格独立配置</b>不继承、不折算；<b>未配置定价的组合不可开户、不可交易</b>。价格由平台超管维护，租户不参与定价；改价仅对生效后的计费事件生效，已发生的费用单据按价格快照计费、金额不变。</div>
 
-  <div class="grid2">
-    <div class="card">
-      <h2>费率模板（平台侧）</h2>
-      <div class="card-sub">F-601 · 模板与套餐 Tier 绑定；租户未授权调价时沿用模板价</div>
-      <div class="kv"><span class="k">当前绑定模板</span><span class="v">TPL-FIAT-CARD-A</span></div>
-      <div class="kv"><span class="k">适用套餐（Tier）</span><span class="v">Growth（按量阶梯）</span></div>
-      <div class="kv"><span class="k">模板发布人 / 时间</span><span class="v">平台财务 · 2026-10-01 09:00</span></div>
-      <div class="kv"><span class="k">模板版本</span><span class="v">v4 · 生效中</span></div>
+    <div class="stats" style="margin-top:16px;">
+      <div class="stat">
+        <div class="s-label">渠道 × 币种组合</div>
+        <div class="s-value">5</div>
+        <div class="s-sub">Bridge / OpenPayd / 链上</div>
+      </div>
+      <div class="stat">
+        <div class="s-label">已配置格数</div>
+        <div class="s-value green" id="statCfg">19</div>
+        <div class="s-sub">共 25 格 · 4 格不适用（链上无 VA）</div>
+      </div>
+      <div class="stat">
+        <div class="s-label">未开通定价格数</div>
+        <div class="s-value amber" id="statOff">2</div>
+        <div class="s-sub">该组合不可开户、不可交易</div>
+      </div>
+      <div class="stat">
+        <div class="s-label">本月费用单据</div>
+        <div class="s-value gold">1,284</div>
+        <div class="s-sub">USD $6,182.40 · 分币种见明细</div>
+      </div>
     </div>
+
     <div class="card">
-      <h2>优先级与继承</h2>
-      <div class="card-sub">F-603 · 高优先级覆盖低优先级</div>
-      <ul class="checklist">
-        <li><span class="ck">1</span><div><b>租户 Override</b> · 本租户单独调整</div></li>
-        <li><span class="ck">2</span><div>租户模板 · 套餐 Tier 基准价</div></li>
-        <li><span class="ck">3</span><div>平台默认 · 统一基准价</div></li>
-      </ul>
-      <div class="tip" style="margin-top:12px;"><b>价格快照（F-604）</b>计费事件取<b>事件发生时刻</b>的价格；改价不追溯已发生交易，历史账期金额不变。</div>
+      <h2>渠道费率表</h2>
+      <div class="card-sub">行 = 渠道 × 币种；列 = 费用类型。点击任意可配置格改价（生效时间仅「立即」或「指定未来时间」）。未开通定价的组合置灰，不可开户、不可交易，不做默认价兜底。</div>
+      <div class="table-wrapper" style="box-shadow:none;">
+        <div class="table-scroll">
+          <table class="rate-matrix" id="rateTable">
+            <thead>
+              <tr>
+                <th style="min-width:150px;">渠道 · 币种</th>
+                <th>入金手续费</th>
+                <th>出金手续费</th>
+                <th>席位费<br><span style="font-weight:400;color:#9ca3af;">USD / 管理员席位 · 月</span></th>
+                <th>VA 开户费 · 个人</th>
+                <th>VA 开户费 · 企业</th>
+                <th style="min-width:130px;">最近更新</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-ch="Bridge" data-cur="USD">
+                <td class="ch-cell">Bridge<div class="t-sub">USD · 电汇 / SWIFT</div><span class="badge badge-active">已开通</span></td>
+                <td class="rate-cell" data-ch="Bridge" data-cur="USD" data-type="入金手续费" data-val="0.30%" data-hint="比例，如 0.30%" onclick="openRate(this)"><span class="v">0.30%</span><span class="cell-sub">按入金金额比</span></td>
+                <td class="rate-cell" data-ch="Bridge" data-cur="USD" data-type="出金手续费" data-val="0.50% + $0.20 / 笔" data-hint="比例 + 固定，如 0.50% + $0.20 / 笔" onclick="openRate(this)"><span class="v">0.50% + $0.20</span><span class="cell-sub">比例 + 每笔固定</span></td>
+                <td class="rate-cell" data-ch="Bridge" data-cur="USD" data-type="席位费" data-val="49 USD / 席位 · 月" data-hint="固定金额，如 49 USD / 席位 · 月" onclick="openRate(this)"><span class="v">49</span><span class="cell-sub">USD / 席位 · 月</span></td>
+                <td class="rate-cell" data-ch="Bridge" data-cur="USD" data-type="VA 开户费 · 个人" data-val="100 USD / 币种" data-hint="固定金额，如 100 USD / 币种" onclick="openRate(this)"><span class="v">100</span><span class="cell-sub">USD / 币种 · 固定</span></td>
+                <td class="rate-cell" data-ch="Bridge" data-cur="USD" data-type="VA 开户费 · 企业" data-val="1,000 USD / 币种" data-hint="固定金额，如 1,000 USD / 币种" onclick="openRate(this)"><span class="v">1,000</span><span class="cell-sub">USD / 币种 · 固定</span></td>
+                <td class="mini" data-upd>2026-10-17 09:40</td>
+              </tr>
+              <tr data-ch="OpenPayd" data-cur="EUR">
+                <td class="ch-cell">OpenPayd<div class="t-sub">EUR · Linked Client</div><span class="badge badge-active">已开通</span></td>
+                <td class="rate-cell" data-ch="OpenPayd" data-cur="EUR" data-type="入金手续费" data-val="0.25%" data-hint="比例，如 0.25%" onclick="openRate(this)"><span class="v">0.25%</span><span class="cell-sub">按入金金额比</span></td>
+                <td class="rate-cell" data-ch="OpenPayd" data-cur="EUR" data-type="出金手续费" data-val="0.40% + €0.15 / 笔" data-hint="比例 + 固定，如 0.40% + €0.15 / 笔" onclick="openRate(this)"><span class="v">0.40% + €0.15</span><span class="cell-sub">比例 + 每笔固定</span></td>
+                <td class="rate-cell" data-ch="OpenPayd" data-cur="EUR" data-type="席位费" data-val="45 USD / 席位 · 月" data-hint="固定金额，如 45 USD / 席位 · 月" onclick="openRate(this)"><span class="v">45</span><span class="cell-sub">USD / 席位 · 月</span></td>
+                <td class="rate-cell" data-ch="OpenPayd" data-cur="EUR" data-type="VA 开户费 · 个人" data-val="100 USD / 币种" data-hint="固定金额，如 100 USD / 币种" onclick="openRate(this)"><span class="v">100</span><span class="cell-sub">USD / 币种 · 固定</span></td>
+                <td class="rate-cell" data-ch="OpenPayd" data-cur="EUR" data-type="VA 开户费 · 企业" data-val="1,000 USD / 币种" data-hint="固定金额，如 1,000 USD / 币种" onclick="openRate(this)"><span class="v">1,000</span><span class="cell-sub">USD / 币种 · 固定</span></td>
+                <td class="mini" data-upd>2026-10-17 09:42</td>
+              </tr>
+              <tr data-ch="OpenPayd" data-cur="GBP">
+                <td class="ch-cell">OpenPayd<div class="t-sub">GBP · Linked Client</div><span class="badge badge-active">已开通</span></td>
+                <td class="rate-cell" data-ch="OpenPayd" data-cur="GBP" data-type="入金手续费" data-val="0.28%" data-hint="比例，如 0.28%" onclick="openRate(this)"><span class="v">0.28%</span><span class="cell-sub">按入金金额比</span></td>
+                <td class="rate-cell" data-ch="OpenPayd" data-cur="GBP" data-type="出金手续费" data-val="0.45% + £0.15 / 笔" data-hint="比例 + 固定，如 0.45% + £0.15 / 笔" onclick="openRate(this)"><span class="v">0.45% + £0.15</span><span class="cell-sub">比例 + 每笔固定</span></td>
+                <td class="rate-cell" data-ch="OpenPayd" data-cur="GBP" data-type="席位费" data-val="45 USD / 席位 · 月" data-hint="固定金额，如 45 USD / 席位 · 月" onclick="openRate(this)"><span class="v">45</span><span class="cell-sub">USD / 席位 · 月</span></td>
+                <td class="rate-cell" data-ch="OpenPayd" data-cur="GBP" data-type="VA 开户费 · 个人" data-val="100 USD / 币种" data-hint="固定金额，如 100 USD / 币种" onclick="openRate(this)"><span class="v">100</span><span class="cell-sub">USD / 币种 · 固定</span></td>
+                <td class="rate-cell" data-ch="OpenPayd" data-cur="GBP" data-type="VA 开户费 · 企业" data-val="1,000 USD / 币种" data-hint="固定金额，如 1,000 USD / 币种" onclick="openRate(this)"><span class="v">1,000</span><span class="cell-sub">USD / 币种 · 固定</span></td>
+                <td class="mini" data-upd>2026-10-16 15:05</td>
+              </tr>
+              <tr data-ch="链上" data-cur="USDT">
+                <td class="ch-cell">链上<div class="t-sub">USDT · ETH / TRON</div><span class="badge badge-active">已开通</span></td>
+                <td class="rate-cell" data-ch="链上" data-cur="USDT" data-type="入金手续费" data-val="0.10%" data-hint="比例，如 0.10%" onclick="openRate(this)"><span class="v">0.10%</span><span class="cell-sub">按入金金额比</span></td>
+                <td class="rate-cell" data-ch="链上" data-cur="USDT" data-type="出金手续费" data-val="0.35% + 1.2 USDT / 笔" data-hint="比例 + 固定，如 0.35% + 1.2 USDT / 笔" onclick="openRate(this)"><span class="v">0.35% + 1.2 USDT</span><span class="cell-sub">比例 + 链上矿工费另计</span></td>
+                <td class="rate-cell" data-ch="链上" data-cur="USDT" data-type="席位费" data-val="39 USD / 席位 · 月" data-hint="固定金额，如 39 USD / 席位 · 月" onclick="openRate(this)"><span class="v">39</span><span class="cell-sub">USD / 席位 · 月</span></td>
+                <td class="rate-cell na" data-ch="链上" data-cur="USDT" data-type="VA 开户费 · 个人">不适用</td>
+                <td class="rate-cell na" data-ch="链上" data-cur="USDT" data-type="VA 开户费 · 企业">不适用</td>
+                <td class="mini" data-upd>2026-10-14 11:26</td>
+              </tr>
+              <tr data-ch="链上" data-cur="USDC">
+                <td class="ch-cell">链上<div class="t-sub">USDC · ETH / TRON</div><span class="badge badge-off">未开通定价</span></td>
+                <td class="rate-cell off" data-ch="链上" data-cur="USDC" data-type="入金手续费" data-val="" data-hint="比例，如 0.10%" onclick="openRate(this)">未开通定价</td>
+                <td class="rate-cell off" data-ch="链上" data-cur="USDC" data-type="出金手续费" data-val="" data-hint="比例 + 固定，如 0.35% + 1.2 USDC / 笔" onclick="openRate(this)">未开通定价</td>
+                <td class="rate-cell" data-ch="链上" data-cur="USDC" data-type="席位费" data-val="39 USD / 席位 · 月" data-hint="固定金额，如 39 USD / 席位 · 月" onclick="openRate(this)"><span class="v">39</span><span class="cell-sub">USD / 席位 · 月</span></td>
+                <td class="rate-cell na" data-ch="链上" data-cur="USDC" data-type="VA 开户费 · 个人">不适用</td>
+                <td class="rate-cell na" data-ch="链上" data-cur="USDC" data-type="VA 开户费 · 企业">不适用</td>
+                <td class="mini" data-upd>2026-10-14 11:26</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="mx-legend">
+        <span><i class="mx-dot" style="background:#ecfdf5;border:1px solid #a7f3d0;"></i>已配置：点格改价</span>
+        <span><i class="mx-dot" style="background:#f3f4f6;border:1px solid #e5e7eb;"></i>未开通定价：点格可开通；该组合不可开户、不可交易</span>
+        <span><i class="mx-dot" style="background:#fbfbfc;border:1px solid #eef0f4;"></i>不适用：链上渠道无 VA 开户费</span>
+      </div>
+      <div class="tip warn" style="margin-top:14px;"><b>价格快照</b>计费事件发生时冻结当格价格（快照 ID 随费用单据落库）。改价仅对<b>生效后</b>发生的计费事件生效，已发生的费用单据金额不变；平台不向终端用户收取 VA 开户费，该费用随租户账单线下结算。</div>
     </div>
-  </div>
 
-  <div class="card">
-    <h2>租户费率 Override</h2>
-    <div class="card-sub">F-602 · Markup / Discount 只能在授权区间内调整；低于平台底价直接拒绝并提示下限</div>
-    <div class="table-wrapper"><div class="table-scroll">
-      <table>
-        <thead><tr><th>费用类型</th><th>模板基准</th><th>租户 Override</th><th>实际执行价</th><th>授权区间</th><th>来源</th><th>操作</th></tr></thead>
-        <tbody>
-          <tr><td class="t-name">开卡费<div class="t-sub">per_card</div></td><td>$1.20 / 张</td><td>Markup +25%</td><td>$1.50 / 张</td><td>≤ +100%</td><td>租户 Override</td><td class="ops"><a onclick="openModal('modalRate')">改价</a></td></tr>
-          <tr><td class="t-name">充值费<div class="t-sub">deposit</div></td><td>0.35%</td><td>Discount −20%</td><td>0.28%</td><td>−50% ~ +100%</td><td>租户 Override</td><td class="ops"><a onclick="openModal('modalRate')">改价</a></td></tr>
-          <tr><td class="t-name">交易 Spread<div class="t-sub">fx_bps</div></td><td>35 bps</td><td>—</td><td>35 bps</td><td>≥ 底价 20 bps</td><td>租户模板</td><td class="ops"><a onclick="openModal('modalRate')">改价</a></td></tr>
-          <tr><td class="t-name">提现费<div class="t-sub">withdraw</div></td><td>$2.00 / 笔</td><td>—</td><td>$2.00 / 笔</td><td>≥ 底价 $1.50</td><td>租户模板</td><td class="ops"><a onclick="openModal('modalRate')">改价</a></td></tr>
-          <tr><td class="t-name">月费 / 席位费<div class="t-sub">monthly</div></td><td>$199 / 月</td><td>—</td><td>$199 / 月</td><td>固定（平台定）</td><td>平台默认</td><td class="ops"><span class="mini">不可改</span></td></tr>
-          <tr><td class="t-name">退款手续费<div class="t-sub">refund</div></td><td>$0.50 / 笔</td><td>—</td><td>$0.50 / 笔</td><td>—</td><td>平台默认</td><td class="ops"><span class="mini">不可改</span></td></tr>
-        </tbody>
-      </table>
-    </div></div>
-  </div>
+    <div class="card" style="padding-bottom:0;">
+      <h2>费用单据查询</h2>
+      <div class="card-sub">按租户 / 时间 / 渠道 / 币种 / 费用类型 / 交易号筛选；每条单据带价格快照，可下钻到交易号，按账期归集进账单。</div>
+    </div>
 
-  <div class="card">
-    <h2>计费事件与 Fee Ledger</h2>
-    <div class="card-sub">F-605 · 逐笔落账并挂租户维度；金额为事件发生时刻价格快照</div>
-    <div class="table-wrapper"><div class="table-scroll">
-      <table>
-        <thead><tr><th>时间</th><th>费用类型</th><th>交易号</th><th>计费基数</th><th>执行价</th><th>金额（USD）</th></tr></thead>
-        <tbody>
-          <tr><td>2026-10-15 16:20</td><td>开卡费</td><td class="mono">CARD-8f21c9</td><td>1 张</td><td>$1.50 / 张</td><td>$1.50</td></tr>
-          <tr><td>2026-10-15 15:02</td><td>充值费</td><td class="mono">DEP-77c1a4</td><td>$40,000.00</td><td>0.28%</td><td>$112.00</td></tr>
-          <tr><td>2026-10-15 11:47</td><td>交易 Spread</td><td class="mono">FX-31d0be</td><td>$12,500.00</td><td>35 bps</td><td>$43.75</td></tr>
-          <tr><td>2026-10-15 10:05</td><td>提现费</td><td class="mono">WDR-6ab904</td><td>1 笔</td><td>$2.00 / 笔</td><td>$2.00</td></tr>
-          <tr><td>2026-10-01 00:10</td><td>月费 / 席位费</td><td class="mono">SUB-202610</td><td>1 个月</td><td>$199 / 月</td><td>$199.00</td></tr>
-        </tbody>
-      </table>
-    </div></div>
-  </div>
-
-  <div class="card">
-    <h2>费用明细查询</h2>
-    <div class="card-sub">F-606 · 按租户 / 时间 / 费用类型 / 交易号筛选，支持导出</div>
     <div class="filters">
-      <div class="filter-group"><label>租户</label><input value="星桥跨境科技"></div>
-      <div class="filter-group"><label>费用类型</label><select><option>全部</option><option>开卡费</option><option>充值费</option><option>交易 Spread</option><option>月费 / 席位费</option><option>提现费</option><option>退款手续费</option></select></div>
-      <div class="filter-group"><label>时间</label><input value="2026-10-01 ~ 2026-10-31"></div>
-      <div class="filter-group"><label>交易号</label><input placeholder="例：CARD-8f21c9"></div>
-      <button class="btn btn-secondary">查询</button>
-      <button class="btn btn-outline" onclick="alert('[原型演示] 导出明细 CSV（按当前筛选条件）')">⬇ 导出</button>
+      <div class="filter-group"><label>租户</label><input id="fTenant" placeholder="租户名称，如 星桥"></div>
+      <div class="filter-group"><label>时间（账期）</label><input id="fMonth" type="month"></div>
+      <div class="filter-group"><label>渠道</label>
+        <select id="fCh"><option value="">全部渠道</option><option>Bridge</option><option>OpenPayd</option><option>链上</option></select>
+      </div>
+      <div class="filter-group"><label>币种</label>
+        <select id="fCur"><option value="">全部币种</option><option>USD</option><option>EUR</option><option>GBP</option><option>USDT</option><option>USDC</option></select>
+      </div>
+      <div class="filter-group"><label>费用类型</label>
+        <select id="fType"><option value="">全部类型</option><option>入金手续费</option><option>出金手续费</option><option>席位费</option><option>VA 开户费</option></select>
+      </div>
+      <div class="filter-group"><label>交易号</label><input id="fTx" placeholder="DEP- / WDR- 前缀"></div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-primary" onclick="feeQuery()">查询</button>
+        <button class="btn btn-secondary" onclick="feeReset()">重置</button>
+      </div>
     </div>
-    <div class="table-wrapper"><div class="table-scroll">
-      <table>
-        <thead><tr><th>汇总周期</th><th>费用类型</th><th>笔数</th><th>金额（USD）</th><th>计入结算单</th></tr></thead>
-        <tbody>
-          <tr><td>2026-10</td><td>开卡费</td><td>412</td><td>$618.00</td><td class="mono">ST-2026-10-31</td></tr>
-          <tr><td>2026-10</td><td>充值费</td><td>1,204</td><td>$3,845.20</td><td class="mono">ST-2026-10-31</td></tr>
-          <tr><td>2026-10</td><td>交易 Spread</td><td>3,120</td><td>$1,092.00</td><td class="mono">ST-2026-10-31</td></tr>
-          <tr><td>2026-10</td><td>提现费 · 月费</td><td>382</td><td>$2,305.00</td><td class="mono">ST-2026-10-31</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="pagination"><div class="pagination-info">共 4 类合计 $7,860.20</div><div class="pagination-btns"><button class="page-btn" disabled>上一页</button><button class="page-btn active">1</button><button class="page-btn" disabled>下一页</button></div></div>
+
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div class="table-scroll">
+        <table id="feeTable">
+          <thead>
+            <tr>
+              <th>费用单据号 / 交易号</th><th>时间</th><th>租户</th><th>渠道</th><th>币种</th><th>费用类型</th><th>金额</th><th>价格快照</th><th>所属账期</th>
+            </tr>
+          </thead>
+          <tbody id="feeBody"></tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <div class="pagination-info" id="feeInfo">共 0 条</div>
+        <div class="pagination-btns" id="feePager"></div>
+      </div>
     </div>
   </div>
 
+  <div class="modal-overlay" id="modalRate">
+    <div class="modal">
+      <div class="modal-header"><h2 id="rateTitle">改价</h2><button class="modal-close" onclick="closeModal('modalRate')">✕</button></div>
+      <div class="modal-body">
+        <div class="summary-row"><span class="k">渠道 · 币种</span><span class="v" id="rateCh">—</span></div>
+        <div class="summary-row"><span class="k">费用类型</span><span class="v" id="rateType">—</span></div>
+        <div class="summary-row"><span class="k">当前值</span><span class="v mono" id="rateCur">—</span></div>
+        <div class="form-group" style="margin-top:18px;">
+          <label>新值</label>
+          <input id="rateNew" class="mono" placeholder="例：0.35%">
+          <div class="hint" id="rateHint">—</div>
+        </div>
+        <div class="form-group">
+          <label>生效时间</label>
+          <div class="radio-row">
+            <label><input type="radio" name="effTime" value="now" checked onchange="effSync()">立即生效</label>
+            <label><input type="radio" name="effTime" value="future" onchange="effSync()">指定未来时间</label>
+          </div>
+          <input type="datetime-local" id="rateEffAt" style="display:none;margin-top:10px;" value="2026-11-01T00:00">
+          <div class="hint">仅允许「立即」或「指定未来时间」，不支持回溯生效。</div>
+        </div>
+        <div class="tip warn"><b>不追溯</b>改价仅对<b>生效后</b>发生的计费事件生效；已发生的费用单据按当时价格快照计费，金额不变。每次改价写审计（操作人 / 渠道 / 币种 / 前后值 / 生效时间）。</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('modalRate')">取消</button>
+        <button class="btn btn-primary" onclick="confirmRate()">确认</button>
+      </div>
+    </div>
   </div>
 
-  <div class="modal-overlay" id="modalRate"><div class="modal">
-    <div class="modal-header"><h2>调整租户费率</h2><button class="modal-close" onclick="closeModal('modalRate')">✕</button></div>
-    <div class="modal-body">
-      <div class="tip"><b>规则</b>Markup / Discount 只能在授权区间内调整；低于平台底价将直接拒绝并提示下限。改价<b>不追溯</b>已发生交易。</div>
-      <div class="form-group" style="margin-top:16px;"><label>调整方式</label><select><option>Markup（加价）</option><option>Discount（折扣）</option></select></div>
-      <div class="form-group"><label>调整幅度（%）</label><input placeholder="例：25（区间 ≤ +100%）"></div>
-      <div class="form-group"><label>生效时间</label><select><option>立即生效</option><option>下个账期生效</option></select></div>
-    </div>
-    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modalRate')">取消</button><button class="btn btn-primary" onclick="confirmRate()">确认调整</button></div>
-  </div></div>
-
+  <div class="toast-wrap" id="toastWrap"></div>
 <script>
-function openModal(id){document.getElementById(id).classList.add('active');}
-function closeModal(id){document.getElementById(id).classList.remove('active');}
-function confirmRate(){closeModal('modalRate');alert('[原型演示] 费率调整已提交；仅对生效后发生的计费事件生效。');}
-document.querySelectorAll('.modal-overlay').forEach(function(el){el.addEventListener('click',function(e){if(e.target===this)this.classList.remove('active');});});
+var FEES = [
+  {no:'FEE-20261015-0912',tx:'DEP-7c41a90f',t:'2026-10-15 16:02',ten:'星桥支付 StarBridge',ch:'Bridge',cur:'USD',type:'入金手续费',amt:'$112.00',snap:'PS-20261015-0912',per:'2026-10'},
+  {no:'FEE-20261015-0911',tx:'WDR-31b8e250',t:'2026-10-15 15:47',ten:'星桥支付 StarBridge',ch:'OpenPayd',cur:'EUR',type:'出金手续费',amt:'€86.40',snap:'PS-20261015-0911',per:'2026-10'},
+  {no:'FEE-20261015-0908',tx:'SEAT-202610-03',t:'2026-10-15 14:20',ten:'Meridian Pay',ch:'Bridge',cur:'USD',type:'席位费',amt:'$98.00',snap:'PS-20261015-0908',per:'2026-10'},
+  {no:'FEE-20261014-0884',tx:'DEP-9f02c117',t:'2026-10-14 18:05',ten:'Meridian Pay',ch:'OpenPayd',cur:'GBP',type:'入金手续费',amt:'£64.20',snap:'PS-20261014-0884',per:'2026-10'},
+  {no:'FEE-20261014-0871',tx:'VA-ENT-00182',t:'2026-10-14 11:32',ten:'Nova Bank',ch:'Bridge',cur:'USD',type:'VA 开户费',amt:'$1,000.00',snap:'PS-20261014-0871',per:'2026-10'},
+  {no:'FEE-20261013-0856',tx:'WDR-5d77a3c9',t:'2026-10-13 20:14',ten:'Nova Bank',ch:'链上',cur:'USDT',type:'出金手续费',amt:'3.62 USDT',snap:'PS-20261013-0856',per:'2026-10'},
+  {no:'FEE-20261013-0842',tx:'DEP-2a90be44',t:'2026-10-13 09:58',ten:'Atlas Wallet',ch:'链上',cur:'USDT',type:'入金手续费',amt:'1.85 USDT',snap:'PS-20261013-0842',per:'2026-10'},
+  {no:'FEE-20261012-0819',tx:'VA-IND-00731',t:'2026-10-12 17:41',ten:'Orbit Pay',ch:'OpenPayd',cur:'EUR',type:'VA 开户费',amt:'€100.00',snap:'PS-20261012-0819',per:'2026-10'},
+  {no:'FEE-20261012-0803',tx:'SEAT-202610-01',t:'2026-10-12 10:26',ten:'星桥支付 StarBridge',ch:'Bridge',cur:'USD',type:'席位费',amt:'$49.00',snap:'PS-20261012-0803',per:'2026-10'},
+  {no:'FEE-20260930-1735',tx:'WDR-88c1d402',t:'2026-09-30 23:12',ten:'Meridian Pay',ch:'Bridge',cur:'USD',type:'出金手续费',amt:'$212.80',snap:'PS-20260930-1735',per:'2026-09'},
+  {no:'FEE-20260929-1702',tx:'SEAT-202609-02',t:'2026-09-29 15:03',ten:'Nova Bank',ch:'OpenPayd',cur:'EUR',type:'席位费',amt:'$45.00',snap:'PS-20260929-1702',per:'2026-09'},
+  {no:'FEE-20260928-1688',tx:'DEP-4e11f6b0',t:'2026-09-28 11:20',ten:'Atlas Wallet',ch:'链上',cur:'USDT',type:'入金手续费',amt:'0.98 USDT',snap:'PS-20260928-1688',per:'2026-09'}
+];
+var feeFiltered = FEES.slice(), feePageNo = 1, FEE_SIZE = 5;
+
+function toast(msg, kind){
+  var w = document.getElementById('toastWrap');
+  var d = document.createElement('div');
+  d.className = 'toast' + (kind === 'ok' ? ' ok' : '');
+  d.textContent = msg;
+  w.appendChild(d);
+  setTimeout(function(){ if(d.parentNode) d.parentNode.removeChild(d); }, 4200);
+}
+function openModal(id){ document.getElementById(id).classList.add('active'); }
+function closeModal(id){ document.getElementById(id).classList.remove('active'); }
+
+var rateCtx = null;
+function openRate(td){
+  if(td.classList.contains('na')){ toast('链上渠道不涉及法币 VA 开户费，该格不支持配置'); return; }
+  rateCtx = td;
+  var off = td.classList.contains('off');
+  document.getElementById('rateTitle').textContent = off ? '开通定价' : '改价';
+  document.getElementById('rateCh').textContent = td.dataset.ch + ' · ' + td.dataset.cur;
+  document.getElementById('rateType').textContent = td.dataset.type;
+  document.getElementById('rateCur').textContent = off ? '未开通定价' : td.dataset.val;
+  document.getElementById('rateNew').value = off ? '' : td.dataset.val;
+  document.getElementById('rateNew').placeholder = off ? '例：' + (td.dataset.type.indexOf('费') === 0 ? '0.10%' : '49 USD / 席位 · 月') : '';
+  document.getElementById('rateHint').textContent = td.dataset.hint;
+  document.querySelector('input[name=effTime][value=now]').checked = true;
+  effSync();
+  openModal('modalRate');
+}
+function effSync(){
+  var v = document.querySelector('input[name=effTime]:checked').value;
+  document.getElementById('rateEffAt').style.display = (v === 'future') ? 'block' : 'none';
+}
+function confirmRate(){
+  if(!rateCtx) return;
+  var td = rateCtx;
+  var v = (document.getElementById('rateNew').value || '').replace(/\s+/g, ' ').trim();
+  var wasOff = td.classList.contains('off');
+  var eff = document.querySelector('input[name=effTime]:checked').value;
+  var atEl = document.getElementById('rateEffAt');
+  if(!v || !/[0-9]/.test(v)){ toast('请填写新值，需包含数字，如 0.35% 或 49 USD / 席位 · 月'); return; }
+  if(v.length > 30){ toast('新值过长，请精简到 30 个字符以内'); return; }
+  if(eff === 'future' && !atEl.value){ toast('请选择未来生效日期时间'); return; }
+  var effText = (eff === 'future') ? atEl.value.replace('T', ' ') : '立即生效';
+  var old = wasOff ? '未开通定价' : td.dataset.val;
+  td.dataset.val = v;
+  td.classList.remove('off');
+  td.innerHTML = '<span class="v">' + v + '</span><span class="cell-sub">' + (wasOff ? '新开通' : '已改价') + '</span>';
+  var tr = td.closest('tr');
+  var upd = tr.querySelector('[data-upd]');
+  if(upd) upd.textContent = '2026-10-19 14:02';
+  var chBadge = tr.querySelector('.ch-cell .badge');
+  if(wasOff && chBadge){
+    var rowOff = tr.querySelectorAll('.rate-cell.off').length;
+    if(rowOff === 0){ chBadge.className = 'badge badge-active'; chBadge.textContent = '已开通'; }
+  }
+  refreshStats();
+  closeModal('modalRate');
+  toast((wasOff ? '已开通定价' : '已改价') + '：' + td.dataset.ch + ' · ' + td.dataset.cur + ' · ' + td.dataset.type + ' ' + old + ' → ' + v + '（' + effText + '）；已写审计，仅对生效后计费事件生效，不追溯已发生费用单据', 'ok');
+}
+function refreshStats(){
+  var cells = document.querySelectorAll('#rateTable .rate-cell');
+  var na = document.querySelectorAll('#rateTable .rate-cell.na').length;
+  var off = document.querySelectorAll('#rateTable .rate-cell.off').length;
+  var total = cells.length - na;
+  document.getElementById('statCfg').textContent = total - off;
+  document.getElementById('statOff').textContent = off;
+}
+
+function feeQuery(){
+  var ten = document.getElementById('fTenant').value.trim();
+  var mon = document.getElementById('fMonth').value;
+  var ch = document.getElementById('fCh').value;
+  var cur = document.getElementById('fCur').value;
+  var ty = document.getElementById('fType').value;
+  var tx = document.getElementById('fTx').value.trim().toUpperCase();
+  feeFiltered = FEES.filter(function(r){
+    if(ten && r.ten.indexOf(ten) < 0) return false;
+    if(mon && r.per !== mon) return false;
+    if(ch && r.ch !== ch) return false;
+    if(cur && r.cur !== cur) return false;
+    if(ty && r.type !== ty) return false;
+    if(tx && r.tx.toUpperCase().indexOf(tx) < 0 && r.no.toUpperCase().indexOf(tx) < 0) return false;
+    return true;
+  });
+  feePageNo = 1;
+  renderFees();
+  toast('查询完成：命中 ' + feeFiltered.length + ' 条（共 ' + FEES.length + ' 条）');
+}
+function feeReset(){
+  document.getElementById('fTenant').value = '';
+  document.getElementById('fMonth').value = '';
+  document.getElementById('fCh').value = '';
+  document.getElementById('fCur').value = '';
+  document.getElementById('fType').value = '';
+  document.getElementById('fTx').value = '';
+  feeFiltered = FEES.slice();
+  feePageNo = 1;
+  renderFees();
+}
+function feePage(n){ feePageNo = n; renderFees(); }
+function renderFees(){
+  var total = feeFiltered.length;
+  var pages = Math.max(1, Math.ceil(total / FEE_SIZE));
+  if(feePageNo > pages) feePageNo = pages;
+  var start = (feePageNo - 1) * FEE_SIZE;
+  var rows = feeFiltered.slice(start, start + FEE_SIZE);
+  var body = document.getElementById('feeBody');
+  if(!rows.length){
+    body.innerHTML = '<tr><td colspan="9" style="text-align:center;color:#9ca3af;padding:40px 0;">没有符合条件的费用单据</td></tr>';
+  } else {
+    body.innerHTML = rows.map(function(r){
+      return '<tr>' +
+        '<td><span class="mono" style="font-weight:600;">' + r.no + '</span><div class="t-sub mono">' + r.tx + '</div></td>' +
+        '<td class="mini">' + r.t + '</td>' +
+        '<td>' + r.ten + '</td>' +
+        '<td>' + r.ch + '</td>' +
+        '<td>' + r.cur + '</td>' +
+        '<td>' + r.type + '</td>' +
+        '<td class="num mono" style="font-weight:600;">' + r.amt + '</td>' +
+        '<td class="mini mono">' + r.snap + '<div class="t-sub">价格快照 · 不追溯</div></td>' +
+        '<td class="mono">' + r.per + '</td>' +
+      '</tr>';
+    }).join('');
+  }
+  document.getElementById('feeInfo').textContent = '共 ' + total + ' 条 · 第 ' + feePageNo + ' / ' + pages + ' 页（每页 ' + FEE_SIZE + ' 条）';
+  var pager = document.getElementById('feePager');
+  var html = '<button class="page-btn" onclick="feePage(' + (feePageNo - 1) + ')"' + (feePageNo === 1 ? ' disabled' : '') + '>上一页</button>';
+  for(var i = 1; i <= pages; i++){
+    html += '<button class="page-btn' + (i === feePageNo ? ' active' : '') + '" onclick="feePage(' + i + ')">' + i + '</button>';
+  }
+  html += '<button class="page-btn" onclick="feePage(' + (feePageNo + 1) + ')"' + (feePageNo === pages ? ' disabled' : '') + '>下一页</button>';
+  pager.innerHTML = html;
+}
+function exportFees(){
+  var head = ['费用单据号','交易号','时间','租户','渠道','币种','费用类型','金额','价格快照','所属账期'];
+  var lines = [head.join(',')];
+  feeFiltered.forEach(function(r){
+    lines.push([r.no, r.tx, r.t, r.ten, r.ch, r.cur, r.type, r.amt, r.snap, r.per].join(','));
+  });
+  var blob = new Blob(['\ufeff' + lines.join('\n')], {type:'text/csv;charset=utf-8'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '费用单据_' + (document.getElementById('fMonth').value || '全部账期') + '.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  toast('已导出 ' + feeFiltered.length + ' 条费用单据（CSV，含价格快照）', 'ok');
+}
+document.addEventListener('DOMContentLoaded', function(){ renderFees(); refreshStats(); });
+document.querySelectorAll('.modal-overlay').forEach(function(el){
+  el.addEventListener('click', function(e){ if(e.target === this) this.classList.remove('active'); });
+});
 </script>
 </div><!-- /main -->
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>白标系统 · 品牌配置</title>
+<title>白标系统 · 开户记录</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -108,7 +108,16 @@ tbody tr:hover td { background:#fdfdfd; }
 .pmnote-toggle { position:fixed; right:14px; bottom:14px; z-index:9999; background:#1a1e26; color:#FFCA00; border:1px solid #2a2f3a; border-radius:20px; padding:6px 14px; font-size:12px; cursor:pointer; font-family:inherit; }
 body.hide-pmnote .pmnote { display:none!important; }
 @media (max-width:1100px) { .stats { grid-template-columns:1fr 1fr; } }
-.card{background:#fff; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.04); padding:24px 28px; margin-bottom:16px;}
+
+    .kv { display:flex; justify-content:space-between; gap:12px; padding:9px 0; border-bottom:1px dashed #eef0f4; font-size:13px; }
+    .kv:last-child { border-bottom:0; }
+    .kv .k { color:#6b7280; }
+    .kv .v { color:#1D2129; font-weight:500; text-align:right; }
+    .pill { display:inline-block; padding:2px 9px; border-radius:11px; font-size:11.5px; font-weight:500; }
+    .chip-link { border:0; cursor:pointer; font:inherit; }
+    .pill-ok { background:#eaf7ef; color:#1a7f4b; }
+    .pill-gray { background:#f2f3f5; color:#8b93a1; }
+  .card{background:#fff; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.04); padding:24px 28px; margin-bottom:16px;}
 .card h2{font-size:15px; font-weight:600; margin-bottom:4px;}
 .card .card-sub{font-size:12.5px; color:#6b7280; margin-bottom:18px;}
 .steps{display:flex; gap:0; background:#fff; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.04); padding:18px 20px; margin-bottom:16px; overflow-x:auto;}
@@ -165,22 +174,19 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
 </head>
 <body>
 
-
 <aside class="sidebar">
   <div class="sidebar-brand">
-    <div class="logo"><span class="logo-mark">Y</span>YASBe 平台管理</div>
+    <a class="logo" href="index.html"><span class="logo-mark">Y</span>YASBe 平台管理</a>
     <div class="logo-sub">白标租户管理</div>
   </div>
   <nav class="sidebar-nav">
-    <div class="sidebar-group">租户运营</div>
-    <a class="sidebar-item active" href="2026-10-12_白标租户列表_管理端.html"><span class="ico">▦</span>租户列表</a>
-    <a class="sidebar-item" href="2026-10-12_白标租户开通向导_管理端.html"><span class="ico">＋</span>开通向导</a>
-    <div class="sidebar-group">日常作业</div>
-    <a class="sidebar-item" href="#" onclick="alert('[PM 备注] 待办中心将在后续增量产出');return false;"><span class="ico">☰</span>待办中心</a>
-    <a class="sidebar-item" href="#" onclick="alert('[PM 备注] 用量与收入将在后续增量产出');return false;"><span class="ico">◔</span>用量与收入</a>
+    <div class="sidebar-group">白标租户管理</div>
+    <a class="sidebar-item" href="index.html"><span class="ico">■</span>原型目录</a>
+    <a class="sidebar-item" href="2026-10-12_白标租户列表_管理端.html"><span class="ico">▦</span>租户列表</a>
+    <a class="sidebar-item" href="2026-10-15_VA列表_管理端.html"><span class="ico">▤</span>VA 列表</a>
+    <a class="sidebar-item active" href="2026-10-15_开户记录_管理端.html"><span class="ico">▥</span>开户记录</a>
+    <a class="sidebar-item" href="2026-10-15_交易流水查询_管理端.html"><span class="ico">≡</span>交易流水查询</a>
     <a class="sidebar-item" href="2026-10-15_结算与对账_管理端.html"><span class="ico">⇄</span>结算与对账</a>
-    <a class="sidebar-item" href="#" onclick="alert('[PM 备注] 交易流水查询将在后续增量产出');return false;"><span class="ico">≡</span>交易流水查询</a>
-    <div class="sidebar-group">平台治理</div>
     <a class="sidebar-item" href="2026-10-15_权限与审计日志_管理端.html"><span class="ico">▣</span>权限与审计日志</a>
   </nav>
   <div class="sidebar-foot">v0.1 · 一期原型</div>
@@ -188,138 +194,103 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
 
 <div class="main">
   <button class="pmnote-toggle" onclick="document.body.classList.toggle('hide-pmnote');this.textContent=document.body.classList.contains('hide-pmnote')?'显示备注':'隐藏备注'">隐藏备注</button>
-  <div class="pmnote"><b>PM 备注</b>本页为「租户详情」下级页（主从两级，面包屑返回，不做 Tab）。品牌化配置仅在平台为该租户开通该能力后可用；平台保留 key 与合规模板不可被覆写。</div>
+  <div class="pmnote"><b>PM 备注</b>本页为一级菜单页：按租户归集 VA 开立留痕（含开户费与收费方式）；VA 当前状态与出入金见「VA 列表」。</div>
   <div class="header">
     <div>
-      <div class="crumb">白标租户管理 / 租户列表 / <b>星桥跨境科技</b> / <b>品牌配置</b></div>
-      <h1>品牌配置 · 星桥跨境科技</h1>
-      <p>品牌资产 · 主题 token · 文案字典 · 邮件模板 · 版本与发布 · 合规闸门</p>
+      <div class="crumb">白标租户管理 / <b>开户记录</b></div>
+      <h1>开户记录</h1>
+      <p>开立时间 · 租户 · VA 号 · 客户 · 开户费 · 收费方式 · 操作人</p>
     </div>
-    <div style="display:flex;gap:10px;"><button class="btn btn-outline" onclick="location.href='2026-10-15_租户详情总览_管理端.html'">⬅ 返回租户详情</button>
-      <button class="btn btn-secondary" onclick="alert('[原型演示] 已生成预览链接：preview.xingqiao.yasbe.app')">生成预览</button>
-      <button class="btn btn-primary" onclick="openModal('modalPublish')">＋ 发布版本</button></div>
+    <div style="display:flex;gap:10px;"><button class="btn btn-outline" onclick="alert('[原型演示] 导出开户记录 CSV')">⬇ 导出</button>
+      <a class="btn btn-primary" href="2026-10-15_VA列表_管理端.html">VA 列表 →</a></div>
   </div>
 
   <div class="container">
-  <div class="subnav-local">租户详情：<a class="crumb-link" href="2026-10-15_租户详情总览_管理端.html">详情总览</a> · <span class="crumb-cur">品牌配置</span> · <a class="crumb-link" href="2026-10-15_域名与邮件_管理端.html">域名与邮件</a> · <a class="crumb-link" href="2026-10-15_能力与额度_管理端.html">能力与额度</a> · <a class="crumb-link" href="2026-10-15_费率与计费_管理端.html">费率与计费</a></div>
-  <div class="tip"><b>前置条件</b>租户状态 ∈ {CONTRACT_SIGNED, ACTIVE} 且平台已为其开通「品牌配置」能力；未开通时本页只读并提示。</div>
-  <div class="pmnote dem"><b>PM 备注</b>字段依据 F-301（品牌资产：logo Light/Dark、favicon、登录页背景；格式与体积上限）+ F-302（主题 token：主色 / 渐变起止，默认 #FFCA00 → #FE5707，仅允许在默认区间内派生；对比度校验不达标即拒绝保存）+ F-303（文案字典：按 i18n key 覆写，平台保留 key 不可覆写）+ F-304（邮件模板四类：邀请 / 验证 / 对账单 / 异常通知，变量白名单）+ F-305（预览 → 平台审核（可选）→ 发布 → 一键回滚）+ F-306 品牌合规闸门。接口级校验（格式 / 体积 / 对比度）不落原型，以 PRD 字段表为准。</div>
+  <div class="tip"><b>口径</b>开户记录 = 每次 VA 开立的留痕（谁、何时、为哪个租户的哪个客户开立、收了多少开户费、怎么收的），用于对账与争议举证。</div>
+  <div class="pmnote dem"><b>PM 备注</b>开户费：个人 $100 / 币种（从终端用户钱包 USDT / USDC 覆盖，支持以太链与波场链）、企业 $1,000 / 币种（记账后收取，暂不需提前交费）；<b>不支持减免</b>。每条记录都带租户列，便于按租户对账。</div>
 
-  <div class="card">
-    <h2>品牌资产</h2>
-    <div class="card-sub">F-301 · 支持 PNG / SVG / WebP；单文件上限 200KB（favicon 50KB）</div>
-    <div class="form-grid">
-      <div class="file-item"><div><div class="f-name">Logo（浅色底）</div><div class="f-meta">logo-light.svg · 18KB</div></div><span class="pill pill-ok">已上传</span></div>
-      <div class="file-item"><div><div class="f-name">Logo（深色底）</div><div class="f-meta">logo-dark.svg · 18KB</div></div><span class="pill pill-ok">已上传</span></div>
-      <div class="file-item"><div><div class="f-name">Favicon</div><div class="f-meta">favicon.png · 12KB</div></div><span class="pill pill-ok">已上传</span></div>
-      <div class="file-item"><div><div class="f-name">登录页背景</div><div class="f-meta">未上传 · 将使用平台默认背景</div></div><button class="btn btn-outline" style="padding:4px 12px;font-size:12px;" onclick="alert('[原型演示] 已选择文件：login-bg.webp')">上传</button></div>
-    </div>
+  <div class="stats">
+    <div class="stat"><div class="s-label">本月开户数</div><div class="s-value">186</div><div class="s-sub">个人 158 · 企业 28</div></div>
+    <div class="stat"><div class="s-label">本月开户费收入</div><div class="s-value gold">$43,800.00</div><div class="s-sub">个人钱包 U 覆盖 · 企业记账后收</div></div>
+    <div class="stat"><div class="s-label">待收费（企业）</div><div class="s-value amber">28</div><div class="s-sub">记账后收取 · 未产生收款</div></div>
+    <div class="stat"><div class="s-label">覆盖币种</div><div class="s-value">USD / EUR</div><div class="s-sub">GBP 未开通</div></div>
   </div>
 
-  <div class="grid2">
-    <div class="card">
-      <h2>主题 token</h2>
-      <div class="card-sub">F-302 · 仅允许在平台默认区间内派生</div>
-      <div class="form-grid">
-        <div class="form-group"><label>主色</label><input type="color" value="#FFCA00"></div>
-        <div class="form-group"><label>渐变起始色</label><input type="color" value="#FFCA00"></div>
-        <div class="form-group"><label>渐变结束色</label><input type="color" value="#FE5707"></div>
-      </div>
-      <div class="kv"><span class="k">当前主色</span><span class="v"><span class="swatch" style="background:#FFCA00;"></span>#FFCA00</span></div>
-      <div class="kv"><span class="k">当前渐变</span><span class="v"><span class="swatch" style="background:#FFCA00;"></span>#FFCA00 → <span class="swatch" style="background:#FE5707;"></span>#FE5707</span></div>
-      <div class="kv"><span class="k">对比度校验（正文）</span><span class="v"><span class="badge badge-active">4.8:1 通过</span></span></div>
-      <div class="kv"><span class="k">区间校验</span><span class="v"><span class="badge badge-active">在授权区间内</span></span></div>
-      <div style="margin-top:14px;"><button class="btn btn-primary" onclick="alert('[原型演示] 主题已保存，已进入预览待发布状态')">保存主题</button></div>
-    </div>
-    <div class="card">
-      <h2>品牌合规闸门</h2>
-      <div class="card-sub">F-306 · 上线前自动检查（设计占位）</div>
-      <ul class="checklist">
-        <li><span class="ck">☑</span><div>Logo / 文案关键词检查（禁用"银行""存款""保本"等表述）</div></li>
-        <li><span class="ck">☑</span><div>侵权与近似商标检查</div></li>
-        <li><span class="ck">☑</span><div>合规声明未被覆写（平台保留 key 完好）</div></li>
-        <li><span class="ck">⬜</span><div>待发布版本的人工复核（可选开关，由平台超管决定是否启用）</div></li>
-      </ul>
-      <div class="tip" style="margin-top:12px;">闸门未全绿时，<b>发布</b>按钮不可点击；仅可保存草稿与生成预览。</div>
-    </div>
+  <div class="filters">
+    <div class="filter-group"><label>关键词</label><input id="kw" type="text" placeholder="VA 号 / 客户引用号 / 姓名" oninput="applyFilter()"></div>
+    <div class="filter-group"><label>租户</label><select id="fTen" onchange="applyFilter()"><option value="">全部租户</option><option>星桥支付 StarBridge</option><option>Meridian Pay</option><option>Nova Bank</option><option>Atlas Wallet</option><option>Orbit Pay</option></select></div>
+    <div class="filter-group"><label>类型</label><select id="fType" onchange="applyFilter()"><option value="">全部类型</option><option>个人</option><option>企业</option></select></div>
+    <div class="filter-group"><label>币种</label><select id="fCur" onchange="applyFilter()"><option value="">全部币种</option><option>USD</option><option>EUR</option></select></div>
+    <div class="filter-group"><label>时间</label><input id="fFrom" type="date" onchange="applyFilter()"><span class="dim" style="align-self:center;">~</span><input id="fTo" type="date" onchange="applyFilter()"></div>
+    <button class="btn btn-secondary" onclick="resetFilter()">重置</button>
   </div>
 
   <div class="card">
-    <h2>文案字典</h2>
-    <div class="card-sub">F-303 · 按 i18n key 覆写；<b>平台保留 key 不可覆写</b>（合规声明 / 费用说明 / 风控文案）</div>
+    <h2>开户记录</h2>
+    <div class="card-sub">按租户归集的开立留痕；点「留痕」看全量字段</div>
     <div class="table-wrapper"><div class="table-scroll">
       <table>
-        <thead><tr><th>i18n key</th><th>默认文案（平台）</th><th>租户覆写</th><th>状态</th></tr></thead>
-        <tbody>
-          <tr><td class="mono">app.title</td><td>YASBe 支付门户</td><td>星桥支付门户</td><td><span class="badge badge-active">已覆写</span></td></tr>
-          <tr><td class="mono">wallet.empty</td><td>暂无资产，去充值</td><td>暂无资产，立即充币</td><td><span class="badge badge-active">已覆写</span></td></tr>
-          <tr><td class="mono">card.apply.cta</td><td>申请开卡</td><td>—</td><td><span class="badge badge-review">继承平台</span></td></tr>
-          <tr class="locked"><td class="mono">legal.disclaimer</td><td>本服务由持牌机构提供…</td><td>不可覆写</td><td><span class="badge badge-off">平台保留 key</span></td></tr>
-          <tr class="locked"><td class="mono">fee.notice</td><td>费用以结算单为准…</td><td>不可覆写</td><td><span class="badge badge-off">平台保留 key</span></td></tr>
-          <tr class="locked"><td class="mono">risk.alert</td><td>该操作存在风险敞口…</td><td>不可覆写</td><td><span class="badge badge-off">平台保留 key</span></td></tr>
-        </tbody>
+        <thead><tr><th>开户时间</th><th>租户</th><th>VA 号</th><th>终端客户</th><th>类型</th><th>币种</th><th>开户费</th><th>收费方式</th><th>操作人</th><th>操作</th></tr></thead>
+        <tbody id="tbody"></tbody>
       </table>
-    </div></div>
-  </div>
-
-  <div class="card">
-    <h2>邮件模板</h2>
-    <div class="card-sub">F-304 · 变量白名单：{{tenant_name}} · {{user_name}} · {{amount}} · {{date}} · {{link}}；禁止注入脚本</div>
-    <div class="table-wrapper"><div class="table-scroll">
-      <table>
-        <thead><tr><th>模板</th><th>触发时机</th><th>状态</th><th>操作</th></tr></thead>
-        <tbody>
-          <tr><td class="t-name">邀请邮件<div class="t-sub">invite</div></td><td>租户邀请成员注册</td><td><span class="badge badge-active">已定制</span></td><td class="ops"><a onclick="alert('[原型演示] 打开模板编辑器（变量白名单内）')">编辑</a><a onclick="alert('[原型演示] 渲染预览已生成')">预览</a></td></tr>
-          <tr><td class="t-name">验证邮件<div class="t-sub">verify</div></td><td>注册 / 改密 / 绑定</td><td><span class="badge badge-review">用平台默认</span></td><td class="ops"><a onclick="alert('[原型演示] 打开模板编辑器（变量白名单内）')">编辑</a><a onclick="alert('[原型演示] 渲染预览已生成')">预览</a></td></tr>
-          <tr><td class="t-name">对账单<div class="t-sub">statement</div></td><td>结算周期出账</td><td><span class="badge badge-active">已定制</span></td><td class="ops"><a onclick="alert('[原型演示] 打开模板编辑器（变量白名单内）')">编辑</a><a onclick="alert('[原型演示] 渲染预览已生成')">预览</a></td></tr>
-          <tr><td class="t-name">异常通知<div class="t-sub">alert</div></td><td>风控命中 / 结算失败</td><td><span class="badge badge-off">锁定（合规）</span></td><td class="ops"><a onclick="alert('[PM 备注] 异常通知模板含风控口径，平台保留，租户不可编辑')">查看</a></td></tr>
-        </tbody>
-      </table>
-    </div></div>
-  </div>
-
-  <div class="card">
-    <h2>版本与发布</h2>
-    <div class="card-sub">F-305 · 预览 → 平台审核（可选）→ 发布 → 可一键回滚到上一版本</div>
-    <div class="table-wrapper"><div class="table-scroll">
-      <table>
-        <thead><tr><th>版本</th><th>内容摘要</th><th>状态</th><th>发布时间</th><th>操作</th></tr></thead>
-        <tbody>
-          <tr><td>v3</td><td>主题色微调 + 首页文案覆写</td><td><span class="badge badge-review">预览中（未发布）</span></td><td>—</td><td class="ops"><a onclick="alert('[原型演示] 已生成预览链接：preview.xingqiao.yasbe.app')">预览</a><a onclick="openModal('modalPublish')">发布</a></td></tr>
-          <tr><td>v2</td><td>Logo 换版 + 邮件模板定制</td><td><span class="badge badge-active">当前线上</span></td><td>2026-10-12 15:20</td><td class="ops"><span class="mini">—</span></td></tr>
-          <tr><td>v1</td><td>初始品牌配置</td><td><span class="badge badge-off">已归档</span></td><td>2026-10-08 11:02</td><td class="ops"><a onclick="openModal('modalRollback')">回滚到此版本</a></td></tr>
-        </tbody>
-      </table>
-    </div></div>
-  </div>
-
-  </div>
-
-  <div class="modal-overlay" id="modalPublish"><div class="modal">
-    <div class="modal-header"><h2>发布品牌配置</h2><button class="modal-close" onclick="closeModal('modalPublish')">✕</button></div>
-    <div class="modal-body">
-      <div class="tip"><b>发布影响面</b>发布后租户门户（登录页 / 门户界面 / 邮件模板）立即使用新版本；不影响交易与结算口径。旧版本自动归档，可一键回滚。</div>
-      <div class="kv" style="margin-top:14px;"><span class="k">发布对象</span><span class="v">星桥跨境科技 · v3</span></div>
-      <div class="kv"><span class="k">合规闸门</span><span class="v"><span class="badge badge-active">已通过</span></span></div>
-      <div class="kv"><span class="k">平台复核</span><span class="v"><span class="badge badge-review">可选 · 未启用</span></span></div>
     </div>
-    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modalPublish')">取消</button><button class="btn btn-primary" onclick="confirmPublish()">确认发布</button></div>
+    <div class="pagination"><div class="pagination-info" id="pageInfo">共 8 条 · 每页 10 条</div><div class="pagination-btns"><button class="page-btn" disabled>上一页</button><button class="page-btn active">1</button><button class="page-btn" disabled>下一页</button></div></div>
+    </div>
+  </div>
+
+  </div>
+<div class="modal-overlay" id="modalRec"><div class="modal">
+    <div class="modal-header"><h2>开立留痕（全量字段）</h2><button class="modal-close" onclick="closeModal('modalRec')">✕</button></div>
+    <div class="modal-body"><div id="recRows"></div></div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modalRec')">关闭</button>
+      <a class="btn btn-outline" href="2026-10-15_交易流水查询_管理端.html">该 VA 交易记录 →</a></div>
   </div></div>
 
-  <div class="modal-overlay" id="modalRollback"><div class="modal">
-    <div class="modal-header"><h2>回滚到 v1</h2><button class="modal-close" onclick="closeModal('modalRollback')">✕</button></div>
-    <div class="modal-body">
-      <div class="tip warn"><b>回滚的后果</b>当前线上版本（v2）将被 v1 覆盖，主题、文案与邮件模板全部回到 v1；v2 归档保留，可再次回滚。回滚<b>必定显式通知</b>租户管理员，不静默执行。</div>
-    </div>
-    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modalRollback')">取消</button><button class="btn btn-danger" onclick="confirmRollback()">确认回滚</button></div>
-  </div></div>
 
 <script>
-function openModal(id){document.getElementById(id).classList.add('active');}
-function closeModal(id){document.getElementById(id).classList.remove('active');}
-function confirmPublish(){closeModal('modalPublish');alert('[原型演示] v3 已发布；v2 归档。已通知租户管理员。');}
-function confirmRollback(){closeModal('modalRollback');alert('[原型演示] 已回滚到 v1，并已显式通知租户管理员。');}
-['modalPublish','modalRollback'].forEach(function(id){var el=document.getElementById(id);el.addEventListener('click',function(e){if(e.target===this)this.classList.remove('active');});});
+var REC = [["2026-10-10 11:20", "T-1003 星桥支付 StarBridge", "VA-1003-0008", "吴桐", "CUS-9718", "个人", "USD", "$100.00", "终端用户钱包 USDT 覆盖", "谢轶 · 平台超管"], ["2026-10-08 16:02", "T-1001 Meridian Pay", "VA-1001-0009", "李强", "CUS-7712", "个人", "USD", "$100.00", "终端用户钱包 USDC 覆盖", "谢轶 · 平台超管"], ["2026-10-06 09:41", "T-1003 星桥支付 StarBridge", "VA-1003-0007", "Kim Lee", "CUS-9602", "企业", "USD", "$1,000.00", "记账后收取（暂未收费）", "谢轶 · 平台超管"], ["2026-10-02 14:33", "T-1002 Nova Bank", "VA-1002-0012", "Wang Lei", "CUS-8104", "个人", "USD", "$100.00", "终端用户钱包 USDT 覆盖", "周文 · 平台财务"], ["2026-09-28 10:07", "T-1004 Atlas Wallet", "VA-1004-0002", "Chen Yu", "CUS-6521", "个人", "USD", "$100.00", "终端用户钱包 USDT 覆盖", "谢轶 · 平台超管"], ["2026-09-20 17:41", "T-1007 Orbit Pay", "VA-1007-0004", "Hasan A.", "CUS-5230", "企业", "USD", "$1,000.00", "记账后收取（暂未收费）", "谢轶 · 平台超管"], ["2026-09-12 15:02", "T-1003 星桥支付 StarBridge", "VA-1003-0006", "周敏", "CUS-9455", "个人", "EUR", "$100.00", "终端用户钱包 USDT 覆盖", "李欣 · 租户管理员"], ["2026-09-03 10:18", "T-1003 星桥支付 StarBridge", "VA-1003-0005", "Alex Tan", "CUS-9301", "企业", "USD", "$1,000.00", "记账后收取（暂未收费）", "谢轶 · 平台超管"]];
+function renderRows(list) {
+  var tb = document.getElementById('tbody'), html = '';
+  list.forEach(function(r) {
+    html += '<tr><td>' + r[0] + '</td><td class="t-name">' + r[1] + '</td><td class="mono">' + r[2] + '</td>'
+      + '<td>' + r[3] + '<div class="t-sub">' + r[4] + '</div></td><td>' + r[5] + '</td><td>' + r[6] + '</td>'
+      + '<td class="num">' + r[7] + '</td><td>' + r[8] + '</td><td>' + r[9] + '</td>'
+      + '<td class="ops"><a onclick="openRec(\'' + r[2] + '\')">留痕</a></td></tr>';
+  });
+  tb.innerHTML = list.length ? html : '<tr><td colspan="10" style="text-align:center;color:#9aa1ad;padding:30px 0;">没有匹配的记录 · 试试「重置」</td></tr>';
+  document.getElementById('pageInfo').textContent = '共 ' + list.length + ' 条 · 每页 10 条';
+}
+function applyFilter() {
+  var kw = document.getElementById('kw').value.trim().toLowerCase(), ten = document.getElementById('fTen').value;
+  var ty = document.getElementById('fType').value, cur = document.getElementById('fCur').value;
+  var from = document.getElementById('fFrom').value, to = document.getElementById('fTo').value;
+  renderRows(REC.filter(function(r) {
+    var hitKw = !kw || (r[2] + r[4] + r[3]).toLowerCase().indexOf(kw) >= 0, d = r[0].slice(0, 10);
+    return hitKw && (!ten || r[1].indexOf(ten) >= 0) && (!ty || r[5] === ty) && (!cur || r[6] === cur) && (!from || d >= from) && (!to || d <= to);
+  }));
+}
+function resetFilter() {
+  ['kw', 'fFrom', 'fTo'].forEach(function(id) { document.getElementById(id).value = ''; });
+  ['fTen', 'fType', 'fCur'].forEach(function(id) { document.getElementById(id).value = ''; });
+  renderRows(REC);
+}
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+function openRec(no) {
+  var r = REC.filter(function(x) { return x[2] === no; })[0];
+  document.getElementById('recRows').innerHTML =
+    '<div class="kv"><span class="k">VA 号 / 所属租户</span><span class="v mono">' + r[2] + ' · ' + r[1] + '</span></div>'
+    + '<div class="kv"><span class="k">终端客户 / 引用号 / 类型</span><span class="v">' + r[3] + ' · ' + r[4] + ' · ' + r[5] + '</span></div>'
+    + '<div class="kv"><span class="k">币种 / 开户费</span><span class="v">' + r[6] + ' · ' + r[7] + '</span></div>'
+    + '<div class="kv"><span class="k">收费方式</span><span class="v">' + r[8] + '</span></div>'
+    + '<div class="kv"><span class="k">开立时间 / 操作人</span><span class="v">' + r[0] + ' · ' + r[9] + '</span></div>'
+    + '<div class="kv"><span class="k">钱包扣减凭证（个人）</span><span class="v mono">' + (r[5] === '企业' ? '——（记账后收取）' : 'WLT-202610-' + r[4].slice(-4)) + '</span></div>'
+    + '<div class="kv"><span class="k">审计链</span><span class="v"><a style="color:#E59303;text-decoration:none;" href="2026-10-15_权限与审计日志_管理端.html">查看审计日志 →</a></span></div>';
+  openModal('modalRec');
+}
+document.querySelectorAll('.modal-overlay').forEach(function(el) { el.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('active'); }); });
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.active').forEach(function(m) { m.classList.remove('active'); }); });
+renderRows(REC);
 </script>
 </div><!-- /main -->
 

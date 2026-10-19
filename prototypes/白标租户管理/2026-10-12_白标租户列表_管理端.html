@@ -108,24 +108,31 @@ tbody tr:hover td { background:#fdfdfd; }
 .pmnote-toggle { position:fixed; right:14px; bottom:14px; z-index:9999; background:#1a1e26; color:#FFCA00; border:1px solid #2a2f3a; border-radius:20px; padding:6px 14px; font-size:12px; cursor:pointer; font-family:inherit; }
 body.hide-pmnote .pmnote { display:none!important; }
 @media (max-width:1100px) { .stats { grid-template-columns:1fr 1fr; } }
-</style>
+
+    .kv { display:flex; justify-content:space-between; gap:12px; padding:9px 0; border-bottom:1px dashed #eef0f4; font-size:13px; }
+    .kv:last-child { border-bottom:0; }
+    .kv .k { color:#6b7280; }
+    .kv .v { color:#1D2129; font-weight:500; text-align:right; }
+    .pill { display:inline-block; padding:2px 9px; border-radius:11px; font-size:11.5px; font-weight:500; }
+    .chip-link { border:0; cursor:pointer; font:inherit; }
+    .pill-ok { background:#eaf7ef; color:#1a7f4b; }
+    .pill-gray { background:#f2f3f5; color:#8b93a1; }
+  </style>
 </head>
 <body>
 <aside class="sidebar">
   <div class="sidebar-brand">
-    <div class="logo"><span class="logo-mark">Y</span>YASBe 平台管理</div>
+    <a class="logo" href="index.html"><span class="logo-mark">Y</span>YASBe 平台管理</a>
     <div class="logo-sub">白标租户管理</div>
   </div>
   <nav class="sidebar-nav">
-    <div class="sidebar-group">租户运营</div>
+    <div class="sidebar-group">白标租户管理</div>
+    <a class="sidebar-item" href="index.html"><span class="ico">■</span>原型目录</a>
     <a class="sidebar-item active" href="2026-10-12_白标租户列表_管理端.html"><span class="ico">▦</span>租户列表</a>
-    <a class="sidebar-item" href="2026-10-12_白标租户开通向导_管理端.html"><span class="ico">＋</span>开通向导</a>
-    <div class="sidebar-group">日常作业</div>
-    <a class="sidebar-item" href="#" onclick="alert('[PM 备注] 待办中心将在后续增量产出');return false;"><span class="ico">☰</span>待办中心</a>
-    <a class="sidebar-item" href="#" onclick="alert('[PM 备注] 用量与收入将在后续增量产出');return false;"><span class="ico">◔</span>用量与收入</a>
+    <a class="sidebar-item" href="2026-10-15_VA列表_管理端.html"><span class="ico">▤</span>VA 列表</a>
+    <a class="sidebar-item" href="2026-10-15_开户记录_管理端.html"><span class="ico">▥</span>开户记录</a>
+    <a class="sidebar-item" href="2026-10-15_交易流水查询_管理端.html"><span class="ico">≡</span>交易流水查询</a>
     <a class="sidebar-item" href="2026-10-15_结算与对账_管理端.html"><span class="ico">⇄</span>结算与对账</a>
-    <a class="sidebar-item" href="#" onclick="alert('[PM 备注] 交易流水查询将在后续增量产出');return false;"><span class="ico">≡</span>交易流水查询</a>
-    <div class="sidebar-group">平台治理</div>
     <a class="sidebar-item" href="2026-10-15_权限与审计日志_管理端.html"><span class="ico">▣</span>权限与审计日志</a>
   </nav>
   <div class="sidebar-foot">v0.1 · 一期原型</div>
@@ -134,7 +141,7 @@ body.hide-pmnote .pmnote { display:none!important; }
 <div class="main">
 <button class="pmnote-toggle" onclick="document.body.classList.toggle('hide-pmnote');this.textContent=document.body.classList.contains('hide-pmnote')?'显示备注':'隐藏备注'">隐藏备注</button>
 <!-- PM-NOTE: 管理端 -->
-<div class="pmnote"><b>PM 备注</b>统计条与表格一致：租户总数 7 = 生产中 4（含部分生产 2）+ 可联调 1 + 审核中 1 + 暂停 1；本月用量合计 11,841 笔、本月应收 $16,530.60 = 表格两列求和。已授权模块数按租户计：法币 5 · 加密 3 · 卡片 2。</div>
+<div class="pmnote"><b>PM 备注</b>统计条与表格一致：租户总数 7 = 已开户 6 + 暂停 1；本月用量合计 11,841 笔、本月应收 $16,530.60 = 排除「暂停」租户后的应收列合计（全求和 $16,940.60）。法币 VA 状态按租户计：已开通 3 · 已开通（联调）3 · 未开通 1。</div>
 <div class="header">
   <div>
     <div class="crumb">白标租户管理 / <b>租户列表</b></div>
@@ -143,7 +150,7 @@ body.hide-pmnote .pmnote { display:none!important; }
   </div>
   <div style="display:flex;gap:10px;">
     <button class="btn btn-outline" onclick="alert('[原型演示] 导出当前筛选结果')">⬇ 导出</button>
-    <a class="btn btn-primary" href="2026-10-12_白标租户开通向导_管理端.html">＋ 开通租户</a>
+    <button class="btn btn-primary" onclick="openNewTenant()">＋ 新增租户</button>
   </div>
 </div>
 
@@ -152,43 +159,50 @@ body.hide-pmnote .pmnote { display:none!important; }
   <div class="pmnote dem"><b>PM 备注</b>口径变更：本页已按业务流程稿 v1.0 重做 —— 删除「品牌与域名」「证书到期」「累计结算（含未支付）」等旧口径（我方不给租户做品牌化界面），改为「阶段 + 已授权模块 + 密钥 + 载体 + 本月用量/应收」。租户的终端客户只以「载体数」体现，不展示终端客户明细。</div>
 
   <div class="stats">
-    <div class="stat"><div class="s-label">租户总数</div><div class="s-value">7</div><div class="s-sub">生产中 4 · 可联调 1 · 审核中 1 · 暂停 1</div></div>
-    <div class="stat"><div class="s-label">待办</div><div class="s-value amber">3</div><div class="s-sub">待审核 1 · 待切生产确认 2</div></div>
-    <div class="stat"><div class="s-label">本月用量</div><div class="s-value">11,841</div><div class="s-sub">笔 · 法币 / 加密 / 卡片 三模块合计</div></div>
-    <div class="stat"><div class="s-label">本月应收（USD）</div><div class="s-value gold">$16,530.60</div><div class="s-sub">按结算单口径，含未支付</div></div>
-  </div>
+      <div class="stat"><div class="s-label">租户总数</div><div class="s-value">7</div><div class="s-sub">已开户 6 · 暂停 1</div></div>
+      <div class="stat"><div class="s-label">待办</div><div class="s-value amber">3</div><div class="s-sub">储备金预警 1 · 挂账待处理 1 · VA 待开立 1</div></div>
+      <div class="stat"><div class="s-label">本月用量</div><div class="s-value">11,841</div><div class="s-sub">笔 · 法币 VA（入金 / 出金 / 换汇）</div></div>
+      <div class="stat"><div class="s-label">本月应收（USD）</div><div class="s-value gold">$16,530.60</div><div class="s-sub">排除「暂停」租户 · 当笔结算</div></div>
+    </div>
 
-  <div class="filters">
-    <div class="filter-group">
-      <label>关键词</label>
-      <input id="kw" type="text" placeholder="租户名称 / 租户 ID / 联系人邮箱" oninput="applyFilter()">
+    <div class="filters">
+      <div class="filter-group">
+        <label>关键词</label>
+        <input id="kw" type="text" placeholder="租户名称 / 租户 ID / 联系人邮箱" oninput="applyFilter()">
+      </div>
+      <div class="filter-group">
+        <label>阶段</label>
+        <select id="fStage" onchange="applyFilter()">
+          <option value="">全部状态</option>
+          <option>已开户</option><option>暂停</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>地区</label>
+        <select id="fRegion" onchange="applyFilter()">
+          <option value="">全部地区</option>
+          <option>新加坡</option><option>中国香港</option><option>英国</option><option>美国</option>
+          <option>加拿大</option><option>澳大利亚</option><option>阿联酋</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label>法币 VA 状态</label>
+        <select id="fModule" onchange="applyFilter()">
+          <option value="">全部状态</option>
+          <option value="prod">生产</option><option value="limited">受限（联调）</option><option value="off">未开</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>创建时间</label>
+        <input id="fFrom" type="date" onchange="applyFilter()">
+        <span class="dim" style="align-self:center;">~</span>
+        <input id="fTo" type="date" onchange="applyFilter()">
+      </div>
+      <button class="btn btn-secondary" onclick="resetFilter()">重置</button>
     </div>
-    <div class="filter-group">
-      <label>阶段</label>
-      <select id="fStage" onchange="applyFilter()">
-        <option value="">全部阶段</option>
-        <option>已建立</option>
-        <option>审核中</option>
-        <option>已签约</option>
-        <option>可联调</option>
-        <option>部分生产</option>
-        <option>全部生产</option>
-        <option>暂停</option>
-      </select>
-    </div>
-    <div class="filter-group">
-      <label>已授权模块</label>
-      <select id="fModule" onchange="applyFilter()">
-        <option value="">全部模块</option>
-        <option>法币</option>
-        <option>加密</option>
-        <option>卡片</option>
-      </select>
-    </div>
-    <button class="btn btn-secondary" onclick="resetFilter()">重置</button>
-  </div>
 
-  <div class="pmnote dem"><b>PM 备注</b>列表平铺、无「详情」弹窗；租户详情走主从两级（列表 → 租户详情页，面包屑返回）。列表按创建时间倒序；分页每页 10 条。</div>
+    <div class="pmnote dem"><b>PM 备注</b>列表字段与交互口径（MVP = 仅法币 VA；按笔收费 · 当笔结算）：列 = 租户（名称 + 租户 ID + 注册邮箱）/ 状态（已开户 · 暂停）/ 地区 / 法币 VA（已开通 · 联调 · 未开通）/ 密钥 / 载体（终端客户）/ 本月用量 / 本月应收（USD）/ 创建时间 / 操作（F-201 · F-204）。筛选含状态 / 地区 / 创建时间三维，另加关键词与法币 VA 状态两个便捷维度；列表按创建时间倒序，每页 10 条。行内操作：详情（跳转租户详情页，主从两级 + 面包屑）/ 模块授权 / 暂停 · 恢复 · 终止 / 密钥；暂停、恢复、终止均二次确认并填写原因，终止还需逐字输入租户名称；密钥明文仅在重置完成时展示一次。</div>
 
   <div class="table-wrapper">
     <div class="table-scroll">
@@ -196,8 +210,9 @@ body.hide-pmnote .pmnote { display:none!important; }
         <thead>
           <tr>
             <th>租户</th>
-            <th>阶段</th>
-            <th>已授权模块</th>
+            <th>状态</th>
+            <th>地区</th>
+            <th>法币 VA</th>
             <th>密钥</th>
             <th>载体（终端客户）</th>
             <th>本月用量</th>
@@ -220,122 +235,220 @@ body.hide-pmnote .pmnote { display:none!important; }
   </div>
 </div>
 
-<div class="modal-overlay" id="modalPause">
-  <div class="modal">
-    <div class="modal-header">
-      <h2>暂停租户</h2>
-      <button class="modal-close" onclick="closeModal('modalPause')">✕</button>
-    </div>
+<div class="modal-overlay" id="modalPause"><div class="modal">
+    <div class="modal-header"><h2>暂停租户</h2><button class="modal-close" onclick="closeModal('modalPause')">✕</button></div>
     <div class="modal-body">
-      <div class="tip warn"><b>暂停的后果</b>该租户立即停止新交易（新建载体、入金、出金、开卡、刷卡均被拒绝），存量载体仍可查询、可退回。恢复后解除。</div>
-      <div class="form-group" style="margin-top:16px;">
-        <label>租户</label>
-        <input id="pauseName" type="text" readonly>
+      <div class="tip warn"><b>暂停的后果</b>该租户立即停止新交易（新建虚拟账户、入金、出金均被拒绝），存量虚拟账户仍可查询、可退回。恢复后解除。</div>
+      <div class="form-group" style="margin-top:16px;"><label>租户</label><input id="pauseName" type="text" readonly></div>
+      <div class="form-group"><label>暂停原因</label><textarea id="pauseReason" placeholder="例：资质到期需补件 / 客户申请暂停 / 合规事件"></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modalPause')">取消</button><button class="btn btn-danger" onclick="confirmPause()">确认暂停</button></div>
+  </div></div>
+
+  <div class="modal-overlay" id="modalRecover"><div class="modal">
+    <div class="modal-header"><h2>恢复租户</h2><button class="modal-close" onclick="closeModal('modalRecover')">✕</button></div>
+    <div class="modal-body">
+      <div class="tip"><b>恢复的影响面</b>新交易与额度恢复（新建虚拟账户、入金、出金可用）；暂停期间被拒的请求<b>不会自动重放</b>，需租户自行重试。</div>
+      <div class="form-group" style="margin-top:16px;"><label>租户</label><input id="recoverName" type="text" readonly></div>
+      <div class="form-group"><label>恢复原因</label><textarea id="recoverReason" placeholder="例：补件完成 / 客户申请恢复 / 争议处理完毕"></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modalRecover')">取消</button><button class="btn btn-ok" onclick="confirmRecover()">确认恢复</button></div>
+  </div></div>
+
+  <div class="modal-overlay" id="modalTerm"><div class="modal">
+    <div class="modal-header"><h2>终止租户</h2><button class="modal-close" onclick="closeModal('modalTerm')">✕</button></div>
+    <div class="modal-body">
+      <div class="tip warn"><b>终止不可逆</b>终止后该租户所有密钥立即失效、全部虚拟账户停用、未结算余额转人工处理；存量载体进入清退流程，已出账单按合同结算至终止日。请二次确认。</div>
+      <div class="form-group" style="margin-top:16px;"><label>租户</label><input id="termName" type="text" readonly></div>
+      <div class="form-group"><label>逐字输入租户名称以确认</label><input id="termInput" type="text" placeholder="需与上方租户名称完全一致"></div>
+      <div class="form-group"><label>终止原因</label><textarea id="termReason" placeholder="例：客户主动退出 / 重大合规事件 / 合同到期不续约"></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modalTerm')">取消</button><button class="btn btn-danger" onclick="confirmTerm()">确认终止</button></div>
+  </div></div>
+
+  <div class="modal-overlay" id="modalKey"><div class="modal">
+    <div class="modal-header"><h2>API 密钥</h2><button class="modal-close" onclick="closeModal('modalKey')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>租户</label><input id="keyName" type="text" readonly></div>
+      <div class="tip" style="margin-top:6px;"><b>当前密钥状态</b><div id="keyState" style="margin-top:6px;"></div></div>
+      <div class="tip warn" style="margin-top:12px;"><b>重置的后果</b>旧 key 立即失效，该租户需改配置并重新联调（生产环境会造成调用中断）；一个租户只有一把 key，模块授权在「模块授权」中单独配置，重置 key 不影响已授权模块。</div>
+      <div class="form-group" style="margin-top:16px;"><label>重置范围</label>
+        <select id="keyScope"><option>受限环境 key</option><option>生产环境 key</option><option>两者同时重置</option></select>
       </div>
-      <div class="form-group">
-        <label>暂停原因</label>
-        <textarea id="pauseReason" placeholder="例：资质到期需补件 / 客户申请暂停"></textarea>
-      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modalKey')">取消</button><button class="btn btn-danger" onclick="confirmKey()">确认重置</button></div>
+  </div></div>
+
+  <div class="modal-overlay" id="modalVa"><div class="modal">
+    <div class="modal-header"><h2>法币 VA 概览</h2><button class="modal-close" onclick="closeModal('modalVa')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>租户</label><input id="vaTenant" type="text" readonly></div>
+      <div id="vaRows" style="margin-top:6px;"></div>
+      <div class="tip" style="margin-top:12px;"><b>口径</b>法币虚拟账户（VA）= 平台为租户的终端客户开立的 USD 收款账户；<b>资金归集与托管账号属平台账本内容，不向终端客户展示</b>，终端客户只看到与自己 VA 对应的收款信息与参考号。</div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modalPause')">取消</button>
-      <button class="btn btn-danger" onclick="confirmPause()">确认暂停</button>
+      <button class="btn btn-secondary" onclick="closeModal('modalVa')">关闭</button>
+      <button class="btn btn-primary" onclick="openVaList()">查看 VA 列表 →</button>
     </div>
-  </div>
-</div>
+  </div></div>
 
-<div class="modal-overlay" id="modalKey">
-  <div class="modal">
-    <div class="modal-header">
-      <h2>重置 API 密钥</h2>
-      <button class="modal-close" onclick="closeModal('modalKey')">✕</button>
-    </div>
+    <div class="modal-overlay" id="modalFee"><div class="modal">
+    <div class="modal-header"><h2>修改租户费率</h2><button class="modal-close" onclick="closeModal('modalFee')">✕</button></div>
     <div class="modal-body">
-      <div class="tip warn"><b>重置的后果</b>旧 key 立即失效，该租户需要改配置并重新联调（生产环境下会造成调用中断）。一个租户只有一把 key，模块授权在租户档案里配置，重置 key 不影响已授权模块。</div>
-      <div class="form-group" style="margin-top:16px;">
-        <label>租户</label>
-        <input id="keyName" type="text" readonly>
-      </div>
-      <div class="form-group">
-        <label>重置范围</label>
-        <select id="keyScope">
-          <option>受限环境 key</option>
-          <option>生产环境 key</option>
-          <option>两者同时重置</option>
-        </select>
+      <div class="tip"><b>规则</b>按笔收费 · 当笔结算；低于平台底价不可保存，改价<b>不追溯</b>已发生交易（价格快照）。开户费不支持减免。</div>
+      <div class="form-group" style="margin-top:14px;"><label>租户</label><input id="feeTenant" readonly></div>
+      <div class="form-grid">
+        <div class="form-group"><label>入金手续费 PAYIN（比例）</label><input class="mono" value="0.28%"></div>
+        <div class="form-group"><label>平台底价</label><input class="mono" value="0.20%" readonly></div>
+        <div class="form-group"><label>出金手续费 PAYOUT（固定 / 笔）</label><input class="mono" value="$2.00"></div>
+        <div class="form-group"><label>平台底价</label><input class="mono" value="$1.50 / 笔" readonly></div>
+        <div class="form-group"><label>换汇 Spread（比例）</label><input class="mono" value="80 bps"></div>
+        <div class="form-group"><label>平台底价</label><input class="mono" value="50 bps" readonly></div>
+        <div class="form-group"><label>退款手续费（固定 / 笔）</label><input class="mono" value="$0.50"></div>
+        <div class="form-group"><label>平台底价</label><input class="mono" value="$0.50" readonly></div>
+        <div class="form-group"><label>VA 开户费 · 个人（每币种）</label><input class="mono" value="$100.00"></div>
+        <div class="form-group"><label>VA 开户费 · 企业（每币种）</label><input class="mono" value="$1,000.00"></div>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modalKey')">取消</button>
-      <button class="btn btn-danger" onclick="confirmKey()">确认重置</button>
-    </div>
-  </div>
-</div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modalFee')">取消</button><button class="btn btn-primary" onclick="confirmFee()">保存费率</button></div>
+  </div></div>
 
-<div class="modal-overlay" id="modalDone">
-  <div class="modal">
-    <div class="modal-header">
-      <h2 id="doneTitle">操作已提交</h2>
-      <button class="modal-close" onclick="closeModal('modalDone')">✕</button>
-    </div>
+  <div class="modal-overlay" id="modalRecharge"><div class="modal">
+    <div class="modal-header"><h2>充值下游余额</h2><button class="modal-close" onclick="closeModal('modalRecharge')">✕</button></div>
     <div class="modal-body">
-      <div class="tip" id="doneBody">操作已提交，记录已生成。</div>
+      <div class="tip"><b>口径</b>下游余额（储备金）由平台管理员<b>手动充值</b>；来源仅两种：<b>线下打款</b>（法币）与 <b>收 U</b>（仅 USDT / USDC，链仅以太链与波场链）。到账后手动入账并留痕。</div>
+      <div class="form-group" style="margin-top:14px;"><label>租户</label><input id="rcTenant" readonly></div>
+      <div class="form-grid">
+        <div class="form-group"><label>充值来源</label><select id="rcSource" onchange="rcSync()"><option>线下打款（法币）</option><option>收 U（USDT / USDC）</option></select></div>
+        <div class="form-group"><label>币种</label><select id="rcCur"><option>USD</option><option>EUR</option><option>GBP</option></select></div>
+        <div class="form-group"><label>链（仅收 U）</label><select id="rcChain"><option>—</option><option>以太链 ERC-20</option><option>波场链 TRC-20</option></select></div>
+        <div class="form-group"><label>入账金额</label><input class="mono" placeholder="例：42000.00"></div>
+        <div class="form-group"><label>打款凭证号 / 交易哈希</label><input class="mono" placeholder="例：TX-0x8f21…"></div>
+        <div class="form-group"><label>到账时间</label><input type="datetime-local" value="2026-10-15T17:05"></div>
+      </div>
+      <div class="kv"><span class="k">U 收款地址（以太链 ERC-20）</span><span class="v mono">0x7A3f9c21B4e8D05a1f77C6b2E9318a4F0d5C9E21</span></div>
+      <div class="kv"><span class="k">U 收款地址（波场链 TRC-20）</span><span class="v mono">TQ5n8Xw2kLpR7vB3yHm9dF4sJ1cT6bZ8Kd</span></div>
+      <div class="form-group" style="margin-top:10px;"><label>备注</label><textarea placeholder="例：客户线下打款已核对 / 链上到账 6 次确认"></textarea></div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-primary" onclick="closeModal('modalDone')">知道了</button>
-    </div>
-  </div>
-</div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modalRecharge')">取消</button><button class="btn btn-primary" onclick="confirmRecharge()">确认入账</button></div>
+  </div></div>
 
-<script>
+  <div class="modal-overlay" id="modalNew"><div class="modal">
+    <div class="modal-header"><h2>新增租户</h2><button class="modal-close" onclick="closeModal('modalNew')">✕</button></div>
+    <div class="modal-body">
+      <div class="tip"><b>口径</b>新增即开户：状态直接置为「已开户」（KYB 走线下登记，仅登记基础资料 + 归档合同）；开户费与费率在此一并设置，余额由平台管理员后续手动充值。</div>
+      <div class="sec-title" style="margin-top:14px;">企业基础信息</div>
+      <div class="form-grid">
+        <div class="form-group"><label>注册邮箱</label><input placeholder="admin@example.com"></div>
+        <div class="form-group"><label>公司名称</label><input placeholder="某某科技有限公司"></div>
+        <div class="form-group"><label>法定代表人</label><input placeholder="张三"></div>
+        <div class="form-group"><label>联系电话</label><input placeholder="+86 138 0000 0000"></div>
+        <div class="form-group"><label>联系人</label><input placeholder="李四"></div>
+        <div class="form-group"><label>注册地址</label><input placeholder="上海市浦东新区…"></div>
+      </div>
+      <div class="sec-title" style="margin-top:16px;">基础资料与合同</div>
+      <div class="form-grid">
+        <div class="form-group"><label>合同编号</label><input class="mono" placeholder="CT-2026-1003"></div>
+        <div class="form-group"><label>结算方式</label><input value="按笔结算（当笔实时扣减）" readonly></div>
+        <div class="form-group"><label>签署日期</label><input type="date" value="2026-10-15"></div>
+        <div class="form-group"><label>生效日期</label><input type="date" value="2026-10-22"></div>
+      </div>
+      <div class="file-item"><div><div class="f-name">合作协议 Cooperation Agreement</div><div class="f-meta">必传 · CT-2026-1003_合作协议.pdf</div></div><span class="pill pill-ok">已上传</span></div>
+      <div class="file-item"><div><div class="f-name">Fee Plan 费用方案 / SLA 服务等级协议</div><div class="f-meta">选传 · 未上传</div></div><button class="btn btn-outline" style="padding:4px 12px;font-size:12px;" onclick="alert('[原型演示] 已选择文件')">上传</button></div>
+      <div class="sec-title" style="margin-top:16px;">计费与费率（按笔 · 当笔结算）</div>
+      <div class="form-grid">
+        <div class="form-group"><label>入金手续费 PAYIN（比例）</label><input class="mono" value="0.28%"></div>
+        <div class="form-group"><label>平台底价</label><input class="mono" value="0.20%" readonly></div>
+        <div class="form-group"><label>出金手续费 PAYOUT（固定 / 笔）</label><input class="mono" value="$2.00"></div>
+        <div class="form-group"><label>平台底价</label><input class="mono" value="$1.50 / 笔" readonly></div>
+        <div class="form-group"><label>VA 开户费 · 个人（每币种）</label><input class="mono" value="$100.00"></div>
+        <div class="form-group"><label>VA 开户费 · 企业（每币种）</label><input class="mono" value="$1,000.00"></div>
+      </div>
+      <div class="kv"><span class="k">U 收款地址</span><span class="v">提交后自动生成（以太链 ERC-20 + 波场链 TRC-20 · USDT / USDC）</span></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modalNew')">取消</button><button class="btn btn-primary" onclick="confirmNewTenant()">提交并开户</button></div>
+  </div></div>
+
+  <div class="modal-overlay" id="modalDone"><div class="modal">
+    <div class="modal-header"><h2 id="doneTitle">操作已提交</h2><button class="modal-close" onclick="closeModal('modalDone')">✕</button></div>
+    <div class="modal-body"><div class="tip" id="doneBody">操作已提交，记录已生成。</div></div>
+    <div class="modal-footer"><button class="btn btn-primary" onclick="closeModal('modalDone')">知道了</button></div>
+  </div></div>
+
+  <script>
+function openNewTenant() { openModal('modalNew'); }
+function confirmNewTenant() { closeModal('modalNew'); doneBox('租户已创建 · 已开户', '原型演示：租户档案已建立，状态=已开户；费率与开户费已按填写值保存，U 收款地址已生成。可在「开户记录」查看开立留痕。'); }
+
+function openFee(name) { document.getElementById('feeTenant').value = name; openModal('modalFee'); }
+function confirmFee() { closeModal('modalFee'); doneBox('费率已保存', '原型演示：该租户费率已更新（低于平台底价会被拒绝）；变动不追溯已发生交易，已写入审计。'); }
+function openRecharge(name) { document.getElementById('rcTenant').value = name; rcSync(); openModal('modalRecharge'); }
+function rcSync() {
+  var u = document.getElementById('rcSource').value.indexOf('收 U') >= 0;
+  document.getElementById('rcCur').innerHTML = u ? '<option>USDT</option><option>USDC</option>' : '<option>USD</option><option>EUR</option><option>GBP</option>';
+  document.getElementById('rcChain').value = u ? '以太链 ERC-20' : '—';
+}
+function confirmRecharge() { closeModal('modalRecharge'); doneBox('下游余额已入账', '原型演示：已手动入账；入账记录已写入审计（储备金手动入账）。'); }
+
 var TENANTS = [
-  { name:'Meridian Pay', id:'WL-1001', email:'ops@meridianpay.com', stage:'全部生产', badge:'badge-active',
-    mods:[['法币','prod'],['加密','prod'],['卡片','prod']], key:'生产 key · 7 天前轮换',
-    carriers:'1,284', usage:'6,204', fee:'$9,180.20', created:'2026-06-18' },
-  { name:'Nova Bank', id:'WL-1002', email:'dev@novabank.io', stage:'全部生产', badge:'badge-active',
-    mods:[['法币','prod'],['加密','prod'],['卡片','off']], key:'生产 key · 21 天前轮换',
-    carriers:'812', usage:'3,105', fee:'$4,220.00', created:'2026-07-02' },
-  { name:'星桥支付 StarBridge', id:'WL-1003', email:'api@starbridge.cn', stage:'部分生产', badge:'badge-part',
-    mods:[['法币','prod'],['加密','off'],['卡片','limited']], key:'受限 key + 生产 key',
-    carriers:'486', usage:'1,540', fee:'$1,890.40', created:'2026-08-11' },
-  { name:'Atlas Wallet', id:'WL-1004', email:'eng@atlaswallet.co', stage:'部分生产', badge:'badge-part',
-    mods:[['法币','limited'],['加密','prod'],['卡片','off']], key:'受限 key + 生产 key',
-    carriers:'320', usage:'980', fee:'$1,240.00', created:'2026-08-25' },
-  { name:'Northwind Pay', id:'WL-1005', email:'tech@northwind.pay', stage:'可联调', badge:'badge-warn',
-    mods:[['法币','limited'],['加密','off'],['卡片','off']], key:'受限 key · 限额度 $5,000',
-    carriers:'0', usage:'12', fee:'$0.00', created:'2026-09-30' },
-  { name:'Helio Financial', id:'WL-1006', email:'kyb@heliofin.com', stage:'审核中', badge:'badge-review',
-    mods:[['法币','off'],['加密','off'],['卡片','off']], key:'—',
+  { name:'Helio Financial', id:'WL-1006', email:'kyb@heliofin.com', stage:'已开户', badge:'badge-active',
+    region:'澳大利亚',
+    mods:[['法币','off']], key:'—',
     carriers:'—', usage:'—', fee:'—', created:'2026-10-08' },
+  { name:'Northwind Pay', id:'WL-1005', email:'tech@northwind.pay', stage:'已开户', badge:'badge-active',
+    region:'加拿大',
+    mods:[['法币','limited']], key:'受限 key · 限额度 $5,000',
+    carriers:'0', usage:'12', fee:'$0.00', created:'2026-09-30' },
+  { name:'Atlas Wallet', id:'WL-1004', email:'eng@atlaswallet.co', stage:'已开户', badge:'badge-active',
+    region:'美国',
+    mods:[['法币','limited']], key:'受限 key + 生产 key',
+    carriers:'320', usage:'980', fee:'$1,240.00', created:'2026-08-25' },
+  { name:'星桥支付 StarBridge', id:'WL-1003', email:'api@starbridge.cn', stage:'已开户', badge:'badge-active',
+    region:'中国香港',
+    mods:[['法币','prod']], key:'受限 key + 生产 key',
+    carriers:'486', usage:'1,540', fee:'$1,890.40', created:'2026-08-11' },
+  { name:'Nova Bank', id:'WL-1002', email:'dev@novabank.io', stage:'已开户', badge:'badge-active',
+    region:'英国',
+    mods:[['法币','prod']], key:'生产 key · 21 天前轮换',
+    carriers:'812', usage:'3,105', fee:'$4,220.00', created:'2026-07-02' },
+  { name:'Meridian Pay', id:'WL-1001', email:'ops@meridianpay.com', stage:'已开户', badge:'badge-active',
+    region:'新加坡',
+    mods:[['法币','prod']], key:'生产 key · 7 天前轮换',
+    carriers:'1,284', usage:'6,204', fee:'$9,180.20', created:'2026-06-18' },
   { name:'Orbit Pay', id:'WL-1007', email:'hello@orbitpay.io', stage:'暂停', badge:'badge-danger',
-    mods:[['法币','limited'],['加密','off'],['卡片','off']], key:'生产 key（已停用）',
+    region:'阿联酋',
+    mods:[['法币','limited']], key:'生产 key（已停用）',
     carriers:'204', usage:'0', fee:'$410.00', created:'2026-05-20' }
 ];
-var MODLABEL = { prod:'生产', limited:'受限', off:'未开' };
+var MODLABEL = { prod:'已开通', limited:'已开通（联调）', off:'未开通' };
 var MODCLASS = { prod:'chip-prod', limited:'chip-limited', off:'chip-off' };
 
 function renderRows(list) {
   var tb = document.getElementById('tbody');
   var html = '';
   list.forEach(function(t) {
-    var mods = t.mods.map(function(m) {
-      return '<span class="chip ' + MODCLASS[m[1]] + '">' + m[0] + ' ' + MODLABEL[m[1]] + '</span>';
-    }).join('');
-    var ops = '<a class="btn btn-outline btn-sm" href="#" onclick="alert(\'[PM 备注] 租户详情（主从两级）将在下一增量产出\');return false;">查看</a>';
+    var st = t.mods[0][1];
+    var vaChip = '<button class="chip chip-link ' + MODCLASS[st] + '" onclick="openVa(\'' + t.name + '\')" title="查看该租户法币 VA 概览">' + MODLABEL[st] + '</button>';
+    var ops = (t.id === 'WL-1003')
+      ? '<a class="btn btn-outline btn-sm" href="2026-10-15_租户详情总览_管理端.html">详情</a>'
+      : '<button class="btn btn-outline btn-sm" onclick="alert(\'[PM 备注] 原型仅演示 星桥支付 StarBridge（WL-1003）的租户详情页，其它租户结构相同\')">详情</button>';
+    ops += '<button class="btn btn-outline btn-sm" onclick="openFee(\'' + t.name + '\')">修改费率</button>';
+    ops += '<button class="btn btn-outline btn-sm" onclick="openRecharge(\'' + t.name + '\')">充值余额</button>';
     if (t.stage === '暂停') {
-      ops += '<button class="btn btn-ok btn-sm" onclick="alert(\'[原型演示] 已恢复 ' + t.name + '\')">恢复</button>';
-    } else if (t.stage !== '审核中') {
+      ops += '<button class="btn btn-ok btn-sm" onclick="openRecover(\'' + t.name + '\')">启用</button>';
+      ops += '<button class="btn btn-danger btn-sm" onclick="openTerm(\'' + t.name + '\')">终止</button>';
+    } else {
       ops += '<button class="btn btn-danger btn-sm" onclick="openPause(\'' + t.name + '\')">暂停</button>';
     }
     if (t.key !== '—') {
-      ops += '<button class="btn btn-outline btn-sm" onclick="openKey(\'' + t.name + '\')">重置密钥</button>';
+      ops += '<button class="btn btn-outline btn-sm" onclick="openKey(\'' + t.name + '\')">密钥</button>';
     }
     html += '<tr>'
       + '<td><div class="tcell"><div class="avatar">' + t.name.charAt(0) + '</div><div>'
       + '<div class="t-name">' + t.name + '</div>'
       + '<div class="t-sub mono">' + t.id + ' · ' + t.email + '</div></div></div></td>'
       + '<td><span class="badge ' + t.badge + '">' + t.stage + '</span></td>'
-      + '<td><div class="chips">' + mods + '</div></td>'
+      + '<td class="dim">' + t.region + '</td>'
+      + '<td><div class="chips">' + vaChip + '</div></td>'
       + '<td class="dim">' + t.key + '</td>'
       + '<td class="num">' + t.carriers + '</td>'
       + '<td class="num">' + t.usage + '</td>'
@@ -344,57 +457,103 @@ function renderRows(list) {
       + '<td><div class="ops">' + ops + '</div></td>'
       + '</tr>';
   });
-  tb.innerHTML = html;
-  document.getElementById('pageInfo').textContent = '共 ' + list.length + ' 条';
+  tb.innerHTML = list.length ? html : '<tr><td colspan="11" style="text-align:center;color:#9aa1ad;padding:30px 0;">没有匹配的租户 · 试试「重置」</td></tr>';
+  document.getElementById('pageInfo').textContent = '共 ' + list.length + ' 条 · 每页 10 条';
 }
 
 function applyFilter() {
   var kw = document.getElementById('kw').value.trim().toLowerCase();
   var st = document.getElementById('fStage').value;
+  var rg = document.getElementById('fRegion').value;
   var md = document.getElementById('fModule').value;
+  var from = document.getElementById('fFrom').value;
+  var to = document.getElementById('fTo').value;
   var out = TENANTS.filter(function(t) {
     var hitKw = !kw || (t.name + t.id + t.email).toLowerCase().indexOf(kw) >= 0;
     var hitSt = !st || t.stage === st;
-    var hitMd = !md || t.mods.some(function(m) { return m[0] === md && m[1] !== 'off'; });
-    return hitKw && hitSt && hitMd;
+    var hitRg = !rg || t.region === rg;
+    var hitMd = !md || t.mods[0][1] === md;
+    var hitFrom = !from || t.created >= from;
+    var hitTo = !to || t.created <= to;
+    return hitKw && hitSt && hitRg && hitMd && hitFrom && hitTo;
   });
   renderRows(out);
 }
 
 function resetFilter() {
-  document.getElementById('kw').value = '';
-  document.getElementById('fStage').value = '';
-  document.getElementById('fModule').value = '';
+  ['kw', 'fFrom', 'fTo'].forEach(function(id) { document.getElementById(id).value = ''; });
+  ['fStage', 'fRegion', 'fModule'].forEach(function(id) { document.getElementById(id).value = ''; });
   renderRows(TENANTS);
 }
 
-function openPause(name) {
-  document.getElementById('pauseName').value = name;
-  document.getElementById('pauseReason').value = '';
-  openModal('modalPause');
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+function doneBox(title, body) {
+  document.getElementById('doneTitle').textContent = title;
+  document.getElementById('doneBody').innerHTML = body;
+  openModal('modalDone');
 }
-function confirmPause() {
-  closeModal('modalPause');
-  alert('[原型演示] 已暂停该租户，存量载体可查可退回，新交易被拒绝');
+function byName(name) { return TENANTS.filter(function(x) { return x.name === name; })[0]; }
+
+function openPause(name) { document.getElementById('pauseName').value = name; document.getElementById('pauseReason').value = ''; openModal('modalPause'); }
+function confirmPause() { closeModal('modalPause'); doneBox('租户已暂停', '原型演示：已暂停该租户。新建虚拟账户 / 入金 / 出金立即拒绝；存量虚拟账户可查询、可退回。'); }
+
+function openRecover(name) { document.getElementById('recoverName').value = name; document.getElementById('recoverReason').value = ''; openModal('modalRecover'); }
+function confirmRecover() { closeModal('modalRecover'); doneBox('租户已恢复', '原型演示：已解除暂停。新交易与额度恢复；暂停期间被拒的请求不会自动重放，需租户自行重试。'); }
+
+function openTerm(name) { document.getElementById('termName').value = name; document.getElementById('termInput').value = ''; document.getElementById('termReason').value = ''; openModal('modalTerm'); }
+function confirmTerm() {
+  var expect = document.getElementById('termName').value.trim();
+  var typed = document.getElementById('termInput').value.trim();
+  if (typed !== expect) { alert('[PM 备注] 租户名称不匹配，不能终止：需逐字输入「' + expect + '」以二次确认。'); return; }
+  closeModal('modalTerm');
+  doneBox('已进入终止流程', '原型演示：终止不可逆。密钥立即失效、门户与域名下线、未结算余额转人工处理；存量载体进入清退流程，已出账单按合同结算至终止日。');
 }
+
+
+function openVa(name) {
+  var t = byName(name);
+  document.getElementById('vaTenant').value = name;
+  document.getElementById('vaRows').innerHTML =
+    '<div class="kv"><span class="k">VA 数量（USD）</span><span class="v">' + t.carriers + '</span></div>'
+    + '<div class="kv"><span class="k">VA 状态</span><span class="v"><span class="chip ' + MODCLASS[t.mods[0][1]] + '">' + MODLABEL[t.mods[0][1]] + '</span></span></div>'
+    + '<div class="kv"><span class="k">本月入金 / 出金（笔）</span><span class="v">' + t.usage + ' 笔合计</span></div>'
+    + '<div class="kv"><span class="k">本月应收（USD）</span><span class="v">' + t.fee + '</span></div>'
+    + '<div class="kv"><span class="k">开立入口</span><span class="v row-actions"><a onclick="alert(\'[PM 备注] 原型仅演示 星桥支付 StarBridge（WL-1003）的 VA 列表；其它租户结构相同\')">VA 列表</a></span></div>';
+  openModal('modalVa');
+}
+function openVaList() {
+  var name = document.getElementById('vaTenant').value;
+  closeModal('modalVa');
+  if (name === '星桥支付 StarBridge') { location.href = '2026-10-15_VA列表_管理端.html'; }
+  else { alert('[PM 备注] 原型仅演示 星桥支付 StarBridge（WL-1003）的 VA 列表；其它租户结构相同。'); }
+}
+
 function openKey(name) {
   document.getElementById('keyName').value = name;
+  var t = byName(name);
+  var hasLimited = t.mods.some(function(m) { return m[1] === 'limited'; });
+  var hasProd = t.mods.some(function(m) { return m[1] === 'prod'; });
+  document.getElementById('keyState').innerHTML =
+    '受限环境 key：' + (hasLimited ? '<span class="pill pill-ok">已发放</span>' : '<span class="pill pill-gray">未发放</span>')
+    + ' &nbsp;&nbsp; 生产环境 key：' + (hasProd ? '<span class="pill pill-ok">已发放</span>' : '<span class="pill pill-gray">未发放</span>')
+    + '<div class="dim" style="margin-top:6px;">轮换情况：' + t.key + '</div>';
   openModal('modalKey');
 }
 function confirmKey() {
   var scope = document.getElementById('keyScope').value;
   closeModal('modalKey');
-  document.getElementById('doneTitle').textContent = '密钥已重置';
-  document.getElementById('doneBody').innerHTML = '原型演示：已重置「' + scope + '」。旧 key 立即失效，租户需改配置后重新联调；已授权模块不受影响。';
-  openModal('modalDone');
+  doneBox('密钥已重置', '原型演示：已重置「' + scope + '」。旧 key 立即失效，租户需改配置后重新联调；已授权模块不受影响。新 key 明文只在重置完成时展示一次。');
 }
 
-function openModal(id) { document.getElementById(id).classList.add('active'); }
-function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-['modalPause', 'modalKey', 'modalDone'].forEach(function(id) {
+['modalPause', 'modalRecover', 'modalTerm', 'modalKey', 'modalVa', 'modalFee', 'modalRecharge', 'modalNew', 'modalDone'].forEach(function(id) {
   var el = document.getElementById(id);
-  el.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('active'); });
+  if (el) el.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('active'); });
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.active').forEach(function(m) { m.classList.remove('active'); });
+  }
 });
 
 renderRows(TENANTS);

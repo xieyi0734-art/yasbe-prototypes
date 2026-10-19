@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>白标系统 · 域名与邮件</title>
+<title>白标系统 · 交易流水查询</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -108,7 +108,16 @@ tbody tr:hover td { background:#fdfdfd; }
 .pmnote-toggle { position:fixed; right:14px; bottom:14px; z-index:9999; background:#1a1e26; color:#FFCA00; border:1px solid #2a2f3a; border-radius:20px; padding:6px 14px; font-size:12px; cursor:pointer; font-family:inherit; }
 body.hide-pmnote .pmnote { display:none!important; }
 @media (max-width:1100px) { .stats { grid-template-columns:1fr 1fr; } }
-.card{background:#fff; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.04); padding:24px 28px; margin-bottom:16px;}
+
+    .kv { display:flex; justify-content:space-between; gap:12px; padding:9px 0; border-bottom:1px dashed #eef0f4; font-size:13px; }
+    .kv:last-child { border-bottom:0; }
+    .kv .k { color:#6b7280; }
+    .kv .v { color:#1D2129; font-weight:500; text-align:right; }
+    .pill { display:inline-block; padding:2px 9px; border-radius:11px; font-size:11.5px; font-weight:500; }
+    .chip-link { border:0; cursor:pointer; font:inherit; }
+    .pill-ok { background:#eaf7ef; color:#1a7f4b; }
+    .pill-gray { background:#f2f3f5; color:#8b93a1; }
+  .card{background:#fff; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.04); padding:24px 28px; margin-bottom:16px;}
 .card h2{font-size:15px; font-weight:600; margin-bottom:4px;}
 .card .card-sub{font-size:12.5px; color:#6b7280; margin-bottom:18px;}
 .steps{display:flex; gap:0; background:#fff; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.04); padding:18px 20px; margin-bottom:16px; overflow-x:auto;}
@@ -165,22 +174,19 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
 </head>
 <body>
 
-
 <aside class="sidebar">
   <div class="sidebar-brand">
-    <div class="logo"><span class="logo-mark">Y</span>YASBe 平台管理</div>
+    <a class="logo" href="index.html"><span class="logo-mark">Y</span>YASBe 平台管理</a>
     <div class="logo-sub">白标租户管理</div>
   </div>
   <nav class="sidebar-nav">
-    <div class="sidebar-group">租户运营</div>
-    <a class="sidebar-item active" href="2026-10-12_白标租户列表_管理端.html"><span class="ico">▦</span>租户列表</a>
-    <a class="sidebar-item" href="2026-10-12_白标租户开通向导_管理端.html"><span class="ico">＋</span>开通向导</a>
-    <div class="sidebar-group">日常作业</div>
-    <a class="sidebar-item" href="#" onclick="alert('[PM 备注] 待办中心将在后续增量产出');return false;"><span class="ico">☰</span>待办中心</a>
-    <a class="sidebar-item" href="#" onclick="alert('[PM 备注] 用量与收入将在后续增量产出');return false;"><span class="ico">◔</span>用量与收入</a>
+    <div class="sidebar-group">白标租户管理</div>
+    <a class="sidebar-item" href="index.html"><span class="ico">■</span>原型目录</a>
+    <a class="sidebar-item" href="2026-10-12_白标租户列表_管理端.html"><span class="ico">▦</span>租户列表</a>
+    <a class="sidebar-item" href="2026-10-15_VA列表_管理端.html"><span class="ico">▤</span>VA 列表</a>
+    <a class="sidebar-item" href="2026-10-15_开户记录_管理端.html"><span class="ico">▥</span>开户记录</a>
+    <a class="sidebar-item active" href="2026-10-15_交易流水查询_管理端.html"><span class="ico">≡</span>交易流水查询</a>
     <a class="sidebar-item" href="2026-10-15_结算与对账_管理端.html"><span class="ico">⇄</span>结算与对账</a>
-    <a class="sidebar-item" href="#" onclick="alert('[PM 备注] 交易流水查询将在后续增量产出');return false;"><span class="ico">≡</span>交易流水查询</a>
-    <div class="sidebar-group">平台治理</div>
     <a class="sidebar-item" href="2026-10-15_权限与审计日志_管理端.html"><span class="ico">▣</span>权限与审计日志</a>
   </nav>
   <div class="sidebar-foot">v0.1 · 一期原型</div>
@@ -188,122 +194,135 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
 
 <div class="main">
   <button class="pmnote-toggle" onclick="document.body.classList.toggle('hide-pmnote');this.textContent=document.body.classList.contains('hide-pmnote')?'显示备注':'隐藏备注'">隐藏备注</button>
-  <div class="pmnote"><b>PM 备注</b>本页为「租户详情」下级页。域名 / SSL / 邮件各有独立状态机：Domain：UNBOUND → VERIFYING → VERIFIED → SSL_ISSUING → ACTIVE（→ EXPIRING → EXPIRED | RENEW_FAILED）；SMTP：UNCONFIGURED → PENDING_VERIFY → VERIFIED → ENABLED（→ SUSPENDED → DISABLED）。任何失败回退都必须显式告知，不静默。</div>
+  <div class="pmnote"><b>PM 备注</b>本页为一级菜单页（平台运营 / 财务用）。交易记录在此查看：按 VA / 交易号 / 终端客户检索入金 · 出金 · 开户费；手续费外扣、与租户下游余额同源。</div>
   <div class="header">
     <div>
-      <div class="crumb">白标租户管理 / 租户列表 / <b>星桥跨境科技</b> / <b>域名与邮件</b></div>
-      <h1>域名与邮件 · 星桥跨境科技</h1>
-      <p>自定义域名 · DNS 校验 · SSL 证书 · 邮件发件域 · SMTP 自建发件服务</p>
+      <div class="crumb">白标租户管理 / <b>交易流水查询</b></div>
+      <h1>交易流水查询</h1>
+      <p>入金 / 出金 / 开户费 · 外扣手续费与扣后余额 · 争议挂起</p>
     </div>
-    <div style="display:flex;gap:10px;"><button class="btn btn-outline" onclick="location.href='2026-10-15_租户详情总览_管理端.html'">⬅ 返回租户详情</button>
-      <button class="btn btn-primary" onclick="openModal('modalDomain')">＋ 添加域名</button></div>
+    <div style="display:flex;gap:10px;"><button class="btn btn-outline" onclick="alert('[原型演示] 导出当前筛选的交易流水 CSV')">⬇ 导出流水</button></div>
   </div>
 
   <div class="container">
-  <div class="subnav-local">租户详情：<a class="crumb-link" href="2026-10-15_租户详情总览_管理端.html">详情总览</a> · <a class="crumb-link" href="2026-10-15_品牌配置_管理端.html">品牌配置</a> · <span class="crumb-cur">域名与邮件</span> · <a class="crumb-link" href="2026-10-15_能力与额度_管理端.html">能力与额度</a> · <a class="crumb-link" href="2026-10-15_费率与计费_管理端.html">费率与计费</a></div>
-  <div class="tip"><b>前置条件</b>品牌配置已保存；租户计划含「自定义域名」权限；租户对目标域名具备 DNS 管理权。</div>
-  <div class="pmnote dem"><b>PM 备注</b>字段依据 F-401（域名申请：提交域名 → 全局唯一性校验 → 平台保留域 / 主域冲突校验，如 yasbee.com 及其子域拒绑）+ F-402（DNS 校验：CNAME 目标 + TXT 校验值，定时轮询 + 手动立即校验）+ F-403（SSL 签发与续期：到期前 30/15/7 天多级提醒，续期失败进 SSL_FAILED 并降级提示）+ F-404（主 / 备用域名：备用重定向，切换不影响已签发证书）+ F-405（邮件发件域：SPF / DKIM / DMARC 指引 → 校验 → 生效）+ F-406（SMTP 自建：host / port / 加密方式 / 账号 / 密钥 / 发件人名称，测试发信通过才可启用）+ F-407（任一环节失败自动回退平台默认，且回退必须显式告知）。</div>
+  <div class="tip"><b>口径</b>本页为「日常作业」一级页：跨租户、跨 VA 检索入金 / 出金 / 开户费流水；<b>手续费按笔实时从租户下游余额（储备金）扣减</b>，与终端用户本金分离列示；开户费由终端用户承担、不算储备金扣费。</div>
+  <div class="pmnote dem"><b>PM 备注</b>字段与「租户业务台 · 交易流水」对齐：transaction_id / client_reference_id / currency / biz_type(PAYIN·PAYOUT) / amount（用户本金）/ fee_amount（手续费）/ fee_payer / balance_after / price_snapshot_id / status。数据为演示口径：本月 11,841 笔 = 入金 7,506 + 出金 4,335，与「租户列表」本月用量同源；手续费合计 $16,530.60 = 列表页本月应收。</div>
 
-  <div class="card">
-    <h2>自定义域名</h2>
-    <div class="card-sub">F-401 · F-404 · 主域名对外，备用域名重定向；切换不影响已签发证书</div>
-    <div class="table-wrapper"><div class="table-scroll">
-      <table>
-        <thead><tr><th>域名</th><th>类型</th><th>状态</th><th>SSL 到期</th><th>操作</th></tr></thead>
-        <tbody>
-          <tr><td class="t-name">pay.xingqiao.com<div class="t-sub">CNAME → edge.yasbee.app</div></td><td>主域名</td><td><span class="badge badge-active">ACTIVE</span></td><td>2027-03-14</td><td class="ops"><a onclick="alert('[原型演示] 已下发 DNS 校验值并立即校验')">立即校验</a><a onclick="alert('[PM 备注] 主域名需先降级为备用或解绑后才能更换')">更换</a></td></tr>
-          <tr><td class="t-name">checkout.xingqiao.com<div class="t-sub">CNAME → edge.yasbee.app</div></td><td>备用</td><td><span class="badge badge-warn">VERIFYING</span></td><td>—</td><td class="ops"><a onclick="alert('[原型演示] 已下发 DNS 校验值并立即校验')">立即校验</a><a onclick="alert('[原型演示] 已解除绑定')">解绑</a></td></tr>
-          <tr><td class="t-name">old.xingqiao.com<div class="t-sub">TXT 校验未通过 · 已回退平台默认域</div></td><td>备用</td><td><span class="badge badge-danger">EXPIRED</span></td><td>2026-09-30</td><td class="ops"><a onclick="alert('[原型演示] 已重新发起绑定申请')">重新申请</a><a onclick="alert('[原型演示] 已解除绑定')">解绑</a></td></tr>
-        </tbody>
-      </table>
-    </div></div>
-    <div style="margin-top:14px;"><button class="btn btn-primary" onclick="openModal('modalDomain')">＋ 添加域名</button></div>
+  <div class="stats">
+    <div class="stat"><div class="s-label">本月交易笔数</div><div class="s-value">11,841</div><div class="s-sub">入金 7,506 · 出金 4,335</div></div>
+    <div class="stat"><div class="s-label">本月手续费（USD）</div><div class="s-value gold">$16,530.60</div><div class="s-sub">按笔扣减 · 与列表页本月应收同源</div></div>
+    <div class="stat"><div class="s-label">处理中</div><div class="s-value amber">128</div><div class="s-sub">待上游回执</div></div>
+    <div class="stat"><div class="s-label">失败 / 争议挂账</div><div class="s-value">1 / 1</div><div class="s-sub">失败不计费 · 争议冻结该笔</div></div>
   </div>
 
-  <div class="grid2">
-    <div class="card">
-      <h2>DNS 校验</h2>
-      <div class="card-sub">F-402 · 定时轮询 + 手动「立即校验」</div>
-      <div class="kv"><span class="k">记录类型</span><span class="v">CNAME / TXT</span></div>
-      <div class="kv"><span class="k">CNAME 目标</span><span class="v mono">edge.yasbee.app</span></div>
-      <div class="kv"><span class="k">TXT 校验值</span><span class="v mono">yasbee-verify=7f21c9…</span></div>
-      <div class="kv"><span class="k">最近轮询</span><span class="v">2026-10-15 17:40 · 未通过（checkout）</span></div>
-      <div style="margin-top:14px;display:flex;gap:10px;">
-        <button class="btn btn-secondary" onclick="alert('[原型演示] 立即校验已触发，结果将在 1 分钟内刷新')">立即校验</button>
-        <button class="btn btn-outline" onclick="alert('[原型演示] 校验指引已复制')">复制指引</button>
-      </div>
-    </div>
-    <div class="card">
-      <h2>SSL 证书</h2>
-      <div class="card-sub">F-403 · 校验通过后自动签发；到期前 30 / 15 / 7 天多级提醒</div>
-      <div class="kv"><span class="k">pay.xingqiao.com</span><span class="v"><span class="badge badge-active">已签发</span> 到期 2027-03-14（提前 150 天）</span></div>
-      <div class="kv"><span class="k">checkout.xingqiao.com</span><span class="v"><span class="badge badge-off">待校验</span> 校验通过后自动签发</span></div>
-      <div class="kv"><span class="k">old.xingqiao.com</span><span class="v"><span class="badge badge-danger">RENEW_FAILED</span> 已降级为平台默认域</span></div>
-      <div class="tip" style="margin-top:12px;"><b>续期失败</b>自动重试 3 次；仍失败则进 <span class="mono">RENEW_FAILED</span> 并<b>显式通知</b>租户管理员与平台超管，同时回退平台默认域保障可用性。</div>
-    </div>
+  <div class="pmnote dem"><b>PM 备注</b>检索维度：VA 号 / 交易号 / 终端客户引用号 / 租户 / 币种 / 类型 / 状态 / 时间；明细可下钻到「用户本金 · 手续费 · 扣后余额 · 价格快照 · 关联扣费单号」，用于对账与争议举证。</div>
+
+  <div class="filters">
+    <div class="filter-group"><label>关键词</label><input id="kw" type="text" placeholder="交易号 / VA 号 / 终端客户引用号 / 姓名" oninput="applyFilter()"></div>
+    <div class="filter-group"><label>租户</label><select id="fTen" onchange="applyFilter()"><option value="">全部租户</option><option>星桥支付 StarBridge</option><option>Meridian Pay</option><option>Nova Bank</option><option>Atlas Wallet</option></select></div>
+    <div class="filter-group"><label>类型</label><select id="fType" onchange="applyFilter()"><option value="">全部类型</option><option>入金</option><option>出金</option><option>开户费</option></select></div>
+    <div class="filter-group"><label>币种</label><select id="fCur" onchange="applyFilter()"><option value="">全部币种</option><option>USD</option><option>EUR</option><option>GBP</option></select></div>
+    <div class="filter-group"><label>状态</label><select id="fSt" onchange="applyFilter()"><option value="">全部状态</option><option>成功</option><option>处理中</option><option>失败</option></select></div>
+    <div class="filter-group"><label>时间</label><input id="fFrom" type="date" onchange="applyFilter()"><span class="dim" style="align-self:center;">~</span><input id="fTo" type="date" onchange="applyFilter()"></div>
+    <button class="btn btn-secondary" onclick="resetFilter()">重置</button>
   </div>
 
-  <div class="card">
-    <h2>邮件发件域</h2>
-    <div class="card-sub">F-405 · 展示 SPF / DKIM / DMARC 记录指引 → 校验 → 生效</div>
-    <div class="table-wrapper"><div class="table-scroll">
-      <table>
-        <thead><tr><th>发件域</th><th>SPF</th><th>DKIM</th><th>DMARC</th><th>状态</th><th>操作</th></tr></thead>
-        <tbody>
-          <tr><td class="t-name">mail.xingqiao.com<div class="t-sub">发件人：星桥支付 &lt;no-reply@mail.xingqiao.com&gt;</div></td><td><span class="badge badge-active">已配置</span></td><td><span class="badge badge-active">已配置</span></td><td><span class="badge badge-warn">缺 DMARC</span></td><td><span class="badge badge-review">PENDING_VERIFY</span></td><td class="ops"><a onclick="alert('[原型演示] 已重新下发 SPF / DKIM / DMARC 指引')">查看指引</a><a onclick="alert('[原型演示] 已触发发件域校验')">立即校验</a></td></tr>
-          <tr><td class="t-name">billing.xingqiao.com<div class="t-sub">发件人：星桥对账 &lt;billing@xingqiao.com&gt;</div></td><td><span class="badge badge-active">已配置</span></td><td><span class="badge badge-active">已配置</span></td><td><span class="badge badge-active">已配置</span></td><td><span class="badge badge-active">VERIFIED</span></td><td class="ops"><a onclick="alert('[原型演示] 已触发发件域校验')">立即校验</a><a onclick="alert('[PM 备注] 停用后该域邮件回退平台默认发件人，并显式告知租户')">停用</a></td></tr>
-        </tbody>
-      </table>
-    </div></div>
-    <div style="margin-top:14px;"><button class="btn btn-primary" onclick="openModal('modalMail')">＋ 添加发件域</button></div>
+  <div class="table-wrapper"><div class="table-scroll">
+    <table>
+      <thead><tr><th>交易时间</th><th>交易号</th><th>租户</th><th>VA 号</th><th>终端客户</th><th>类型</th><th>币种</th><th>金额</th><th>手续费（外扣）</th><th>扣后余额</th><th>状态</th><th>操作</th></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
   </div>
-
-  <div class="card">
-    <h2>SMTP 自建发件服务</h2>
-    <div class="card-sub">F-406 · 保存后「测试发信」通过才可启用</div>
-    <div class="form-grid">
-      <div class="form-group"><label>SMTP Host</label><input value="smtp.xingqiao.com"></div>
-      <div class="form-group"><label>Port</label><input value="465"></div>
-      <div class="form-group"><label>加密方式</label><select><option selected>SSL</option><option>STARTTLS</option><option>无</option></select></div>
-      <div class="form-group"><label>账号</label><input value="no-reply@mail.xingqiao.com"></div>
-      <div class="form-group"><label>密钥</label><input type="password" value="••••••••••"></div>
-      <div class="form-group"><label>发件人名称</label><input value="星桥支付"></div>
-    </div>
-    <div class="kv"><span class="k">当前状态</span><span class="v"><span class="badge badge-review">PENDING_VERIFY</span> 测试发信未通过（上次 2026-10-15 17:12）</span></div>
-    <div class="tip warn" style="margin-top:12px;"><b>回退策略</b>SMTP 校验失败或服务商拒绝 / 配额超限时，邮件自动回退到平台默认发件人（<span class="mono">SUSPENDED → DISABLED</span>），并<b>显式告知</b>租户管理员与平台超管，不静默切换。</div>
-    <div style="margin-top:14px;display:flex;gap:10px;">
-      <button class="btn btn-primary" onclick="alert('[原型演示] 配置已保存')">保存</button>
-      <button class="btn btn-secondary" onclick="alert('[原型演示] 测试邮件已发送至 lixin@xingqiao.com，请查收')">测试发信</button>
-    </div>
+  <div class="pagination"><div class="pagination-info" id="pageInfo">共 8 条 · 每页 10 条</div><div class="pagination-btns"><button class="page-btn" disabled>上一页</button><button class="page-btn active">1</button><button class="page-btn" disabled>下一页</button></div></div>
   </div>
 
   </div>
-
-  <div class="modal-overlay" id="modalDomain"><div class="modal">
-    <div class="modal-header"><h2>添加自定义域名</h2><button class="modal-close" onclick="closeModal('modalDomain')">✕</button></div>
-    <div class="modal-body">
-      <div class="tip"><b>校验规则</b>全局唯一；平台主域与其子域（如 yasbee.com、*.yasbee.com）拒绑；需先完成 DNS 校验才会签发证书。</div>
-      <div class="form-group" style="margin-top:16px;"><label>域名</label><input placeholder="例：pay.yourbrand.com"></div>
-      <div class="form-group"><label>类型</label><select><option>主域名</option><option>备用域名（重定向）</option></select></div>
+<div class="modal-overlay" id="modalTx"><div class="modal">
+    <div class="modal-header"><h2>交易详情</h2><button class="modal-close" onclick="closeModal('modalTx')">✕</button></div>
+    <div class="modal-body"><div id="txRows"></div>
+      <div class="tip" style="margin-top:12px;"><b>口径</b>手续费与用户本金分离列示；扣费取<b>事件发生时刻</b>价格快照，改价不追溯；余额不足时出金在记账前拒单、不产生账务痕迹。</div>
     </div>
-    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modalDomain')">取消</button><button class="btn btn-primary" onclick="confirmDomain()">提交并获取校验值</button></div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modalTx')">关闭</button><button class="btn btn-primary" onclick="openDispute(txCur)">发起争议</button></div>
   </div></div>
 
-  <div class="modal-overlay" id="modalMail"><div class="modal">
-    <div class="modal-header"><h2>添加邮件发件域</h2><button class="modal-close" onclick="closeModal('modalMail')">✕</button></div>
+  <div class="modal-overlay" id="modalDispute"><div class="modal">
+    <div class="modal-header"><h2>发起争议</h2><button class="modal-close" onclick="closeModal('modalDispute')">✕</button></div>
     <div class="modal-body">
-      <div class="tip"><b>需要 DNS 权限</b>提交后平台下发 SPF / DKIM / DMARC 记录指引，校验通过方可生效。</div>
-      <div class="form-group" style="margin-top:16px;"><label>发件域</label><input placeholder="例：mail.yourbrand.com"></div>
-      <div class="form-group"><label>发件人名称</label><input placeholder="例：星桥支付"></div>
+      <div class="tip warn"><b>影响面</b>发起后该笔手续费<b>挂账冻结</b>，不影响终端用户本金；由平台财务裁定（调整 / 驳回），全链路留痕。</div>
+      <div class="form-group" style="margin-top:16px;"><label>交易号</label><input id="disTx" readonly></div>
+      <div class="form-group"><label>争议类型</label><select><option>费率异议</option><option>扣费金额异议</option><option>重复扣费</option><option>其它</option></select></div>
+      <div class="form-group"><label>说明</label><textarea placeholder="例：该笔为内部调拨，不应计收手续费"></textarea></div>
     </div>
-    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modalMail')">取消</button><button class="btn btn-primary" onclick="closeModal('modalMail'),alert('[原型演示] 已下发 SPF / DKIM / DMARC 指引')">提交并获取指引</button></div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modalDispute')">取消</button><button class="btn btn-primary" onclick="confirmDispute()">提交争议</button></div>
   </div></div>
+
+  <div class="modal-overlay" id="modalDone"><div class="modal">
+    <div class="modal-header"><h2 id="doneTitle">已提交</h2><button class="modal-close" onclick="closeModal('modalDone')">✕</button></div>
+    <div class="modal-body"><div class="tip" id="doneBody">已提交。</div></div>
+    <div class="modal-footer"><button class="btn btn-primary" onclick="closeModal('modalDone')">知道了</button></div>
+  </div></div>
+
 
 <script>
-function openModal(id){document.getElementById(id).classList.add('active');}
-function closeModal(id){document.getElementById(id).classList.remove('active');}
-function confirmDomain(){closeModal('modalDomain');alert('[原型演示] 域名已提交：已下发 CNAME 目标与 TXT 校验值，等待 DNS 校验。');}
-document.querySelectorAll('.modal-overlay').forEach(function(el){el.addEventListener('click',function(e){if(e.target===this)this.classList.remove('active');});});
+var TX = [["2026-10-15 16:02", "TXN-8f21c9a4", "星桥支付 StarBridge", "VA-1003-0001", "陈伟", "入金", "USD", "$40,000.00", "$112.00", "$42,180.00", "成功"], ["2026-10-15 15:31", "TXN-77c1a4e0", "星桥支付 StarBridge", "VA-1003-0005", "Alex Tan", "入金", "USD", "$12,500.00", "$35.00", "$42,292.00", "成功"], ["2026-10-15 14:08", "TXN-31d0be77", "Meridian Pay", "VA-1001-0009", "李强", "出金", "USD", "$8,000.00", "$2.00", "$18,640.50", "成功"], ["2026-10-15 11:47", "TXN-6ab90411", "星桥支付 StarBridge", "VA-1003-0008", "吴桐", "出金", "USD", "$2,000.00", "$2.00", "$42,335.75", "成功"], ["2026-10-15 10:05", "TXN-aff20c93", "Nova Bank", "VA-1002-0012", "Wang Lei", "入金", "USD", "$25,000.00", "$70.00", "$4,220.00", "处理中"], ["2026-10-14 16:20", "TXN-0c9182bf", "星桥支付 StarBridge", "VA-1003-0003", "Zhao Min", "入金", "EUR", "$6,120.00", "$17.14", "$42,337.75", "成功"], ["2026-10-14 09:41", "TXN-55fa1e77", "Atlas Wallet", "VA-1004-0002", "Chen Yu", "出金", "USD", "$1,500.00", "$2.00", "$1,240.00", "失败"], ["2026-10-10 11:20", "TXN-open00008", "星桥支付 StarBridge", "VA-1003-0008", "吴桐", "开户费", "USD", "$100.00", "—", "—", "成功"]];
+var txCur = '';
+function renderRows(list) {
+  var tb = document.getElementById('tbody');
+  var html = '';
+  list.forEach(function(r) {
+    var bcls = { '成功':'badge badge-active', '处理中':'badge badge-warn', '失败':'badge badge-danger' }[r[10]];
+    var ops = '<a onclick="openTx(\'' + r[1] + '\')">详情</a>' + (r[5] === '开户费' ? '' : '<a onclick="openDispute(\'' + r[1] + '\')">争议</a>');
+    html += '<tr><td>' + r[0] + '</td><td class="mono">' + r[1] + '</td><td>' + r[2] + '</td><td class="mono">' + r[3] + '</td>'
+      + '<td class="t-name">' + r[4] + '</td><td>' + r[5] + '</td><td>' + r[6] + '</td><td class="num">' + r[7] + '</td>'
+      + '<td class="num">' + r[8] + '</td><td class="num">' + r[9] + '</td><td><span class="' + bcls + '">' + r[10] + '</span></td>'
+      + '<td class="ops">' + ops + '</td></tr>';
+  });
+  tb.innerHTML = list.length ? html : '<tr><td colspan="12" style="text-align:center;color:#9aa1ad;padding:30px 0;">没有匹配的交易 · 试试「重置」</td></tr>';
+  document.getElementById('pageInfo').textContent = '共 ' + list.length + ' 条 · 每页 10 条';
+}
+function applyFilter() {
+  var kw = document.getElementById('kw').value.trim().toLowerCase();
+  var ten = document.getElementById('fTen').value, ty = document.getElementById('fType').value;
+  var cur = document.getElementById('fCur').value, st = document.getElementById('fSt').value;
+  var from = document.getElementById('fFrom').value, to = document.getElementById('fTo').value;
+  renderRows(TX.filter(function(r) {
+    var hitKw = !kw || (r[1] + r[3] + r[4]).toLowerCase().indexOf(kw) >= 0;
+    var hitTen = !ten || r[2] === ten, hitTy = !ty || r[5] === ty;
+    var hitCur = !cur || r[6] === cur, hitSt = !st || r[10] === st;
+    var d = r[0].slice(0, 10);
+    return hitKw && hitTen && hitTy && hitCur && hitSt && (!from || d >= from) && (!to || d <= to);
+  }));
+}
+function resetFilter() {
+  ['kw', 'fFrom', 'fTo'].forEach(function(id) { document.getElementById(id).value = ''; });
+  ['fTen', 'fType', 'fCur', 'fSt'].forEach(function(id) { document.getElementById(id).value = ''; });
+  renderRows(TX);
+}
+function byNo(no) { return TX.filter(function(r) { return r[1] === no; })[0]; }
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+function openTx(no) {
+  txCur = no;
+  var r = byNo(no);
+  document.getElementById('txRows').innerHTML =
+    '<div class="kv"><span class="k">交易号</span><span class="v mono">' + r[1] + '</span></div>'
+    + '<div class="kv"><span class="k">租户 / VA / 终端客户</span><span class="v">' + r[2] + ' · ' + r[3] + ' · ' + r[4] + '</span></div>'
+    + '<div class="kv"><span class="k">业务类型 / 币种</span><span class="v">' + r[5] + ' · ' + r[6] + '</span></div>'
+    + '<div class="kv"><span class="k">用户本金</span><span class="v">' + r[7] + '</span></div>'
+    + '<div class="kv"><span class="k">手续费（外扣 · 商户承担）</span><span class="v">' + r[8] + '</span></div>'
+    + '<div class="kv"><span class="k">扣后储备金余额</span><span class="v">' + r[9] + '</span></div>'
+    + '<div class="kv"><span class="k">价格快照 / 扣费单号</span><span class="v mono">PS-20261015-0' + r[1].slice(-3) + ' · FEE-202610-1003</span></div>'
+    + '<div class="kv"><span class="k">状态 / 时间</span><span class="v">' + r[10] + ' · ' + r[0] + '</span></div>';
+  openModal('modalTx');
+}
+function openDispute(no) { txCur = no; document.getElementById('disTx').value = no; closeModal('modalTx'); openModal('modalDispute'); }
+function confirmDispute() { closeModal('modalDispute'); document.getElementById('doneTitle').textContent = '争议已提交'; document.getElementById('doneBody').innerHTML = '原型演示：交易 <b>' + txCur + '</b> 的手续费已挂账冻结，等待平台财务裁定；裁定结论同步至租户对账单。'; openModal('modalDone'); }
+['modalTx', 'modalDispute', 'modalDone'].forEach(function(id) {
+  var el = document.getElementById(id);
+  if (el) el.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('active'); });
+});
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.active').forEach(function(m) { m.classList.remove('active'); }); });
+renderRows(TX);
 </script>
 </div><!-- /main -->
 

@@ -168,19 +168,17 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
 
 <aside class="sidebar">
   <div class="sidebar-brand">
-    <div class="logo"><span class="logo-mark">Y</span>YASBe 平台管理</div>
+    <a class="logo" href="index.html"><span class="logo-mark">Y</span>YASBe 平台管理</a>
     <div class="logo-sub">白标租户管理</div>
   </div>
   <nav class="sidebar-nav">
-    <div class="sidebar-group">租户运营</div>
+    <div class="sidebar-group">白标租户管理</div>
+    <a class="sidebar-item" href="index.html"><span class="ico">■</span>原型目录</a>
     <a class="sidebar-item" href="2026-10-12_白标租户列表_管理端.html"><span class="ico">▦</span>租户列表</a>
-    <a class="sidebar-item" href="2026-10-12_白标租户开通向导_管理端.html"><span class="ico">＋</span>开通向导</a>
-    <div class="sidebar-group">日常作业</div>
-    <a class="sidebar-item" href="#" onclick="alert('[PM 备注] 待办中心将在后续增量产出');return false;"><span class="ico">☰</span>待办中心</a>
-    <a class="sidebar-item" href="#" onclick="alert('[PM 备注] 用量与收入将在后续增量产出');return false;"><span class="ico">◔</span>用量与收入</a>
+    <a class="sidebar-item" href="2026-10-15_VA列表_管理端.html"><span class="ico">▤</span>VA 列表</a>
+    <a class="sidebar-item" href="2026-10-15_开户记录_管理端.html"><span class="ico">▥</span>开户记录</a>
+    <a class="sidebar-item" href="2026-10-15_交易流水查询_管理端.html"><span class="ico">≡</span>交易流水查询</a>
     <a class="sidebar-item" href="2026-10-15_结算与对账_管理端.html"><span class="ico">⇄</span>结算与对账</a>
-    <a class="sidebar-item" href="#" onclick="alert('[PM 备注] 交易流水查询将在后续增量产出');return false;"><span class="ico">≡</span>交易流水查询</a>
-    <div class="sidebar-group">平台治理</div>
     <a class="sidebar-item active" href="2026-10-15_权限与审计日志_管理端.html"><span class="ico">▣</span>权限与审计日志</a>
   </nav>
   <div class="sidebar-foot">v0.1 · 一期原型</div>
@@ -200,12 +198,12 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
 
   <div class="container">
 
-  <div class="pmnote dem"><b>PM 备注</b>字段依据 M8（§4 角色权限矩阵 + §5 多租户权限隔离 + §9 操作审计规范）。审计必录动作：准入结论、能力与额度变更、费率变更、品牌发布 / 回滚、域名与 SMTP 变更、结算确认 / 支付、争议裁定、状态变更。<b>保留期与导出权限 = 待确认 D6</b>。</div>
+  <div class="pmnote dem"><b>PM 备注</b>字段依据 M8（§4 角色权限矩阵 + §5 多租户权限隔离 + §9 操作审计规范）。审计必录动作：开户 / 暂停 / 恢复、能力与额度变更、法币 VA 授权、费率变更、储备金手动入账、扣费争议裁定、对账单导出。<b>保留期与导出权限 = 待确认 D6</b>。</div>
 
   <div class="stats">
     <div class="stat"><div class="s-label">审计记录（近 7 天）</div><div class="s-value">1,284</div><div class="s-sub">含 6 个租户域 · 8 类动作</div></div>
     <div class="stat"><div class="s-label">越权拒绝</div><div class="s-value amber">2</div><div class="s-sub">改写租户标识 → 403 + 告警</div></div>
-    <div class="stat"><div class="s-label">高风险动作</div><div class="s-value">14</div><div class="s-sub">终止 / 费率 / 品牌发布 / 裁定</div></div>
+    <div class="stat"><div class="s-label">高风险动作</div><div class="s-value">14</div><div class="s-sub">终止 / 费率 / VA 授权 / 裁定</div></div>
     <div class="stat"><div class="s-label">保留期</div><div class="s-value">—</div><div class="s-sub">待确认 D6 · 暂按 24 个月展示</div></div>
   </div>
 
@@ -217,15 +215,14 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
         <thead><tr><th>能力</th><th>平台超管</th><th>审核员</th><th>平台财务</th><th>平台风控</th><th>租户管理员</th><th>租户运营</th></tr></thead>
         <tbody>
           <tr><td class="t-name">创建 / 暂停 / 终止租户</td><td>✅</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-          <tr><td class="t-name">KYB 审核（通过 / 驳回 / 补件）</td><td>✅</td><td>✅</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td class="t-name">KYB 登记（线下核验结果）</td><td>✅</td><td>✅</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
           <tr><td class="t-name">查看 KYB 材料</td><td>✅</td><td>✅</td><td>—</td><td>—</td><td>仅自己提交件</td><td>—</td></tr>
-          <tr><td class="t-name">品牌配置（logo / 主题 / 文案）</td><td>✅（可代改）</td><td>—</td><td>—</td><td>—</td><td>✅（授权项内）</td><td>—</td></tr>
-          <tr><td class="t-name">域名绑定 / SMTP 配置</td><td>✅</td><td>—</td><td>—</td><td>—</td><td>✅</td><td>—</td></tr>
           <tr><td class="t-name">能力开关与额度</td><td>✅</td><td>—</td><td>—</td><td>—</td><td>只读</td><td>—</td></tr>
           <tr><td class="t-name">风险闸门阈值</td><td>✅</td><td>—</td><td>—</td><td>✅（区间内）</td><td>❌ 无入口</td><td>❌</td></tr>
           <tr><td class="t-name">费率模板（基准价）</td><td>✅</td><td>—</td><td>只读</td><td>—</td><td>❌</td><td>❌</td></tr>
           <tr><td class="t-name">租户费率 Override</td><td>✅（任意）</td><td>—</td><td>—</td><td>—</td><td>✅（授权区间内）</td><td>❌</td></tr>
-          <tr><td class="t-name">结算单确认 / 支付</td><td>✅</td><td>—</td><td>✅</td><td>—</td><td>只读（仅自己）</td><td>—</td></tr>
+<tr><td class="t-name">储备金手动入账（线下打款 / 收 U）</td><td>✅</td><td>—</td><td>✅</td><td>—</td><td>—</td><td>—</td></tr>
+                    <tr><td class="t-name">对账单导出 / 扣费争议</td><td>✅</td><td>—</td><td>✅</td><td>—</td><td>只读（仅自己）</td><td>—</td></tr>
           <tr><td class="t-name">争议发起</td><td>✅</td><td>—</td><td>✅</td><td>—</td><td>✅（仅自己）</td><td>—</td></tr>
         </tbody>
       </table>
@@ -237,13 +234,13 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
       <h2>多租户权限隔离</h2>
       <div class="card-sub">§5 · 隔离粒度 = 行级隔离，tenant_id 为强制过滤维度</div>
       <ul class="checklist">
-        <li><span class="ck">1</span><div><b>数据隔离</b> 租户 / 持卡人 / 交易 / 账单 / 日志按 tenant_id 分域</div></li>
-        <li><span class="ck">2</span><div><b>配置隔离</b> 品牌 / 域名 / 邮件发件人 / 费率 Override 各挂租户，互不继承</div></li>
+        <li><span class="ck">1</span><div><b>数据隔离</b> 租户 / 虚拟账户 / 交易 / 账单 / 日志按 tenant_id 分域</div></li>
+        <li><span class="ck">2</span><div><b>配置隔离</b> 虚拟账户 / 费率 Override / 能力与额度授权各挂租户，互不继承</div></li>
         <li><span class="ck">3</span><div><b>能力隔离</b> 能力开关 + 额度 + 通道与币种授权，逐租户授权</div></li>
       </ul>
       <div class="tip warn" style="margin-top:12px;"><b>越权防护</b>改写 URL / 请求体中的租户标识 → <span class="mono">403</span> + 审计告警（<b>不得静默返回空集</b>）；租户管理员访问平台专属页 → 入口不渲染 + 接口拒绝。</div>
       <div class="kv" style="margin-top:12px;"><span class="k">平台跨租户访问</span><span class="v">需显式「透视模式」开关，进入即写审计</span></div>
-      <div class="kv"><span class="k">多租户与品牌</span><span class="v">一期为单实例多租户（行级隔离 + 品牌 token 渲染）</span></div>
+      <div class="kv"><span class="k">多租户形态</span><span class="v">一期为单实例多租户（行级隔离 + 会话级租户上下文）</span></div>
       <div class="kv"><span class="k">多租户切换</span><span class="v">会话级租户上下文；切换即清缓存与预签名链接</span></div>
     </div>
     <div class="card">
@@ -256,8 +253,8 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
       <div class="kv"><span class="k">环境</span><span class="v">时间 · IP / 来源端</span></div>
       <div class="kv"><span class="k">结果</span><span class="v">成功 / 拒绝 / 越权</span></div>
       <div class="sec-title" style="margin-top:16px;">必录动作</div>
-      <div class="kv"><span class="k">准入与状态</span><span class="v">准入结论 · 状态变更</span></div>
-      <div class="kv"><span class="k">配置变更</span><span class="v">能力与额度 · 费率 · 品牌发布 / 回滚 · 域名与 SMTP</span></div>
+      <div class="kv"><span class="k">准入与状态</span><span class="v">开户 / 暂停 / 恢复</span></div>
+      <div class="kv"><span class="k">配置变更</span><span class="v">能力与额度 · 法币 VA 授权 · 费率 · 储备金手动入账</span></div>
       <div class="kv"><span class="k">资金动作</span><span class="v">结算确认 / 支付 · 争议裁定</span></div>
       <div class="kv"><span class="k">保留期与导出权限</span><span class="v"><span class="badge badge-warn">待确认 D6</span></span></div>
     </div>
@@ -267,9 +264,9 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
     <h2>审计日志</h2>
     <div class="card-sub">按租户 / 操作人 / 动作 / 结果 / 时间筛选；导出权限待确认（D6）</div>
     <div class="filters">
-      <div class="filter-group"><label>租户</label><select><option>全部租户</option><option>星桥跨境科技</option><option>海联数字</option><option>平台（跨租户）</option></select></div>
+      <div class="filter-group"><label>租户</label><select><option>全部租户</option><option>星桥支付 StarBridge</option><option>Meridian Pay</option><option>平台（跨租户）</option></select></div>
       <div class="filter-group"><label>操作人</label><input placeholder="姓名 / 邮箱"></div>
-      <div class="filter-group"><label>动作</label><select><option>全部动作</option><option>准入结论</option><option>能力与额度变更</option><option>费率变更</option><option>品牌发布 / 回滚</option><option>域名与 SMTP 变更</option><option>结算确认 / 支付</option><option>争议裁定</option><option>状态变更</option></select></div>
+      <div class="filter-group"><label>动作</label><select><option>全部动作</option><option>开户 / 暂停 / 恢复</option><option>能力与额度变更</option><option>费率变更</option><option>储备金手动入账</option><option>对账单导出</option><option>争议裁定</option><option>状态变更</option></select></div>
       <div class="filter-group"><label>结果</label><select><option>全部</option><option>成功</option><option>拒绝</option><option>越权</option></select></div>
       <button class="btn btn-secondary">查询</button>
     </div>
@@ -277,14 +274,14 @@ tr.locked td{background:#fafbfc;color:#9aa1ad}
       <table>
         <thead><tr><th>时间</th><th>操作人 / 角色</th><th>租户</th><th>动作</th><th>前后值</th><th>IP / 来源端</th><th>结果</th></tr></thead>
         <tbody>
-          <tr><td>2026-10-15 17:12</td><td class="t-name">谢轶<div class="t-sub">平台超管</div></td><td>星桥跨境科技</td><td>状态变更</td><td>CONTRACT_SIGNED → PENDING_FUNDING</td><td class="mono">10.2.8.31 · Web</td><td><span class="badge badge-active">成功</span></td></tr>
-          <tr><td>2026-10-15 16:48</td><td class="t-name">谢轶<div class="t-sub">平台超管</div></td><td>星桥跨境科技</td><td>能力与额度变更</td><td>月累计限额 $1,000,000 → $3,000,000</td><td class="mono">10.2.8.31 · Web</td><td><span class="badge badge-active">成功</span></td></tr>
-          <tr><td>2026-10-15 15:30</td><td class="t-name">李欣<div class="t-sub">租户管理员</div></td><td>海联数字</td><td>访问平台专属页</td><td>能力开关 · 入口未渲染</td><td class="mono">203.0.113.7 · Web</td><td><span class="badge badge-danger">拒绝</span></td></tr>
-          <tr><td>2026-10-15 14:22</td><td class="t-name">未认证<div class="t-sub">会话异常</div></td><td class="mono">改写为 T-2026-0099</td><td>改写租户标识</td><td>请求体 tenant_id 不符</td><td class="mono">203.0.113.44 · API</td><td><span class="badge badge-danger">越权</span></td></tr>
-          <tr><td>2026-10-15 11:05</td><td class="t-name">周文<div class="t-sub">平台财务</div></td><td>海联数字</td><td>争议裁定</td><td>FX-31d0be 调整下期补差 +$318.75</td><td class="mono">10.2.8.52 · Web</td><td><span class="badge badge-active">成功</span></td></tr>
-          <tr><td>2026-10-15 10:02</td><td class="t-name">谢轶<div class="t-sub">平台超管</div></td><td>星桥跨境科技</td><td>品牌发布</td><td>v3 发布；v2 归档</td><td class="mono">10.2.8.31 · Web</td><td><span class="badge badge-active">成功</span></td></tr>
-          <tr><td>2026-10-14 16:40</td><td class="t-name">周文<div class="t-sub">平台财务</div></td><td>星桥跨境科技</td><td>费率变更</td><td>开卡费 基准 $1.20 → $1.50</td><td class="mono">10.2.8.52 · Web</td><td><span class="badge badge-active">成功</span></td></tr>
-          <tr><td>2026-10-14 09:22</td><td class="t-name">陈立<div class="t-sub">租户管理员</div></td><td>星桥跨境科技</td><td>争议发起</td><td>DEP-77c1a4 挂账冻结 $2,140.00</td><td class="mono">203.0.113.9 · Web</td><td><span class="badge badge-active">成功</span></td></tr>
+          <tr><td>2026-10-15 17:12</td><td class="t-name">谢轶<div class="t-sub">平台超管</div></td><td>星桥支付 StarBridge</td><td>储备金手动入账</td><td>收 U · USDT · 波场链 · $42,180.00（凭证 TX-0x8f21）</td><td class="mono">10.2.8.31 · Web</td><td><span class="badge badge-active">成功</span></td></tr>
+          <tr><td>2026-10-15 15:30</td><td class="t-name">李欣<div class="t-sub">租户管理员</div></td><td>Meridian Pay</td><td>访问平台专属页</td><td>能力开关 · 入口未渲染</td><td class="mono">203.0.113.7 · Web</td><td><span class="badge badge-danger">拒绝</span></td></tr>
+          <tr><td>2026-10-15 14:22</td><td class="t-name">未认证<div class="t-sub">会话异常</div></td><td class="mono">改写为 WL-1099</td><td>改写租户标识</td><td>请求体 tenant_id 不符</td><td class="mono">203.0.113.44 · API</td><td><span class="badge badge-danger">越权</span></td></tr>
+          <tr><td>2026-10-15 11:05</td><td class="t-name">周文<div class="t-sub">平台财务</div></td><td>Meridian Pay</td><td>争议裁定</td><td>FX-31d0be 调整下期补差 +$318.75</td><td class="mono">10.2.8.52 · Web</td><td><span class="badge badge-active">成功</span></td></tr>
+          <tr><td>2026-10-14 16:40</td><td class="t-name">周文<div class="t-sub">平台财务</div></td><td>星桥支付 StarBridge</td><td>费率变更</td><td>充值费 基准 0.35% → 0.28%</td><td class="mono">10.2.8.52 · Web</td><td><span class="badge badge-active">成功</span></td></tr>
+          <tr><td>2026-10-14 09:22</td><td class="t-name">李欣<div class="t-sub">租户管理员</div></td><td>星桥支付 StarBridge</td><td>争议发起</td><td>DEP-77c1a4 挂账冻结 $112.00</td><td class="mono">203.0.113.9 · Web</td><td><span class="badge badge-active">成功</span></td></tr>
+          <tr><td>2026-10-12 16:48</td><td class="t-name">谢轶<div class="t-sub">平台超管</div></td><td>星桥支付 StarBridge</td><td>状态变更</td><td>开户完成 → 已开户（线下 KYB + 合同登记）</td><td class="mono">10.2.8.31 · Web</td><td><span class="badge badge-active">成功</span></td></tr>
+          <tr><td>2026-10-10 09:15</td><td class="t-name">谢轶<div class="t-sub">平台超管</div></td><td>星桥支付 StarBridge</td><td>能力与额度变更</td><td>月累计限额 $1,000,000 → $3,000,000</td><td class="mono">10.2.8.31 · Web</td><td><span class="badge badge-active">成功</span></td></tr>
         </tbody>
       </table>
     </div>
