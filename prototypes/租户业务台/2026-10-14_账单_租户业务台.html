@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>储备金与账单 · YASBe 租户业务台</title>
+<title>账单 · YASBe 租户业务台</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#0d0f14;--surface:#14171c;--surface-2:#1a1e26;--surface-3:#20242e;--border:rgba(255,255,255,.08);--border-strong:rgba(255,255,255,.14);--gold:#FFCA00;--gold-dim:rgba(255,202,0,.14);--grad:linear-gradient(90deg,#FFCA00,#FE5707);--text:#e8eaed;--text-2:#b6bcc7;--muted:#8b93a1;--muted-2:#6b7280;--green:#4ade80;--red:#ef4444;--blue:#60a5fa;--purple:#c084fc;--amber:#fbbf24;--mono:'SF Mono',Consolas,'Cascadia Mono','Courier New',monospace;--sans:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;--hdr:58px;--side:268px;--r:12px}
@@ -192,16 +192,16 @@ body.hide-pmnote .pmnote{display:none!important}
 <aside class="side">
 <div class="brand"><span class="mark">Y</span><div><b>YASBe</b><span>租户业务台</span></div></div>
 <div class="tenant"><div class="tn">Acme Payment Ltd.</div><div class="tv"><span class="dot"></span>生产环境 · TNT-000123</div><div class="tv"><span class="dot amber"></span>储备金 GBP 余额不足</div></div>
-<nav class="nav"><div class="nav-g">概览</div><a class="nav-i" data-roles="ADMIN,FINANCE,DEVELOPER" href="2026-10-14_工作台首页_租户业务台.html"><span class="ic">▦</span>工作台首页</a><div class="nav-g">业务</div><a class="nav-i" data-roles="ADMIN,FINANCE" href="2026-10-14_终端用户列表_租户业务台.html"><span class="ic">◍</span>虚拟账户</a><a class="nav-i" data-roles="ADMIN,FINANCE" href="2026-10-14_交易流水_租户业务台.html"><span class="ic">⇄</span>交易流水</a><div class="nav-g">资金</div><a class="nav-i on" data-roles="ADMIN,FINANCE" href="2026-10-14_储备金与账单_租户业务台.html"><span class="ic">◈</span>储备金与账单<span class="badge-n warn">2</span></a><div class="nav-g">开发者</div><a class="nav-i" data-roles="ADMIN,DEVELOPER" href="2026-10-14_API-Key管理_租户业务台.html"><span class="ic">⚿</span>API Key 管理</a><a class="nav-i" data-roles="ADMIN,DEVELOPER" href="2026-10-14_Webhook端点_租户业务台.html"><span class="ic">⇥</span>Webhook 端点</a><a class="nav-i" data-roles="ADMIN,DEVELOPER" href="2026-10-14_投递日志_租户业务台.html"><span class="ic">≡</span>投递日志</a><div class="nav-g">设置</div><a class="nav-i" data-roles="ADMIN" href="2026-10-15_账户管理_租户业务台.html"><span class="ic">◫</span>账户管理</a><a class="nav-i" data-roles="ADMIN,FINANCE,DEVELOPER" href="2026-10-15_账号设置_租户业务台.html"><span class="ic">⚙</span>账号设置</a></nav>
+<nav class="nav"><div class="nav-g">概览</div><a class="nav-i" data-roles="ADMIN,FINANCE,DEVELOPER" href="2026-10-14_工作台首页_租户业务台.html"><span class="ic">▦</span>工作台首页</a><div class="nav-g">业务</div><a class="nav-i" data-roles="ADMIN,FINANCE" href="2026-10-14_终端用户列表_租户业务台.html"><span class="ic">◍</span>虚拟账户</a><a class="nav-i" data-roles="ADMIN,FINANCE" href="2026-10-14_交易流水_租户业务台.html"><span class="ic">⇄</span>交易流水</a><div class="nav-g">资金</div><a class="nav-i on" data-roles="ADMIN,FINANCE" href="2026-10-14_账单_租户业务台.html"><span class="ic">◈</span>账单<span class="badge-n warn">2</span></a><div class="nav-g">开发者</div><a class="nav-i" data-roles="ADMIN,DEVELOPER" href="2026-10-14_API-Key管理_租户业务台.html"><span class="ic">⚿</span>API Key 管理</a><a class="nav-i" data-roles="ADMIN,DEVELOPER" href="2026-10-14_Webhook端点_租户业务台.html"><span class="ic">⇥</span>Webhook 端点</a><a class="nav-i" data-roles="ADMIN,DEVELOPER" href="2026-10-14_投递日志_租户业务台.html"><span class="ic">≡</span>投递日志</a><div class="nav-g">设置</div><a class="nav-i" data-roles="ADMIN" href="2026-10-15_账户管理_租户业务台.html"><span class="ic">◫</span>账户管理</a><a class="nav-i" data-roles="ADMIN,FINANCE,DEVELOPER" href="2026-10-15_账号设置_租户业务台.html"><span class="ic">⚙</span>账号设置</a></nav>
 <div class="nav" style="border-top:1px solid var(--border-strong);margin-top:12px;padding-top:10px"><a class="nav-i" data-roles="ADMIN,FINANCE,DEVELOPER" href="../API文档-白标开发者门户/2026-09-15_API文档首页_白标门户.html" target="_blank" rel="noopener"><span class="ic">▤</span>DOCS</a><a class="nav-i" data-roles="ADMIN,FINANCE,DEVELOPER" href="#" onclick="openOv('m-logout');return false"><span class="ic">↩</span>登出</a></div><div class="side-foot"><label>当前角色（切换查看权限差异）</label><select id="roleSel" onchange="setRole(this.value)"><option value="ADMIN" selected>管理员 Admin · 全部权限</option><option value="FINANCE">财务 Finance · 资金与流水</option><option value="DEVELOPER">研发 Developer · 开发者配置</option></select></div>
 </aside>
 <div class="main">
 <div class="top">
-<div class="crumb">租户业务台 <span class="sep">/</span> 资金 <span class="sep">/</span> <b>储备金与账单</b></div>
+<div class="crumb">租户业务台 <span class="sep">/</span> 资金 <span class="sep">/</span> <b>账单</b></div>
 <div class="top-right"><span class="pill prod"><span class="dot"></span>生产环境</span><a class="who" href="2026-10-15_账号设置_租户业务台.html" title="账号设置" style="text-decoration:none;color:inherit;cursor:pointer"><span class="av">谢</span>谢毅 · <span id="whoRole">管理员</span></a></div>
 </div>
 <div class="content">
-<div class="page-h"><div><div class="h1">储备金与账单</div><div class="sub">账单 · 线下汇款 · 费用明细 · 储备金仅约束出金流动性</div></div><div class="acts"><button class="btn btn-primary btn-sm" data-role-allow="ADMIN,FINANCE" onclick="openOv('m-topup')">＋ 充值储备金</button></div></div>
+<div class="page-h"><div><div class="h1">账单</div><div class="sub">按「账期 × 渠道 × 币种」聚合的账单与费用明细</div></div></div>
 
 <div class="stats" style="grid-template-columns:1.45fr 1fr 1fr 1fr">
   <div class="stat"><div class="sl">本期账单金额<span class="badge warn" style="margin-left:auto">2026-10 进行中</span></div>
@@ -244,33 +244,6 @@ body.hide-pmnote .pmnote{display:none!important}
 </div>
 
 <div class="card">
-  <div class="card-h"><h2>线下汇款指引</h2><span class="hint">账单出账后由租户线下汇款，平台财务确认到账后核销</span></div>
-  <div class="card-b">
-    <div class="grid2" style="gap:18px">
-      <div>
-        <div class="bl" style="margin-bottom:8px">收款账户（按币种，只收本租户账单款项）</div>
-        <div class="tbl-scroll"><table style="font-size:12px">
-          <thead><tr><th>币种</th><th>收款方</th><th>收款账号</th></tr></thead>
-          <tbody>
-            <tr><td><span class="chip">USD</span></td><td>YASBe Pte. Ltd.</td><td><span class="mono">Bridge · 8820 4417 03</span></td></tr>
-            <tr><td><span class="chip">EUR</span></td><td>YASBe Pte. Ltd.</td><td><span class="mono">OpenPayd · GB29 OPEN 0400 7563 8821 09</span></td></tr>
-            <tr><td><span class="chip">GBP</span></td><td>YASBe Pte. Ltd.</td><td><span class="mono">OpenPayd · Sort 04-00-75 / Acct 63882109</span></td></tr>
-          </tbody>
-        </table></div>
-      </div>
-      <div>
-        <div class="tip" style="margin-bottom:12px"><b>参考号规则：</b><span class="mono">账单号-币种</span>，示例 <span class="mono b">BILL-202609-BRIDGE-USD</span>。同一账期不同渠道、不同币种是不同账单，请分别汇款并各自填写参考号。</div>
-        <div class="tip warn"><b>汇款附言：</b>必须填写参考号；附言长度受限时至少保留参考号后 12 位。未填写参考号的款项将转入人工认领，到账确认可能延迟 1 个工作日。</div>
-        <div style="margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <button class="btn btn-primary btn-sm" data-role-allow="ADMIN,FINANCE" onclick="openPay()">我已完成汇款</button>
-          <span style="font-size:11.5px;color:var(--muted)">提交后对应账单转为「待确认」，等待平台确认到账</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="card">
   <div class="card-h"><h2>费用明细</h2><span class="hint">本账期 2026-10 已发生的费用单据，只读；逐笔计入账单，用户本金不参与计费</span>
     <div class="acts"><span class="chip">8 张单据</span><button class="btn btn-sm btn-ghost" onclick="dem()">导出明细 CSV</button></div></div>
   <div class="tbl-scroll"><table style="min-width:1240px">
@@ -287,33 +260,8 @@ body.hide-pmnote .pmnote{display:none!important}
     </tbody>
     <tfoot><tr><td colspan="6" style="font-weight:600;color:var(--text)">本账期合计（2026-10）</td><td class="mono b">USD 1,284.60<br>EUR 0.00<br>GBP 96.40</td><td class="dim">—</td><td class="mono">2026-10</td></tr></tfoot>
   </table></div>
-  <div style="padding:11px 16px;border-top:1px solid var(--border);font-size:11.5px;color:var(--muted)">费用由租户承担，不从储备金或账户余额扣减，按月计入账单、线下收款后核销；终端用户本金不受影响。</div>
+  <div style="padding:11px 16px;border-top:1px solid var(--border);font-size:11.5px;color:var(--muted)">费用由租户承担，不从账户余额扣减，按月计入账单、线下收款后核销；终端用户本金不受影响。</div>
 </div>
-
-<div class="sec-t">储备金（仅出金流动性）</div>
-<div class="alert red"><span class="ic">⚠</span><div><b>GBP 储备金不足，该币种的新出金已被拦截。</b>充值到账后自动恢复；入金与账单费用不受影响。</div></div>
-<div class="grid3">
-  <div class="ccard">
-    <div class="ch"><span class="cur">USD</span><span class="st" style="color:var(--green)">● 充足</span></div>
-    <div style="font-size:11px;color:var(--muted);margin:2px 0 10px;line-height:1.5">仅用于出金流动性垫付，费用不从储备金扣减</div>
-    <div class="bl">可用余额</div><div class="bal">12,340.50</div>
-    <div class="rows"><div class="r"><span>预警线</span><span>2,000.00</span></div><div class="r"><span>出金拦截线</span><span>50.00</span></div></div>
-  </div>
-  <div class="ccard">
-    <div class="ch"><span class="cur">EUR</span><span class="st" style="color:var(--green)">● 充足</span></div>
-    <div style="font-size:11px;color:var(--muted);margin:2px 0 10px;line-height:1.5">仅用于出金流动性垫付，费用不从储备金扣减</div>
-    <div class="bl">可用余额</div><div class="bal">4,120.00</div>
-    <div class="rows"><div class="r"><span>预警线</span><span>1,500.00</span></div><div class="r"><span>出金拦截线</span><span>45.00</span></div></div>
-  </div>
-  <div class="ccard">
-    <div class="ch"><span class="cur">GBP</span><span class="st" style="color:var(--red)">● 不足</span></div>
-    <div style="font-size:11px;color:var(--muted);margin:2px 0 10px;line-height:1.5">仅用于出金流动性垫付，费用不从储备金扣减</div>
-    <div class="bl">可用余额</div><div class="bal" style="color:var(--red)">0.00</div>
-    <div class="rows"><div class="r"><span>预警线</span><span>1,200.00</span></div><div class="r"><span>出金拦截线</span><span>40.00</span></div></div>
-    <div class="tip warn" style="margin-top:11px;font-size:11.5px">已低于出金拦截线（40.00），该币种新出金将被拒绝；入金不受影响。</div>
-  </div>
-</div>
-<div style="font-size:11.5px;color:var(--muted);margin:10px 0 4px;line-height:1.7">可用余额只约束出金能否放行：低于预警线时通知、仍放行；低于出金拦截线时该币种新出金被拒绝。三个币种不折算计总，卡片与账单均分币种列示。</div>
 
 <div class="ov" id="m-bill"><div class="modal" style="max-width:720px">
   <div class="modal-h"><h2 id="dlgBillTitle">账单明细</h2><button class="modal-x" onclick="closeOv('m-bill')">×</button></div>
@@ -324,29 +272,12 @@ body.hide-pmnote .pmnote{display:none!important}
       <tbody id="dlgBillBody"></tbody>
     </table></div>
     <div id="dlgBillTotal" style="margin-top:12px;font-size:13px"></div>
-    <div class="tip" style="margin-top:12px">账单金额 = 该账期该渠道该币种的手续费合计；用户本金不进入账单，也不从储备金或余额扣减。</div>
+    <div class="tip" style="margin-top:12px">账单金额 = 该账期该渠道该币种的手续费合计；用户本金不进入账单，也不从账户余额扣减。</div>
   </div>
   <div class="modal-f"><button class="btn btn-ghost" onclick="closeOv('m-bill')">关闭</button></div>
 </div></div>
 
-<div class="ov" id="m-paid"><div class="modal" style="max-width:560px">
-  <div class="modal-h"><h2>登记线下汇款</h2><button class="modal-x" onclick="closeOv('m-paid')">×</button></div>
-  <div class="modal-b">
-    <div class="tip warn" style="margin-bottom:14px">仅登记已实际汇出的款项。平台确认到账后账单从「待确认」推进为「已收款」，核销后变为「已核销」。</div>
-    <div class="grid2" style="gap:12px">
-      <div class="fg2"><label>币种</label><select id="payCur"><option>USD</option><option>EUR</option><option>GBP</option></select></div>
-      <div class="fg2"><label>汇款金额</label><input id="payAmt" placeholder="0.00"></div>
-    </div>
-    <div class="grid2" style="gap:12px">
-      <div class="fg2"><label>汇款日期</label><input id="payDate" type="date" value="2026-10-19"></div>
-      <div class="fg2"><label>银行流水号</label><input id="payRef" placeholder="银行回单上的交易流水号"></div>
-    </div>
-    <div class="fg2"><label>付款凭证</label><input id="payFile" type="file" accept="image/*,.pdf" style="padding:10px;border-style:dashed;color:var(--muted);font-size:12px"><span style="font-size:11px;color:var(--muted-2)">支持 JPG / PNG / PDF，单文件不超过 5 MB；演示环境不实际上传。</span></div>
-    <div id="payHint" style="font-size:11.5px;color:var(--muted)"></div>
-  </div>
-  <div class="modal-f"><button class="btn btn-ghost" onclick="closeOv('m-paid')">取消</button><button class="btn btn-primary" data-role-allow="ADMIN,FINANCE" onclick="submitPay()">提交汇款登记</button></div>
-</div></div>
-<div class="ov" id="m-topup"><div class="modal" style="max-width:640px"><div class="modal-h"><h2>充值储备金（补充出金流动性）</h2><button class="modal-x" onclick="closeOv('m-topup')">×</button></div><div class="modal-b"><div class="fg2"><label>充值币种</label><select><option selected>GBP</option><option>USD</option><option>EUR</option></select></div><div class="fg2"><label>充值金额</label><input placeholder="例如 1000.00"></div><dl class="kv"><dt>收款方</dt><dd>YASBe Pte. Ltd.</dd><dt>Sort Code</dt><dd><span class="mono">040075</span></dd><dt>Account Number</dt><dd><span class="mono">63882109</span></dd><dt>充值参考号</dt><dd><span class="mono b">ACME-TOPUP-000131-GBP</span></dd></dl><div class="tip" style="margin-top:12px">充值只用于补足出金流动性，平台费用不在充值中扣减，费用见上方账单。汇款附言请填上面的参考号；提交后以平台账户实际到账为准。</div></div><div class="modal-f"><button class="btn btn-ghost" onclick="closeOv('m-topup')">取消</button><button class="btn btn-primary" data-role-allow="ADMIN,FINANCE" onclick="closeOv('m-topup');toast('[原型演示] 充值申请已提交，待到账')">提交充值申请</button></div></div></div><!-- PM-NOTE: 本页按 PRD v1.2 计费口径重排 --><div class="pmnote"><b>PM 备注</b>计费口径：外扣 + 线下月结。席位费 / VA 开户费 / 出入金手续费全部由租户承担，不从储备金或余额实时扣减，按「账期 × 渠道 × 币种」出账单，财务线下收款后核销；状态四态：待确认 → 已出账 → 已收款 → 已核销（「查看明细」按账单聚合费用单据，「我已完成汇款」登记凭证后该行转「待确认」）。储备金降为流动性视图：只用于出金流动性垫付与最低预存门槛，低于出金拦截线则该币种新出金被拒绝，与费用无关。本期数字（USD 1,284.60 / EUR 0.00 / GBP 96.40，拦截线 50.00 / 45.00 / 40.00）与往期账单均为演示值，真实数据源待确认（D20）。充值弹窗收款信息仍是 GBP 口径，切币种不联动（D21，未在本次范围内）。本页收款账户是平台开给该租户的专属账户，必须展示；平台资金归集地址不在租户界面出现。</div>
+<!-- PM-NOTE: 本页按 PRD v1.2 计费口径重排 --><div class="pmnote"><b>PM 备注</b>计费口径：外扣 + 线下月结。席位费 / VA 开户费 / 出入金手续费全部由租户承担，不从余额实时扣减，按「账期 × 渠道 × 币种」出账单，财务线下收款后核销；状态四态：待确认 → 已出账 → 已收款 → 已核销（「查看明细」按账单聚合费用单据；账单状态由平台侧确认收款后推进）。本期数字（USD 1,284.60 / EUR 0.00 / GBP 96.40，）与往期账单均为演示值，真实数据源待确认（D20）。本页只读展示账单与费用明细，收款登记与核销在管理端完成；平台资金归集地址不在租户界面出现。</div>
 </div>
 </div>
 </div>
@@ -424,37 +355,12 @@ function billDetail(id){
   if(bt)bt.innerHTML='合计：<span class="mono b">'+b.total+'</span>';
   openOv('m-bill');
 }
-function openPay(){
-  var target=null,k;
-  for(k in BILLS){if(BILLS[k].status==='已出账'){target=BILLS[k];break;}}
-  var cur=document.getElementById('payCur'),amt=document.getElementById('payAmt'),ref=document.getElementById('payRef'),hint=document.getElementById('payHint');
-  if(target&&cur&&amt){cur.value=target.cur;amt.value=target.amt;}
-  if(ref)ref.value='';
-  if(hint&&target)hint.textContent='对应账单：'+target.billNo+'-'+target.cur+'（参考号 '+target.billNo+'-'+target.cur+'）';
-  openOv('m-paid');
-}
 function renderBillRow(id){
   var b=BILLS[id],tr=document.getElementById('bill-'+id);if(!b||!tr)return;
   var st=tr.querySelector('[data-bill-st]');
   if(st){st.className='badge '+stCls(b.status);st.textContent=b.status;}
   var op=tr.querySelector('[data-bill-op]');
-  if(op){op.innerHTML='<button class="btn btn-sm btn-ghost" data-bill="'+id+'" onclick="billDetail(this.dataset.bill)">查看明细</button>'+(b.paid?'<div class="dim" style="font-size:11px;margin-top:4px">已登记汇款 '+b.paid.date+'</div>':'');}
-}
-function submitPay(){
-  var cur=document.getElementById('payCur').value;
-  var amt=(document.getElementById('payAmt').value||'').replace(/[,\s]/g,'');
-  var ref=(document.getElementById('payRef').value||'').replace(/\s/g,'');
-  var dt=document.getElementById('payDate').value;
-  if(!amt||isNaN(Number(amt))||Number(amt)<=0){toast('请填写正确的汇款金额');return;}
-  if(!ref){toast('请填写银行流水号，便于平台核对到账');return;}
-  var id='',k;
-  for(k in BILLS){if(BILLS[k].status==='已出账'&&BILLS[k].cur===cur){id=k;break;}}
-  if(!id){toast('当前没有该币种下「已出账」的账单，无需登记');return;}
-  BILLS[id].status='待确认';
-  BILLS[id].paid={amt:amt,ref:ref,date:dt};
-  renderBillRow(id);
-  closeOv('m-paid');
-  toast('已登记汇款凭证：'+BILLS[id].billNo+'-'+cur+' 状态更新为「待确认」');
+  if(op){op.innerHTML='<button class="btn btn-sm btn-ghost" data-bill="'+id+'" onclick="billDetail(this.dataset.bill)">查看明细</button>';}
 }
 document.addEventListener('keydown',function(e){if(e.key==='Escape'){var o=document.querySelectorAll('.ov.on');for(var i=0;i<o.length;i++)o[i].classList.remove('on');var d=document.querySelectorAll('.drawer.on');for(var j=0;j<d.length;j++)d[j].classList.remove('on');}});
 document.addEventListener('click',function(e){var t=e.target;if(t&&t.classList&&t.classList.contains('ov')&&t.classList.contains('on')){t.classList.remove('on');}});
