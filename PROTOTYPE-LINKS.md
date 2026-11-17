@@ -1,5 +1,12 @@
 # YASBe 原型链接总览
 
+## 客户端 · 独立 Demo 全流程（2026-11-17）
+
+- 体验目录：[客户端 Demo](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/client-demo/index.html)
+- 登录注册：[个人与企业登录注册](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/client-demo/2026-11-17_登录注册_客户端.html)
+- 资金工作台：[客户端全流程](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/client-demo/2026-11-17_资金工作台_客户端.html)
+- 范围：暖白、墨蓝与钴蓝独立设计；个人/企业注册登录、首页、独立认证、三币种 VA、加密钱包、承兑、同名出金、TOTP、卡片、邀请、积分商城、积分账本、交易筛选与账户设置。全部为本地交互演示。
+
 > 部署根：`https://xieyi0734-art.github.io/yasbe-prototypes/`
 > **最后更新** = 该文件最后一次 git 提交日期（未提交/未入库的文件取文件修改时间）
 > **维护规则**：新增原型后必须在此登记（原型名称 / 功能 / 最后更新 / 链接）
