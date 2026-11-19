@@ -1,5 +1,15 @@
 # YASBe 原型链接总览
 
+## 管理端 · 交易监控（2026-11-19）
+
+- 目录：[交易监控](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/交易监控/index.html)
+- 案件列表：[筛选与领取](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/交易监控/2026-11-19_案件列表_管理端.html)
+- 案件详情：[命中原因、关联交易与调查处理](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/交易监控/2026-11-19_案件详情_管理端.html)
+- 监控交易：[交易记录与失败补送](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/交易监控/2026-11-19_监控交易记录_管理端.html)
+- PRD：[交易监控需求文档](https://xieyi0734-art.github.io/yasbe-prototypes/prd/交易监控/交易监控-PRD.md)
+- 范围：Crypto 链上成功出入金、OpenPayd EUR/GBP 成功出入金、Card 充值与转出到 Crypto Wallet。规则参数与案件处理流程的未决项详见 PRD；原型均为本地虚构演示。
+
+
 ## 客户端 · 独立 Demo 全流程（2026-11-17）
 
 - 体验目录：[客户端 Demo](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/client-demo/index.html)
