@@ -1,6 +1,6 @@
 # YASBe 原型链接总览
 
-## 管理端 · 交易监控（2026-11-19）
+## 管理端 · 交易监控（2026-11-23）
 
 - 目录：[交易监控](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/交易监控/index.html)
 - 案件列表：[筛选与领取](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/交易监控/2026-11-19_案件列表_管理端.html)
