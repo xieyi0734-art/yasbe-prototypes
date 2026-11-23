@@ -1,0 +1,517 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>交易监控 · 产品需求文档</title><style>
+:root{color-scheme:light;--ink:#242832;--muted:#687080;--line:#e4e7ec;--accent:#986000}
+*{box-sizing:border-box}html{scroll-padding-top:30px}body{margin:0;background:#f6f7f9;color:var(--ink);font:16px/1.85 -apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:2px solid #986000;outline-offset:3px}
+.layout{max-width:1500px;margin:auto;display:grid;grid-template-columns:230px minmax(0,1fr);gap:36px;padding:40px 36px}
+aside{position:sticky;top:32px;height:calc(100vh - 64px);overflow:auto;font-size:14px}.brand{font-size:13px;letter-spacing:1px;color:var(--muted);margin:0 12px 24px}.brand strong{color:#986000}nav a{display:block;color:#515867;padding:9px 12px;line-height:1.5;border-radius:5px}nav a:hover{background:#eceef2;text-decoration:none}nav .h3{padding-left:25px;font-size:13px}nav a.active{background:#fff3dd;color:#805100;font-weight:600}
+main{min-width:0;background:white;border:1px solid var(--line);border-radius:8px;padding:44px 52px 64px}header{display:flex;gap:16px;justify-content:flex-end;border-bottom:1px solid var(--line);padding-bottom:20px;margin-bottom:30px;font-size:13px}button{font:inherit;color:var(--muted);border:0;background:none;padding:0;cursor:pointer}h1{font-size:32px;line-height:1.35;letter-spacing:-.5px;margin:0 0 20px}h2{font-size:23px;line-height:1.45;margin:48px 0 20px;padding-top:8px;border-top:1px solid var(--line)}h3{font-size:18px;margin:28px 0 14px}h3 a{color:inherit}p{margin:14px 0}li{margin:9px 0}ul,ol{padding-left:25px}code{font:13px/1.7 Consolas,monospace;background:#f3f4f6;border-radius:3px;padding:2px 4px;overflow-wrap:anywhere}.table-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:6px}table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.8;min-width:650px}th,td{text-align:left;vertical-align:top;padding:13px 15px;border-bottom:1px solid var(--line);overflow-wrap:anywhere}th{background:#f4f5f7;color:#414957;font-weight:600}tr:last-child td{border-bottom:0}tbody tr:nth-child(even){background:#fafbfc}td:first-child{min-width:100px}article>p:first-of-type{color:var(--muted);font-size:14px;background:#f8f9fb;padding:16px 20px;border-radius:5px}footer{margin-top:40px;color:var(--muted);font-size:12px}.mobile-toc{display:none}
+@media(min-width:1500px){main{padding-left:64px;padding-right:64px}}
+@media(max-width:900px){.layout{grid-template-columns:minmax(0,1fr);padding:20px;gap:16px}aside{position:static;height:auto}.brand{margin:0 0 12px}aside>nav{display:none}.mobile-toc{display:block;background:white;border:1px solid var(--line);border-radius:6px;padding:8px 14px}.mobile-toc summary{cursor:pointer;min-height:44px;display:flex;align-items:center}main{padding:28px 24px}h1{font-size:28px}}
+@media(max-width:480px){.layout{padding:12px}main{padding:24px 18px}body{font-size:15px}header{justify-content:flex-start;flex-wrap:wrap}h2{font-size:21px}}
+@media print{body{background:white;font-size:12pt}.layout{display:block;padding:0}aside,header,footer{display:none}main{border:0;padding:0}h2{break-after:avoid}.table-wrap{overflow:visible;border-radius:0}table{min-width:0;font-size:10pt}tr{break-inside:avoid}a{color:inherit}code{font-size:9pt}}
+</style></head><body><div class="layout"><aside><div class="brand"><strong>YASBe</strong> / 产品需求文档</div><nav aria-label="章节目录"><a class="h2" href="#section-0">1. 范围</a><a class="h2" href="#section-1">2. 规则口径</a><a class="h2" href="#section-2">3. 主流程</a><a class="h2" href="#section-3">4. 页面需求</a><a class="h3" href="#section-4">4.1 案件列表</a><a class="h3" href="#section-5">4.2 案件详情</a><a class="h3" href="#section-6">4.3 监控交易记录</a><a class="h2" href="#section-7">5. 权限与异常</a><a class="h2" href="#section-8">6. 字段核对：Excel 优先，API 补缺</a><a class="h2" href="#section-9">7. 验收标准</a><a class="h2" href="#section-10">8. 待确认项</a><a class="h2" href="#section-11">修订历史</a></nav><details class="mobile-toc"><summary>章节目录</summary><nav aria-label="移动端章节目录"><a class="h2" href="#section-0">1. 范围</a><a class="h2" href="#section-1">2. 规则口径</a><a class="h2" href="#section-2">3. 主流程</a><a class="h2" href="#section-3">4. 页面需求</a><a class="h3" href="#section-4">4.1 案件列表</a><a class="h3" href="#section-5">4.2 案件详情</a><a class="h3" href="#section-6">4.3 监控交易记录</a><a class="h2" href="#section-7">5. 权限与异常</a><a class="h2" href="#section-8">6. 字段核对：Excel 优先，API 补缺</a><a class="h2" href="#section-9">7. 验收标准</a><a class="h2" href="#section-10">8. 待确认项</a><a class="h2" href="#section-11">修订历史</a></nav></details></aside><main><header><a href="../../prototypes/交易监控/index.html">查看原型</a><a href="交易监控-PRD.md">Markdown 源文件</a><button onclick="window.print()">打印 / 保存 PDF</button></header><article><h1>交易监控 PRD</h1>
+<p>版本：v0.7 · MVP<br/>
+日期：2026-11-23<br/>
+端别：管理端 · 风控管理<br/>
+状态：需求评审稿；Excel/API 文档核对已完成，生产配置、平台字段映射与真实接口待联调。</p>
+<h2 id="section-0">1. 范围</h2>
+<p>成功交易事后监控：平台负责交易上送核对及 CA 案件同步查看，案件调查与处理统一在 CA 完成。</p>
+<div aria-label="表格，可横向滚动" class="table-wrap" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>业务</th>
+<th>纳入</th>
+<th>排除／约束</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Crypto Wallet</td>
+<td>成功链上入金、出金；监控金额与笔数异常</td>
+<td>失败、处理中及内部划转不计入</td>
+</tr>
+<tr>
+<td>VA</td>
+<td>OpenPayd EUR／GBP 成功入金、出金；监控金额与笔数异常</td>
+<td>不含 USD／Bridge</td>
+</tr>
+<tr>
+<td>Card</td>
+<td>充值、Card 转 Crypto Wallet；关注充值后快速转出</td>
+<td>不含开卡、消费、拒付、ATM；消费沿用 Interlace 监控。成功节点及规则待确认</td>
+</tr>
+</tbody>
+</table></div>
+<p>Card 转 Wallet 只算一次内部转移，不重复计为链上入金。本期不开发规则编辑器、本地案件处理或人工补录；不展示平台操作日志。监控结论不触发放行、拒绝、冻结、退款或冲正，地址筛查独立于本模块。</p>
+<p>依据：<a href="https://docs.google.com/spreadsheets/d/1v-cyQqa2HzML41J86wssPyUMF9cIAkopHmKNVMBJITA/edit?gid=1002527305#gid=1002527305">CA Scoping Sheet</a>；优先本地 Excel，缺项补 Mesh API，详见第 6 节。资料快照不代表生产配置。</p>
+<p><a href="../../prototypes/交易监控/index.html">原型目录</a>：仅虚构演示，不连接 CA。Card 快速转出样例只展示证据时间线，尚无真实案件，不开放同步；演示控制区不进入正式产品。</p>
+<h2 id="section-1">2. 规则口径</h2>
+<div aria-label="表格，可横向滚动" class="table-wrap" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>表内规则</th>
+<th>来源</th>
+<th>本次需求表达</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RL_0013 / RL_0014 单笔出／入金额</td>
+<td>第 8–9 行</td>
+<td>保留方向、原币金额、折算金额与币种、阈值。表内为 <code>&gt; 100,000</code>，不能擅自解释成 USD 或 USDT</td>
+</tr>
+<tr>
+<td>RL_0015 入金笔数</td>
+<td>第 10–12 行</td>
+<td>分别按 BANK_PAYMENT、CARD_PAYMENT、CRYPTO 过滤，按 <code>{customer_identifier.id, type}</code> 统计入金。表内 7 calendar_days、<code>&gt; 3</code></td>
+</tr>
+<tr>
+<td>RL_0016 出金笔数</td>
+<td>第 13–15 行</td>
+<td>同上，方向 OUTBOUND；入／出不可混计</td>
+</tr>
+<tr>
+<td>RL_0017 入金累计金额</td>
+<td>第 16–18 行</td>
+<td>按客户＋type 统计 <code>base_value.amount</code>；表内 7 calendar_days、<code>&gt; 100,000</code></td>
+</tr>
+<tr>
+<td>RL_0018 出金累计金额</td>
+<td>第 19–21 行</td>
+<td>同上，方向 OUTBOUND</td>
+</tr>
+<tr>
+<td>余额比例、余额上限、首次交易等其他规则</td>
+<td>第 7、22–25 行等</td>
+<td>仅作为供应商规则资料，不自动新增本期需求</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li>按 <code>{customer_identifier.id, type}</code> 区分客户与业务类型，入／出分别统计；不同规则实例不得仅按 RL 编号合并。</li>
+<li>展示业务、统计对象、方向、窗口、阈值、实际值。命中实际值与窗口使用上游当时证据，缺失显示“暂未获取”。</li>
+<li><code>7 calendar_days</code> 不擅自改为滚动 168 小时；时区、窗口边界、当前交易是否计入及生产阈值待确认。</li>
+<li>原币、折算币种／金额、汇率及汇率时间分别保留；不混加 USD／USDT、EUR／GBP。100,000 的币种待确认。</li>
+<li>Allow 不触发平台放行；P7 - Low 不映射为地址风险等级。Card 金额／笔数配置不自动扩展本期范围；快速转出需确认组合规则能力。</li>
+<li>非本期 RL_0020 存在 730／30 天资料冲突，不自行采用。</li>
+</ul>
+<h2 id="section-2">3. 主流程</h2>
+<ol>
+<li>成功交易 → 创建上送任务 → CA 受理与评估。业务成功、上送成功、评估完成、形成案件为独立状态。</li>
+<li>接收 CASE_CREATED → 按稳定标识查询并入库案件、规则与关联交易；多规则／多交易不得仅按客户拼案。</li>
+<li>人员在 CA 调查处理 → CASE_TRANSITIONED 触发详情及记录查询；定时查询、手动同步补齐遗漏和单独新增的备注。</li>
+<li>同步成功更新快照；失败保留上次内容与成功时间，允许重试；无法取回的信息显示“暂未获取”。</li>
+</ol>
+<h2 id="section-3">4. 页面需求</h2>
+<h3 id="section-4">4.1 <a href="../../prototypes/交易监控/2026-11-19_案件列表_管理端.html">案件列表</a></h3>
+<ul>
+<li>统计：全部案件、CA 调查中、CA 已结案、同步失败。按最近成功快照及真实账户阶段映射统计，生产不计入拟议样例。</li>
+<li>筛选：案件号／客户 UID、业务、CA 阶段、同步情况、规则、创建日期；支持重置、分页、空结果。信息缺失标记独立于同步状态。</li>
+<li>列：Case ID、客户 UID、业务、规则、关联交易数、CA 阶段、同步情况／最近成功同步时间、创建时间、查看。</li>
+</ul>
+<h3 id="section-5">4.2 <a href="../../prototypes/交易监控/2026-11-19_案件详情_管理端.html?id=CASE-DEMO-001">案件详情</a></h3>
+<ul>
+<li>展示：概况、CA 阶段／负责人／更新时间、同步情况／成功时间、处理结果、命中原因、关联交易、CA 处理记录。</li>
+<li>案件信息只读；无领取、我的待办、调查、结案、升级、分配、补录入口及平台操作日志模块。</li>
+<li>阶段显示 <code>stage.display_name</code>，保留标识、类型、决策类型。无处理结果显示“尚无处理结果”，无法获取显示“暂未获取”；不凭 POSITIVE/NEGATIVE 推导结论或监管报送结果。</li>
+<li>“同步 CA 信息”只读查询；执行中禁止重复点击，失败可重试，刷新／中断后可恢复，不永久停留同步中。</li>
+</ul>
+<h3 id="section-6">4.3 <a href="../../prototypes/交易监控/2026-11-19_监控交易记录_管理端.html">监控交易记录</a></h3>
+<ul>
+<li>覆盖全部纳入监控的交易，包括未产生案件者。统计：纳入监控、已上送、待上送（含上送中）、上送失败。</li>
+<li>筛选：客户 UID／平台交易号、业务、事件、上送状态、成功日期；支持重置、分页。</li>
+<li>列：成功时间、平台交易号、客户 UID、业务／事件、原始金额与币种、业务状态、上送状态、关联 Case、详情／补送。</li>
+<li>详情：原币及折算字段、网络、真实 CA 受理编号、补送记录；Bank／Card 网络显示“不适用”。</li>
+<li>状态：待上送 → 上送中 → 已上送／上送失败。“已上送”仅代表确认受理。</li>
+<li>补送前用原交易标识核查：已受理仅修正状态；确认未受理才复用原标识补送；未知则保持失败并记录核查。执行中禁止重复补送，演示结果选择框不进入正式流程。</li>
+</ul>
+<h2 id="section-7">5. 权限与异常</h2>
+<ul>
+<li>查看、手动同步、交易补送分别授权；后端校验权限及租户／客户隔离。不接 CA 分配、阶段写入或备注写入接口。</li>
+<li>查询读取全部分页，按稳定标识去重；通知重复／乱序及并发查询不得重复建案或回退新快照，以 CA 更新时间控制更新。</li>
+<li>同步失败不改变交易状态、不清空快照、不写成功时间；正常空记录不等于信息缺失或已结案。案件不存在／无权访问按系统规范提示。</li>
+<li>后端审计保留同步、核查、补送的触发方式、结果、错误、时间及操作者；不记录敏感凭据或完整鉴权头。</li>
+<li>取舍：案件统一在 CA 处理，平台存在同步延迟；真实账号权限、通知投递、完整字段与失败恢复须联调。</li>
+</ul>
+<h2 id="section-8">6. 字段核对：Excel 优先，API 补缺</h2>
+<p>优先依据 <code>Apex Markets Inc _ Mesh TM Scoping Sheet.xlsx</code>；交易字段读取 <code>3.1 Bank_Payments_Schema</code>（B）、<code>3.2 Card_Payments_Schema</code>（C）、<code>3.4 Crypto_Payments_Schema</code>（X）列 D（API Field Name），规则读取 <code>4. Scenarios</code>。不混用标记 OLD 的工作表，不把 F 列 Protobuf 简写直接当 JSON 路径。下表行号均为 Excel 实际行号。</p>
+<div aria-label="表格，可横向滚动" class="table-wrap" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>页面／业务字段</th>
+<th>Excel 中的 API 路径或口径</th>
+<th>来源行 B / C / X</th>
+<th>展示与使用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CA 交易标识</td>
+<td><code>-</code></td>
+<td>3 / 3 / 3</td>
+<td>H 列说明为 CA assigned tx_ID；只读保存真实返回，不生成伪编号。</td>
+</tr>
+<tr>
+<td>CA 客户内部标识</td>
+<td><code>transaction.customer_identifier</code></td>
+<td>4 / 4 / 4</td>
+<td>CA 生成、只读；不能直接填平台 UID。</td>
+</tr>
+<tr>
+<td>资金方向</td>
+<td><code>transaction.details.direction</code></td>
+<td>5 / 5 / 5</td>
+<td>CA 计算、只读；Bank/Crypto 根据客户作为 debtor/creditor 推导，Card 根据 payment_stage 推导。</td>
+</tr>
+<tr>
+<td>业务类型</td>
+<td><code>transaction.details.type</code></td>
+<td>10 / 11 / 8</td>
+<td>BANK_PAYMENT / CARD_PAYMENT / CRYPTO；平台业务名只作展示映射。</td>
+</tr>
+<tr>
+<td>平台交易号</td>
+<td><code>transaction.external_identifier</code></td>
+<td>11 / 12 / 9</td>
+<td>使用稳定外部交易标识，重试复用；平台原始字段名仍需开发映射。</td>
+</tr>
+<tr>
+<td>客户 UID 关联</td>
+<td><code>transaction.customer_external_identifier</code></td>
+<td>12 / 13 / 10</td>
+<td>使用与 CA 客户创建一致的外部标识映射，保留平台 UID 与 CA 内部标识关系。</td>
+</tr>
+<tr>
+<td>交易发生时间</td>
+<td><code>transaction.occurred_at</code></td>
+<td>13 / 14 / 11</td>
+<td>平台保留成功时间；上送发生时间按事件定义，不能把两者未经确认直接视为相同。</td>
+</tr>
+<tr>
+<td>折算金额</td>
+<td><code>transaction.details.base_value.amount</code></td>
+<td>16 / 17 / 14</td>
+<td>Excel 标 Yes；基准币和折算来源未确认时不填零，不默认用原币代替。</td>
+</tr>
+<tr>
+<td>折算法币币种</td>
+<td><code>transaction.details.base_value.currency</code></td>
+<td>20 / 21 / 18</td>
+<td>Conditional；加密资产另用 crypto_asset，不能把 USDT 当 ISO 法币。</td>
+</tr>
+<tr>
+<td>原币金额</td>
+<td><code>transaction.details.local_value.amount</code></td>
+<td>21 / 22 / 19</td>
+<td>Conditional；按 Excel local_value 保留，页面原业务金额不得丢失。</td>
+</tr>
+<tr>
+<td>原币法币币种</td>
+<td><code>transaction.details.local_value.currency</code></td>
+<td>25 / 26 / 23</td>
+<td>Conditional；加密币保留 local_value.crypto_asset 标识与 symbol，不假造法币代码。</td>
+</tr>
+<tr>
+<td>链网络</td>
+<td><code>transaction.details.chain.network_name</code>、<code>network_type</code></td>
+<td>— / — / 113–114</td>
+<td>X113 可选名称，X114 必填类型；Bank/Card 显示不适用。</td>
+</tr>
+<tr>
+<td>原币加密资产</td>
+<td><code>transaction.details.local_value.crypto_asset.identifier.namespace</code>、<code>reference</code>、<code>symbol</code></td>
+<td>22–24 / 23–25 / 20–22</td>
+<td>标识按条件提供，symbol 仅展示，不能取代资产唯一标识。</td>
+</tr>
+<tr>
+<td>折算加密资产</td>
+<td><code>transaction.details.base_value.crypto_asset.identifier.namespace</code>、<code>reference</code>、<code>symbol</code></td>
+<td>17–19 / 18–20 / 15–17</td>
+<td>与法币 currency 按资产口径选用，不把 USD 与 USDT 混同。</td>
+</tr>
+<tr>
+<td>规则编号、名称、方向、阈值、优先级</td>
+<td><code>4. Scenarios</code> 第 8–21 行</td>
+<td>规则表</td>
+<td>RL_0013–0018；7 calendar_days、&gt;3、&gt;100,000、Allow、P7 - Low 依表保留；未确认生产启用。</td>
+</tr>
+<tr>
+<td>统计对象</td>
+<td><code>{customer_identifier.id, type}</code></td>
+<td>规则表第 10–21 行</td>
+<td>这是规则引擎表达式；不能用平台 UID 直接替代 CA 内部客户标识，也不跨类型汇总。</td>
+</tr>
+</tbody>
+</table></div>
+<p>规则阈值来自 Excel 配置；命中实际值、准确窗口起止应来自命中当时的上游证据。不能用当前关联交易条数或自行减 7 天替代真实命中快照。原型数值明确为虚构样例，未提供真实值时显示“暂未获取”。</p>
+<p>Excel 未定义案件操作与风险查询返回，以下补充依据 Mesh API OpenAPI v2.0（服务地址 <code>https://api.mesh.complyadvantage.com</code>，本次核对本地保存的 <code>ca-openapi.json</code>，未验证在线最新版本）。</p>
+<div aria-label="表格，可横向滚动" class="table-wrap" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>页面字段／动作</th>
+<th>补充 API 来源</th>
+<th>映射与缺失处理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>案件号、创建／更新时间、阶段、负责人</td>
+<td>GET <code>/v2/cases/{case_identifier}</code>：<code>identifier</code>、<code>created_at</code>、<code>updated_at</code>、<code>stage</code>、<code>assignee</code></td>
+<td>阶段显示 <code>stage.display_name</code>，保留阶段标识／类型／决策类型；负责人只读，未解析 CA 用户名时保留标识，不编造姓名。</td>
+</tr>
+<tr>
+<td>阶段变更通知</td>
+<td>POST <code>/v2/notifications/configurations/webhook</code>，订阅 <code>CASE_TRANSITIONED</code></td>
+<td>CA 阶段变化通知后查询详情与记录；<code>CASE_STATE_UPDATED</code> 已弃用。配置权限和实际投递待联调，不承诺实时送达。</td>
+</tr>
+<tr>
+<td>新案件通知</td>
+<td>同一 Webhook 配置接口，订阅 <code>CASE_CREATED</code></td>
+<td>根据稳定案件标识查询及入库，重复通知不重复建案；生产权限与重试机制待联调。</td>
+</tr>
+<tr>
+<td>CA 处理记录</td>
+<td>GET <code>/v2/cases/{case_identifier}/notes</code>：<code>identifier</code>、<code>contents</code>、<code>created_at</code>、<code>created_by</code>、<code>type</code></td>
+<td>分页读取，按 identifier 去重；type 包含 CASE / CASE_ASSIGNMENT / CASE_TRANSITION。时间是记录创建时间，不直接当结案时间；本平台不 POST 备注。</td>
+</tr>
+<tr>
+<td>告警与风险关联</td>
+<td>GET <code>/v2/cases/{case_identifier}/alerts</code>；GET <code>/v2/alerts/{alert_identifier}/risks</code></td>
+<td>从案件关联告警再取风险，不能只按客户拼案，不能用 RL 编号冒充风险标识。</td>
+</tr>
+<tr>
+<td>命中说明</td>
+<td>GET <code>/v2/transaction-monitoring/risks/{risk_identifier}</code>；<code>transaction_ScenarioObservationResponse.configuration/observation</code></td>
+<td>按实际返回解释风险；不假造统一 actual/threshold/window 响应字段，缺值展示暂未获取。</td>
+</tr>
+<tr>
+<td>关联交易、关联类型、证据状态</td>
+<td>GET <code>/v2/transaction-monitoring/alerts/{alert_identifier}/related-transactions</code>：<code>related_transactions[].identifier/type/status/version/occurred_at</code></td>
+<td>type 为 ALERTING / CONTEXTUAL；status 为 UP_TO_DATE / UPDATED / OUTDATED，不是业务成功状态。取回所有分页后统计去重交易数。</td>
+</tr>
+<tr>
+<td>评估结果</td>
+<td><code>ol_EvaluationResultDTO.outcome</code>、<code>scenario_evaluations</code></td>
+<td>受理成功不代表评估完成；ALLOW 不证明没有案件，不能触发资金放行。</td>
+</tr>
+<tr>
+<td>按外部交易标识核查</td>
+<td>GET <code>/v3/transactions/external/{identifier}</code></td>
+<td>用原外部交易标识核查，返回未完成或未知时不盲补；生产幂等及一致性窗口仍需联调。</td>
+</tr>
+<tr>
+<td>工作流映射</td>
+<td>GET <code>/v2/cases/workflows</code> 及 workflow/version 详情</td>
+<td>读取实际配置确定阶段展示和统计映射，不设置本地目标阶段，不硬编码演示中文状态。</td>
+</tr>
+</tbody>
+</table></div>
+<p>平台自有字段：业务事件、成功状态／成功时间、CA 上送任务状态、补送次数、案件同步状态、最近成功同步时间、处理信息缺失标记／原因、客户 UID。上述字段不声称由 CA 提供；CA 处理结果按真实阶段和记录展示，不假造统一 result 字段。</p>
+<p>核对边界：Excel 的类型、路径、方向和规则已逐项核对；平台数据源到 Excel 空白 Inbound/Outbound 栏的具体字段名、基准币、实际账户阶段及 Card 充值／转 Wallet 的 payment_stage 尚需联调确认。未确认项不填推测值。</p>
+<h2 id="section-9">7. 验收标准</h2>
+<div aria-label="表格，可横向滚动" class="table-wrap" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>编号</th>
+<th>验收场景</th>
+<th>预期</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A1</td>
+<td>Crypto 失败或处理中交易、USD／Bridge VA、Card 消费进入事件源</td>
+<td>不被本期成功交易监控误纳入</td>
+</tr>
+<tr>
+<td>A2</td>
+<td>同一客户同时有 Bank 与 Crypto 入金</td>
+<td>各 type 独立统计，不跨业务拼成笔数／金额告警</td>
+</tr>
+<tr>
+<td>A3</td>
+<td>存在不同原币交易</td>
+<td>原币分别展示；没有确认的折算依据不直接合计</td>
+</tr>
+<tr>
+<td>A4</td>
+<td>按业务、CA 阶段、同步情况、客户和日期查案件／交易</td>
+<td>查询、分页、重置、空结果正确，日期错误提示修正</td>
+</tr>
+<tr>
+<td>A5</td>
+<td>打开案件列表及详情</td>
+<td>不存在领取、我的待办、开始调查、结案、升级和人员分配操作</td>
+</tr>
+<tr>
+<td>A6</td>
+<td>CA 阶段变更并同步</td>
+<td>更新 CA 阶段、更新时间及处理记录，不执行本平台阶段写入</td>
+</tr>
+<tr>
+<td>A7</td>
+<td>无法获取处理信息</td>
+<td>显示暂未获取，保留同步入口</td>
+</tr>
+<tr>
+<td>A8</td>
+<td>查看案件详情</td>
+<td>不展示人工补录记录和平台操作日志模块，无补录入口</td>
+</tr>
+<tr>
+<td>A9</td>
+<td>上送超时，CA 实际已受理</td>
+<td>核查后修正状态，不重复上送或重复统计</td>
+</tr>
+<tr>
+<td>A10</td>
+<td>确认 CA 未受理后补送</td>
+<td>原标识复用，交易记录总数不增加；未知结果不盲补</td>
+</tr>
+<tr>
+<td>A11</td>
+<td>Card 转 Wallet</td>
+<td>不重复产生链上入金；时间线保留原始币种，不伪造资金配对；拟议样例无同步入口</td>
+</tr>
+<tr>
+<td>A12</td>
+<td>CA 正常返回空记录或尚未处理</td>
+<td>显示暂无记录，不显示已结案</td>
+</tr>
+<tr>
+<td>A13</td>
+<td>暂时同步失败</td>
+<td>保留上次阶段、记录及成功同步时间，提供重试</td>
+</tr>
+<tr>
+<td>A14</td>
+<td>同步恢复且信息完整</td>
+<td>展示最新 CA 信息，解除信息缺失标记</td>
+</tr>
+<tr>
+<td>A15</td>
+<td>同步中刷新或断网</td>
+<td>不永久停留同步中，恢复后允许重试；未完成时不写成功时间</td>
+</tr>
+<tr>
+<td>A16</td>
+<td>重复／乱序通知、重复手动同步与分页</td>
+<td>不重复建案、不重复记录、不回退新快照</td>
+</tr>
+<tr>
+<td>A17</td>
+<td>无同步权限或跨租户访问</td>
+<td>后端拒绝越权，不靠按钮隐藏保证安全</td>
+</tr>
+<tr>
+<td>A18</td>
+<td>Excel/API 来源核对</td>
+<td>保留字段标明来源，平台字段与 CA 字段分开，未确认值不伪造</td>
+</tr>
+</tbody>
+</table></div>
+<p>原型验证页面与模拟交互；Webhook、真实权限、并发防重和 CA 数据同步须通过服务联调。</p>
+<h2 id="section-10">8. 待确认项</h2>
+<div aria-label="表格，可横向滚动" class="table-wrap" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>编号</th>
+<th>状态</th>
+<th>问题</th>
+<th>影响</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>N1</td>
+<td>待确认</td>
+<td>7 自然日与阈值 3／100,000 是否用于生产；各类型是否不同</td>
+<td>CA 配置和验收用例</td>
+</tr>
+<tr>
+<td>N2</td>
+<td>待确认</td>
+<td>基准币、折算来源、汇率时间、统计窗口时区与边界</td>
+<td>金额可比性与命中解释</td>
+</tr>
+<tr>
+<td>N3</td>
+<td>待确认</td>
+<td>Card 充值来源、入／出方向与成功节点</td>
+<td>事件映射与纳入时机</td>
+</tr>
+<tr>
+<td>N4</td>
+<td>待确认</td>
+<td>Card 快速转出时间窗、金额／比例、配对方法及 CA 实现能力</td>
+<td>规则实现；不采用样例的 8 分钟作为阈值</td>
+</tr>
+<tr>
+<td>N5</td>
+<td>读取／通知能力有文档依据，接入待验证；结论回写已作废</td>
+<td>CA 上送幂等、受理查询、案件详情／记录读取、CASE_CREATED／CASE_TRANSITIONED 投递</td>
+<td>核实实际账号权限、完整字段及失败恢复；不接案件写接口</td>
+</tr>
+<tr>
+<td>N6</td>
+<td>旧本地人员处理流程已作废；展示映射待验证</td>
+<td>CA 负责调查与处理，本平台只读阶段及负责人</td>
+<td>核实实际阶段／用户展示映射和信息缺失判定</td>
+</tr>
+<tr>
+<td>N7</td>
+<td>待确认</td>
+<td>多规则聚案、多交易关联、租户和客户映射</td>
+<td>去重、统计隔离与案件解释</td>
+</tr>
+<tr>
+<td>N8</td>
+<td>待确认</td>
+<td>重试策略、保留期限、SLA 与异常通知</td>
+<td>生产运营保障</td>
+</tr>
+</tbody>
+</table></div>
+<p>已确认：D1 本期范围见第 1 节；D2 按客户＋业务类型统计；D3 案件在 CA 处理，平台只读同步，移除人工补录及平台操作日志展示。</p>
+<h2 id="section-11">修订历史</h2>
+<div aria-label="表格，可横向滚动" class="table-wrap" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>版本</th>
+<th>日期</th>
+<th>修改内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>v0.7</td>
+<td>2026-11-23</td>
+<td>精简重复说明，合并页面、流程与异常要求；保留字段映射、验收及待确认项</td>
+</tr>
+<tr>
+<td>v0.6</td>
+<td>2026-11-23</td>
+<td>删除人工补录记录、补录入口及平台操作日志展示</td>
+</tr>
+<tr>
+<td>v0.5</td>
+<td>2026-11-23</td>
+<td>改为 CA 处理、平台只读同步；删除领取／本地结案升级及草稿；新增独立人工补录、同步失败恢复；同步更新接口来源、权限、验收和 D3/N5/N6</td>
+</tr>
+<tr>
+<td>v0.4</td>
+<td>2026-11-23</td>
+<td>收敛 MVP 单角色流程；取消本地多级复核与转派；按 Excel 优先、API 补缺添加字段映射；补刷新中断及核查恢复</td>
+</tr>
+<tr>
+<td>v0.3</td>
+<td>2026-11-23</td>
+<td>补齐初审、升级接收、合规复核、退回补充、最终结案和同角色转派；统一负责人、权限、失败恢复及验收；关闭 N6 业务流程缺口，保留 CA 接入验证</td>
+</tr>
+<tr>
+<td>v0.1</td>
+<td>2026-11-19</td>
+<td>建立范围、规则依据、三页交互、字段要求、案件与上送状态、验收和待确认项；区分表内配置与生产决策</td>
+</tr>
+</tbody>
+</table></div></article><footer>文档结束</footer></main></div><script>const observer=new IntersectionObserver(entries=>{for(const entry of entries){if(entry.isIntersecting){document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("active",a.hash==="#"+entry.target.id));}}},{rootMargin:"0px 0px -65% 0px"});document.querySelectorAll("article h2,article h3").forEach(h=>observer.observe(h));document.querySelectorAll(".mobile-toc a").forEach(a=>a.addEventListener("click",()=>document.querySelector(".mobile-toc").open=false));</script></body></html>

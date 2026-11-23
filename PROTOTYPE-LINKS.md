@@ -6,7 +6,7 @@
 - 案件列表：[案件筛选与 CA 同步情况](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/交易监控/2026-11-19_案件列表_管理端.html)
 - 案件详情：[命中原因、关联交易与 CA 处理记录](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/交易监控/2026-11-19_案件详情_管理端.html)
 - 监控交易：[交易记录与失败补送](https://xieyi0734-art.github.io/yasbe-prototypes/prototypes/交易监控/2026-11-19_监控交易记录_管理端.html)
-- PRD：[交易监控需求文档](https://xieyi0734-art.github.io/yasbe-prototypes/prd/交易监控/交易监控-PRD.md)
+- PRD：[交易监控需求文档](https://xieyi0734-art.github.io/yasbe-prototypes/prd/交易监控/交易监控-PRD.html)
 - 范围：Crypto 链上成功出入金、OpenPayd EUR/GBP 成功出入金、Card 充值与转出到 Crypto Wallet。案件在 CA 处理，平台只读同步；规则参数与接入待确认项详见 PRD v0.6，原型均为本地虚构演示。
 
 
